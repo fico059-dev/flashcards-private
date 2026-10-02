@@ -71,6 +71,10 @@ class FlashcardService {
     return _flashcards.doc();
   }
 
+  DocumentReference<JsonMap> getDocumentReference(String flashcardId) {
+    return _flashcards.doc(flashcardId);
+  }
+
   Future<Result<PaginatedDtoResult<FlashcardDto>>>
   getDocumentsByPackIdPagination({
     required String packId,
@@ -164,6 +168,19 @@ class FlashcardService {
       );
 
       return Result.ok(null);
+    } on Exception catch (error) {
+      return Result.error(error);
+    }
+  }
+
+  /// Returns the question of every flashcard in the pack.
+  Future<Result<Set<String>>> getQuestionsInPack(String packId) async {
+    try {
+      final snapshot =
+          await _flashcards.where('packId', isEqualTo: packId).get();
+      return Result.ok(
+        snapshot.docs.map((doc) => doc.data()['question'] as String).toSet(),
+      );
     } on Exception catch (error) {
       return Result.error(error);
     }

@@ -77,6 +77,17 @@ class CloudFunctionService {
     await callable.call(<String, dynamic>{'email': email});
   }
 
+  Future<List<JsonMap>> listAdmins() async {
+    final result = await _functions.httpsCallable('listAdmins').call();
+    final admins = (result.data as Map)['admins'] as List;
+    return admins.map((admin) => JsonMap.from(admin as Map)).toList();
+  }
+
+  Future<void> removeAdminRole(String uid) async {
+    final callable = _functions.httpsCallable('removeAdminRole');
+    await callable.call(<String, dynamic>{'uid': uid});
+  }
+
   Future<res.Result<void>> deleteUserAndUserData() async {
     try {
       final callable = _functions.httpsCallable("deleteUserAndUserData");

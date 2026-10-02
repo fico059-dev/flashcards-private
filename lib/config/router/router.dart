@@ -53,6 +53,7 @@ import 'package:flashcards/ui/pages/permission_denied_page.dart';
 import 'package:flashcards/ui/pages/custom_session/previous_sessions/previous_sessions_page.dart';
 import 'package:flashcards/ui/pages/profile/admin_dashboard/admin_tab_page.dart';
 import 'package:flashcards/ui/pages/profile/admin_dashboard/assign_admin_page.dart';
+import 'package:flashcards/ui/pages/profile/admin_dashboard/flashcard_builder/anki_import_page.dart';
 import 'package:flashcards/ui/pages/profile/admin_dashboard/flashcard_builder/create_flashcard_page.dart';
 import 'package:flashcards/ui/pages/profile/admin_dashboard/flashcard_builder/flashcard_builder_page.dart';
 import 'package:flashcards/ui/pages/profile/admin_dashboard/flashcard_builder/manage_pack_flashcards_page.dart';
@@ -166,6 +167,10 @@ class AppRouter extends RootStackRouter {
         ),
         AutoRoute(
           page: CreateFlashcardRoute.page,
+          guards: [authGuard, adminGuard],
+        ),
+        AutoRoute(
+          page: AnkiImportRoute.page,
           guards: [authGuard, adminGuard],
         ),
         AutoRoute(

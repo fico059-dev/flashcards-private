@@ -49,6 +49,15 @@ void showPackOptionsBottomSheet(BuildContext context, AdminPack pack) {
                   title: Text("Add Flashcards"),
                 ),
                 ListTile(
+                  onTap: () => navigateTo(AnkiImportRoute(pack: pack)),
+                  leading: Icon(
+                    Icons.upload_file,
+                    color: context.colors.primary,
+                  ),
+                  title: Text("Import from Anki"),
+                  subtitle: Text("Add a whole .apkg or .txt deck at once"),
+                ),
+                ListTile(
                   onTap:
                       () => navigateTo(ManagePackFlashcardsRoute(pack: pack)),
                   leading: Icon(Icons.edit_note, color: context.colors.primaryContainer),
