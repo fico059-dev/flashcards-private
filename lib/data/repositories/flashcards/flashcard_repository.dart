@@ -1,7 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flashcards/data/services/api/dto/flashcards/custom_session/flashcard_ids/flashcard_ids_patch/flashcard_ids_patch_dto.dart';
 import 'package:flashcards/data/services/api/dto/flashcards/fcp_data/fcp_data_dto.dart';
+import 'package:flashcards/data/services/anki/anki_import_models.dart';
+import 'package:flashcards/data/services/anki/anki_tags.dart';
 import 'package:flashcards/data/services/api/dto/flashcards/pack/pack_dto.dart';
+import 'package:flashcards/data/services/api/dto/flashcards/tag/tag_dto.dart';
+import 'package:flashcards/data/utils/image_compression.dart';
 import 'package:flashcards/data/services/api/exceptions/document_doesnt_exist_exception.dart';
 import 'package:flashcards/data/services/api/flashcards/fcp_service.dart';
 import 'package:flashcards/data/services/api/users/auth_service.dart';
@@ -28,6 +32,20 @@ import 'package:flashcards/domain/models/flashcards/tag/tag.dart';
 import 'package:flashcards/utils/result.dart';
 import 'package:flashcards/utils/util_functions.dart';
 import 'package:fsrs/fsrs.dart';
+
+class FlashcardImportSummary {
+  final int imported;
+  final int skippedDuplicates;
+  final int failedImages;
+  final Exception? error;
+
+  const FlashcardImportSummary({
+    this.imported = 0,
+    this.skippedDuplicates = 0,
+    this.failedImages = 0,
+    this.error,
+  });
+}
 
 class FlashcardRepository {
   final FlashcardService _flashcardService;
@@ -459,6 +477,205 @@ class FlashcardRepository {
     } on Exception catch (error) {
       return Result.error(error);
     }
+  }
+
+  /// Imports many flashcards (e.g. from an Anki deck) into a pack. Cards are
+  /// saved in batches, so if something fails part way the cards saved before
+  /// stay in the pack and [FlashcardImportSummary.error] is set.
+  ///
+  /// Cards whose question already exists in the pack are skipped, which makes
+  /// it safe to run the same import again after a failure.
+  Future<FlashcardImportSummary> importFlashcardsToPack({
+    required String packId,
+    required List<AnkiCard> cards,
+    required bool importTags,
+    required void Function(int processed, int total) onProgress,
+  }) async {
+    const batchSize = 100;
+    var imported = 0;
+    var skipped = 0;
+    var failedImages = 0;
+
+    final existingResult = await _flashcardService.getQuestionsInPack(packId);
+    final Set<String> existingQuestions;
+    switch (existingResult) {
+      case Error<Set<String>>(:final error):
+        return FlashcardImportSummary(error: error);
+      case Ok<Set<String>>(:final value):
+        existingQuestions = value;
+    }
+
+    final toImport = <AnkiCard>[];
+    for (final card in cards) {
+      if (existingQuestions.add(card.question)) {
+        toImport.add(card);
+      } else {
+        skipped++;
+      }
+    }
+    onProgress(0, toImport.length);
+
+    final packRef = _packService.getDocumentReference(packId);
+    // Every imported card's tags, used to update the cached tag counts.
+    final importedTagIds = <String>[];
+
+    for (var start = 0; start < toImport.length; start += batchSize) {
+      final batch = toImport.skip(start).take(batchSize).toList();
+      final flashcards = <Flashcard>[];
+
+      // Upload a few images at a time
+      const parallelUploads = 5;
+      for (var i = 0; i < batch.length; i += parallelUploads) {
+        final group = batch.skip(i).take(parallelUploads);
+        final uploaded = await Future.wait(
+          group.map((card) async {
+            final ref = _flashcardService.createDocumentReference();
+            final questionUrl = await _uploadImportedImage(
+              ref.id,
+              card.questionImage,
+              isQuestion: true,
+            );
+            final answerUrl = await _uploadImportedImage(
+              ref.id,
+              card.answerImage,
+              isQuestion: false,
+            );
+            if (card.questionImage != null && questionUrl == null) {
+              failedImages++;
+            }
+            if (card.answerImage != null && answerUrl == null) {
+              failedImages++;
+            }
+            return Flashcard(
+              id: ref.id,
+              packId: packId,
+              question: card.question,
+              answer: card.answer,
+              tags: importTags ? ankiTagsToTags(card.tags) : const [],
+              questionImageUrl: questionUrl,
+              answerImageUrl: answerUrl,
+            );
+          }),
+        );
+        flashcards.addAll(uploaded);
+        onProgress(imported + flashcards.length, toImport.length);
+      }
+
+      try {
+        await _db.runTransaction((transaction) async {
+          final packDto = await _packService.getDocumentInTransaction(
+            packRef,
+            transaction,
+          );
+          final flashcardIdsDto = await _packService
+              .getFlashcardIdsInTransaction(packId, transaction);
+
+          var tagCounts = packDto.tagCounts;
+          final batchTags = <Tag>{};
+          for (final flashcard in flashcards) {
+            _flashcardService.setDocumentInTransaction(
+              documentReference: _flashcardService.getDocumentReference(
+                flashcard.id,
+              ),
+              dto: FlashcardDto.fromDomain(
+                flashcard.copyWith(isPaid: packDto.isPaid),
+              ),
+              transaction: transaction,
+            );
+            tagCounts = addTagsToPackMap(tagCounts, flashcard.tags.toIdList());
+            batchTags.addAll(flashcard.tags);
+          }
+
+          _packService.updateDocumentInTransaction(
+            packRef: packRef,
+            dto: UpdatePackDto(
+              flashcardIdsPatchDto: FlashcardIdsPatchDto(
+                flashcardIds: [
+                  ...flashcardIdsDto.flashcardIds,
+                  ...flashcards.map((f) => f.id),
+                ],
+              ),
+              tagCounts: tagCounts,
+              tags: tagCounts.keys.toList(),
+              flashcardsCount: packDto.flashcardsCount + flashcards.length,
+            ),
+            transaction: transaction,
+          );
+
+          _tagService.setDocumentsInTransaction(
+            batchTags.map(TagDto.fromTagDomain).toList(),
+            transaction,
+          );
+        });
+      } on Exception catch (error) {
+        _handleFlashcardsImportedInCache(packId, imported, importedTagIds);
+        return FlashcardImportSummary(
+          imported: imported,
+          skippedDuplicates: skipped,
+          failedImages: failedImages,
+          error: error,
+        );
+      }
+
+      imported += flashcards.length;
+      for (final flashcard in flashcards) {
+        importedTagIds.addAll(flashcard.tags.toIdList());
+      }
+    }
+
+    _handleFlashcardsImportedInCache(packId, imported, importedTagIds);
+    return FlashcardImportSummary(
+      imported: imported,
+      skippedDuplicates: skipped,
+      failedImages: failedImages,
+    );
+  }
+
+  /// Compresses and uploads an imported image. Returns null if it failed, in
+  /// which case the card is imported without that image.
+  Future<String?> _uploadImportedImage(
+    String flashcardId,
+    AnkiImage? image, {
+    required bool isQuestion,
+  }) async {
+    if (image == null) return null;
+    final bytes = await compressImportedImage(image.bytes);
+    if (bytes == null) return null;
+
+    final picked = PickedImage(bytes: bytes);
+    final result =
+        isQuestion
+            ? await _flashcardService.uploadQuestionImageAndGetUrl(
+              flashcardId: flashcardId,
+              image: picked,
+            )
+            : await _flashcardService.uploadAnswerImageAndGetUrl(
+              flashcardId: flashcardId,
+              image: picked,
+            );
+    return switch (result) {
+      Ok<String>(:final value) => value,
+      Error<String>() => null,
+    };
+  }
+
+  void _handleFlashcardsImportedInCache(
+    String packId,
+    int importedCount,
+    List<String> tagIds,
+  ) {
+    if (importedCount == 0) return;
+    _packsCache.invalidate();
+    _tagCache.invalidate();
+    _adminPageCache.invalidate(packId);
+    _adminPacksCache.updateItem(
+      id: packId,
+      copyWith:
+          (item) => item.copyWith(
+            flashcardsCount: item.flashcardsCount + importedCount,
+            tagCounts: addTagsToPackMap(item.tagCounts, tagIds),
+          ),
+    );
   }
 
   // pack cache operations

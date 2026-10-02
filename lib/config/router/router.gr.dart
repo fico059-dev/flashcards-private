@@ -43,6 +43,53 @@ class AdminTabRoute extends PageRouteInfo<void> {
 }
 
 /// generated route for
+/// [AnkiImportPage]
+class AnkiImportRoute extends PageRouteInfo<AnkiImportRouteArgs> {
+  AnkiImportRoute({
+    Key? key,
+    required AdminPack pack,
+    List<PageRouteInfo>? children,
+  }) : super(
+         AnkiImportRoute.name,
+         args: AnkiImportRouteArgs(key: key, pack: pack),
+         initialChildren: children,
+       );
+
+  static const String name = 'AnkiImportRoute';
+
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      final args = data.argsAs<AnkiImportRouteArgs>();
+      return AnkiImportPage(key: args.key, pack: args.pack);
+    },
+  );
+}
+
+class AnkiImportRouteArgs {
+  const AnkiImportRouteArgs({this.key, required this.pack});
+
+  final Key? key;
+
+  final AdminPack pack;
+
+  @override
+  String toString() {
+    return 'AnkiImportRouteArgs{key: $key, pack: $pack}';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other is! AnkiImportRouteArgs) return false;
+    return key == other.key && pack == other.pack;
+  }
+
+  @override
+  int get hashCode => key.hashCode ^ pack.hashCode;
+}
+
+/// generated route for
 /// [AssignAdminPage]
 class AssignAdminRoute extends PageRouteInfo<void> {
   const AssignAdminRoute({List<PageRouteInfo>? children})
@@ -446,9 +493,12 @@ class FlashcardLimitRouteArgs {
     if (identical(this, other)) return true;
     if (other is! FlashcardLimitRouteArgs) return false;
     return key == other.key &&
-        const ListEquality().equals(selectedPacks, other.selectedPacks) &&
+        const ListEquality<AdminPack>().equals(
+          selectedPacks,
+          other.selectedPacks,
+        ) &&
         filter == other.filter &&
-        const ListEquality().equals(selectedTags, other.selectedTags) &&
+        const ListEquality<Tag>().equals(selectedTags, other.selectedTags) &&
         packFilterCount == other.packFilterCount &&
         areAllTagsSelected == other.areAllTagsSelected;
   }
@@ -456,9 +506,9 @@ class FlashcardLimitRouteArgs {
   @override
   int get hashCode =>
       key.hashCode ^
-      const ListEquality().hash(selectedPacks) ^
+      const ListEquality<AdminPack>().hash(selectedPacks) ^
       filter.hashCode ^
-      const ListEquality().hash(selectedTags) ^
+      const ListEquality<Tag>().hash(selectedTags) ^
       packFilterCount.hashCode ^
       areAllTagsSelected.hashCode;
 }
@@ -713,11 +763,13 @@ class FlashcardTagSelectionRouteArgs {
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
     if (other is! FlashcardTagSelectionRouteArgs) return false;
-    return key == other.key && const ListEquality().equals(packs, other.packs);
+    return key == other.key &&
+        const ListEquality<AdminPack>().equals(packs, other.packs);
   }
 
   @override
-  int get hashCode => key.hashCode ^ const ListEquality().hash(packs);
+  int get hashCode =>
+      key.hashCode ^ const ListEquality<AdminPack>().hash(packs);
 }
 
 /// generated route for
@@ -776,14 +828,17 @@ class FlashcardsFilterRouteArgs {
     if (identical(this, other)) return true;
     if (other is! FlashcardsFilterRouteArgs) return false;
     return key == other.key &&
-        const ListEquality().equals(selectedPacks, other.selectedPacks) &&
+        const ListEquality<String>().equals(
+          selectedPacks,
+          other.selectedPacks,
+        ) &&
         allCount == other.allCount;
   }
 
   @override
   int get hashCode =>
       key.hashCode ^
-      const ListEquality().hash(selectedPacks) ^
+      const ListEquality<String>().hash(selectedPacks) ^
       allCount.hashCode;
 }
 
