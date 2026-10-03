@@ -70,7 +70,10 @@ Future<void> _initialize(bool isDev) async {
     final opts = isDev
         ? dev.DefaultFirebaseOptions.currentPlatform
         : prod.DefaultFirebaseOptions.currentPlatform;
-    if (Firebase.apps.isEmpty) {
+    // On the web nothing has started Firebase yet, and asking for
+    // Firebase.apps before it's loaded crashes in Safari ("Null check
+    // operator used on a null value").
+    if (kIsWeb || Firebase.apps.isEmpty) {
       await Firebase.initializeApp(options: opts);
     }
   }
