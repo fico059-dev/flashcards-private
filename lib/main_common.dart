@@ -50,12 +50,16 @@ Future<void> bootstrap({required bool isDev}) async {
   } catch (error, stack) {
     // Without this a failed start leaves an empty page (e.g. on the website
     // when its Firebase settings are missing), with no hint why.
-    debugPrint('Startup failed: $error\n$stack');
-    runApp(_StartupErrorApp(error: error));
+    debugPrint('Startup failed while $_startupStep: $error\n$stack');
+    runApp(_StartupErrorApp(error: error, step: _startupStep, stack: stack));
   }
 }
 
+/// What the app was setting up, shown if starting fails.
+String _startupStep = 'starting';
+
 Future<void> _initialize(bool isDev) async {
+  _startupStep = 'connecting to Firebase';
   // ANDROID: google-services.json po flavoru rešava sve -> nije potrebno options.
   // iOS/web/desktop: koristimo options.
   if (!kIsWeb && Platform.isAndroid) {
@@ -75,6 +79,7 @@ Future<void> _initialize(bool isDev) async {
   //await setAppOrientation();
 
   // time zone
+  _startupStep = 'time zone';
   tz.initializeTimeZones();
   try {
     final TimezoneInfo currentTimeZone =
@@ -88,8 +93,10 @@ Future<void> _initialize(bool isDev) async {
 
   // dependency injection
   final dep = AppDependencies(isDev: isDev);
-  await dep.initialize();
+  await dep.initialize(onStep: (step) => _startupStep = step);
+  _startupStep = 'app services';
   final providers = dep.getProviders();
+  _startupStep = 'first screen';
 
   runApp(
     MultiProvider(
@@ -101,8 +108,14 @@ Future<void> _initialize(bool isDev) async {
 
 class _StartupErrorApp extends StatelessWidget {
   final Object error;
+  final String step;
+  final StackTrace stack;
 
-  const _StartupErrorApp({required this.error});
+  const _StartupErrorApp({
+    required this.error,
+    required this.step,
+    required this.stack,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -128,9 +141,15 @@ class _StartupErrorApp extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
                 SelectableText(
-                  '$error',
+                  'Step: $step\n$error',
                   textAlign: TextAlign.center,
                   style: const TextStyle(fontSize: 12, color: Colors.grey),
+                ),
+                const SizedBox(height: 12),
+                // Technical details, for whoever fixes it.
+                SelectableText(
+                  stack.toString().split('\n').take(8).join('\n'),
+                  style: const TextStyle(fontSize: 10, color: Colors.grey),
                 ),
               ],
             ),

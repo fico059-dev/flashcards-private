@@ -68,7 +68,10 @@ class AppDependencies {
 
   AppDependencies({required this.isDev});
 
-  Future<void> initialize() async {
+  /// [onStep] is told what is being set up, to name it if starting fails.
+  Future<void> initialize({void Function(String step)? onStep}) async {
+    void step(String name) => onStep?.call(name);
+
     // I declare caches here because some caches are used in multiple repos,
     // and i inject them to the repo directly from here
     _tagCache = DataCache<Tag>(
@@ -85,18 +88,24 @@ class AppDependencies {
     );
 
     // Database
+    step('database (Firestore)');
     _dbContext = FirestoreDbContext();
+    step('server functions');
     _functions = CloudFunctionService();
+    step('file storage (images)');
     _storage = CloudStorageService();
 
-
+    step('notifications');
     _notificationService = NotificationService();
     await _notificationService.init();
 
+    step('sign-in');
     _authService = AuthService();
+    step('saved settings');
     _localStorageService = LocalStorageService(authService: _authService);
     _studyLogStore = StudyLogStore(authService: _authService);
 
+    step('theme');
     _themeCubit = ThemeCubit(storageService: _localStorageService);
     await _themeCubit.loadTheme();
   }
