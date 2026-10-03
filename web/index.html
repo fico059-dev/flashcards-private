@@ -33,6 +33,33 @@
   <link rel="manifest" href="manifest.json">
 </head>
 <body>
-  <script src="flutter_bootstrap.js" async></script>
+  <script>
+    // Earlier versions installed an offline cache (service worker) that kept
+    // serving the old app after updates. Remove it, then start the app.
+    (async function () {
+      try {
+        if ('serviceWorker' in navigator) {
+          const registrations = await navigator.serviceWorker.getRegistrations();
+          for (const registration of registrations) await registration.unregister();
+          if (window.caches) {
+            for (const key of await caches.keys()) await caches.delete(key);
+          }
+          // This page was still loaded through the old cache: load it fresh.
+          if (navigator.serviceWorker.controller &&
+              !sessionStorage.getItem('flashpedz-cache-cleared')) {
+            sessionStorage.setItem('flashpedz-cache-cleared', '1');
+            location.reload();
+            return;
+          }
+        }
+      } catch (e) {
+        console.warn('Could not clear the old offline cache', e);
+      }
+      const script = document.createElement('script');
+      script.src = 'flutter_bootstrap.js';
+      script.async = true;
+      document.body.appendChild(script);
+    })();
+  </script>
 </body>
 </html>
