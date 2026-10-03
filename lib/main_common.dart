@@ -5,6 +5,7 @@ import 'package:flashcards/config/orientation_helper.dart';
 import 'package:flashcards/ui/widgets/core/theme_toggle_button.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'dart:io' show Platform;
 
 import 'package:flashcards/bloc/authorization/auth/auth_bloc.dart';
@@ -44,6 +45,17 @@ class Flavor {
 
 Future<void> bootstrap({required bool isDev}) async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // On the website the browser's own menu replaces the app's selection
+  // menu, which hides "Highlight" (and on iPhone Safari it doesn't appear at
+  // all). Use the app's menu, like in the iPhone app.
+  if (kIsWeb) {
+    try {
+      await BrowserContextMenu.disableContextMenu();
+    } catch (_) {
+      // Not supported by this browser: keep its own menu.
+    }
+  }
 
   try {
     await _initialize(isDev);
