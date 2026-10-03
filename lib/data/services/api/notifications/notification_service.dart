@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flashcards/data/services/local/local_storage_service.dart';
 import 'package:flashcards/utils/result.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart' as tz;
 
@@ -33,6 +34,8 @@ class NotificationService {
 
   /// It will ask for iOS notification permission as soon as the app launches
   Future<void> init() async {
+    // Local notifications aren't available on the web.
+    if (kIsWeb) return;
     const androidInit = AndroidInitializationSettings('app_icon');
     // const iosInit = DarwinInitializationSettings(
     //   requestAlertPermission: false,
@@ -84,6 +87,7 @@ class NotificationService {
   }
 
   Future<void> requestIOSPermissions() async {
+    if (kIsWeb) return;
     await _plugin
         .resolvePlatformSpecificImplementation<
           IOSFlutterLocalNotificationsPlugin
@@ -92,12 +96,14 @@ class NotificationService {
   }
 
   Future<void> cancelAll() async {
+    if (kIsWeb) return;
     await _plugin.cancelAll();
   }
 
   Future<Result<void>> scheduleReminderNotification(
     NotificationFrequency frequency,
   ) async {
+    if (kIsWeb) return Result.ok(null);
     try {
       await _plugin.cancelAll();
 
@@ -233,6 +239,7 @@ class NotificationService {
   }
 
   Future<void> showSimpleNotification(String title, String body) async {
+    if (kIsWeb) return;
     const androidDetails = AndroidNotificationDetails(
       'default_channel_id',
       'Default',

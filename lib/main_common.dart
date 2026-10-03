@@ -47,7 +47,7 @@ Future<void> bootstrap({required bool isDev}) async {
 
   // ANDROID: google-services.json po flavoru rešava sve -> nije potrebno options.
   // iOS/web/desktop: koristimo options.
-  if (Platform.isAndroid) {
+  if (!kIsWeb && Platform.isAndroid) {
     if (Firebase.apps.isEmpty) {
       await Firebase.initializeApp();
     }
@@ -159,7 +159,7 @@ class _MyAppState extends State<_MyApp> {
               builder: (context, child) {
                 return Stack(
                   children: [
-                    child!,
+                    _PhoneWidthOnWeb(child: child!),
                     if (kDebugMode)
                       Positioned(
                         right: 16,
@@ -171,6 +171,38 @@ class _MyAppState extends State<_MyApp> {
               },
             );
           },
+        ),
+      ),
+    );
+  }
+}
+
+/// The app is designed for phones. On the website, wide screens show it in a
+/// centred, phone-width column instead of stretching it edge to edge.
+class _PhoneWidthOnWeb extends StatelessWidget {
+  static const _maxWidth = 600.0;
+
+  final Widget child;
+
+  const _PhoneWidthOnWeb({required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    if (!kIsWeb) return child;
+    final media = MediaQuery.of(context);
+    if (media.size.width <= _maxWidth) return child;
+
+    return ColoredBox(
+      color: Theme.of(context).colorScheme.surfaceContainerHighest,
+      child: Center(
+        child: ClipRect(
+          child: SizedBox(
+            width: _maxWidth,
+            child: MediaQuery(
+              data: media.copyWith(size: Size(_maxWidth, media.size.height)),
+              child: child,
+            ),
+          ),
         ),
       ),
     );
