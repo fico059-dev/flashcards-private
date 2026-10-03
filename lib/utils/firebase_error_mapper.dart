@@ -88,8 +88,10 @@ FirebaseErrorData mapFirebaseError({
         message: error.toString().replaceAll(RegExp(r'\[.*?\]'), ''),
       );
     default:
+      // Include the code so unexpected failures can be diagnosed.
+      final authFailed = "${locale!.error_authFailed} (${error.code})";
       if (error.message == null) {
-        return FirebaseErrorData(message: locale!.error_authFailed);
+        return FirebaseErrorData(message: authFailed);
       }
 
       if (error.message!.contains("Password must contain")) {
@@ -103,7 +105,7 @@ FirebaseErrorData mapFirebaseError({
         return FirebaseErrorData(message: "Invalid email format.");
       }
 
-      return FirebaseErrorData(message: locale!.error_authFailed);
+      return FirebaseErrorData(message: "$authFailed\n${error.message}");
   }
 
   // Additional password validation cases
