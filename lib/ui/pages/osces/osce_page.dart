@@ -14,6 +14,7 @@ import 'package:flashcards/ui/widgets/osce/osce_timer.dart';
 import 'package:flashcards/ui/widgets/osce/osce_tutorial_seen_listener.dart';
 import 'package:flashcards/ui/widgets/osce/question_context.dart';
 import 'package:flashcards/utils/firebase_error_mapper.dart';
+import 'package:flashcards/ui/widgets/osce/osce_checklist_review.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flashcards/l10n/app_localizations.dart';
@@ -103,7 +104,9 @@ class _OsceViewState extends State<_OsceView> {
                     case OsceInitial():
                     case OsceLoading():
                       return Center(
-                        child: CircularProgressIndicator(color: context.colors.primary),
+                        child: CircularProgressIndicator(
+                          color: context.colors.primary,
+                        ),
                       );
                     case OsceShowcase(:final osce):
                       return OsceShowcaseWidget(osce: osce);
@@ -132,6 +135,13 @@ class _LoadedContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final reviewing = context.select<OsceBloc, bool>(
+      (bloc) =>
+          bloc.state is OsceLoaded &&
+          (bloc.state as OsceLoaded).reviewingChecklist,
+    );
+    if (reviewing) return const OsceChecklistReview();
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisAlignment: MainAxisAlignment.start,

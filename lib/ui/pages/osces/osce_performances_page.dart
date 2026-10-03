@@ -20,10 +20,9 @@ class OscePerformancesPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create:
-          (context) => OscePerfGetterBloc(
-            perfRepo: context.read<OscePerformanceRepository>(),
-          ),
+      create: (context) => OscePerfGetterBloc(
+        perfRepo: context.read<OscePerformanceRepository>(),
+      ),
       child: _View(),
     );
   }
@@ -72,28 +71,23 @@ class _View extends StatelessWidget {
                 state: state.pagingState,
                 fetchNextPage: context.read<OscePerfGetterBloc>().fetchNextPage,
                 builderDelegate: PagedChildBuilderDelegate(
-                  noItemsFoundIndicatorBuilder:
-                      (context) => _EmptyListContainer(),
-                  firstPageProgressIndicatorBuilder:
-                      (context) => OscePerformancesShimmer(),
-                  firstPageErrorIndicatorBuilder:
-                      (context) => ErrorScreen(
-                        errorMessage: extractErrorMessage(
-                          state.pagingState.error!,
-                        ),
-                        onReload:
-                            () => context.read<OscePerfGetterBloc>().add(
-                              OscePerfGetterFetched(restart: true),
-                            ),
-                      ),
+                  noItemsFoundIndicatorBuilder: (context) =>
+                      _EmptyListContainer(),
+                  firstPageProgressIndicatorBuilder: (context) =>
+                      OscePerformancesShimmer(),
+                  firstPageErrorIndicatorBuilder: (context) => ErrorScreen(
+                    errorMessage: extractErrorMessage(state.pagingState.error!),
+                    onReload: () => context.read<OscePerfGetterBloc>().add(
+                      OscePerfGetterFetched(restart: true),
+                    ),
+                  ),
                   itemBuilder: (context, item, index) {
                     //return OscePerformancesShimmer();
                     final perf = item as OscePerformance;
                     return OscePerformanceCard(
                       performance: perf,
-                      onAttemptDeleted:
-                          () =>
-                              decreaseAttemptCountOnDeleted(perf.simpleOsce.id),
+                      onAttemptDeleted: () =>
+                          decreaseAttemptCountOnDeleted(perf.simpleOsce.id),
                     );
                   },
                 ),

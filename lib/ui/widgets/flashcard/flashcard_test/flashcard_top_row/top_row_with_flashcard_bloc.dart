@@ -42,10 +42,9 @@ class TopRowWithFlashcardBloc extends StatelessWidget {
       builder: (context, state) {
         int allFlashcards = state.statRecords.length;
         int currFlashcard = state.currentCardIndex + 1;
-        final isBookmarked =
-            state.flashcard == null
-                ? false
-                : state.statRecords[state.currentCardIndex].hasBookmark;
+        final isBookmarked = state.flashcard == null
+            ? false
+            : state.statRecords[state.currentCardIndex].hasBookmark;
         var enabled = false;
         if (state.flashcard != null && state.pack != null) {
           enabled = true;
@@ -75,12 +74,11 @@ class TopRowWithFlashcardBloc extends StatelessWidget {
 
                 PopupMenuButtonTopRow(
                   onIgnore: onIgnore,
-                  onReport:
-                      () => onReport(
-                        packName: state.pack!.name,
-                        flashcard: state.flashcard!,
-                        packId: state.pack!.id,
-                      ),
+                  onReport: () => onReport(
+                    packName: state.pack!.name,
+                    flashcard: state.flashcard!,
+                    packId: state.pack!.id,
+                  ),
                   enabled: enabled,
                 ),
               ],

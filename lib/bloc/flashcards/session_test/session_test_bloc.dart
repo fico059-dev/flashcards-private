@@ -168,6 +168,33 @@ class SessionTestBloc extends Bloc<SessionTestEvent, SessionTestState> {
     }
 
     state = (this.state as SessionTestLoaded);
+
+    // Save the rating to the card's progress, so custom sessions count
+    // towards spaced repetition like regular study.
+    final rating = event.rating;
+    if (rating != null && !state.status.isNoFlashcard) {
+      final currRecord = state.statRecord.copyWith(
+        // The question in state is formatted for display (cloze revealed),
+        // the progress record must keep the original.
+        flashcard: state.statRecord.flashcard?.copyWith(
+          question: state.unformattedQuestion,
+        ),
+      );
+      final newCard = FSRS()
+          .repeat(currRecord.card, DateTime.now())[rating]!
+          .card;
+      final progressResult = await _fcpRepo.safeUpdateCard(
+        newStatRecord: currRecord.copyWith(card: newCard),
+        currStatRecord: currRecord,
+      );
+      switch (progressResult) {
+        case Error<void>(:final error):
+          emit(state.copyWith(status: SessionTestStatus.error, error: error));
+          return;
+        case Ok<void>():
+      }
+    }
+
     late final CustomSession newSession;
     if (event.isCorrect) {
       newSession = state.session.incrementCurrentIndexAndCorrectCount();

@@ -64,15 +64,15 @@ class TopRowWithSessionBloc extends StatelessWidget {
               children: [
                 BookmarkButton(
                   isBookmarked: hasBookmark ?? false,
-                  onToggleBookmark:
-                      hasBookmark != null ? onToggleBookmark : null,
+                  onToggleBookmark: hasBookmark != null
+                      ? onToggleBookmark
+                      : null,
                 ),
 
                 PopupMenuButtonTopRow(
-                  onReport:
-                      hasBookmark != null
-                          ? () => onReport(flashcard: flashcard)
-                          : null,
+                  onReport: hasBookmark != null
+                      ? () => onReport(flashcard: flashcard)
+                      : null,
                   enabled: true,
                 ),
               ],

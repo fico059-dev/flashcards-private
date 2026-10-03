@@ -30,7 +30,10 @@ class MainCardWithFlashcardBloc extends StatelessWidget {
             return SizedBox.shrink();
           }
 
-          return QuestionText(question: state.flashcard!.question);
+          return QuestionText(
+            question: state.flashcard!.question,
+            tags: state.flashcard!.tags,
+          );
         },
       ),
     );

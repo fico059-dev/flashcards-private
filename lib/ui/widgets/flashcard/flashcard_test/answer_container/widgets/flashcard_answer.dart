@@ -23,11 +23,12 @@ class FlashcardAnswer extends StatelessWidget {
       alignment: Alignment.center,
       child: Column(
         children: [
-          Text(
+          // Selectable so the answer can be copied.
+          SelectableText(
             answer,
-            style: TextTheme.of(
-              context,
-            ).bodyLarge?.merge(TextStyle(color: context.colors.onSecondaryContainer)),
+            style: TextTheme.of(context).bodyLarge?.merge(
+              TextStyle(color: context.colors.onSecondaryContainer),
+            ),
           ),
           SizedBox(height: 15),
           answerImagePreview ?? SizedBox.shrink(),

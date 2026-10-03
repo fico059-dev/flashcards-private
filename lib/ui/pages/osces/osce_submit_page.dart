@@ -24,10 +24,9 @@ class OsceSubmitPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create:
-          (context) => SaveOsceAttemptCubit(
-            oscePerformanceRepo: context.read<OscePerformanceRepository>(),
-          ),
+      create: (context) => SaveOsceAttemptCubit(
+        oscePerformanceRepo: context.read<OscePerformanceRepository>(),
+      ),
       child: _View(submittedOsce: submittedOsce),
     );
   }
@@ -128,10 +127,9 @@ class _ViewState extends State<_View> {
                   ListView(
                     shrinkWrap: true,
                     primary: false,
-                    children:
-                        questions
-                            .map((question) => QuestionView(question: question))
-                            .toList(),
+                    children: questions
+                        .map((question) => QuestionView(question: question))
+                        .toList(),
                   ),
                   const SizedBox(height: 10),
                   BlocBuilder<SaveOsceAttemptCubit, SaveOsceAttemptState>(
@@ -226,10 +224,9 @@ class QuestionView extends StatelessWidget {
 
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children:
-                  question.checks
-                      .map((check) => _CheckView(check: check))
-                      .toList(),
+              children: question.checks
+                  .map((check) => _CheckView(check: check))
+                  .toList(),
             ),
           ],
         ),
@@ -263,7 +260,9 @@ class _CheckView extends StatelessWidget {
           children: [
             Icon(
               check.isChecked ? Icons.check_circle : Icons.cancel,
-              color: check.isChecked ? context.customColors.success : context.colors.error,
+              color: check.isChecked
+                  ? context.customColors.success
+                  : context.colors.error,
             ),
             Expanded(
               child: Text(

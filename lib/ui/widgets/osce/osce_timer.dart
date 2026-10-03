@@ -1,7 +1,6 @@
-import 'package:auto_route/auto_route.dart';
 import 'package:flashcards/bloc/osces/osce/osce_bloc.dart';
+import 'package:flashcards/bloc/osces/osce/osce_event.dart';
 import 'package:flashcards/bloc/osces/osce/osce_state.dart';
-import 'package:flashcards/config/router/router.dart';
 import 'package:flashcards/domain/models/osce/osce.dart';
 import 'package:flashcards/ui/widgets/flashcard/flashcard_test/timer_container.dart';
 import 'package:flutter/material.dart';
@@ -28,14 +27,13 @@ class OsceTimer extends StatelessWidget {
           //         current is OsceLoaded && current.status.isLoaded,
           // shouldStartTimer:
           //     (state) => state is OsceLoaded && state.status.isLoaded,
-          listenWhen:
-              (previous, current) =>
-                  current is OsceLoaded && previous is! OsceLoaded,
+          listenWhen: (previous, current) =>
+              current is OsceLoaded && previous is! OsceLoaded,
           shouldStartTimer: (state) => state is OsceLoaded,
           mode: false,
           initialDuration: Duration(minutes: 10),
           onFinished: () {
-            context.router.replace(OsceSubmitRoute(submittedOsce: osce));
+            context.read<OsceBloc>().add(OsceChecklistOpened());
           },
         );
       },

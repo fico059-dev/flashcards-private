@@ -27,8 +27,9 @@ class OscesUiCard extends StatelessWidget {
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
         onTap: () async {
-          final canOpen =
-              simpleOsce.isPaid ? await ensureOsceAccess(context) : true;
+          final canOpen = simpleOsce.isPaid
+              ? await ensureOsceAccess(context)
+              : true;
           if (canOpen && context.mounted) {
             context.router.push(OsceRoute(simpleOsce: simpleOsce));
           }
@@ -72,7 +73,9 @@ class OscesUiCard extends StatelessWidget {
                       simpleOsce.scenario,
                       maxLines: 3,
                       overflow: TextOverflow.ellipsis,
-                      style: theme.bodySmall?.copyWith(color: context.colors.onSurfaceVariant),
+                      style: theme.bodySmall?.copyWith(
+                        color: context.colors.onSurfaceVariant,
+                      ),
                     ),
                   ),
                 ],
