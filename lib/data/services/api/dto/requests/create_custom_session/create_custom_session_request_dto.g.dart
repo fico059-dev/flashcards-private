@@ -28,6 +28,7 @@ Map<String, dynamic> _$CreateCustomSessionRequestDtoToJson(
 
 const _$PackSelectedFilterEnumMap = {
   PackSelectedFilter.all: 'all',
+  PackSelectedFilter.unseen: 'unseen',
   PackSelectedFilter.seen: 'seen',
   PackSelectedFilter.bookmarked: 'bookmarked',
   PackSelectedFilter.ignored: 'ignored',

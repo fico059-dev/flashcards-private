@@ -6,6 +6,7 @@ import {hasCards} from "../utils/claimsUtils";
 
 enum PackSelectedFilter {
   all = "all",
+  unseen = "unseen",
   seen = "seen",
   bookmarked = "bookmarked",
   ignored = "ignored",
@@ -48,6 +49,13 @@ export async function createCustomSessionHandler(request: CallableRequest) {
       throw new HttpsError(
         "invalid-argument",
         `Missing required argument/s: ${missingParams}`,
+      );
+    }
+
+    if (profileId !== auth!.uid) {
+      throw new HttpsError(
+        "permission-denied",
+        "You can only create sessions for your own profile.",
       );
     }
 
@@ -113,22 +121,21 @@ export async function createCustomSessionHandler(request: CallableRequest) {
     tags: string[],
     sessionSize: number,
   ): FlashcardSnapshot[] {
-    if (tags.length === 0) {
-      logger.info("No tags provided, returning all flashcards");
-      return flashcards;
-    }
-
-    const filtered = flashcards.filter((flashcard) => {
-      if (flashcard.tags.length === 0) return true;
-      return flashcard.tags.some((tag) => tags.includes(tag));
-    });
+    const filtered =
+      tags.length === 0 ?
+        flashcards :
+        flashcards.filter((flashcard) => {
+          if (!flashcard.tags || flashcard.tags.length === 0) return true;
+          return flashcard.tags.some((tag) => tags.includes(tag));
+        });
 
     logger.info(
       `Filtered flashcards by tags. Original count: ${flashcards.length}, Filtered count: ${filtered.length}`,
       {tags},
     );
 
-    const sliced = filtered.slice(0, sessionSize);
+    // Random selection, so each session isn't the same first cards.
+    const sliced = shuffle(filtered).slice(0, sessionSize);
     logger.info(
       `Sliced flashcards to session size: ${sessionSize}. Result count: ${sliced.length}`,
       {sessionSize},
@@ -157,6 +164,41 @@ export async function createCustomSessionHandler(request: CallableRequest) {
     profileId: string,
   ): Promise<FlashcardSnapshot[]> {
     const db = getFirestore();
+
+    // Unseen: cards of the packs without a progress record (never studied,
+    // in regular study or a custom session, bookmarked or ignored).
+    if (filter === PackSelectedFilter.unseen) {
+      const [cards, progress] = await Promise.all([
+        db.collection("flashcards").where("packId", "in", packIds).get(),
+        db
+          .collection("fcp_data")
+          .where("profileId", "==", profileId)
+          .where("flashcardSnapshot.packId", "in", packIds)
+          .select("flashcardId")
+          .get(),
+      ]);
+      const seenIds = new Set(
+        progress.docs.map((doc) => doc.get("flashcardId") as string),
+      );
+      const unseen: FlashcardSnapshot[] = cards.docs
+        .filter((doc) => !seenIds.has(doc.id))
+        .map((doc) => {
+          const data = doc.data();
+          return {
+            id: doc.id,
+            packId: data.packId,
+            question: data.question,
+            answer: data.answer,
+            tags: data.tags ?? [],
+          };
+        });
+
+      logger.info(
+        `Found ${unseen.length} unseen of ${cards.size} flashcards in packs`,
+        {packIds},
+      );
+      return unseen;
+    }
 
     // prvo da vidimo za "all" slucaj
     if (filter === PackSelectedFilter.all) {
@@ -252,4 +294,14 @@ export async function createCustomSessionHandler(request: CallableRequest) {
       `Custom session created for profile ${profileId} with ${flashcards.length} flashcards`,
     );
   }
+}
+
+/** Returns a shuffled copy of [items] (Fisher-Yates). */
+function shuffle<T>(items: T[]): T[] {
+  const result = [...items];
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [result[i], result[j]] = [result[j], result[i]];
+  }
+  return result;
 }

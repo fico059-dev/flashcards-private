@@ -9,6 +9,7 @@ import 'package:flashcards/ui/widgets/core/card_factory.dart';
 import 'package:flashcards/ui/widgets/core/error_screen.dart';
 import 'package:flashcards/ui/widgets/core/loading_overlay_listener.dart';
 import 'package:flashcards/utils/firebase_error_mapper.dart';
+import 'package:flashcards/domain/models/flashcards/flashcard_filter_counts/pack_filter_counts.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -82,6 +83,7 @@ class _LoadedContent extends StatelessWidget {
     final seenCount = state.packFilterCounts.seenCount;
     final ignoredCount = state.packFilterCounts.ignoredCount;
     final allCount = state.packFilterCounts.allCount;
+    final unseenCount = state.packFilterCounts.unseenCount;
 
     void selectOption(PackSelectedFilter filter) {
       context.read<PackFilterBloc>().add(PackFilterSelected(filter: filter));
@@ -102,11 +104,19 @@ class _LoadedContent extends StatelessWidget {
 
         Wrap(
           spacing: 20,
+          runSpacing: 10,
           children: [
             ChoiceChip(
               label: Text("All cards $allCount"),
               selected: selected == PackSelectedFilter.all,
               onSelected: (_) => selectOption(PackSelectedFilter.all),
+            ),
+            ChoiceChip(
+              label: Text("Unseen cards $unseenCount"),
+              selected: selected == PackSelectedFilter.unseen,
+              onSelected: unseenCount > 0
+                  ? (_) => selectOption(PackSelectedFilter.unseen)
+                  : null,
             ),
             ChoiceChip(
               label: Text("Seen cards ${state.packFilterCounts.seenCount}"),
@@ -149,6 +159,16 @@ class _LoadedContent extends StatelessWidget {
               ),
               TextSpan(
                 text: " – Includes every card from the selected packs.\n",
+              ),
+
+              TextSpan(text: "• "),
+              TextSpan(
+                text: "Unseen",
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              TextSpan(
+                text: " – Cards you've never studied, in regular study or "
+                    "a custom session.\n",
               ),
 
               TextSpan(text: "• "),
