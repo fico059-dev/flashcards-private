@@ -40,3 +40,13 @@ class SessionTestNextPressed extends SessionTestEvent {
 class SessionTestBookmarkToggled extends SessionTestEvent {}
 
 class SessionTestAnswerShown extends SessionTestEvent {}
+
+/// The study streak changed after a background save.
+class SessionTestStreakChanged extends SessionTestEvent {
+  final Streak streak;
+
+  SessionTestStreakChanged(this.streak);
+
+  @override
+  List<Object?> get props => [streak];
+}

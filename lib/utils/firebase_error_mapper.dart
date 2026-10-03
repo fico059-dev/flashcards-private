@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
@@ -15,6 +16,10 @@ class FirebaseErrorData {
 }
 
 String extractErrorMessage(Object error) {
+  if (error is TimeoutException) {
+    return error.message ?? 'The connection timed out, please try again.';
+  }
+
   if (error is FirebaseFunctionsException) {
     return error.message ?? 'Unknown Firebase Functions error';
   }

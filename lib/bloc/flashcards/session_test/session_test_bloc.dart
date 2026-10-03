@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flashcards/bloc/flashcards/session_test/session_test_event.dart';
 import 'package:flashcards/bloc/flashcards/session_test/session_test_state.dart';
 import 'package:flashcards/data/repositories/flashcards/custom_session_repository.dart';
@@ -5,9 +7,9 @@ import 'package:flashcards/data/repositories/flashcards/fcp_repository.dart';
 import 'package:flashcards/data/repositories/users/profile_repository.dart';
 import 'package:flashcards/data/services/api/exceptions/document_doesnt_exist_exception.dart';
 import 'package:flashcards/domain/models/flashcards/custom_session/custom_session.dart';
-import 'package:flashcards/domain/models/flashcards/flashcard/flashcard.dart';
 import 'package:flashcards/domain/models/flashcards/stat_record/stat_record.dart';
 import 'package:flashcards/domain/models/profile/streak/streak.dart';
+import 'package:flashcards/utils/background_save.dart';
 import 'package:flashcards/utils/result.dart';
 import 'package:flashcards/utils/util_functions.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -30,6 +32,95 @@ class SessionTestBloc extends Bloc<SessionTestEvent, SessionTestState> {
     on<SessionTestNextPressed>(_onNextPressed);
     on<SessionTestBookmarkToggled>(_onBookmarkToggled);
     on<SessionTestAnswerShown>(_onAnswerShown);
+    on<SessionTestStreakChanged>((event, emit) {
+      final state = this.state;
+      if (state is SessionTestLoaded) {
+        emit(state.copyWith(newStreak: event.streak));
+      }
+    });
+  }
+
+  /// Saves progress without making the student wait for the server.
+  final _saver = BackgroundSaver();
+
+  /// Saves that failed, shown to the student without stopping the session.
+  Stream<Exception> get saveErrors => _saver.errors;
+
+  /// Upcoming cards, downloaded while the current one is studied.
+  final _prefetched = <String, Future<Result<StatRecord>>>{};
+  final _readyRecords = <String, StatRecord>{};
+  static const _prefetchCount = 3;
+
+  /// Image URLs of downloaded upcoming cards, so the page can load the
+  /// pictures before they are shown.
+  final _upcomingImages = StreamController<String>.broadcast();
+  Stream<String> get upcomingImages => _upcomingImages.stream;
+
+  Future<Result<StatRecord>> _getRecord(String flashcardId) {
+    final future = _prefetched.putIfAbsent(
+      flashcardId,
+      () => _fcpRepo
+          .getStatRecordForFlashcardId(flashcardId)
+          .withReadTimeout()
+          .then((result) {
+            if (result case Ok(:final value)) {
+              _readyRecords[flashcardId] = value;
+              final flashcard = value.flashcard;
+              for (final url in [
+                flashcard?.questionImageUrl,
+                flashcard?.answerImageUrl,
+              ]) {
+                if (url != null &&
+                    url.isNotEmpty &&
+                    !_upcomingImages.isClosed) {
+                  _upcomingImages.add(url);
+                }
+              }
+            } else {
+              // A failed download is tried again next time.
+              _prefetched.remove(flashcardId);
+            }
+            return result;
+          }),
+    );
+    return future;
+  }
+
+  /// Starts downloading the cards after [index].
+  void _prefetchAfter(CustomSession session, int index) {
+    final ids = session.flashcardIds;
+    for (
+      var i = index + 1;
+      i < ids.length && i <= index + _prefetchCount;
+      i++
+    ) {
+      _getRecord(ids[i]);
+    }
+    // Records of cards already studied aren't needed any more.
+    for (var i = 0; i < index && i < ids.length; i++) {
+      _prefetched.remove(ids[i]);
+      _readyRecords.remove(ids[i]);
+    }
+  }
+
+  void _updateStreakInBackground(Future<Result<Streak?>> Function() update) {
+    _saver.run('streak', () async {
+      final result = await update();
+      switch (result) {
+        case Error<Streak?>(:final error):
+          return Result.error(error);
+        case Ok<Streak?>(:final value):
+          if (value != null && !isClosed) add(SessionTestStreakChanged(value));
+          return Result.ok(null);
+      }
+    });
+  }
+
+  @override
+  Future<void> close() {
+    _saver.dispose();
+    _upcomingImages.close();
+    return super.close();
   }
 
   void _onAnswerShown(
@@ -61,9 +152,9 @@ class SessionTestBloc extends Bloc<SessionTestEvent, SessionTestState> {
 
     emit(SessionTestLoading());
 
-    final sessionResult = await _sessionRepo.getCustomSessionFlashcardIds(
-      sessionSummary: event.sessionSummary,
-    );
+    final sessionResult = await _sessionRepo
+        .getCustomSessionFlashcardIds(sessionSummary: event.sessionSummary)
+        .withReadTimeout();
     switch (sessionResult) {
       case Error<CustomSession>(:final error):
         emit(SessionTestError(error));
@@ -83,9 +174,8 @@ class SessionTestBloc extends Bloc<SessionTestEvent, SessionTestState> {
       return;
     }
 
-    final recordResult = await _fcpRepo.getStatRecordForFlashcardId(
-      customSession.currentFlashcardId,
-    );
+    final recordResult = await _getRecord(customSession.currentFlashcardId);
+    _prefetchAfter(customSession, customSession.currentIndex);
     switch (recordResult) {
       case Error<StatRecord>(:final error):
         if (error is DocumentDoesntExistException) {
@@ -120,54 +210,119 @@ class SessionTestBloc extends Bloc<SessionTestEvent, SessionTestState> {
       ),
     );
 
-    final current = state;
-    if (current is! SessionTestLoaded) return;
-
     // start counting
-    final streakResult = await _profileRepo.checkAndStartStreak(
-      event.userStreak,
+    _updateStreakInBackground(
+      () => _profileRepo.checkAndStartStreak(event.userStreak),
     );
-    switch (streakResult) {
-      case Error<Streak?>(:final error):
-        print(error);
-      case Ok<Streak?>(:final value):
-        if (value == null) break;
-        emit(current.copyWith(newStreak: value));
-    }
   }
+
+  /// True while moving to the next card, so a quick double tap doesn't
+  /// answer the same card twice.
+  bool _advancing = false;
 
   void _onNextPressed(
     SessionTestNextPressed event,
     Emitter<SessionTestState> emit,
   ) async {
-    var state = this.state;
+    if (_advancing) return;
+    _advancing = true;
+    try {
+      await _next(event, emit);
+    } finally {
+      _advancing = false;
+    }
+  }
+
+  Future<void> _next(
+    SessionTestNextPressed event,
+    Emitter<SessionTestState> emit,
+  ) async {
+    final state = this.state;
     if (state is! SessionTestLoaded ||
         state.status.isLoading ||
         state.status.isBookmarkLoading) {
       return;
     }
+    // Ratings are only offered once the answer is shown, so a stray second
+    // tap on a card that just appeared is ignored.
+    if (event.rating != null && !state.answerShown) return;
 
-    emit(state.copyWith(status: SessionTestStatus.loading, error: null));
-
-    // count streak, if it needs to
-    final streakResult = await _profileRepo.checkAndIncrementCardsCount(
-      event.userStreak,
-    );
-    switch (streakResult) {
-      case Error<Streak?>(:final error):
-        print(error);
-      case Ok<Streak?>(:final value):
-        if (value == null) break;
-        emit(
-          state.copyWith(
-            status: SessionTestStatus.loading,
-            newStreak: value,
-            error: null,
-          ),
-        );
+    // The next card is usually downloaded already. Only if it isn't, the
+    // student briefly sees the loading indicator.
+    final newId = state.session.peekNextFlashcardId;
+    StatRecord? nextRecord;
+    var nextIsMissing = false;
+    if (newId != null) {
+      final pending = _getRecord(newId);
+      if (!_readyRecords.containsKey(newId)) {
+        emit(state.copyWith(status: SessionTestStatus.loading, error: null));
+      }
+      final recordResult = await pending;
+      switch (recordResult) {
+        case Error<StatRecord>(:final error):
+          if (error is DocumentDoesntExistException) {
+            nextIsMissing = true;
+            break;
+          }
+          // Nothing was saved yet, so pressing again simply retries.
+          emit(state.copyWith(status: SessionTestStatus.error, error: error));
+          return;
+        case Ok<StatRecord>(:final value):
+          nextRecord = value;
+      }
     }
 
-    state = (this.state as SessionTestLoaded);
+    _saveAnswer(state, event);
+
+    final newSession = event.isCorrect
+        ? state.session.incrementCurrentIndexAndCorrectCount()
+        : state.session.incrementCurrentIndex();
+    _prefetchAfter(newSession, newSession.currentIndex);
+
+    if (newSession.isFinished) {
+      emit(
+        state.copyWith(status: SessionTestStatus.finished, session: newSession),
+      );
+      return;
+    }
+
+    if (nextIsMissing || nextRecord == null) {
+      // The card was deleted after the session was made.
+      emit(
+        state.copyWith(
+          unformattedQuestion: '',
+          status: SessionTestStatus.noFlashcard,
+          statRecord: StatRecord.empty(),
+          session: newSession,
+          answerShown: false,
+          error: null,
+        ),
+      );
+      return;
+    }
+
+    final unformattedQuestion = nextRecord.flashcard!.question;
+    emit(
+      state.copyWith(
+        unformattedQuestion: unformattedQuestion,
+        status: SessionTestStatus.initial,
+        statRecord: nextRecord.copyWith(
+          flashcard: nextRecord.flashcard!.copyWith(
+            question: redactClozeQuestion(unformattedQuestion),
+          ),
+        ),
+        session: newSession,
+        answerShown: false,
+        error: null,
+      ),
+    );
+  }
+
+  /// Saves the rating, the session position and the streak in the background.
+  void _saveAnswer(SessionTestLoaded state, SessionTestNextPressed event) {
+    _updateStreakInBackground(
+      () => _profileRepo.checkAndIncrementCardsCount(event.userStreak),
+    );
 
     // Save the rating to the card's progress, so custom sessions count
     // towards spaced repetition like regular study.
@@ -183,79 +338,21 @@ class SessionTestBloc extends Bloc<SessionTestEvent, SessionTestState> {
       final newCard = FSRS()
           .repeat(currRecord.card, DateTime.now())[rating]!
           .card;
-      final progressResult = await _fcpRepo.safeUpdateCard(
-        newStatRecord: currRecord.copyWith(card: newCard),
-        currStatRecord: currRecord,
-      );
-      switch (progressResult) {
-        case Error<void>(:final error):
-          emit(state.copyWith(status: SessionTestStatus.error, error: error));
-          return;
-        case Ok<void>():
-      }
-    }
-
-    late final CustomSession newSession;
-    if (event.isCorrect) {
-      newSession = state.session.incrementCurrentIndexAndCorrectCount();
-    } else {
-      newSession = state.session.incrementCurrentIndex();
-    }
-
-    final newId = state.session.peekNextFlashcardId;
-    StatRecord? statRecord;
-    String? unformattedQuestion;
-    if (newId != null) {
-      final recordResult = await _fcpRepo.getStatRecordForFlashcardId(newId);
-      switch (recordResult) {
-        case Error<StatRecord>(:final error):
-          if (error is DocumentDoesntExistException) {
-            await _answerCorrectlyAndEmit(emit);
-            return;
-          }
-          emit(state.copyWith(status: SessionTestStatus.error, error: error));
-          return;
-        case Ok<StatRecord>():
-      }
-      statRecord = recordResult.value;
-      unformattedQuestion = statRecord.flashcard!.question;
-      statRecord = statRecord.copyWith(
-        flashcard: statRecord.flashcard!.copyWith(
-          question: redactClozeQuestion(unformattedQuestion),
+      _saver.run(
+        'card progress',
+        () => _fcpRepo.safeUpdateCard(
+          newStatRecord: currRecord.copyWith(card: newCard),
+          currStatRecord: currRecord,
         ),
       );
     }
 
-    late final Result<void> incrementResult;
-    if (event.isCorrect) {
-      incrementResult = await _sessionRepo.answeredCorrect(state.session.id);
-    } else {
-      incrementResult = await _sessionRepo.answeredWrong(state.session.id);
-    }
-    switch (incrementResult) {
-      case Error<void>(:final error):
-        emit(state.copyWith(status: SessionTestStatus.error, error: error));
-        return;
-      case Ok<void>():
-    }
-
-    //print(newSession.correctCount);
-    if (newSession.isFinished) {
-      emit(
-        state.copyWith(status: SessionTestStatus.finished, session: newSession),
-      );
-      return;
-    }
-
-    emit(
-      state.copyWith(
-        unformattedQuestion: unformattedQuestion!,
-        status: SessionTestStatus.initial,
-        statRecord: statRecord!,
-        session: newSession,
-        answerShown: false,
-        error: null,
-      ),
+    final sessionId = state.session.id;
+    _saver.run(
+      'session position',
+      () => event.isCorrect
+          ? _sessionRepo.answeredCorrect(sessionId)
+          : _sessionRepo.answeredWrong(sessionId),
     );
   }
 
@@ -315,39 +412,6 @@ class SessionTestBloc extends Bloc<SessionTestEvent, SessionTestState> {
     emit(
       (this.state as SessionTestLoaded).copyWith(
         status: SessionTestStatus.initial,
-      ),
-    );
-  }
-
-  Future<void> _answerCorrectlyAndEmit(Emitter<SessionTestState> emit) async {
-    final state = this.state;
-    if (state is! SessionTestLoaded) return;
-
-    final incrementResult = await _sessionRepo.answeredCorrect(
-      state.session.id,
-    );
-    switch (incrementResult) {
-      case Error<void>(:final error):
-        emit(state.copyWith(status: SessionTestStatus.error, error: error));
-        return;
-      case Ok<void>():
-    }
-    final newSession = state.session.incrementCurrentIndexAndCorrectCount();
-    if (newSession.isFinished) {
-      emit(
-        state.copyWith(status: SessionTestStatus.finished, session: newSession),
-      );
-      return;
-    }
-
-    emit(
-      state.copyWith(
-        unformattedQuestion: '',
-        status: SessionTestStatus.noFlashcard,
-        statRecord: StatRecord.empty(),
-        session: newSession,
-        answerShown: false,
-        error: null,
       ),
     );
   }

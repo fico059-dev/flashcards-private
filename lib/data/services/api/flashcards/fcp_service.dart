@@ -438,10 +438,11 @@ class FcpService {
     }
   }
 
-  Future<Result<void>> setDocument(FcpDataDto dto) async {
+  /// With [merge], fields already in the document but not in [dto] are kept.
+  Future<Result<void>> setDocument(FcpDataDto dto, {bool merge = false}) async {
     try {
       final ref = _fcpData.doc("${dto.profileId}_${dto.flashcardId}");
-      await ref.set(dto.toJson());
+      await ref.set(dto.toJson(), merge ? SetOptions(merge: true) : null);
       return Result.ok(null);
     } on Exception catch (error) {
       return Result.error(error);

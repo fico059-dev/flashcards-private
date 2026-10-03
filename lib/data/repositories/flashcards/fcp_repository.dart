@@ -456,6 +456,27 @@ class FcpRepository {
     required StatRecord newStatRecord,
     required StatRecord currStatRecord,
   }) async {
+    // A card studied for the first time has no progress document yet, so it
+    // is written in one go instead of waiting for an update to fail first.
+    if (!currStatRecord.isPulledFromDb && newStatRecord.flashcard != null) {
+      final result = await _fcpService.setDocument(
+        FcpDataDto.fromStatRecord(newStatRecord, _getUid()),
+        merge: true,
+      );
+      switch (result) {
+        case Error<void>(:final error):
+          return Result.error(error);
+        case Ok<void>():
+      }
+      _updateCacheForRatingGiven(
+        currStatRecord,
+        newStatRecord.card,
+        currStatRecord.packId,
+      );
+      _recordReview(currStatRecord.card, newStatRecord.card);
+      return Result.ok(null);
+    }
+
     // try to update a card, but only update the card object in document
     final updateDto = UpdateFcpDataDto(fsrsCard: newStatRecord.card);
     final updateResult = await _fcpService.updateDocument(

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:auto_route/auto_route.dart';
 import 'package:flashcards/bloc/flashcards/flashcard/flashcard_bloc.dart';
 import 'package:flashcards/bloc/flashcards/flashcard/flashcard_event.dart';
@@ -24,6 +26,7 @@ import 'package:flashcards/ui/widgets/flashcard/flashcard_test/flashcard_page_po
 import 'package:flashcards/ui/widgets/flashcard/flashcard_test/rating_buttons/flashcard_rating_buttons.dart';
 import 'package:flashcards/ui/widgets/flashcard/flashcard_test/flashcard_top_row/top_row_with_flashcard_bloc.dart';
 import 'package:flashcards/ui/widgets/flashcard/flashcard_test/timer_container.dart';
+import 'package:flashcards/utils/firebase_error_mapper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flashcards/l10n/app_localizations.dart';
@@ -38,15 +41,14 @@ class FlashcardPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create:
-          (context) => FlashcardBloc(
-            flashcardRepo: context.read<FlashcardRepository>(),
-            fcpRepo: context.read<FcpRepository>(),
-            authRepo: context.read<AuthRepository>(),
-            profileRepo: context.read<ProfileRepository>(),
-            ppRepo: context.read<PpRepository>(),
-            localStorageService: context.read<LocalStorageService>(),
-          ),
+      create: (context) => FlashcardBloc(
+        flashcardRepo: context.read<FlashcardRepository>(),
+        fcpRepo: context.read<FcpRepository>(),
+        authRepo: context.read<AuthRepository>(),
+        profileRepo: context.read<ProfileRepository>(),
+        ppRepo: context.read<PpRepository>(),
+        localStorageService: context.read<LocalStorageService>(),
+      ),
       child: _FlashcardView(testType: testType, pack: pack),
     );
   }
@@ -79,26 +81,60 @@ class _FlashcardViewState extends State<_FlashcardView> {
     }
   }
 
+  final _subscriptions = <StreamSubscription<Object>>[];
+
   @override
   void initState() {
     super.initState();
     WidgetsFlutterBinding.ensureInitialized();
+    final bloc = context.read<FlashcardBloc>();
+    _subscriptions
+      ..add(
+        bloc.saveErrors.listen((error) {
+          if (!mounted) return;
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                "Couldn't save your progress: ${extractErrorMessage(error)}",
+              ),
+            ),
+          );
+        }),
+      )
+      ..add(
+        // Load the pictures of the next cards while this one is studied.
+        bloc.upcomingImages.listen((url) {
+          if (!mounted) return;
+          precacheImage(NetworkImage(url), context, onError: (_, _) {});
+        }),
+      );
     _onStart();
+  }
+
+  @override
+  void dispose() {
+    for (final subscription in _subscriptions) {
+      subscription.cancel();
+    }
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final titleText = switch (widget.testType) {
       TestType.regular => AppLocalizations.of(context)!.flashcardPage_packTitle,
-      TestType.bookmark =>
-        AppLocalizations.of(context)!.flashcardPage_bookmarksTitle,
+      TestType.bookmark => AppLocalizations.of(
+        context,
+      )!.flashcardPage_bookmarksTitle,
     };
 
     final subTextForDialog = switch (widget.testType) {
-      TestType.regular =>
-        AppLocalizations.of(context)!.flashcardPage_packSubtext,
-      TestType.bookmark =>
-        AppLocalizations.of(context)!.flashcardPage_bookmarksSubtext,
+      TestType.regular => AppLocalizations.of(
+        context,
+      )!.flashcardPage_packSubtext,
+      TestType.bookmark => AppLocalizations.of(
+        context,
+      )!.flashcardPage_bookmarksSubtext,
     };
 
     return FlashcardPagePopScope(
@@ -127,11 +163,10 @@ class _FlashcardViewState extends State<_FlashcardView> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 TimerContainer<FlashcardBloc, FlashcardState>(
-                                  listenWhen:
-                                      (previous, current) =>
-                                          current.status.isLoaded,
-                                  shouldStartTimer:
-                                      (state) => state.status.isLoaded,
+                                  listenWhen: (previous, current) =>
+                                      current.status.isLoaded,
+                                  shouldStartTimer: (state) =>
+                                      state.status.isLoaded,
                                 ),
 
                                 SizedBox(height: 15),

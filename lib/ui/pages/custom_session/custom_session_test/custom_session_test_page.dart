@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:auto_route/auto_route.dart';
 import 'package:flashcards/bloc/flashcards/session_test/session_test_bloc.dart';
 import 'package:flashcards/bloc/flashcards/session_test/session_test_event.dart';
@@ -67,10 +69,42 @@ class _ViewState extends State<_View> {
     }
   }
 
+  final _subscriptions = <StreamSubscription<Object>>[];
+
   @override
   void initState() {
     super.initState();
+    final bloc = context.read<SessionTestBloc>();
+    _subscriptions
+      ..add(
+        bloc.saveErrors.listen((error) {
+          if (!mounted) return;
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                "Couldn't save your progress for a card: "
+                "${extractErrorMessage(error)}",
+              ),
+            ),
+          );
+        }),
+      )
+      ..add(
+        // Load the pictures of the next cards while this one is studied.
+        bloc.upcomingImages.listen((url) {
+          if (!mounted) return;
+          precacheImage(NetworkImage(url), context, onError: (_, _) {});
+        }),
+      );
     _onStart();
+  }
+
+  @override
+  void dispose() {
+    for (final subscription in _subscriptions) {
+      subscription.cancel();
+    }
+    super.dispose();
   }
 
   @override
