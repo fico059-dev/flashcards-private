@@ -6,6 +6,7 @@ import 'package:flashcards/ui/dialogs/profile/admin_dashboard/osce/rename_osce_b
 import 'package:flashcards/ui/dialogs/profile/admin_dashboard/osce_builder/delete_osce_dialog.dart';
 import 'package:flashcards/ui/theme/theme_extensions.dart';
 import 'package:flashcards/ui/theme/theme_extensions.dart';
+import 'package:flashcards/ui/constants/styles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -13,9 +14,11 @@ void showOsceOptionsBottomSheet(BuildContext context, SimpleOsce osce) {
   final readBloc = context.read<AdminOsceGetterBloc>();
 
   showModalBottomSheet(
+    isScrollControlled: true,
+    useSafeArea: true,
     showDragHandle: true,
     context: context,
-    builder: (context) {
+    builder: scrollableSheet((context) {
       void navigateTo(PageRouteInfo route) {
         context.router.pop();
         context.router.push(route);
@@ -31,7 +34,10 @@ void showOsceOptionsBottomSheet(BuildContext context, SimpleOsce osce) {
             Divider(),
             ListTile(
               onTap: () => navigateTo(QuestionEditorRoute(osceId: osce.id)),
-              leading: Icon(Icons.edit_note, color: context.colors.primaryContainer),
+              leading: Icon(
+                Icons.edit_note,
+                color: context.colors.primaryContainer,
+              ),
               title: Text("Edit Questions"),
             ),
             ListTile(
@@ -53,11 +59,13 @@ void showOsceOptionsBottomSheet(BuildContext context, SimpleOsce osce) {
               leading: Icon(Icons.delete_forever, color: context.colors.error),
               title: Text("Delete OSCE"),
               subtitle: Text("Deleted items can not be recovered!"),
-              subtitleTextStyle: TextStyle(color: context.colors.onSurfaceVariant),
+              subtitleTextStyle: TextStyle(
+                color: context.colors.onSurfaceVariant,
+              ),
             ),
           ],
         ),
       );
-    },
+    }),
   );
 }

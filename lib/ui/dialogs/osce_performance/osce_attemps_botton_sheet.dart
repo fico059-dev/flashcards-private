@@ -21,26 +21,23 @@ Future<bool?> showOsceAttemptsBottomSheet({
   return showModalBottomSheet(
     context: context,
     isScrollControlled: true,
-    builder:
-        (context) => DraggableScrollableSheet(
-          initialChildSize: 0.6,
-          minChildSize: 0.3,
-          maxChildSize: 0.97,
-          expand: false,
-          builder:
-              (context, scrollController) => BlocProvider(
-                create:
-                    (context) => OsceAttemptGetterBloc(
-                      osceId: osceId,
-                      perfRepo: context.read<OscePerformanceRepository>(),
-                    ),
-                child: _BottomSheetContent(
-                  osceId: osceId,
-                  scrollController: scrollController,
-                  onAttemptDeleted: onAttemptDeleted,
-                ),
-              ),
+    builder: (context) => DraggableScrollableSheet(
+      initialChildSize: 0.6,
+      minChildSize: 0.3,
+      maxChildSize: 0.97,
+      expand: false,
+      builder: (context, scrollController) => BlocProvider(
+        create: (context) => OsceAttemptGetterBloc(
+          osceId: osceId,
+          perfRepo: context.read<OscePerformanceRepository>(),
         ),
+        child: _BottomSheetContent(
+          osceId: osceId,
+          scrollController: scrollController,
+          onAttemptDeleted: onAttemptDeleted,
+        ),
+      ),
+    ),
   );
 }
 
@@ -86,20 +83,19 @@ class _BottomSheetContent extends StatelessWidget {
                 child: PagedListView(
                   scrollController: scrollController,
                   state: state.pagingState,
-                  fetchNextPage:
-                  context.read<OsceAttemptGetterBloc>().fetchNextPage,
+                  fetchNextPage: context
+                      .read<OsceAttemptGetterBloc>()
+                      .fetchNextPage,
                   builderDelegate: PagedChildBuilderDelegate(
-                    noItemsFoundIndicatorBuilder:
-                        (context) => _EmptyListContainer(),
-                    firstPageProgressIndicatorBuilder:
-                        (context) => OsceAttemptsShimmer(),
-                    firstPageErrorIndicatorBuilder:
-                        (context) => ErrorScreen(
+                    noItemsFoundIndicatorBuilder: (context) =>
+                        _EmptyListContainer(),
+                    firstPageProgressIndicatorBuilder: (context) =>
+                        OsceAttemptsShimmer(),
+                    firstPageErrorIndicatorBuilder: (context) => ErrorScreen(
                       errorMessage: extractErrorMessage(
                         state.pagingState.error!,
                       ),
-                      onReload:
-                          () => context.read<OsceAttemptGetterBloc>().add(
+                      onReload: () => context.read<OsceAttemptGetterBloc>().add(
                         OsceAttemptsGetterFetched(restart: true),
                       ),
                     ),

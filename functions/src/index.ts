@@ -19,6 +19,7 @@ import {updateFlashcardEverywhereHandler} from "./handlers/updateFlashcardEveryw
 import {createCustomSessionHandler} from "./handlers/createCustomSession";
 import {devGrantHandler} from "./handlers/devGrant";
 import {deletePackEverywhereHandler} from "./handlers/deletePackEverywhere";
+import {deletePackWithCardsHandler} from "./handlers/deletePackWithCards";
 import {deleteUserAndUserDataHandler} from "./handlers/deleteUserAndData";
 
 export const deleteUserAndUserData = onCall(deleteUserAndUserDataHandler);
@@ -30,6 +31,10 @@ export const addAdminRole = onCall(addAdminRoleHandler);
 export const deletePackProgress = onCall(deletePackProgressHandler);
 export const renamePackEverywhere = onCall(renamePackEverywhereHandler);
 export const deletePackEverywhereIfEmpty = onCall(deletePackEverywhereHandler);
+export const deletePackWithCards = onCall(
+  {timeoutSeconds: 540, memory: "512MiB"},
+  deletePackWithCardsHandler,
+);
 
 // flashcards operations
 export const deleteFlashcardEverywhere = onCall(

@@ -54,9 +54,8 @@ class _FormState extends State<_Form> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create:
-          (blocContext) =>
-              RenamePackCubit(packRepo: context.read<PackRepository>()),
+      create: (blocContext) =>
+          RenamePackCubit(packRepo: context.read<PackRepository>()),
       child: Builder(
         builder: (context) {
           void onRename() {
@@ -67,9 +66,8 @@ class _FormState extends State<_Form> {
           }
 
           return BlocListener<RenamePackCubit, RenamePackState>(
-            listenWhen:
-                (previous, current) =>
-                    current is RenamePackSuccess || current is RenamePackError,
+            listenWhen: (previous, current) =>
+                current is RenamePackSuccess || current is RenamePackError,
             listener: (context, state) {
               switch (state) {
                 case RenamePackSuccess(:final newName):
@@ -102,11 +100,9 @@ class _FormState extends State<_Form> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   BlocTextField<RenamePackCubit, RenamePackState>(
-                    errorSelector:
-                        (state) =>
-                            state is RenamePackFormInvalid
-                                ? state.errors['name']
-                                : null,
+                    errorSelector: (state) => state is RenamePackFormInvalid
+                        ? state.errors['name']
+                        : null,
                     textEditingController: _nameCont,
                     labelText: "New Name",
                   ),

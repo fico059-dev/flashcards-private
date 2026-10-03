@@ -80,12 +80,11 @@ class QuestionInputWidget extends StatelessWidget {
                 TextButton.icon(
                   icon: const Icon(Icons.list),
                   label: Text("Show Checks ($checksCount)"),
-                  onPressed:
-                      () => showChecksBottomSheet(
-                        context: context,
-                        //questionForm: questionForm,
-                        questionIndex: questionIndex,
-                      ),
+                  onPressed: () => showChecksBottomSheet(
+                    context: context,
+                    //questionForm: questionForm,
+                    questionIndex: questionIndex,
+                  ),
                 ),
                 const Spacer(),
                 BlocBuilder<UpdateOsceCubit, UpdateOsceState>(
@@ -99,12 +98,11 @@ class QuestionInputWidget extends StatelessWidget {
                     return ImagePickerButton(
                       label: "Question",
                       imageData: imageData,
-                      onImageChanged:
-                          (imageData) => context
-                              .read<UpdateOsceCubit>()
-                              .questionImageChanged(questionIndex, imageData),
-                      onError:
-                          (error) => ScaffoldMessenger.of(context).showSnackBar(
+                      onImageChanged: (imageData) => context
+                          .read<UpdateOsceCubit>()
+                          .questionImageChanged(questionIndex, imageData),
+                      onError: (error) =>
+                          ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(content: Text(extractErrorMessage(error))),
                           ),
                     );

@@ -231,19 +231,18 @@ class PackRepository {
       final learningCountMap = _extractCounts(learningResults);
       final seenCountMap = _extractCounts(seenResults);
 
-      final packs =
-          dtoList.map((dto) {
-            final id = dto.id!;
-            final dueCount = calculateDueCount(dueCountMap, id);
-            final newCount = calculateNewCount(
-              seenCountMap,
-              id,
-              dto.flashcardsCount,
-            );
-            final learningCount = calculateLearningCount(learningCountMap, id);
+      final packs = dtoList.map((dto) {
+        final id = dto.id!;
+        final dueCount = calculateDueCount(dueCountMap, id);
+        final newCount = calculateNewCount(
+          seenCountMap,
+          id,
+          dto.flashcardsCount,
+        );
+        final learningCount = calculateLearningCount(learningCountMap, id);
 
-            return dto.toPackDomain(dueCount, newCount, learningCount);
-          }).toList();
+        return dto.toPackDomain(dueCount, newCount, learningCount);
+      }).toList();
 
       final updatedPacks = _packsCache.removeDuplicatesFromManualCache(packs);
       _packsCache.put(
@@ -290,8 +289,9 @@ class PackRepository {
       case Ok<PaginatedDtoResult<PackDto>>():
     }
 
-    final list =
-        result.value.items.map((dto) => dto.toAdminPackDomain()).toList();
+    final list = result.value.items
+        .map((dto) => dto.toAdminPackDomain())
+        .toList();
 
     final updatedList = _adminPacksCache.removeDuplicatesFromManualCache(list);
     _adminPacksCache.put(
@@ -327,8 +327,9 @@ class PackRepository {
       case Ok<PaginatedDtoResult<PackDto>>():
     }
 
-    final list =
-        result.value.items.map((dto) => dto.toAdminPackDomain()).toList();
+    final list = result.value.items
+        .map((dto) => dto.toAdminPackDomain())
+        .toList();
 
     _availablePacksCursorMap.put(pageIndex, result.value.lastDocument);
 
@@ -420,6 +421,19 @@ class PackRepository {
     } on Exception catch (error) {
       return Result.error(error);
     }
+  }
+
+  /// Deletes the pack with all its flashcards and everyone's progress on them.
+  Future<Result<void>> deletePackWithCards(String packId) async {
+    final result = await _packService.deletePackWithCards(packId);
+    switch (result) {
+      case Error<void>(:final error):
+        return Result.error(error);
+      case Ok<void>():
+    }
+
+    handlePackDeletedInCache(packId);
+    return Result.ok(null);
   }
 
   Future<Result<void>> deletePackEverywhereIfEmpty(String packId) async {

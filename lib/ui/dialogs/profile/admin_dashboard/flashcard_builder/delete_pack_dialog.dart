@@ -1,4 +1,3 @@
-import 'package:auto_route/auto_route.dart';
 import 'package:flashcards/bloc/pack/admin_packs_getter/admin_packs_getter_bloc.dart';
 import 'package:flashcards/bloc/pack/admin_packs_getter/admin_packs_getter_event.dart';
 import 'package:flashcards/bloc/pack/delete_pack/delete_pack_cubit.dart';
@@ -17,24 +16,25 @@ Future<bool?> showDeletePackDialog(
 ) {
   return showDialog<bool?>(
     context: context,
+    // Deleting a big pack takes a while, keep the dialog until it's done.
+    barrierDismissible: false,
     builder: (context) {
       return BlocProvider.value(
         value: cubit,
         child: BlocListener<DeletePackCubit, DeletePackState>(
-          listenWhen:
-              (previous, current) =>
-                  current is DeletePackSuccessful || current is DeletePackError,
+          listenWhen: (previous, current) =>
+              current is DeletePackSuccessful || current is DeletePackError,
           listener: (context, state) {
             switch (state) {
               case DeletePackError(:final error):
-                context.router.pop(false);
+                Navigator.of(context).pop(false);
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(content: Text(extractErrorMessage(error))),
                 );
                 break;
               case DeletePackSuccessful():
                 getterBloc?.add(AdminPacksGetterCacheRead());
-                context.router.pop(true);
+                Navigator.of(context).pop(true);
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text(
@@ -48,22 +48,30 @@ Future<bool?> showDeletePackDialog(
           },
           child: AlertDialog(
             title: Text('Delete "${pack.packName}" pack?'),
-            content: Text("You can only delete a pack if it's empty"),
+            content: Text(
+              pack.flashcardsCount == 0
+                  ? "This empty pack will be deleted."
+                  : "This permanently deletes the pack, its "
+                        "${pack.flashcardsCount} flashcards with their images, "
+                        "and every user's progress on them. "
+                        "This can't be undone.",
+            ),
             actions: [
               BlocBuilder<DeletePackCubit, DeletePackState>(
                 builder: (context, state) {
                   return TextButton(
-                    onPressed:
-                        state is DeletePackLoading
-                            ? null
-                            : () => context.router.pop(),
+                    onPressed: state is DeletePackLoading
+                        ? null
+                        : () => Navigator.of(context).pop(),
                     child: Text("Cancel"),
                   );
                 },
               ),
               BlocButtonText<DeletePackCubit, DeletePackState>(
-                textString: "Delete pack",
-                onPressed: () => cubit.deletePackIfEmpty(pack.packId),
+                textString: pack.flashcardsCount == 0
+                    ? "Delete pack"
+                    : "Delete pack and ${pack.flashcardsCount} cards",
+                onPressed: () => cubit.deletePack(pack.packId),
                 isLoadingState: (state) => state is DeletePackLoading,
               ),
             ],

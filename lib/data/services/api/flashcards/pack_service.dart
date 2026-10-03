@@ -182,6 +182,15 @@ class PackService {
     }
   }
 
+  Future<Result<void>> deletePackWithCards(String packId) async {
+    try {
+      await _functions.deletePackWithCards(packId);
+      return Result.ok(null);
+    } on Exception catch (error) {
+      return Result.error(error);
+    }
+  }
+
   Future<Result<void>> deletePackEverywhereIfEmpty(String packId) async {
     try {
       await _functions.deletePackEverywhereIfEmpty(packId);

@@ -25,12 +25,11 @@ class DeleteProfilePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create:
-          (context) => DeleteUserCubit(
-            profileRepo: context.read<ProfileRepository>(),
-            resetSignOutReason: context.read<AuthBloc>().resetSignOutReason,
-            setSignOutReason: context.read<AuthBloc>().setSignOutReason,
-          ),
+      create: (context) => DeleteUserCubit(
+        profileRepo: context.read<ProfileRepository>(),
+        resetSignOutReason: context.read<AuthBloc>().resetSignOutReason,
+        setSignOutReason: context.read<AuthBloc>().setSignOutReason,
+      ),
       child: _DeleteProfileView(),
     );
   }
@@ -140,16 +139,14 @@ class _DeleteProfileViewState extends State<_DeleteProfileView> {
                     right: 0,
                     child: BlocButton<DeleteUserCubit, DeleteUserState>.small(
                       backgroundColor: context.colors.error,
-                      textString:
-                          AppLocalizations.of(
-                            context,
-                          )!.deleteProfilePage_deleteAccount,
+                      textString: AppLocalizations.of(
+                        context,
+                      )!.deleteProfilePage_deleteAccount,
                       onPressed: (context) => onDelete(),
                       isLoadingState: (state) => false,
-                      isDisabledState:
-                          (state) =>
-                              state is DeleteUserLoading ||
-                              state is DeleteUserRequiresReauth,
+                      isDisabledState: (state) =>
+                          state is DeleteUserLoading ||
+                          state is DeleteUserRequiresReauth,
                     ),
                   ),
                 ],

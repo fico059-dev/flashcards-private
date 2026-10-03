@@ -18,9 +18,8 @@ class UpdatePasswordPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create:
-          (context) =>
-              UpdatePasswordCubit(authRepo: context.read<AuthRepository>()),
+      create: (context) =>
+          UpdatePasswordCubit(authRepo: context.read<AuthRepository>()),
       child: _UpdatePasswordView(),
     );
   }
@@ -69,37 +68,32 @@ class _UpdatePasswordViewState extends State<_UpdatePasswordView> {
         ),
         actions: [
           BlocBuilder<UpdatePasswordCubit, UpdatePasswordState>(
-            builder:
-                (context, state) => TextButton(
-                  onPressed:
-                      state is UpdatePasswordLoading ||
-                              state is UpdatePasswordRequiresReauth
-                          ? null
-                          : _onUpdate,
-                  child:
-                      state is! UpdatePasswordLoading
-                          ? Text(
-                            AppLocalizations.of(
-                              context,
-                            )!.updatePasswordPage_update,
-                          )
-                          : SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(
-                              color: Colors.indigo,
-                              strokeWidth: 3,
-                            ),
-                          ),
-                ),
+            builder: (context, state) => TextButton(
+              onPressed:
+                  state is UpdatePasswordLoading ||
+                      state is UpdatePasswordRequiresReauth
+                  ? null
+                  : _onUpdate,
+              child: state is! UpdatePasswordLoading
+                  ? Text(
+                      AppLocalizations.of(context)!.updatePasswordPage_update,
+                    )
+                  : SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        color: Colors.indigo,
+                        strokeWidth: 3,
+                      ),
+                    ),
+            ),
           ),
         ],
       ),
       body: BlocListener<UpdatePasswordCubit, UpdatePasswordState>(
-        listenWhen:
-            (previous, current) =>
-                current is UpdatePasswordSuccessful ||
-                current is UpdatePasswordError,
+        listenWhen: (previous, current) =>
+            current is UpdatePasswordSuccessful ||
+            current is UpdatePasswordError,
         listener: (context, state) {
           switch (state) {
             case UpdatePasswordSuccessful():
@@ -134,33 +128,29 @@ class _UpdatePasswordViewState extends State<_UpdatePasswordView> {
               spacing: 20,
               children: [
                 BlocTextField<UpdatePasswordCubit, UpdatePasswordState>(
-                  labelText:
-                      AppLocalizations.of(context)!.updatePasswordPage_password,
-                  errorSelector:
-                      (state) =>
-                          state is UpdatePasswordFormInvalid
-                              ? state.errors['password']
-                              : null,
+                  labelText: AppLocalizations.of(
+                    context,
+                  )!.updatePasswordPage_password,
+                  errorSelector: (state) => state is UpdatePasswordFormInvalid
+                      ? state.errors['password']
+                      : null,
                   textEditingController: _passCont,
                   obscureText: true,
                 ),
                 BlocTextField<UpdatePasswordCubit, UpdatePasswordState>(
-                  labelText:
-                      AppLocalizations.of(
-                        context,
-                      )!.updatePasswordPage_repeatPassword,
-                  errorSelector:
-                      (state) =>
-                          state is UpdatePasswordFormInvalid
-                              ? state.errors['repeat-password']
-                              : null,
+                  labelText: AppLocalizations.of(
+                    context,
+                  )!.updatePasswordPage_repeatPassword,
+                  errorSelector: (state) => state is UpdatePasswordFormInvalid
+                      ? state.errors['repeat-password']
+                      : null,
                   textEditingController: _repeatPassCont,
                   obscureText: true,
                 ),
                 const SizedBox(height: 20),
                 ReauthSection<UpdatePasswordCubit, UpdatePasswordState>(
-                  isReauthState:
-                      (state) => state is UpdatePasswordRequiresReauth,
+                  isReauthState: (state) =>
+                      state is UpdatePasswordRequiresReauth,
                   onRetryOriginalAction: _onUpdate,
                 ),
               ],

@@ -21,14 +21,16 @@ void showCreateOsceDialog(BuildContext context) {
     context: context,
     isScrollControlled: true,
     builder: (context) {
-      return DraggableScrollableSheet(
-        minChildSize: 0.6,
-        maxChildSize: 0.95,
-        initialChildSize: 0.75,
-        expand: false,
-        builder: (context, scrollController) {
-          return _Form(readBloc: readBloc, controller: scrollController);
-        },
+      return KeyboardAwareSheet(
+        child: DraggableScrollableSheet(
+          minChildSize: 0.6,
+          maxChildSize: 0.95,
+          initialChildSize: 0.75,
+          expand: false,
+          builder: (context, scrollController) {
+            return _Form(readBloc: readBloc, controller: scrollController);
+          },
+        ),
       );
     },
   );
@@ -67,8 +69,8 @@ class _FormState extends State<_Form> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create:
-          (context) => OsceDrCubit(osceRepo: context.read<OsceRepository>()),
+      create: (context) =>
+          OsceDrCubit(osceRepo: context.read<OsceRepository>()),
       child: Builder(
         builder: (context) {
           void onCreate() {
@@ -80,9 +82,8 @@ class _FormState extends State<_Form> {
           }
 
           return BlocListener<OsceDrCubit, OsceDrState>(
-            listenWhen:
-                (previous, current) =>
-                    current is OsceDrSuccess || current is OsceDrError,
+            listenWhen: (previous, current) =>
+                current is OsceDrSuccess || current is OsceDrError,
             listener: (context, state) {
               switch (state) {
                 case OsceDrSuccess():

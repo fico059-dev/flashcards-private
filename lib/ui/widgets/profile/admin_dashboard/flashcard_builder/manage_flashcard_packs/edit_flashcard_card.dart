@@ -70,8 +70,8 @@ class EditFlashcardCard extends StatelessWidget {
         elevation: 2,
         child: InkWell(
           borderRadius: BorderRadius.circular(12),
-          onLongPress:
-              () => showManageFlashcardBottomSheet(context, flashcard, packId),
+          onLongPress: () =>
+              showManageFlashcardBottomSheet(context, flashcard, packId),
           child: Column(
             children: [
               ListTile(

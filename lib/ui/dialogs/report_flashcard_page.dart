@@ -26,9 +26,8 @@ class ReportFlashcardPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create:
-          (context) =>
-              ReportCubit(reportRepo: context.read<ReportRepository>()),
+      create: (context) =>
+          ReportCubit(reportRepo: context.read<ReportRepository>()),
       child: _ReportFlashcardView(
         flashcard: flashcard,
         packId: packId,
@@ -79,9 +78,8 @@ class _ReportFlashcardViewState extends State<_ReportFlashcardView> {
   @override
   Widget build(BuildContext context) {
     return BlocListener<ReportCubit, ReportState>(
-      listenWhen:
-          (previous, current) =>
-              current is ReportSuccess || current is ReportError,
+      listenWhen: (previous, current) =>
+          current is ReportSuccess || current is ReportError,
       listener: (context, state) {
         switch (state) {
           case ReportSuccess():
@@ -112,10 +110,9 @@ class _ReportFlashcardViewState extends State<_ReportFlashcardView> {
             BlocButtonText<ReportCubit, ReportState>(
               isLoadingState: (state) => state is ReportLoading,
               onPressed: isSubmitEnabled ? submitReport : null,
-              textString:
-                  AppLocalizations.of(
-                    context,
-                  )!.reportFlashcardPage_submitReport,
+              textString: AppLocalizations.of(
+                context,
+              )!.reportFlashcardPage_submitReport,
             ),
           ],
         ),
@@ -151,14 +148,12 @@ class _ReportFlashcardViewState extends State<_ReportFlashcardView> {
                 TextField(
                   controller: _messageController,
                   decoration: InputDecoration(
-                    labelText:
-                        AppLocalizations.of(
-                          context,
-                        )!.reportFlashcardPage_additionalDetails,
-                    hintText:
-                        AppLocalizations.of(
-                          context,
-                        )!.reportFlashcardPage_explain,
+                    labelText: AppLocalizations.of(
+                      context,
+                    )!.reportFlashcardPage_additionalDetails,
+                    hintText: AppLocalizations.of(
+                      context,
+                    )!.reportFlashcardPage_explain,
                     border: OutlineInputBorder(),
                   ),
                   minLines: 2,

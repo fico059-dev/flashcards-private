@@ -25,7 +25,11 @@ void showRenameOsceBottomSheet(
     isScrollControlled: true,
     context: context,
     builder: (context) {
-      return _Form(osce: osce, readBloc: readBloc);
+      return KeyboardAwareSheet(
+        child: SingleChildScrollView(
+          child: _Form(osce: osce, readBloc: readBloc),
+        ),
+      );
     },
   );
 }
@@ -61,9 +65,8 @@ class _FormState extends State<_Form> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create:
-          (blocContext) =>
-              OsceDrCubit(osceRepo: context.read<OsceRepository>()),
+      create: (blocContext) =>
+          OsceDrCubit(osceRepo: context.read<OsceRepository>()),
       child: Builder(
         builder: (context) {
           void onRename() {
@@ -77,9 +80,8 @@ class _FormState extends State<_Form> {
           return LoadingOverlayListener<OsceDrCubit, OsceDrState>(
             isLoading: (state) => state is OsceDrLoading,
             child: BlocListener<OsceDrCubit, OsceDrState>(
-              listenWhen:
-                  (previous, current) =>
-                      current is OsceDrSuccess || current is OsceDrError,
+              listenWhen: (previous, current) =>
+                  current is OsceDrSuccess || current is OsceDrError,
               listener: (context, state) {
                 switch (state) {
                   case OsceDrSuccess():

@@ -19,12 +19,11 @@ class ChangeEmailPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create:
-          (context) => UpdateEmailDuringVerificationCubit(
-            authRepository: context.read<AuthRepository>(),
-            setSignOutReason: context.read<AuthBloc>().setSignOutReason,
-            resetSignOutReason: context.read<AuthBloc>().resetSignOutReason,
-          ),
+      create: (context) => UpdateEmailDuringVerificationCubit(
+        authRepository: context.read<AuthRepository>(),
+        setSignOutReason: context.read<AuthBloc>().setSignOutReason,
+        resetSignOutReason: context.read<AuthBloc>().resetSignOutReason,
+      ),
       child: _ChangeEmailView(),
     );
   }
@@ -141,12 +140,12 @@ class _ChangeEmailViewState extends State<_ChangeEmailView> {
             },
             child: ChangeEmailScaffold(
               isVerifyEmailPage: false,
-              updateEmailCubit:
-                  context.read<UpdateEmailDuringVerificationCubit>(),
+              updateEmailCubit: context
+                  .read<UpdateEmailDuringVerificationCubit>(),
               emailController: _emailController,
               additionalContent: _ChangeEmailAdditionalContent(
-                updateEmailCubit:
-                    context.read<UpdateEmailDuringVerificationCubit>(),
+                updateEmailCubit: context
+                    .read<UpdateEmailDuringVerificationCubit>(),
               ),
             ),
           );
@@ -196,19 +195,18 @@ class _ChangeEmailAdditionalContent extends StatelessWidget {
               style: tonalButtonStyle(context),
               onPressed:
                   state is UpdateEmailLoading || state is UpdateEmailRefreshing
-                      ? null
-                      : onRefresh,
-              child:
-                  state is! UpdateEmailRefreshing
-                      ? Text("I've verified my email")
-                      : SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(
-                          color: Colors.indigo,
-                          strokeWidth: 3,
-                        ),
+                  ? null
+                  : onRefresh,
+              child: state is! UpdateEmailRefreshing
+                  ? Text("I've verified my email")
+                  : SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        color: Colors.indigo,
+                        strokeWidth: 3,
                       ),
+                    ),
             ),
           ),
         );

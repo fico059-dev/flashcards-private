@@ -280,6 +280,30 @@ class FlashcardRepository {
     return Result.ok(updatedList);
   }
 
+  /// Reads every flashcard of the pack straight from the server, for export.
+  Future<Result<List<Flashcard>>> getAllFlashcardsInPack(String packId) async {
+    const pageSize = 500;
+    final flashcards = <Flashcard>[];
+    DocumentSnapshot? lastDoc;
+    while (true) {
+      final result = await _flashcardService.getDocumentsByPackIdPagination(
+        packId: packId,
+        limit: pageSize,
+        startAfter: lastDoc,
+      );
+      switch (result) {
+        case Error<PaginatedDtoResult<FlashcardDto>>(:final error):
+          return Result.error(error);
+        case Ok<PaginatedDtoResult<FlashcardDto>>():
+      }
+
+      flashcards.addAll(result.value.items.map((dto) => dto.toDomain()));
+      lastDoc = result.value.lastDocument;
+      if (result.value.items.length < pageSize || lastDoc == null) break;
+    }
+    return Result.ok(flashcards);
+  }
+
   Future<Result<void>> deleteFlashcardEverywhere(Flashcard flashcard) async {
     final packId = flashcard.packId;
     final flashcardId = flashcard.id;
@@ -308,10 +332,10 @@ class FlashcardRepository {
     ImageDataWrapper questionImageData = const ImageDataWrapper(),
     ImageDataWrapper answerImageData = const ImageDataWrapper(),
   }) async {
-    final (shouldDeleteQuestion, questionPickedImage) =
-        questionImageData.getPickedImageAndDeletedFlag();
-    final (shouldDeleteAnswer, answerPickedImage) =
-        answerImageData.getPickedImageAndDeletedFlag();
+    final (shouldDeleteQuestion, questionPickedImage) = questionImageData
+        .getPickedImageAndDeletedFlag();
+    final (shouldDeleteAnswer, answerPickedImage) = answerImageData
+        .getPickedImageAndDeletedFlag();
 
     final updateDto = UpdateFlashcardDto(
       question: question,
@@ -643,16 +667,15 @@ class FlashcardRepository {
     if (bytes == null) return null;
 
     final picked = PickedImage(bytes: bytes);
-    final result =
-        isQuestion
-            ? await _flashcardService.uploadQuestionImageAndGetUrl(
-              flashcardId: flashcardId,
-              image: picked,
-            )
-            : await _flashcardService.uploadAnswerImageAndGetUrl(
-              flashcardId: flashcardId,
-              image: picked,
-            );
+    final result = isQuestion
+        ? await _flashcardService.uploadQuestionImageAndGetUrl(
+            flashcardId: flashcardId,
+            image: picked,
+          )
+        : await _flashcardService.uploadAnswerImageAndGetUrl(
+            flashcardId: flashcardId,
+            image: picked,
+          );
     return switch (result) {
       Ok<String>(:final value) => value,
       Error<String>() => null,
@@ -670,11 +693,10 @@ class FlashcardRepository {
     _adminPageCache.invalidate(packId);
     _adminPacksCache.updateItem(
       id: packId,
-      copyWith:
-          (item) => item.copyWith(
-            flashcardsCount: item.flashcardsCount + importedCount,
-            tagCounts: addTagsToPackMap(item.tagCounts, tagIds),
-          ),
+      copyWith: (item) => item.copyWith(
+        flashcardsCount: item.flashcardsCount + importedCount,
+        tagCounts: addTagsToPackMap(item.tagCounts, tagIds),
+      ),
     );
   }
 
@@ -684,11 +706,10 @@ class FlashcardRepository {
 
     _adminPacksCache.updateItem(
       id: packId,
-      copyWith:
-          (item) => item.copyWith(
-            flashcardsCount: item.flashcardsCount - 1,
-            tagCounts: updatePackTagCounts(item.tagCounts, oldTags, []),
-          ),
+      copyWith: (item) => item.copyWith(
+        flashcardsCount: item.flashcardsCount - 1,
+        tagCounts: updatePackTagCounts(item.tagCounts, oldTags, []),
+      ),
     );
   }
 
@@ -699,18 +720,16 @@ class FlashcardRepository {
   }) {
     _packsCache.updateItem(
       id: packId,
-      copyWith:
-          (item) => item.copyWith(
-            tagCounts: updatePackTagCounts(item.tagCounts, oldTags, newTags),
-          ),
+      copyWith: (item) => item.copyWith(
+        tagCounts: updatePackTagCounts(item.tagCounts, oldTags, newTags),
+      ),
     );
 
     _adminPacksCache.updateItem(
       id: packId,
-      copyWith:
-          (item) => item.copyWith(
-            tagCounts: updatePackTagCounts(item.tagCounts, oldTags, newTags),
-          ),
+      copyWith: (item) => item.copyWith(
+        tagCounts: updatePackTagCounts(item.tagCounts, oldTags, newTags),
+      ),
     );
   }
 
@@ -721,21 +740,19 @@ class FlashcardRepository {
   ) {
     _packsCache.updateItem(
       id: packId,
-      copyWith:
-          (item) => item.copyWith(
-            flashcardsCount: item.flashcardsCount + 1,
-            newCount: item.newCount + 1,
-            tagCounts: updatePackTagCounts(item.tagCounts, [], newTags),
-          ),
+      copyWith: (item) => item.copyWith(
+        flashcardsCount: item.flashcardsCount + 1,
+        newCount: item.newCount + 1,
+        tagCounts: updatePackTagCounts(item.tagCounts, [], newTags),
+      ),
     );
 
     _adminPacksCache.updateItem(
       id: packId,
-      copyWith:
-          (item) => item.copyWith(
-            flashcardsCount: item.flashcardsCount + 1,
-            tagCounts: updatePackTagCounts(item.tagCounts, [], newTags),
-          ),
+      copyWith: (item) => item.copyWith(
+        flashcardsCount: item.flashcardsCount + 1,
+        tagCounts: updatePackTagCounts(item.tagCounts, [], newTags),
+      ),
     );
   }
 

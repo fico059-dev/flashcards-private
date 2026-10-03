@@ -16,8 +16,14 @@ class AdminOsceCard extends StatelessWidget {
       child: ListTile(
         onTap: () => showOsceOptionsBottomSheet(context, osce),
         tileColor: context.colors.secondaryContainer.withValues(alpha: 0.6),
-        leading: Icon(Icons.assignment_outlined, color: context.colors.onSecondaryContainer,),
-        title: Text(osce.name, style: TextStyle(color: context.colors.onSecondaryContainer),),
+        leading: Icon(
+          Icons.assignment_outlined,
+          color: context.colors.onSecondaryContainer,
+        ),
+        title: Text(
+          osce.name,
+          style: TextStyle(color: context.colors.onSecondaryContainer),
+        ),
         trailing: SubsStatusIcon(
           isPaid: osce.isPaid,
           hasAccess: false,

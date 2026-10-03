@@ -10,6 +10,21 @@ class DeletePackCubit extends Cubit<DeletePackState> {
     : _packRepo = packRepo,
       super(DeletePackInitial());
 
+  /// Deletes the pack even if it has flashcards (they are deleted too).
+  void deletePack(String packId) async {
+    emit(DeletePackLoading());
+
+    final deleteResult = await _packRepo.deletePackWithCards(packId);
+    switch (deleteResult) {
+      case Error<void>(:final error):
+        emit(DeletePackError(error: error));
+        return;
+      case Ok<void>():
+    }
+
+    emit(DeletePackSuccessful());
+  }
+
   void deletePackIfEmpty(String packId) async {
     emit(DeletePackLoading());
 

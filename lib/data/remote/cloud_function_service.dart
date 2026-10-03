@@ -67,6 +67,14 @@ class CloudFunctionService {
     await callable.call(<String, dynamic>{'packId': packId, 'isPaid': isPaid});
   }
 
+  Future<void> deletePackWithCards(String packId) async {
+    final callable = _functions.httpsCallable(
+      'deletePackWithCards',
+      options: HttpsCallableOptions(timeout: const Duration(minutes: 9)),
+    );
+    await callable.call(<String, dynamic>{'packId': packId});
+  }
+
   Future<void> deletePackEverywhereIfEmpty(String packId) async {
     final callable = _functions.httpsCallable("deletePackEverywhereIfEmpty");
     await callable.call(<String, dynamic>{"packId": packId});

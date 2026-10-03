@@ -7,6 +7,7 @@ import 'package:flashcards/ui/theme/theme_extensions.dart';
 import 'package:flashcards/ui/theme/theme_extensions.dart';
 import 'package:flashcards/ui/widgets/profile/admin_dashboard/flashcard_builder/manage_flashcard_packs/delete_flashcard_dialog.dart';
 import 'package:flashcards/ui/dialogs/profile/admin_dashboard/flashcard_builder/manage_flashcards/update_flashcard_bottom_sheet.dart';
+import 'package:flashcards/ui/constants/styles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -38,9 +39,11 @@ void showManageFlashcardBottomSheet(
   }
 
   showModalBottomSheet(
+    isScrollControlled: true,
+    useSafeArea: true,
     context: context,
     showDragHandle: true,
-    builder: (context) {
+    builder: scrollableSheet((context) {
       return BlocProvider.value(
         value: bloc,
         child: Builder(
@@ -87,6 +90,6 @@ void showManageFlashcardBottomSheet(
           ),
         ),
       );
-    },
+    }),
   );
 }

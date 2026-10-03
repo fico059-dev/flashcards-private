@@ -39,14 +39,16 @@ void showChecksBottomSheet({
         maxChildSize: 0.97,
         expand: false,
         builder: (context, scrollController) => Padding(
-          padding: bottomSheetHorizontalPadding,
+          padding: bottomSheetHorizontalPadding.copyWith(
+            bottom: MediaQuery.viewInsetsOf(context).bottom,
+          ),
           child: Scaffold(
             backgroundColor:
                 context.theme.bottomSheetTheme.backgroundColor ??
                 context.colors.surfaceContainerLow,
             floatingActionButton: FloatingActionButton(
               onPressed: addCheck,
-              child: Icon(Icons.add, color: context.colors.onPrimary,),
+              child: Icon(Icons.add, color: context.colors.onPrimary),
             ),
             body: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -78,6 +80,8 @@ void showChecksBottomSheet({
                         builder: (context, questionForm) {
                           return ListView(
                             controller: scrollController,
+                            // Room for the add button over the last check.
+                            padding: const EdgeInsets.only(bottom: 96),
                             children: [
                               ...questionForm.checkForms.asMap().entries.map((
                                 cEntry,
