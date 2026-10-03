@@ -663,7 +663,10 @@ class FlashcardRepository {
     required bool isQuestion,
   }) async {
     if (image == null) return null;
-    final bytes = await compressImportedImage(image.path);
+    final bytes = image.count > 1
+        ? await combineImagesVertically(image.paths) ??
+              await compressImportedImage(image.path)
+        : await compressImportedImage(image.path);
     if (bytes == null) return null;
 
     final picked = PickedImage(bytes: bytes);

@@ -2,11 +2,23 @@ import 'package:flashcards/data/services/anki/anki_text_converter.dart';
 
 /// An image referenced by an Anki card. It is extracted from the deck to a
 /// temporary file, so large decks don't have to fit in memory.
+///
+/// A side with several images keeps all of them in [paths]; they are joined
+/// into one picture when uploaded, since a flashcard side has one image.
 class AnkiImage {
   final String name;
   final String path;
+  final List<String> extraPaths;
 
-  const AnkiImage({required this.name, required this.path});
+  const AnkiImage({
+    required this.name,
+    required this.path,
+    this.extraPaths = const [],
+  });
+
+  List<String> get paths => [path, ...extraPaths];
+
+  int get count => 1 + extraPaths.length;
 }
 
 /// A card ready to be imported into a Flashpedz pack.
@@ -38,8 +50,7 @@ class AnkiParseResult {
   /// Images that were referenced by cards but missing from the export.
   final int missingImages;
 
-  /// Cards that referenced more than one image on a side. Flashpedz supports
-  /// one image per side, so only the first one is kept.
+  /// Card sides with more than one image. They are joined into one picture.
   final int extraImagesDropped;
 
   const AnkiParseResult({
@@ -170,17 +181,25 @@ class AnkiNoteConverter {
         .toList();
   }
 
+  /// All the images of a side, in order. Several images are later joined
+  /// into one picture.
   AnkiImage? _pickImage(String html) {
-    final names = extractImageNames(html);
-    if (names.isEmpty) return null;
-    if (names.length > 1) extraImagesDropped++;
-
-    for (final name in names) {
+    final found = <AnkiImage>[];
+    for (final name in extractImageNames(html).toSet()) {
       final image = _findImage(name);
-      if (image != null) return image;
-      missingImages++;
+      if (image == null) {
+        missingImages++;
+      } else if (!found.any((f) => f.path == image.path)) {
+        found.add(image);
+      }
     }
-    return null;
+    if (found.isEmpty) return null;
+    if (found.length > 1) extraImagesDropped++;
+    return AnkiImage(
+      name: found.first.name,
+      path: found.first.path,
+      extraPaths: [for (final image in found.skip(1)) image.path],
+    );
   }
 
   /// Flashpedz requires question and answer text, so image-only sides get a

@@ -362,9 +362,8 @@ class _Preview extends StatelessWidget {
                     if (result.extraImagesDropped > 0)
                       _StatTile(
                         icon: Icons.photo_library,
-                        label: "Sides with extra images (first one kept)",
+                        label: "Sides with several images (joined into one)",
                         value: result.extraImagesDropped,
-                        isWarning: true,
                       ),
                   ],
                 ),
@@ -511,7 +510,7 @@ class _ImageThumbnail extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ClipRRect(
+    final thumbnail = ClipRRect(
       borderRadius: BorderRadius.circular(6),
       child: Image.file(
         File(image.path),
@@ -523,6 +522,8 @@ class _ImageThumbnail extends StatelessWidget {
             const SizedBox(width: 48, height: 48, child: Icon(Icons.image)),
       ),
     );
+    if (image.count == 1) return thumbnail;
+    return Badge(label: Text('${image.count}'), child: thumbnail);
   }
 }
 

@@ -8,6 +8,8 @@ import 'package:flashcards/data/services/anki/anki_import_models.dart';
 import 'package:flashcards/data/services/anki/anki_tags.dart';
 import 'package:flashcards/data/services/anki/anki_text_converter.dart';
 import 'package:flashcards/data/services/anki/anki_txt_parser.dart';
+import 'package:flashcards/data/utils/image_compression.dart';
+import 'package:image/image.dart' as img;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sqlite3/sqlite3.dart';
 
@@ -109,6 +111,44 @@ void main() {
     });
   });
 
+  test('joins images top to bottom on white', () {
+    Uint8List png(int width, int height, img.Color color) {
+      final image = img.Image(width: width, height: height);
+      img.fill(image, color: color);
+      return img.encodePng(image);
+    }
+
+    final red = img.ColorRgb8(255, 0, 0);
+    final blue = img.ColorRgb8(0, 0, 255);
+    final bytes = stackImageBytes([
+      png(400, 100, red),
+      png(200, 50, blue),
+      Uint8List.fromList([1, 2, 3]), // not an image, skipped
+    ], gap: 10)!;
+
+    final joined = img.decodeJpg(bytes)!;
+    expect(joined.width, 400);
+    expect(joined.height, 160);
+    final top = joined.getPixel(200, 50);
+    expect(top.r, greaterThan(200));
+    expect(top.b, lessThan(60));
+    final bottom = joined.getPixel(200, 135);
+    expect(bottom.b, greaterThan(200));
+    // The narrower image is centred, with white beside it.
+    final side = joined.getPixel(20, 135);
+    expect([side.r, side.g, side.b].every((c) => c > 230), isTrue);
+  });
+
+  test('very wide or tall images are scaled down', () {
+    final image = img.Image(width: 3000, height: 2000);
+    final bytes = img.encodePng(image);
+    final joined = img.decodeJpg(
+      stackImageBytes([bytes, bytes, bytes, bytes, bytes])!,
+    )!;
+    expect(joined.width, lessThanOrEqualTo(1200));
+    expect(joined.height, lessThanOrEqualTo(6000));
+  });
+
   test('ankiTagsToTags keeps the last level and ignores system tags', () {
     final tags = ankiTagsToTags([
       '#AK_Step1::Cardio::Heart_Failure',
@@ -159,6 +199,35 @@ void main() {
       expect(result.cards[1].answer, 'Furosemide is a loop diuretic');
       expect(result.cards[2].question, 'Furosemide is a {loop} diuretic');
       expect(result.skippedNotes, 2);
+      expect(result.missingImages, 1);
+    });
+
+    test('keeps every image of a side, in order', () {
+      final apkg = _buildApkg(
+        tempDir,
+        notes: [
+          [
+            'Compare <img src="a.png"><img src="b.png"> and <img src="c.png">',
+            'Answer <img src="missing.png"><img src="a.png">',
+          ],
+        ],
+        media: {'0': 'a.png', '1': 'b.png', '2': 'c.png'},
+        files: {
+          '0': Uint8List.fromList([1]),
+          '1': Uint8List.fromList([2]),
+          '2': Uint8List.fromList([3]),
+        },
+      );
+
+      final result = parseAnkiPackage(apkg, tempDir.path);
+      final card = result.cards.single;
+      expect(card.questionImage!.count, 3);
+      expect(
+        card.questionImage!.paths.map((p) => File(p).readAsBytesSync().first),
+        [1, 2, 3],
+      );
+      expect(card.answerImage!.count, 1);
+      expect(result.extraImagesDropped, 1);
       expect(result.missingImages, 1);
     });
 
