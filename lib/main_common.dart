@@ -45,6 +45,17 @@ class Flavor {
 Future<void> bootstrap({required bool isDev}) async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  try {
+    await _initialize(isDev);
+  } catch (error, stack) {
+    // Without this a failed start leaves an empty page (e.g. on the website
+    // when its Firebase settings are missing), with no hint why.
+    debugPrint('Startup failed: $error\n$stack');
+    runApp(_StartupErrorApp(error: error));
+  }
+}
+
+Future<void> _initialize(bool isDev) async {
   // ANDROID: google-services.json po flavoru rešava sve -> nije potrebno options.
   // iOS/web/desktop: koristimo options.
   if (!kIsWeb && Platform.isAndroid) {
@@ -65,8 +76,15 @@ Future<void> bootstrap({required bool isDev}) async {
 
   // time zone
   tz.initializeTimeZones();
-  final TimezoneInfo currentTimeZone = await FlutterTimezone.getLocalTimezone();
-  tz.setLocalLocation(tz.getLocation(currentTimeZone.identifier));
+  try {
+    final TimezoneInfo currentTimeZone =
+        await FlutterTimezone.getLocalTimezone();
+    tz.setLocalLocation(tz.getLocation(currentTimeZone.identifier));
+  } catch (error) {
+    // Some browsers report a name the time zone database doesn't know.
+    debugPrint('Unknown time zone, using UTC: $error');
+    tz.setLocalLocation(tz.UTC);
+  }
 
   // dependency injection
   final dep = AppDependencies(isDev: isDev);
@@ -79,6 +97,48 @@ Future<void> bootstrap({required bool isDev}) async {
       child: _MyApp(dependencies: dep),
     ),
   );
+}
+
+class _StartupErrorApp extends StatelessWidget {
+  final Object error;
+
+  const _StartupErrorApp({required this.error});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: Scaffold(
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(32),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.error_outline, size: 48, color: Colors.red),
+                const SizedBox(height: 16),
+                const Text(
+                  "FlashPedz couldn't start",
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 8),
+                const Text(
+                  'Please try again later.',
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 16),
+                SelectableText(
+                  '$error',
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(fontSize: 12, color: Colors.grey),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 class _MyApp extends StatefulWidget {
