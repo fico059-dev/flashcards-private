@@ -31,8 +31,56 @@
 
   <title>FlashPedz</title>
   <link rel="manifest" href="manifest.json">
+
+  <!-- Start connections early, while the app is downloading. -->
+  <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://firestore.googleapis.com">
+  <link rel="preconnect" href="https://identitytoolkit.googleapis.com">
+  <link rel="preconnect" href="https://securetoken.googleapis.com">
+  <link rel="preconnect" href="https://firebasestorage.googleapis.com">
+  <!-- Firebase is otherwise only downloaded after the app has started.
+       The version must match firebase_core_web (11.9.1 for 2.24.x). -->
+  <link rel="modulepreload" crossorigin="anonymous" href="https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js">
+  <link rel="modulepreload" crossorigin="anonymous" href="https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js">
+  <link rel="modulepreload" crossorigin="anonymous" href="https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js">
+  <link rel="modulepreload" crossorigin="anonymous" href="https://www.gstatic.com/firebasejs/11.9.1/firebase-functions.js">
+  <link rel="modulepreload" crossorigin="anonymous" href="https://www.gstatic.com/firebasejs/11.9.1/firebase-storage.js">
+
+  <style>
+    html, body { margin: 0; height: 100%; background: #f9f7fd; }
+    @media (prefers-color-scheme: dark) { html, body { background: #131318; } }
+    #loading {
+      position: fixed; inset: 0; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 18px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      color: #44464f; transition: opacity .3s;
+    }
+    @media (prefers-color-scheme: dark) { #loading { color: #c5c6d0; } }
+    #loading img { width: 88px; height: 88px; border-radius: 20px; }
+    #loading .spinner {
+      width: 28px; height: 28px; border-radius: 50%;
+      border: 3px solid rgba(35, 57, 153, .2); border-top-color: #233999;
+      animation: spin .8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
 </head>
 <body>
+  <!-- Shown until the app draws its first screen. -->
+  <div id="loading">
+    <img src="icons/Icon-192.png" alt="">
+    <div class="spinner"></div>
+    <div>Loading FlashPedz…</div>
+  </div>
+  <script>
+    window.addEventListener('flutter-first-frame', function () {
+      var loading = document.getElementById('loading');
+      if (!loading) return;
+      loading.style.opacity = '0';
+      setTimeout(function () { loading.remove(); }, 300);
+    });
+  </script>
   <script>
     // Earlier versions installed an offline cache (service worker) that kept
     // serving the old app after updates. Remove it, then start the app.
