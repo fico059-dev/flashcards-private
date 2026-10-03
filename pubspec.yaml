@@ -148,3 +148,8 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+
+# Website only: fixes a start-up crash, see third_party/firebase_auth_web.
+dependency_overrides:
+  firebase_auth_web:
+    path: third_party/firebase_auth_web
