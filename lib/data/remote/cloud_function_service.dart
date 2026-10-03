@@ -19,6 +19,17 @@ class CloudFunctionService {
         .call(request.toJson());
   }
 
+  /// Returns the name that was saved.
+  Future<String> renameCustomSession({
+    required String sessionId,
+    required String name,
+  }) async {
+    final result = await _functions
+        .httpsCallable('renameCustomSession')
+        .call(<String, dynamic>{'sessionId': sessionId, 'name': name});
+    return (result.data as Map)['name'] as String;
+  }
+
   Future<void> deleteFlashcardEverywhere(FlashcardDto flashcardDto) async {
     final callable = _functions.httpsCallable('deleteFlashcardEverywhere');
     await callable.call(<String, dynamic>{

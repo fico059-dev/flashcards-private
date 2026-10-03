@@ -12,7 +12,6 @@ import 'package:flashcards/ui/widgets/core/bloc_text_field.dart';
 import 'package:flashcards/ui/widgets/core/card_factory.dart';
 import 'package:flashcards/ui/widgets/core/loading_overlay_listener.dart';
 import 'package:flashcards/ui/widgets/core/tag_chip.dart';
-import 'package:flashcards/ui/widgets/core/tag_chip.dart';
 import 'package:flashcards/utils/firebase_error_mapper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -23,7 +22,7 @@ class FlashcardLimitPage extends StatefulWidget {
   final PackSelectedFilter filter;
   final int packFilterCount;
   final List<Tag> selectedTags;
-  final bool areAllTagsSelected;
+  final bool isCountExact;
 
   const FlashcardLimitPage({
     super.key,
@@ -31,7 +30,7 @@ class FlashcardLimitPage extends StatefulWidget {
     required this.filter,
     required this.selectedTags,
     required this.packFilterCount,
-    required this.areAllTagsSelected,
+    required this.isCountExact,
   });
 
   @override
@@ -40,11 +39,12 @@ class FlashcardLimitPage extends StatefulWidget {
 
 class _FlashcardLimitPageState extends State<FlashcardLimitPage> {
   late final TextEditingController _countCont;
+  final _nameCont = TextEditingController();
 
   void _countFlashcards() {
     context.read<SessionLimitCubit>().loadData(
       packFilterCount: widget.packFilterCount,
-      areAllTagsSelected: widget.areAllTagsSelected,
+      isCountExact: widget.isCountExact,
       selectedTags: widget.selectedTags,
       filter: widget.filter,
       selectedPackNames: widget.selectedPacks.packNames,
@@ -61,6 +61,7 @@ class _FlashcardLimitPageState extends State<FlashcardLimitPage> {
   @override
   void dispose() {
     _countCont.dispose();
+    _nameCont.dispose();
     super.dispose();
   }
 
@@ -113,6 +114,7 @@ class _FlashcardLimitPageState extends State<FlashcardLimitPage> {
                         selectedPacks: widget.selectedPacks,
                         selectedTags: widget.selectedTags,
                         countCont: _countCont,
+                        nameCont: _nameCont,
                         packFilterCount: widget.packFilterCount,
                       );
                     default:
@@ -135,6 +137,7 @@ class _LoadedContent extends StatelessWidget {
   final int flashcardsCount;
   final bool isEstimatePrecise;
   final TextEditingController countCont;
+  final TextEditingController nameCont;
   final int packFilterCount;
 
   const _LoadedContent({
@@ -145,26 +148,34 @@ class _LoadedContent extends StatelessWidget {
     required this.selectedTags,
     required this.selectedPacks,
     required this.countCont,
+    required this.nameCont,
     required this.packFilterCount,
   });
 
   @override
   Widget build(BuildContext context) {
+    final defaultName = defaultSessionName(
+      tagNames: selectedTags.map((tag) => tag.name).toList(),
+      packNames: selectedPacks.packNames,
+    );
+
     void onSubmit() {
+      final typedName = nameCont.text.trim();
       context.read<SessionLimitCubit>().submitCustomSession(
         flashcardsCount: countCont.text,
         packFilterCount: packFilterCount,
         filter: filter,
         packIds: selectedPacks.packIds,
         selectedTags: selectedTags.toIdList(),
+        name: typedName.isEmpty ? defaultName : typedName,
       );
     }
 
     final countText = isEstimatePrecise
         ? "$flashcardsCount flashcards are available. How many "
               "would you like to include in your session?"
-        : "We estimate that $flashcardsCount flashcards are available,"
-              " How many would you like to include in your session?";
+        : "Up to $flashcardsCount flashcards are available. How many "
+              "would you like to include in your session?";
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -174,12 +185,25 @@ class _LoadedContent extends StatelessWidget {
         if (!isEstimatePrecise)
           CardFactory.warning(
             isThreeLine: true,
-            title: Text("You’ve selected only a subset of tags."),
+            title: Text("Only cards with all selected tags are included."),
             subtitle: Text(
-              "Since only some tags are selected, the actual number of matching"
-              " flashcards might be lower than estimated.",
+              "Fewer cards may match all the tags than this estimate. The "
+              "session will contain all the matching cards, up to your number.",
             ),
           ),
+
+        TextField(
+          controller: nameCont,
+          maxLength: 60,
+          textCapitalization: TextCapitalization.sentences,
+          decoration: InputDecoration(
+            labelText: "Session name (optional)",
+            hintText: defaultName,
+            helperText: "Leave empty to use \"$defaultName\"",
+            helperMaxLines: 2,
+            border: OutlineInputBorder(),
+          ),
+        ),
 
         BlocTextField<SessionLimitCubit, SessionLimitState>(
           errorSelector: (state) =>

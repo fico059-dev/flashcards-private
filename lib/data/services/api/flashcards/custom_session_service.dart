@@ -43,10 +43,9 @@ class CustomSessionService {
       }
 
       final snapshot = await query.get();
-      final dtoList =
-          snapshot.docs
-              .map((doc) => CustomSessionDto.fromJsonWithId(doc.data(), doc.id))
-              .toList();
+      final dtoList = snapshot.docs
+          .map((doc) => CustomSessionDto.fromJsonWithId(doc.data(), doc.id))
+          .toList();
 
       return Result.ok(
         PaginatedDtoResult(
@@ -87,6 +86,19 @@ class CustomSessionService {
       // final snapshots =
       //     data.map((item) => FlashcardSnapshotDto.fromJson(item)).toList();
       return Result.ok(null);
+    } on Exception catch (error) {
+      return Result.error(error);
+    }
+  }
+
+  Future<Result<String>> renameCustomSession({
+    required String sessionId,
+    required String name,
+  }) async {
+    try {
+      return Result.ok(
+        await _functions.renameCustomSession(sessionId: sessionId, name: name),
+      );
     } on Exception catch (error) {
       return Result.error(error);
     }

@@ -13,6 +13,7 @@ class PreviousSessionCard extends StatelessWidget {
   final VoidCallback? onStartPressed;
   final VoidCallback? onDeletePressed;
   final VoidCallback? onResetPressed;
+  final VoidCallback? onRenamePressed;
   final bool? hasCards;
   final VoidCallback? onTap;
 
@@ -23,6 +24,7 @@ class PreviousSessionCard extends StatelessWidget {
     this.onStartPressed,
     this.onDeletePressed,
     this.onResetPressed,
+    this.onRenamePressed,
     this.onTap,
   });
 
@@ -113,13 +115,36 @@ class PreviousSessionCard extends StatelessWidget {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        'Custom Session',
-                        style: theme.textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
+                      // Leaves room for the card count in the corner.
+                      Padding(
+                        padding: const EdgeInsets.only(right: 110),
+                        child: Row(
+                          children: [
+                            Flexible(
+                              child: Text(
+                                session.displayName,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                style: theme.textTheme.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                            if (onRenamePressed != null)
+                              IconButton(
+                                tooltip: 'Rename session',
+                                visualDensity: VisualDensity.compact,
+                                iconSize: 18,
+                                onPressed: onRenamePressed,
+                                icon: Icon(
+                                  Icons.edit_outlined,
+                                  color: context.colors.primary,
+                                ),
+                              ),
+                          ],
                         ),
                       ),
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 12),
                       Row(
                         children: [
                           Icon(

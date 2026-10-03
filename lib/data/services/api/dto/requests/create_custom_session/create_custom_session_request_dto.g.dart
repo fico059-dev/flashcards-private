@@ -14,6 +14,7 @@ _CreateCustomSessionRequestDto _$CreateCustomSessionRequestDtoFromJson(
   tags: (json['tags'] as List<dynamic>).map((e) => e as String).toList(),
   packIds: (json['packIds'] as List<dynamic>).map((e) => e as String).toList(),
   sessionSize: (json['sessionSize'] as num).toInt(),
+  name: json['name'] as String?,
 );
 
 Map<String, dynamic> _$CreateCustomSessionRequestDtoToJson(
@@ -24,6 +25,7 @@ Map<String, dynamic> _$CreateCustomSessionRequestDtoToJson(
   'tags': instance.tags,
   'packIds': instance.packIds,
   'sessionSize': instance.sessionSize,
+  'name': instance.name,
 };
 
 const _$PackSelectedFilterEnumMap = {

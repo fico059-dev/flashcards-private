@@ -18,7 +18,41 @@ type RequstDataDto = {
   tags: string[] | undefined;
   packIds: string[] | undefined;
   sessionSize: number | undefined;
+  name?: string | null;
 };
+
+/** Longest custom session name, also enforced by renameCustomSession. */
+export const maxSessionNameLength = 60;
+
+/**
+ * Trims a session name and limits its length.
+ * @param {unknown} name Name sent by the app.
+ * @return {string | null} The clean name, or null when there is none.
+ */
+export function cleanSessionName(name: unknown): string | null {
+  if (typeof name !== "string") return null;
+  const trimmed = name.trim().replace(/\s+/g, " ");
+  if (!trimmed) return null;
+  return trimmed.slice(0, maxSessionNameLength);
+}
+
+/**
+ * Keeps the cards that have every one of the tags (e.g. "neoreview" AND
+ * "2025"). With no tags selected every card is kept.
+ * @param {T[]} flashcards Cards to filter.
+ * @param {string[]} tags Tags every kept card must have.
+ * @return {T[]} The matching cards.
+ */
+export function filterByAllTags<T extends {tags?: string[]}>(
+  flashcards: T[],
+  tags: string[],
+): T[] {
+  if (tags.length === 0) return flashcards;
+  return flashcards.filter((flashcard) => {
+    const cardTags = new Set(flashcard.tags ?? []);
+    return tags.every((tag) => cardTags.has(tag));
+  });
+}
 
 type FlashcardSnapshot = {
   id: string;
@@ -36,6 +70,7 @@ export async function createCustomSessionHandler(request: CallableRequest) {
 
     const {profileId, filter, packIds, tags, sessionSize} =
       data as RequstDataDto;
+    const name = cleanSessionName((data as RequstDataDto).name);
 
     if (!profileId || !filter || !packIds || !tags || !sessionSize) {
       const missingParams = getMissingParams({
@@ -102,11 +137,16 @@ export async function createCustomSessionHandler(request: CallableRequest) {
       logger.info("No flashcards found after filtering");
       throw new HttpsError(
         "not-found",
-        "No flashcards found for the given criteria, please adjust your filters or tags.",
+        "No flashcards have all the selected tags with this filter. Select fewer tags or another filter.",
       );
     }
 
-    await writeToCustomSession(profileId, filteredFlashcards, hasPaidPack);
+    await writeToCustomSession(
+      profileId,
+      filteredFlashcards,
+      hasPaidPack,
+      name,
+    );
 
     // return filteredFlashcards;
   } catch (error: any) {
@@ -121,13 +161,7 @@ export async function createCustomSessionHandler(request: CallableRequest) {
     tags: string[],
     sessionSize: number,
   ): FlashcardSnapshot[] {
-    const filtered =
-      tags.length === 0 ?
-        flashcards :
-        flashcards.filter((flashcard) => {
-          if (!flashcard.tags || flashcard.tags.length === 0) return true;
-          return flashcard.tags.some((tag) => tags.includes(tag));
-        });
+    const filtered = filterByAllTags(flashcards, tags);
 
     logger.info(
       `Filtered flashcards by tags. Original count: ${flashcards.length}, Filtered count: ${filtered.length}`,
@@ -268,6 +302,7 @@ export async function createCustomSessionHandler(request: CallableRequest) {
     profileId: string,
     flashcards: FlashcardSnapshot[],
     hasPaidPack: boolean,
+    name: string | null,
   ) {
     const db = getFirestore();
     const batch = db.batch();
@@ -282,6 +317,7 @@ export async function createCustomSessionHandler(request: CallableRequest) {
       currentIndex: 0,
       correctCount: 0,
       createdAt: Timestamp.now(),
+      ...(name ? {name} : {}),
     });
 
     batch.set(sessionRef.collection("flashcard_ids").doc("all_ids"), {

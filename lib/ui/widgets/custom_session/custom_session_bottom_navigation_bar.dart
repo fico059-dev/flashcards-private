@@ -33,23 +33,24 @@ class CustomSessionBottomNavigationBar extends StatelessWidget {
     // filter state
     final filterState = context.watch<PackFilterBloc>().state;
     final isFilterLoaded = filterState is PackFilterLoaded;
-    final packFilterCounts =
-        isFilterLoaded
-            ? filterState.packFilterCounts
-            : PackFilterCounts(
-              allCount: -1,
-              seenCount: -1,
-              bookmarkedCount: -1,
-              ignoredCount: -1,
-            );
-    final selectedFilter =
-        isFilterLoaded ? filterState.selectedFilter : PackSelectedFilter.all;
+    final packFilterCounts = isFilterLoaded
+        ? filterState.packFilterCounts
+        : PackFilterCounts(
+            allCount: -1,
+            seenCount: -1,
+            bookmarkedCount: -1,
+            ignoredCount: -1,
+          );
+    final selectedFilter = isFilterLoaded
+        ? filterState.selectedFilter
+        : PackSelectedFilter.all;
 
     // tag picker state
     final tagPickerState = context.watch<SessionTagPickerCubit>().state;
     final areTagsLoaded = tagPickerState is SessionTagPickerLoaded;
-    final List<String> selectedTags =
-        areTagsLoaded ? tagPickerState.selectedTagsList : [];
+    final List<String> selectedTags = areTagsLoaded
+        ? tagPickerState.selectedTagsList
+        : [];
 
     final nextEnabled = switch (stepIndex) {
       0 => selectedCount > 0 && selectedCount <= PackPickerBloc.selectionLimit,
@@ -68,8 +69,11 @@ class CustomSessionBottomNavigationBar extends StatelessWidget {
         1 => FlashcardTagSelectionRoute(packs: selectedPacks),
         2 => FlashcardLimitRoute(
           filter: selectedFilter,
-          packFilterCount: packFilterCounts.getCountForFilter(selectedFilter),
-          areAllTagsSelected: tagPickerState.areAllTagsSelected,
+          packFilterCount: _estimateCount(
+            packFilterCounts.getCountForFilter(selectedFilter),
+            tagPickerState.maxCardsWithAllTags,
+          ),
+          isCountExact: tagPickerState.isCountExact,
           selectedPacks: selectedPacks,
           selectedTags: tagPickerState.selectedTagsObject,
         ),
@@ -129,3 +133,8 @@ class CustomSessionBottomNavigationBar extends StatelessWidget {
     );
   }
 }
+
+int _estimateCount(int filterCount, int? maxCardsWithAllTags) =>
+    maxCardsWithAllTags == null || maxCardsWithAllTags > filterCount
+    ? filterCount
+    : maxCardsWithAllTags;

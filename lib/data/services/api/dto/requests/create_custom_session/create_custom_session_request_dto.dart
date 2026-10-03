@@ -15,6 +15,7 @@ abstract class CreateCustomSessionRequestDto
     required List<String> tags,
     required List<String> packIds,
     required int sessionSize,
+    String? name,
   }) = _CreateCustomSessionRequestDto;
 
   factory CreateCustomSessionRequestDto.fromJson(JsonMap json) =>

@@ -14,7 +14,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$CustomSessionSummary {
 
- String get id; DateTime get createdAt; bool get isPaid; int get cardCount; int get correctCount; int get currentIndex;
+ String get id; DateTime get createdAt; bool get isPaid; int get cardCount; int get correctCount; int get currentIndex; String? get name;
 /// Create a copy of CustomSessionSummary
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -25,16 +25,16 @@ $CustomSessionSummaryCopyWith<CustomSessionSummary> get copyWith => _$CustomSess
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is CustomSessionSummary&&(identical(other.id, id) || other.id == id)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.isPaid, isPaid) || other.isPaid == isPaid)&&(identical(other.cardCount, cardCount) || other.cardCount == cardCount)&&(identical(other.correctCount, correctCount) || other.correctCount == correctCount)&&(identical(other.currentIndex, currentIndex) || other.currentIndex == currentIndex));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is CustomSessionSummary&&(identical(other.id, id) || other.id == id)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.isPaid, isPaid) || other.isPaid == isPaid)&&(identical(other.cardCount, cardCount) || other.cardCount == cardCount)&&(identical(other.correctCount, correctCount) || other.correctCount == correctCount)&&(identical(other.currentIndex, currentIndex) || other.currentIndex == currentIndex)&&(identical(other.name, name) || other.name == name));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,id,createdAt,isPaid,cardCount,correctCount,currentIndex);
+int get hashCode => Object.hash(runtimeType,id,createdAt,isPaid,cardCount,correctCount,currentIndex,name);
 
 @override
 String toString() {
-  return 'CustomSessionSummary(id: $id, createdAt: $createdAt, isPaid: $isPaid, cardCount: $cardCount, correctCount: $correctCount, currentIndex: $currentIndex)';
+  return 'CustomSessionSummary(id: $id, createdAt: $createdAt, isPaid: $isPaid, cardCount: $cardCount, correctCount: $correctCount, currentIndex: $currentIndex, name: $name)';
 }
 
 
@@ -45,7 +45,7 @@ abstract mixin class $CustomSessionSummaryCopyWith<$Res>  {
   factory $CustomSessionSummaryCopyWith(CustomSessionSummary value, $Res Function(CustomSessionSummary) _then) = _$CustomSessionSummaryCopyWithImpl;
 @useResult
 $Res call({
- String id, DateTime createdAt, bool isPaid, int cardCount, int correctCount, int currentIndex
+ String id, DateTime createdAt, bool isPaid, int cardCount, int correctCount, int currentIndex, String? name
 });
 
 
@@ -62,7 +62,7 @@ class _$CustomSessionSummaryCopyWithImpl<$Res>
 
 /// Create a copy of CustomSessionSummary
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? createdAt = null,Object? isPaid = null,Object? cardCount = null,Object? correctCount = null,Object? currentIndex = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? createdAt = null,Object? isPaid = null,Object? cardCount = null,Object? correctCount = null,Object? currentIndex = null,Object? name = freezed,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
@@ -70,7 +70,8 @@ as DateTime,isPaid: null == isPaid ? _self.isPaid : isPaid // ignore: cast_nulla
 as bool,cardCount: null == cardCount ? _self.cardCount : cardCount // ignore: cast_nullable_to_non_nullable
 as int,correctCount: null == correctCount ? _self.correctCount : correctCount // ignore: cast_nullable_to_non_nullable
 as int,currentIndex: null == currentIndex ? _self.currentIndex : currentIndex // ignore: cast_nullable_to_non_nullable
-as int,
+as int,name: freezed == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 
@@ -155,10 +156,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  DateTime createdAt,  bool isPaid,  int cardCount,  int correctCount,  int currentIndex)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  DateTime createdAt,  bool isPaid,  int cardCount,  int correctCount,  int currentIndex,  String? name)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _CustomSeesionSummary() when $default != null:
-return $default(_that.id,_that.createdAt,_that.isPaid,_that.cardCount,_that.correctCount,_that.currentIndex);case _:
+return $default(_that.id,_that.createdAt,_that.isPaid,_that.cardCount,_that.correctCount,_that.currentIndex,_that.name);case _:
   return orElse();
 
 }
@@ -176,10 +177,10 @@ return $default(_that.id,_that.createdAt,_that.isPaid,_that.cardCount,_that.corr
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  DateTime createdAt,  bool isPaid,  int cardCount,  int correctCount,  int currentIndex)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  DateTime createdAt,  bool isPaid,  int cardCount,  int correctCount,  int currentIndex,  String? name)  $default,) {final _that = this;
 switch (_that) {
 case _CustomSeesionSummary():
-return $default(_that.id,_that.createdAt,_that.isPaid,_that.cardCount,_that.correctCount,_that.currentIndex);case _:
+return $default(_that.id,_that.createdAt,_that.isPaid,_that.cardCount,_that.correctCount,_that.currentIndex,_that.name);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -196,10 +197,10 @@ return $default(_that.id,_that.createdAt,_that.isPaid,_that.cardCount,_that.corr
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  DateTime createdAt,  bool isPaid,  int cardCount,  int correctCount,  int currentIndex)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  DateTime createdAt,  bool isPaid,  int cardCount,  int correctCount,  int currentIndex,  String? name)?  $default,) {final _that = this;
 switch (_that) {
 case _CustomSeesionSummary() when $default != null:
-return $default(_that.id,_that.createdAt,_that.isPaid,_that.cardCount,_that.correctCount,_that.currentIndex);case _:
+return $default(_that.id,_that.createdAt,_that.isPaid,_that.cardCount,_that.correctCount,_that.currentIndex,_that.name);case _:
   return null;
 
 }
@@ -211,7 +212,7 @@ return $default(_that.id,_that.createdAt,_that.isPaid,_that.cardCount,_that.corr
 
 
 class _CustomSeesionSummary implements CustomSessionSummary {
-  const _CustomSeesionSummary({required this.id, required this.createdAt, required this.isPaid, required this.cardCount, required this.correctCount, required this.currentIndex});
+  const _CustomSeesionSummary({required this.id, required this.createdAt, required this.isPaid, required this.cardCount, required this.correctCount, required this.currentIndex, this.name});
   
 
 @override final  String id;
@@ -220,6 +221,7 @@ class _CustomSeesionSummary implements CustomSessionSummary {
 @override final  int cardCount;
 @override final  int correctCount;
 @override final  int currentIndex;
+@override final  String? name;
 
 /// Create a copy of CustomSessionSummary
 /// with the given fields replaced by the non-null parameter values.
@@ -231,16 +233,16 @@ _$CustomSeesionSummaryCopyWith<_CustomSeesionSummary> get copyWith => __$CustomS
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _CustomSeesionSummary&&(identical(other.id, id) || other.id == id)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.isPaid, isPaid) || other.isPaid == isPaid)&&(identical(other.cardCount, cardCount) || other.cardCount == cardCount)&&(identical(other.correctCount, correctCount) || other.correctCount == correctCount)&&(identical(other.currentIndex, currentIndex) || other.currentIndex == currentIndex));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _CustomSeesionSummary&&(identical(other.id, id) || other.id == id)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.isPaid, isPaid) || other.isPaid == isPaid)&&(identical(other.cardCount, cardCount) || other.cardCount == cardCount)&&(identical(other.correctCount, correctCount) || other.correctCount == correctCount)&&(identical(other.currentIndex, currentIndex) || other.currentIndex == currentIndex)&&(identical(other.name, name) || other.name == name));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,id,createdAt,isPaid,cardCount,correctCount,currentIndex);
+int get hashCode => Object.hash(runtimeType,id,createdAt,isPaid,cardCount,correctCount,currentIndex,name);
 
 @override
 String toString() {
-  return 'CustomSessionSummary(id: $id, createdAt: $createdAt, isPaid: $isPaid, cardCount: $cardCount, correctCount: $correctCount, currentIndex: $currentIndex)';
+  return 'CustomSessionSummary(id: $id, createdAt: $createdAt, isPaid: $isPaid, cardCount: $cardCount, correctCount: $correctCount, currentIndex: $currentIndex, name: $name)';
 }
 
 
@@ -251,7 +253,7 @@ abstract mixin class _$CustomSeesionSummaryCopyWith<$Res> implements $CustomSess
   factory _$CustomSeesionSummaryCopyWith(_CustomSeesionSummary value, $Res Function(_CustomSeesionSummary) _then) = __$CustomSeesionSummaryCopyWithImpl;
 @override @useResult
 $Res call({
- String id, DateTime createdAt, bool isPaid, int cardCount, int correctCount, int currentIndex
+ String id, DateTime createdAt, bool isPaid, int cardCount, int correctCount, int currentIndex, String? name
 });
 
 
@@ -268,7 +270,7 @@ class __$CustomSeesionSummaryCopyWithImpl<$Res>
 
 /// Create a copy of CustomSessionSummary
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? createdAt = null,Object? isPaid = null,Object? cardCount = null,Object? correctCount = null,Object? currentIndex = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? createdAt = null,Object? isPaid = null,Object? cardCount = null,Object? correctCount = null,Object? currentIndex = null,Object? name = freezed,}) {
   return _then(_CustomSeesionSummary(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
@@ -276,7 +278,8 @@ as DateTime,isPaid: null == isPaid ? _self.isPaid : isPaid // ignore: cast_nulla
 as bool,cardCount: null == cardCount ? _self.cardCount : cardCount // ignore: cast_nullable_to_non_nullable
 as int,correctCount: null == correctCount ? _self.correctCount : correctCount // ignore: cast_nullable_to_non_nullable
 as int,currentIndex: null == currentIndex ? _self.currentIndex : currentIndex // ignore: cast_nullable_to_non_nullable
-as int,
+as int,name: freezed == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 
