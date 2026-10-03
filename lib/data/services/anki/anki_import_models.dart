@@ -1,13 +1,12 @@
-import 'dart:typed_data';
-
 import 'package:flashcards/data/services/anki/anki_text_converter.dart';
 
-/// An image referenced by an Anki card, read from the deck's media.
+/// An image referenced by an Anki card. It is extracted from the deck to a
+/// temporary file, so large decks don't have to fit in memory.
 class AnkiImage {
   final String name;
-  final Uint8List bytes;
+  final String path;
 
-  const AnkiImage({required this.name, required this.bytes});
+  const AnkiImage({required this.name, required this.path});
 }
 
 /// A card ready to be imported into a Flashpedz pack.

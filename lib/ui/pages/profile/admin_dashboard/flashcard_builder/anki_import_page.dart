@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:auto_route/auto_route.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flashcards/bloc/flashcards/anki_import/anki_import_cubit.dart';
@@ -9,6 +11,7 @@ import 'package:flashcards/domain/models/flashcards/admin_pack/admin_pack.dart';
 import 'package:flashcards/ui/constants/styles.dart';
 import 'package:flashcards/ui/theme/theme_extensions.dart';
 import 'package:flashcards/utils/firebase_error_mapper.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -46,15 +49,19 @@ class _ViewState extends State<_View> {
   Future<void> _pickFile() async {
     // FileType.any: iOS doesn't know the .apkg type, so the extension is
     // checked after picking.
+    // Only the web gets the file's bytes; on mobile the file is read from
+    // its path so large decks don't have to fit in memory.
     final result = await FilePicker.platform.pickFiles(
       type: FileType.any,
-      withData: true,
+      withData: kIsWeb,
     );
     final file = result?.files.singleOrNull;
     if (file == null || !mounted) return;
 
     final extension = file.name.split('.').last.toLowerCase();
-    if (!ankiImportExtensions.contains(extension) || file.bytes == null) {
+    final path = kIsWeb ? null : file.path;
+    if (!ankiImportExtensions.contains(extension) ||
+        (path == null && file.bytes == null)) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text("Choose an Anki .apkg or .txt export file."),
@@ -65,7 +72,8 @@ class _ViewState extends State<_View> {
 
     context.read<AnkiImportCubit>().readFile(
       fileName: file.name,
-      bytes: file.bytes!,
+      path: path,
+      bytes: path == null ? file.bytes : null,
     );
   }
 
@@ -505,8 +513,8 @@ class _ImageThumbnail extends StatelessWidget {
   Widget build(BuildContext context) {
     return ClipRRect(
       borderRadius: BorderRadius.circular(6),
-      child: Image.memory(
-        image.bytes,
+      child: Image.file(
+        File(image.path),
         width: 48,
         height: 48,
         fit: BoxFit.cover,

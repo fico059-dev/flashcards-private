@@ -82,9 +82,21 @@ List<String> extractImageNames(String html) {
   return _imgRegex
       .allMatches(html)
       .map((m) => m.group(1) ?? m.group(2) ?? m.group(3) ?? '')
-      .map((name) => _decodeEntities(Uri.decodeFull(name.trim())))
+      .map((name) => _decodeEntities(name.trim()))
       .where((name) => name.isNotEmpty)
       .toList();
+}
+
+/// Image names in card HTML may be URL encoded (`my%20image.png`) while the
+/// deck's media list has the plain name, so both are tried. Names containing
+/// a literal `%` are not valid encodings and are only tried as they are.
+List<String> imageNameCandidates(String name) {
+  try {
+    final decoded = Uri.decodeFull(name);
+    return decoded == name ? [name] : [name, decoded];
+  } on ArgumentError {
+    return [name];
+  }
 }
 
 /// Converts an Anki field (HTML) into plain text and collects its images.

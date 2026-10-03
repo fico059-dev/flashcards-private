@@ -133,16 +133,28 @@ void main() {
           ['{{c1::Furosemide}} is a {{c2::loop}} diuretic', ''],
           ['<img src="missing.png">', 'Answer'],
           ['', ''],
+          ['Spot diagnosis <img src="50%_rash.jpg">', 'Measles'],
+          ['Encoded <img src="my%20scan.png">', 'Yes'],
         ],
-        media: {'0': 'ecg.png'},
-        files: {'0': image},
+        media: {'0': 'ecg.png', '1': '50%_rash.jpg', '2': 'my scan.png'},
+        files: {
+          '0': image,
+          '1': Uint8List.fromList([5]),
+          '2': Uint8List.fromList([6]),
+        },
       );
 
       final result = parseAnkiPackage(apkg, tempDir.path);
 
-      expect(result.cards, hasLength(3));
+      expect(result.cards, hasLength(5));
       expect(result.cards[0].question, 'What is this?');
-      expect(result.cards[0].questionImage?.bytes, image);
+      expect(
+        File(result.cards[0].questionImage!.path).readAsBytesSync(),
+        image,
+      );
+      // A literal % in a file name isn't URL encoding and must not crash.
+      expect(File(result.cards[3].questionImage!.path).readAsBytesSync(), [5]);
+      expect(File(result.cards[4].questionImage!.path).readAsBytesSync(), [6]);
       expect(result.cards[1].question, '{Furosemide} is a loop diuretic');
       expect(result.cards[1].answer, 'Furosemide is a loop diuretic');
       expect(result.cards[2].question, 'Furosemide is a {loop} diuretic');
@@ -154,10 +166,11 @@ void main() {
       final archive = Archive()
         ..addFile(ArchiveFile.bytes('collection.anki21b', [1, 2, 3]))
         ..addFile(ArchiveFile.bytes('collection.anki2', [1, 2, 3]));
-      final bytes = Uint8List.fromList(ZipEncoder().encode(archive));
+      final path = '${tempDir.path}/new.apkg';
+      File(path).writeAsBytesSync(ZipEncoder().encode(archive));
 
       expect(
-        () => parseAnkiPackage(bytes, tempDir.path),
+        () => parseAnkiPackage(path, tempDir.path),
         throwsA(
           isA<AnkiImportException>().having(
             (e) => e.message,
@@ -170,14 +183,18 @@ void main() {
 
     test('rejects files that are not zip archives', () {
       expect(
-        () => parseAnkiPackage(Uint8List.fromList([1, 2, 3]), tempDir.path),
+        () => parseAnkiPackage(
+          (File('${tempDir.path}/bad.apkg')..writeAsBytesSync([1, 2, 3])).path,
+          tempDir.path,
+        ),
         throwsA(isA<AnkiImportException>()),
       );
     });
   });
 }
 
-Uint8List _buildApkg(
+/// Writes an .apkg to [dir] and returns its path.
+String _buildApkg(
   Directory dir, {
   required List<List<String>> notes,
   required Map<String, String> media,
@@ -206,5 +223,7 @@ Uint8List _buildApkg(
   files.forEach(
     (name, bytes) => archive.addFile(ArchiveFile.bytes(name, bytes)),
   );
-  return Uint8List.fromList(ZipEncoder().encode(archive));
+  final path = '${dir.path}/deck.apkg';
+  File(path).writeAsBytesSync(ZipEncoder().encode(archive));
+  return path;
 }

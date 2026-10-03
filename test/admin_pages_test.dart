@@ -174,7 +174,12 @@ void main() {
       tester.element(find.text('Choose Anki file')),
     );
     await tester.runAsync(
-      () => cubit.readFile(fileName: 'deck.apkg', bytes: utf8.encode('nope')),
+      () => cubit.readFile(
+        fileName: 'deck.apkg',
+        path: (File(
+          '${Directory.systemTemp.path}/bad_deck.apkg',
+        )..writeAsStringSync('nope')).path,
+      ),
     );
     await tester.pumpAndSettle();
 

@@ -639,7 +639,7 @@ class FlashcardRepository {
     required bool isQuestion,
   }) async {
     if (image == null) return null;
-    final bytes = await compressImportedImage(image.bytes);
+    final bytes = await compressImportedImage(image.path);
     if (bytes == null) return null;
 
     final picked = PickedImage(bytes: bytes);
