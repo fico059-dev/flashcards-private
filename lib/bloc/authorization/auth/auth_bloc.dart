@@ -8,6 +8,8 @@ import 'package:flashcards/data/services/api/dto/users/profile/update_profile/up
 import 'package:flashcards/data/services/api/exceptions/document_doesnt_exist_exception.dart';
 import 'package:flashcards/domain/models/profile/profile.dart';
 import 'package:flashcards/utils/result.dart';
+import 'package:flashcards/utils/firebase_error_mapper.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
@@ -143,25 +145,27 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
     switch (result) {
       case Ok<Profile>(value: final profile):
-        if (profile.email != event.user.email) {
-          final dto = UpdateProfileDto(email: event.user.email);
-          var updateResult = await _profileRepository.updateCurrentProfile(dto);
-
-          switch (updateResult) {
-            case Ok<void>():
-              emit(Authenticated(user: event.user));
-              break;
-            case Error<void>(:final error):
-              emit(prevState.copyWith(error: error));
-              break;
+        final loginEmail = event.user.email;
+        if (loginEmail != null && !sameEmail(profile.email, loginEmail)) {
+          // Keeps the profile's copy of the email up to date. It's not
+          // needed to use the app, so a failure doesn't block signing in.
+          final dto = UpdateProfileDto(email: loginEmail);
+          final updateResult = await _profileRepository.updateCurrentProfile(
+            dto,
+          );
+          if (updateResult case Error<void>(:final error)) {
+            debugPrint("Couldn't update the profile email: $error");
           }
-        } else {
-          emit(Authenticated(user: event.user));
         }
+        emit(Authenticated(user: event.user));
         return;
       case Error<Profile>(:final error):
         if (error is! DocumentDoesntExistException) {
-          emit(prevState.copyWith(error: error));
+          emit(
+            prevState.copyWith(
+              error: StepException('Reading your profile', error),
+            ),
+          );
           return;
         }
     }
@@ -174,7 +178,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         emit(Authenticated(user: event.user));
         break;
       case Error<void>(:final error):
-        emit(prevState.copyWith(error: error));
+        emit(
+          prevState.copyWith(
+            error: StepException('Creating your profile', error),
+          ),
+        );
     }
   }
 
@@ -244,4 +252,20 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     _resetPendingEmailVerificationTimer?.cancel();
     return super.close();
   }
+}
+
+/// Emails are compared without case or surrounding spaces: Firebase stores
+/// login emails in lower case while profiles keep what was typed.
+bool sameEmail(String a, String b) =>
+    a.trim().toLowerCase() == b.trim().toLowerCase();
+
+/// An error with the step that failed, shown on the splash screen.
+class StepException implements Exception {
+  final String step;
+  final Exception cause;
+
+  StepException(this.step, this.cause);
+
+  @override
+  String toString() => '$step failed: ${extractErrorMessage(cause)}';
 }
