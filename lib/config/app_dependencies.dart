@@ -3,7 +3,6 @@ import 'package:flashcards/bloc/profile/profile_reader/profile_reader_cubit.dart
 import 'package:flashcards/bloc/theme/theme_cubit.dart';
 import 'package:flashcards/data/remote/cloud_storage_service.dart';
 import 'package:flashcards/data/remote/firestore_db_context.dart';
-import 'package:flashcards/data/remote/algolia_service.dart';
 import 'package:flashcards/data/remote/cloud_function_service.dart';
 import 'package:flashcards/data/remote/network_service.dart';
 import 'package:flashcards/data/repositories/algolia_search/flashcards_searcher_repository.dart';
@@ -58,7 +57,6 @@ class AppDependencies {
   late final AuthService _authService;
   late final LocalStorageService _localStorageService;
 
-  late final AlgoliaService _algoliaService;
 
   late final NotificationService _notificationService;
 
@@ -87,7 +85,6 @@ class AppDependencies {
     _functions = CloudFunctionService();
     _storage = CloudStorageService();
 
-    _algoliaService = AlgoliaService(isDev: isDev);
 
     _notificationService = NotificationService();
     await _notificationService.init();
@@ -154,11 +151,11 @@ class AppDependencies {
       ),
       Provider(
         create: (context) =>
-            PacksSearcherService(algoliaService: _algoliaService),
+            PacksSearcherService(dbContext: _dbContext),
       ),
       Provider(
         create: (context) =>
-            FlashcardsSearcherService(algoliaService: _algoliaService),
+            FlashcardsSearcherService(dbContext: _dbContext),
       ),
 
       // Repositories
