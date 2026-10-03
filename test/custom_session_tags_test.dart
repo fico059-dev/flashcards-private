@@ -1,6 +1,8 @@
 import 'package:flashcards/bloc/custom_session/session_limit/session_limit_cubit.dart';
 import 'package:flashcards/bloc/custom_session/session_tag_picker/session_tag_picker_cubit.dart';
 import 'package:flashcards/bloc/custom_session/session_tag_picker/session_tag_picker_state.dart';
+import 'package:flashcards/data/services/api/dto/requests/create_custom_session/create_custom_session_request_dto.dart';
+import 'package:flashcards/domain/enums/pack_selected_filter.dart';
 import 'package:flashcards/domain/models/flashcards/admin_pack/admin_pack.dart';
 import 'package:flashcards/domain/models/flashcards/custom_session_summary/custom_session_summary.dart';
 import 'package:flashcards/ui/dialogs/previous_session/rename_session_dialog.dart';
@@ -57,6 +59,19 @@ void main() {
       cubit.clearSelection();
       expect(cubit.state.selectedTagsList, isEmpty);
     });
+  });
+
+  test('new app versions ask the server to match all tags', () {
+    final request = CreateCustomSessionRequestDto(
+      profileId: 'u',
+      filter: PackSelectedFilter.all,
+      tags: ['neoreview', '2025'],
+      packIds: ['p1'],
+      sessionSize: 20,
+      name: 'Neoreview + 2025',
+    );
+    expect(request.toJson()['matchAllTags'], isTrue);
+    expect(request.toJson()['name'], 'Neoreview + 2025');
   });
 
   test('default session names', () {

@@ -16,6 +16,10 @@ abstract class CreateCustomSessionRequestDto
     required List<String> packIds,
     required int sessionSize,
     String? name,
+
+    /// Cards must have every tag. Older app versions leave this out and get
+    /// cards with any of the tags.
+    @Default(true) bool matchAllTags,
   }) = _CreateCustomSessionRequestDto;
 
   factory CreateCustomSessionRequestDto.fromJson(JsonMap json) =>

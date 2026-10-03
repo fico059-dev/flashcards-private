@@ -15,7 +15,9 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$CreateCustomSessionRequestDto {
 
- String get profileId; PackSelectedFilter get filter; List<String> get tags; List<String> get packIds; int get sessionSize; String? get name;
+ String get profileId; PackSelectedFilter get filter; List<String> get tags; List<String> get packIds; int get sessionSize; String? get name;/// Cards must have every tag. Older app versions leave this out and get
+/// cards with any of the tags.
+ bool get matchAllTags;
 /// Create a copy of CreateCustomSessionRequestDto
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +30,16 @@ $CreateCustomSessionRequestDtoCopyWith<CreateCustomSessionRequestDto> get copyWi
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is CreateCustomSessionRequestDto&&(identical(other.profileId, profileId) || other.profileId == profileId)&&(identical(other.filter, filter) || other.filter == filter)&&const DeepCollectionEquality().equals(other.tags, tags)&&const DeepCollectionEquality().equals(other.packIds, packIds)&&(identical(other.sessionSize, sessionSize) || other.sessionSize == sessionSize)&&(identical(other.name, name) || other.name == name));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is CreateCustomSessionRequestDto&&(identical(other.profileId, profileId) || other.profileId == profileId)&&(identical(other.filter, filter) || other.filter == filter)&&const DeepCollectionEquality().equals(other.tags, tags)&&const DeepCollectionEquality().equals(other.packIds, packIds)&&(identical(other.sessionSize, sessionSize) || other.sessionSize == sessionSize)&&(identical(other.name, name) || other.name == name)&&(identical(other.matchAllTags, matchAllTags) || other.matchAllTags == matchAllTags));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,profileId,filter,const DeepCollectionEquality().hash(tags),const DeepCollectionEquality().hash(packIds),sessionSize,name);
+int get hashCode => Object.hash(runtimeType,profileId,filter,const DeepCollectionEquality().hash(tags),const DeepCollectionEquality().hash(packIds),sessionSize,name,matchAllTags);
 
 @override
 String toString() {
-  return 'CreateCustomSessionRequestDto(profileId: $profileId, filter: $filter, tags: $tags, packIds: $packIds, sessionSize: $sessionSize, name: $name)';
+  return 'CreateCustomSessionRequestDto(profileId: $profileId, filter: $filter, tags: $tags, packIds: $packIds, sessionSize: $sessionSize, name: $name, matchAllTags: $matchAllTags)';
 }
 
 
@@ -48,7 +50,7 @@ abstract mixin class $CreateCustomSessionRequestDtoCopyWith<$Res>  {
   factory $CreateCustomSessionRequestDtoCopyWith(CreateCustomSessionRequestDto value, $Res Function(CreateCustomSessionRequestDto) _then) = _$CreateCustomSessionRequestDtoCopyWithImpl;
 @useResult
 $Res call({
- String profileId, PackSelectedFilter filter, List<String> tags, List<String> packIds, int sessionSize, String? name
+ String profileId, PackSelectedFilter filter, List<String> tags, List<String> packIds, int sessionSize, String? name, bool matchAllTags
 });
 
 
@@ -65,7 +67,7 @@ class _$CreateCustomSessionRequestDtoCopyWithImpl<$Res>
 
 /// Create a copy of CreateCustomSessionRequestDto
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? profileId = null,Object? filter = null,Object? tags = null,Object? packIds = null,Object? sessionSize = null,Object? name = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? profileId = null,Object? filter = null,Object? tags = null,Object? packIds = null,Object? sessionSize = null,Object? name = freezed,Object? matchAllTags = null,}) {
   return _then(_self.copyWith(
 profileId: null == profileId ? _self.profileId : profileId // ignore: cast_nullable_to_non_nullable
 as String,filter: null == filter ? _self.filter : filter // ignore: cast_nullable_to_non_nullable
@@ -73,7 +75,8 @@ as PackSelectedFilter,tags: null == tags ? _self.tags : tags // ignore: cast_nul
 as List<String>,packIds: null == packIds ? _self.packIds : packIds // ignore: cast_nullable_to_non_nullable
 as List<String>,sessionSize: null == sessionSize ? _self.sessionSize : sessionSize // ignore: cast_nullable_to_non_nullable
 as int,name: freezed == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
-as String?,
+as String?,matchAllTags: null == matchAllTags ? _self.matchAllTags : matchAllTags // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 
@@ -158,10 +161,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String profileId,  PackSelectedFilter filter,  List<String> tags,  List<String> packIds,  int sessionSize,  String? name)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String profileId,  PackSelectedFilter filter,  List<String> tags,  List<String> packIds,  int sessionSize,  String? name,  bool matchAllTags)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _CreateCustomSessionRequestDto() when $default != null:
-return $default(_that.profileId,_that.filter,_that.tags,_that.packIds,_that.sessionSize,_that.name);case _:
+return $default(_that.profileId,_that.filter,_that.tags,_that.packIds,_that.sessionSize,_that.name,_that.matchAllTags);case _:
   return orElse();
 
 }
@@ -179,10 +182,10 @@ return $default(_that.profileId,_that.filter,_that.tags,_that.packIds,_that.sess
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String profileId,  PackSelectedFilter filter,  List<String> tags,  List<String> packIds,  int sessionSize,  String? name)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String profileId,  PackSelectedFilter filter,  List<String> tags,  List<String> packIds,  int sessionSize,  String? name,  bool matchAllTags)  $default,) {final _that = this;
 switch (_that) {
 case _CreateCustomSessionRequestDto():
-return $default(_that.profileId,_that.filter,_that.tags,_that.packIds,_that.sessionSize,_that.name);case _:
+return $default(_that.profileId,_that.filter,_that.tags,_that.packIds,_that.sessionSize,_that.name,_that.matchAllTags);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -199,10 +202,10 @@ return $default(_that.profileId,_that.filter,_that.tags,_that.packIds,_that.sess
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String profileId,  PackSelectedFilter filter,  List<String> tags,  List<String> packIds,  int sessionSize,  String? name)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String profileId,  PackSelectedFilter filter,  List<String> tags,  List<String> packIds,  int sessionSize,  String? name,  bool matchAllTags)?  $default,) {final _that = this;
 switch (_that) {
 case _CreateCustomSessionRequestDto() when $default != null:
-return $default(_that.profileId,_that.filter,_that.tags,_that.packIds,_that.sessionSize,_that.name);case _:
+return $default(_that.profileId,_that.filter,_that.tags,_that.packIds,_that.sessionSize,_that.name,_that.matchAllTags);case _:
   return null;
 
 }
@@ -214,7 +217,7 @@ return $default(_that.profileId,_that.filter,_that.tags,_that.packIds,_that.sess
 @JsonSerializable()
 
 class _CreateCustomSessionRequestDto implements CreateCustomSessionRequestDto {
-  const _CreateCustomSessionRequestDto({required this.profileId, required this.filter, required final  List<String> tags, required final  List<String> packIds, required this.sessionSize, this.name}): _tags = tags,_packIds = packIds;
+  const _CreateCustomSessionRequestDto({required this.profileId, required this.filter, required final  List<String> tags, required final  List<String> packIds, required this.sessionSize, this.name, this.matchAllTags = true}): _tags = tags,_packIds = packIds;
   factory _CreateCustomSessionRequestDto.fromJson(Map<String, dynamic> json) => _$CreateCustomSessionRequestDtoFromJson(json);
 
 @override final  String profileId;
@@ -235,6 +238,9 @@ class _CreateCustomSessionRequestDto implements CreateCustomSessionRequestDto {
 
 @override final  int sessionSize;
 @override final  String? name;
+/// Cards must have every tag. Older app versions leave this out and get
+/// cards with any of the tags.
+@override@JsonKey() final  bool matchAllTags;
 
 /// Create a copy of CreateCustomSessionRequestDto
 /// with the given fields replaced by the non-null parameter values.
@@ -249,16 +255,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _CreateCustomSessionRequestDto&&(identical(other.profileId, profileId) || other.profileId == profileId)&&(identical(other.filter, filter) || other.filter == filter)&&const DeepCollectionEquality().equals(other._tags, _tags)&&const DeepCollectionEquality().equals(other._packIds, _packIds)&&(identical(other.sessionSize, sessionSize) || other.sessionSize == sessionSize)&&(identical(other.name, name) || other.name == name));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _CreateCustomSessionRequestDto&&(identical(other.profileId, profileId) || other.profileId == profileId)&&(identical(other.filter, filter) || other.filter == filter)&&const DeepCollectionEquality().equals(other._tags, _tags)&&const DeepCollectionEquality().equals(other._packIds, _packIds)&&(identical(other.sessionSize, sessionSize) || other.sessionSize == sessionSize)&&(identical(other.name, name) || other.name == name)&&(identical(other.matchAllTags, matchAllTags) || other.matchAllTags == matchAllTags));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,profileId,filter,const DeepCollectionEquality().hash(_tags),const DeepCollectionEquality().hash(_packIds),sessionSize,name);
+int get hashCode => Object.hash(runtimeType,profileId,filter,const DeepCollectionEquality().hash(_tags),const DeepCollectionEquality().hash(_packIds),sessionSize,name,matchAllTags);
 
 @override
 String toString() {
-  return 'CreateCustomSessionRequestDto(profileId: $profileId, filter: $filter, tags: $tags, packIds: $packIds, sessionSize: $sessionSize, name: $name)';
+  return 'CreateCustomSessionRequestDto(profileId: $profileId, filter: $filter, tags: $tags, packIds: $packIds, sessionSize: $sessionSize, name: $name, matchAllTags: $matchAllTags)';
 }
 
 
@@ -269,7 +275,7 @@ abstract mixin class _$CreateCustomSessionRequestDtoCopyWith<$Res> implements $C
   factory _$CreateCustomSessionRequestDtoCopyWith(_CreateCustomSessionRequestDto value, $Res Function(_CreateCustomSessionRequestDto) _then) = __$CreateCustomSessionRequestDtoCopyWithImpl;
 @override @useResult
 $Res call({
- String profileId, PackSelectedFilter filter, List<String> tags, List<String> packIds, int sessionSize, String? name
+ String profileId, PackSelectedFilter filter, List<String> tags, List<String> packIds, int sessionSize, String? name, bool matchAllTags
 });
 
 
@@ -286,7 +292,7 @@ class __$CreateCustomSessionRequestDtoCopyWithImpl<$Res>
 
 /// Create a copy of CreateCustomSessionRequestDto
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? profileId = null,Object? filter = null,Object? tags = null,Object? packIds = null,Object? sessionSize = null,Object? name = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? profileId = null,Object? filter = null,Object? tags = null,Object? packIds = null,Object? sessionSize = null,Object? name = freezed,Object? matchAllTags = null,}) {
   return _then(_CreateCustomSessionRequestDto(
 profileId: null == profileId ? _self.profileId : profileId // ignore: cast_nullable_to_non_nullable
 as String,filter: null == filter ? _self.filter : filter // ignore: cast_nullable_to_non_nullable
@@ -294,7 +300,8 @@ as PackSelectedFilter,tags: null == tags ? _self._tags : tags // ignore: cast_nu
 as List<String>,packIds: null == packIds ? _self._packIds : packIds // ignore: cast_nullable_to_non_nullable
 as List<String>,sessionSize: null == sessionSize ? _self.sessionSize : sessionSize // ignore: cast_nullable_to_non_nullable
 as int,name: freezed == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
-as String?,
+as String?,matchAllTags: null == matchAllTags ? _self.matchAllTags : matchAllTags // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 

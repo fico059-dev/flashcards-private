@@ -19,6 +19,8 @@ type RequstDataDto = {
   packIds: string[] | undefined;
   sessionSize: number | undefined;
   name?: string | null;
+  /** Sent by app 1.1.0+; older versions expect any-tag matching. */
+  matchAllTags?: boolean;
 };
 
 /** Longest custom session name, also enforced by renameCustomSession. */
@@ -34,6 +36,24 @@ export function cleanSessionName(name: unknown): string | null {
   const trimmed = name.trim().replace(/\s+/g, " ");
   if (!trimmed) return null;
   return trimmed.slice(0, maxSessionNameLength);
+}
+
+/**
+ * Keeps the cards that have at least one of the tags (old app versions,
+ * which select every tag by default). Untagged cards are kept too.
+ * @param {T[]} flashcards Cards to filter.
+ * @param {string[]} tags Tags to look for.
+ * @return {T[]} The matching cards.
+ */
+export function filterByAnyTag<T extends {tags?: string[]}>(
+  flashcards: T[],
+  tags: string[],
+): T[] {
+  if (tags.length === 0) return flashcards;
+  return flashcards.filter((flashcard) => {
+    if (!flashcard.tags || flashcard.tags.length === 0) return true;
+    return flashcard.tags.some((tag) => tags.includes(tag));
+  });
 }
 
 /**
@@ -71,6 +91,7 @@ export async function createCustomSessionHandler(request: CallableRequest) {
     const {profileId, filter, packIds, tags, sessionSize} =
       data as RequstDataDto;
     const name = cleanSessionName((data as RequstDataDto).name);
+    const matchAllTags = (data as RequstDataDto).matchAllTags === true;
 
     if (!profileId || !filter || !packIds || !tags || !sessionSize) {
       const missingParams = getMissingParams({
@@ -132,12 +153,13 @@ export async function createCustomSessionHandler(request: CallableRequest) {
       flashcardSnapshots,
       tags,
       sessionSize,
+      matchAllTags,
     );
     if (filteredFlashcards.length === 0) {
       logger.info("No flashcards found after filtering");
       throw new HttpsError(
         "not-found",
-        "No flashcards have all the selected tags with this filter. Select fewer tags or another filter.",
+        "No flashcards match the selected tags and filter. Select fewer tags or another filter.",
       );
     }
 
@@ -160,8 +182,11 @@ export async function createCustomSessionHandler(request: CallableRequest) {
     flashcards: FlashcardSnapshot[],
     tags: string[],
     sessionSize: number,
+    matchAllTags: boolean,
   ): FlashcardSnapshot[] {
-    const filtered = filterByAllTags(flashcards, tags);
+    const filtered = matchAllTags ?
+      filterByAllTags(flashcards, tags) :
+      filterByAnyTag(flashcards, tags);
 
     logger.info(
       `Filtered flashcards by tags. Original count: ${flashcards.length}, Filtered count: ${filtered.length}`,
