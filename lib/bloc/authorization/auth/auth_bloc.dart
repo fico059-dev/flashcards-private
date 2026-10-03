@@ -39,6 +39,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<AuthReloadUser>(_onAuthReloadUser);
     on<AuthNeedsEmailVerification>(_onAuthNeedsEmailVerification);
     on<UpdatePendingEmailVerification>(_onUpdatePendingEmailVerification);
+    on<AuthRetry>(_onAuthRetry);
 
     // Initial check when app is started
     _handleUserStateChange(_authRepository.getCurrentUser());
@@ -110,9 +111,34 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     }
   }
 
-  void _onAuthLoggedIn(AuthLoggedIn event, Emitter<AuthState> emit) async {
-    //print("[DEBUG] auth logged in handler");
+  void _onAuthRetry(AuthRetry event, Emitter<AuthState> emit) {
+    emit(AuthInitial());
+    _handleUserStateChange(_authRepository.getCurrentUser());
+  }
+
+  Future<void> _onAuthLoggedIn(
+    AuthLoggedIn event,
+    Emitter<AuthState> emit,
+  ) async {
     final prevState = state;
+    try {
+      await _loadProfileAndAuthenticate(event, emit, prevState);
+    } catch (error) {
+      // Without this, an unexpected error (e.g. a malformed profile) would
+      // leave the splash screen loading forever.
+      emit(
+        prevState.copyWith(
+          error: error is Exception ? error : Exception(error.toString()),
+        ),
+      );
+    }
+  }
+
+  Future<void> _loadProfileAndAuthenticate(
+    AuthLoggedIn event,
+    Emitter<AuthState> emit,
+    AuthState prevState,
+  ) async {
     final result = await _profileRepository.getCurrentProfile();
 
     switch (result) {

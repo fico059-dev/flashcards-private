@@ -44,3 +44,6 @@ class AuthNeedsEmailVerification extends AuthEvent {
 }
 
 class AuthSignOut extends AuthEvent {}
+
+/// Runs the startup sign-in check again, e.g. after loading the profile failed.
+class AuthRetry extends AuthEvent {}
