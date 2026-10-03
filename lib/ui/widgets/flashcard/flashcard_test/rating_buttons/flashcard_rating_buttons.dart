@@ -39,12 +39,16 @@ class _FlashcardRatingButtonsState extends State<FlashcardRatingButtons> {
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<FlashcardBloc, FlashcardState>(
+      // Ready to rate again once the next card is shown (it can appear
+      // without a loading step, as it's usually downloaded already), when
+      // the answer is hidden, or after an error.
       listenWhen: (previous, current) =>
-          current.status.isLoaded && current.status != previous.status,
+          current.currentCardIndex != previous.currentCardIndex ||
+          current.answerVisible != previous.answerVisible ||
+          (current.status != previous.status &&
+              (current.status.isLoaded || current.status.isError)),
       listener: (context, state) {
-        if (state.status.isLoaded) {
-          setState(() => _activeRating = null);
-        }
+        if (_activeRating != null) setState(() => _activeRating = null);
       },
       builder: (context, state) {
         if (!state.answerVisible) return SizedBox.shrink();
