@@ -5,6 +5,8 @@ import 'package:flashcards/ui/widgets/flashcard/flashcard_test/main_card/widgets
 import 'package:flashcards/ui/widgets/flashcard/flashcard_test/main_card/widgets/question_text.dart';
 import 'package:flashcards/ui/widgets/flashcard/flashcard_test/main_card/widgets/refresh_button.dart';
 import 'package:flashcards/ui/widgets/flashcard/flashcard_test/main_card/widgets/test_finished_text.dart';
+import 'package:flashcards/ui/widgets/notebook/highlightable_text.dart';
+import 'package:flashcards/domain/models/flashcards/highlight/highlight.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -33,6 +35,10 @@ class MainCardWithFlashcardBloc extends StatelessWidget {
           return QuestionText(
             question: state.flashcard!.question,
             tags: state.flashcard!.tags,
+            highlightTarget: HighlightTarget.of(
+              state.flashcard!,
+              HighlightSide.question,
+            ),
           );
         },
       ),

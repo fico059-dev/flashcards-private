@@ -18,6 +18,11 @@ import {deleteFlashcardEverywhereHandler} from "./handlers/deleteFlashcardEveryw
 import {updateFlashcardEverywhereHandler} from "./handlers/updateFlashcardEverywhere";
 import {createCustomSessionHandler} from "./handlers/createCustomSession";
 import {renameCustomSessionHandler} from "./handlers/renameCustomSession";
+import {
+  deleteHighlightHandler,
+  listHighlightsHandler,
+  saveHighlightHandler,
+} from "./handlers/highlights";
 import {devGrantHandler} from "./handlers/devGrant";
 import {deletePackEverywhereHandler} from "./handlers/deletePackEverywhere";
 import {deletePackWithCardsHandler} from "./handlers/deletePackWithCards";
@@ -48,6 +53,9 @@ export const updateFlashcardEverywhere = onCall(
 // fcp_data operations
 export const createCustomSession = onCall(createCustomSessionHandler);
 export const renameCustomSession = onCall(renameCustomSessionHandler);
+export const saveHighlight = onCall(saveHighlightHandler);
+export const deleteHighlight = onCall(deleteHighlightHandler);
+export const listHighlights = onCall(listHighlightsHandler);
 
 // subscription operations
 export const devGrant = onCall(devGrantHandler);

@@ -38,6 +38,7 @@ import 'package:flashcards/ui/pages/custom_session/custom_session_test/custom_se
 import 'package:flashcards/ui/pages/flashcards/flashcard_page.dart';
 import 'package:flashcards/ui/pages/flashcards/flashcard_preview_page.dart';
 import 'package:flashcards/ui/pages/flashcards/review_bookmark_page.dart';
+import 'package:flashcards/ui/pages/notebook/notebook_page.dart';
 import 'package:flashcards/ui/pages/main_tab_pages/home_page.dart';
 import 'package:flashcards/ui/pages/main_tab_pages/learning_progress/learning_progress_page.dart';
 import 'package:flashcards/ui/pages/main_tab_pages/learning_progress/started_packs_page.dart';
@@ -121,6 +122,7 @@ class AppRouter extends RootStackRouter {
             AutoRoute(page: PacksTabRoute.page, children: [
               AutoRoute(page: PacksRoute.page, guards: [authGuard]),
               AutoRoute(page: PreviousSessionsRoute.page, guards: [authGuard]),
+              AutoRoute(page: NotebookRoute.page, guards: [authGuard]),
             ]),
             AutoRoute(page: LearningProgressRoute.page, guards: [authGuard]),
           ],

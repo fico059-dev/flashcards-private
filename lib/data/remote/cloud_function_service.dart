@@ -30,6 +30,28 @@ class CloudFunctionService {
     return (result.data as Map)['name'] as String;
   }
 
+  Future<String> saveHighlight(Map<String, dynamic> highlight) async {
+    final result = await _functions
+        .httpsCallable('saveHighlight')
+        .call<Map<String, dynamic>>(highlight);
+    return result.data['id'] as String;
+  }
+
+  Future<void> deleteHighlight(String id) async {
+    await _functions.httpsCallable('deleteHighlight').call(<String, dynamic>{
+      'id': id,
+    });
+  }
+
+  Future<List<Map<String, dynamic>>> listHighlights() async {
+    final result = await _functions.httpsCallable('listHighlights').call();
+    final data = Map<String, dynamic>.from(result.data as Map);
+    return [
+      for (final item in data['highlights'] as List)
+        Map<String, dynamic>.from(item as Map),
+    ];
+  }
+
   Future<void> deleteFlashcardEverywhere(FlashcardDto flashcardDto) async {
     final callable = _functions.httpsCallable('deleteFlashcardEverywhere');
     await callable.call(<String, dynamic>{

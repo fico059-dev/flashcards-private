@@ -1,12 +1,21 @@
 import 'package:flashcards/domain/models/flashcards/tag/tag.dart';
 import 'package:flashcards/ui/theme/theme_extensions.dart';
+import 'package:flashcards/ui/widgets/notebook/highlightable_text.dart';
 import 'package:flutter/material.dart';
 
 class QuestionText extends StatelessWidget {
   final String question;
   final List<Tag> tags;
 
-  const QuestionText({super.key, required this.question, this.tags = const []});
+  /// The card this question belongs to, so text can be highlighted.
+  final HighlightTarget? highlightTarget;
+
+  const QuestionText({
+    super.key,
+    required this.question,
+    this.tags = const [],
+    this.highlightTarget,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -15,9 +24,10 @@ class QuestionText extends StatelessWidget {
       spacing: 12,
       children: [
         if (tags.isNotEmpty) FlashcardTags(tags: tags),
-        // Selectable so the question can be copied.
-        SelectableText(
+        // Selectable so the question can be copied and highlighted.
+        HighlightableText(
           question,
+          target: highlightTarget,
           style: TextStyle(
             color: context.colors.onPrimaryContainer,
             fontSize: 18,

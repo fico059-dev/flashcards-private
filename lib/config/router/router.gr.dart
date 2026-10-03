@@ -1053,6 +1053,22 @@ class ManagePackFlashcardsRouteArgs {
 }
 
 /// generated route for
+/// [NotebookPage]
+class NotebookRoute extends PageRouteInfo<void> {
+  const NotebookRoute({List<PageRouteInfo>? children})
+    : super(NotebookRoute.name, initialChildren: children);
+
+  static const String name = 'NotebookRoute';
+
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      return const NotebookPage();
+    },
+  );
+}
+
+/// generated route for
 /// [OsceBuilderPage]
 class OsceBuilderRoute extends PageRouteInfo<void> {
   const OsceBuilderRoute({List<PageRouteInfo>? children})

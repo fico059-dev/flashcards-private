@@ -42,6 +42,7 @@ import 'package:flashcards/domain/models/flashcards/pack/pack.dart';
 import 'package:flashcards/domain/models/flashcards/tag/tag.dart';
 import 'package:flashcards/data/repositories/progress/progress_repository.dart';
 import 'package:flashcards/data/services/local/study_log_store.dart';
+import 'package:flashcards/data/repositories/notebook/highlight_repository.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 import 'package:provider/single_child_widget.dart';
@@ -220,6 +221,12 @@ class AppDependencies {
           packService: context.read<PackService>(),
           packCache: _packsCache,
           studyLog: _studyLogStore,
+        ),
+      ),
+      ChangeNotifierProvider(
+        create: (context) => HighlightRepository(
+          functions: _functions,
+          authService: context.read<AuthService>(),
         ),
       ),
       Provider(
