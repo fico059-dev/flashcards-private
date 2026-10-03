@@ -97,6 +97,15 @@ class PackService {
     }
   }
 
+  Future<Result<void>> setPackPremium(String packId, bool isPaid) async {
+    try {
+      await _functions.setPackPremium(packId, isPaid);
+      return Result.ok(null);
+    } on Exception catch (error) {
+      return Result.error(error);
+    }
+  }
+
   Future<Result<void>> renamePackEverywhere(
     String packId,
     String packName,

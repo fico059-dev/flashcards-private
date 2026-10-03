@@ -10,6 +10,7 @@ import 'package:flashcards/data/repositories/flashcards/pack_repository.dart';
 import 'package:flashcards/domain/models/flashcards/simple_pack/simple_pack.dart';
 import 'package:flashcards/ui/constants/styles.dart';
 import 'package:flashcards/ui/dialogs/profile/admin_dashboard/flashcard_builder/delete_pack_dialog.dart';
+import 'package:flashcards/ui/dialogs/profile/admin_dashboard/flashcard_builder/pack_premium_dialog.dart';
 import 'package:flashcards/ui/dialogs/profile/admin_dashboard/flashcard_builder/rename_pack_dialog.dart';
 import 'package:flashcards/ui/theme/theme_extensions.dart';
 import 'package:flashcards/ui/widgets/core/subs_status_icon.dart';
@@ -91,6 +92,19 @@ class _ViewState extends State<_View> {
     }
   }
 
+  void _onChangePremium(SimplePack pack) async {
+    context.router.pop();
+    final isPaid = await showChangePackPremiumDialog(context, pack);
+    if (isPaid != null) {
+      widget.searcherBloc.add(
+        PackSearcherPackUpdatedInState(
+          packId: pack.packId,
+          copyWith: (pack) => pack.copyWith(isPaid: isPaid),
+        ),
+      );
+    }
+  }
+
   void _onDelete(SimplePack pack) async {
     context.router.pop();
     final cubit = DeletePackCubit(packRepo: context.read<PackRepository>());
@@ -152,6 +166,15 @@ class _ViewState extends State<_View> {
                         title: Text("Add Flashcards"),
                       ),
                       ListTile(
+                        onTap: () => navigateTo(AnkiImportRoute(pack: pack)),
+                        leading: Icon(
+                          Icons.upload_file,
+                          color: context.colors.primaryContainer,
+                        ),
+                        title: Text("Import from Anki"),
+                        subtitle: Text("Add a whole .apkg or .txt deck at once"),
+                      ),
+                      ListTile(
                         onTap:
                             () => navigateTo(
                               ManagePackFlashcardsRoute(pack: pack),
@@ -169,6 +192,10 @@ class _ViewState extends State<_View> {
                           color: context.colors.primaryContainer,
                         ),
                         title: Text("Rename Pack"),
+                      ),
+                      PackPremiumTile(
+                        isPaid: pack.isPaid,
+                        onTap: () => _onChangePremium(pack),
                       ),
                       ListTile(
                         onTap: () => _onDelete(pack),

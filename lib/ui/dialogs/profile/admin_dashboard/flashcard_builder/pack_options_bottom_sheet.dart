@@ -1,14 +1,14 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:flashcards/bloc/pack/admin_packs_getter/admin_packs_getter_bloc.dart';
+import 'package:flashcards/bloc/pack/admin_packs_getter/admin_packs_getter_event.dart';
 import 'package:flashcards/bloc/pack/delete_pack/delete_pack_cubit.dart';
 import 'package:flashcards/config/router/router.dart';
 import 'package:flashcards/data/repositories/flashcards/pack_repository.dart';
 import 'package:flashcards/domain/models/flashcards/admin_pack/admin_pack.dart';
 import 'package:flashcards/ui/constants/styles.dart';
 import 'package:flashcards/ui/dialogs/profile/admin_dashboard/flashcard_builder/delete_pack_dialog.dart';
+import 'package:flashcards/ui/dialogs/profile/admin_dashboard/flashcard_builder/pack_premium_dialog.dart';
 import 'package:flashcards/ui/dialogs/profile/admin_dashboard/flashcard_builder/rename_pack_dialog.dart';
-import 'package:flashcards/ui/theme/theme_extensions.dart';
-import 'package:flashcards/ui/theme/theme_extensions.dart';
-import 'package:flashcards/ui/theme/theme_extensions.dart';
 import 'package:flashcards/ui/theme/theme_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -73,6 +73,20 @@ void showPackOptionsBottomSheet(BuildContext context, AdminPack pack) {
                     color: context.colors.primaryContainer,
                   ),
                   title: Text("Rename Pack"),
+                ),
+                PackPremiumTile(
+                  isPaid: pack.isPaid,
+                  onTap: () async {
+                    final getterBloc = context.read<AdminPacksGetterBloc>();
+                    context.router.pop();
+                    final isPaid = await showChangePackPremiumDialog(
+                      context,
+                      pack,
+                    );
+                    if (isPaid != null) {
+                      getterBloc.add(AdminPacksGetterCacheRead());
+                    }
+                  },
                 ),
                 ListTile(
                   onTap: () async {

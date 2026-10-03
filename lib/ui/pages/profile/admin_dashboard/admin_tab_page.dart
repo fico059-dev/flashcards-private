@@ -112,7 +112,6 @@ class _AdminTabPageState extends State<AdminTabPage> with AutoRouteAware {
 
         List<Widget>? appBarActions;
         switch (_tabsRouter?.activeIndex) {
-          case 4:
           case 0:
             appBarActions = [
               Builder(
@@ -201,9 +200,16 @@ class _AdminTabPageState extends State<AdminTabPage> with AutoRouteAware {
                       icon: Icons.report_outlined,
                       selectedIcon: Icons.report,
                     ),
-                    Divider(height: 5),
                     _DrawerItem(
                       index: 4,
+                      onTap: () => setActiveIndex(drawerContext, 4),
+                      title: "All Packs (without search)",
+                      icon: Icons.folder_copy_outlined,
+                      selectedIcon: Icons.folder_copy,
+                    ),
+                    Divider(height: 5),
+                    _DrawerItem(
+                      index: 5,
                       onTap: () {
                         context.router.pop();
                         context.router.replaceAll([MainTabRoute()]);

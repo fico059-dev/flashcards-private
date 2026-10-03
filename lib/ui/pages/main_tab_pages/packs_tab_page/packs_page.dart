@@ -108,7 +108,7 @@ class _PacksViewState extends State<_PacksView> with AutoRouteAware {
                   firstPageProgressIndicatorBuilder: (context) =>
                       PackUiShimmer(),
                   firstPageErrorIndicatorBuilder: (context) => ErrorScreen(
-                    errorMessage: "Error loading packs",
+                    errorMessage: _loadErrorMessage(state.pagingState.error),
                     onReload: context.read<PacksGetterBloc>().fetchNextPage,
                   ),
                   itemBuilder: (context, item, index) {
@@ -184,3 +184,7 @@ void _showLegendDialog(BuildContext context) {
     ),
   );
 }
+
+String _loadErrorMessage(Object? error) => error == null
+    ? "Error loading packs"
+    : "Error loading packs\n${extractErrorMessage(error)}";

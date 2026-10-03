@@ -128,12 +128,11 @@ class _FormState extends State<_Form> {
                           textEditingController: _nameCont,
                         ),
                         const SizedBox(height: 16),
-                        CardFactory.warning(
+                        CardFactory.info(
                           isThreeLine: true,
                           subtitle: Text(
-                            "Once pack is created, its premium status cannot "
-                            "be changed. You cannot switch pack from Free "
-                            "to Paid or from Paid to Free.",
+                            "You can switch the pack between Free and "
+                            "Premium later from the pack's menu.",
                           ),
                         ),
                         const SizedBox(height: 24),

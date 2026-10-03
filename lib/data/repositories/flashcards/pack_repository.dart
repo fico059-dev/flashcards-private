@@ -347,6 +347,24 @@ class PackRepository {
     return Result.ok(null);
   }
 
+  /// Switches a pack between free and premium, including its flashcards and
+  /// users' progress on them.
+  Future<Result<void>> setPackPremium(String packId, bool isPaid) async {
+    final result = await _packService.setPackPremium(packId, isPaid);
+    switch (result) {
+      case Error<void>(:final error):
+        return Result.error(error);
+      case Ok<void>():
+    }
+
+    _packsCache.invalidate();
+    _adminPacksCache.updateItem(
+      id: packId,
+      copyWith: (item) => item.copyWith(isPaid: isPaid),
+    );
+    return Result.ok(null);
+  }
+
   Future<Result<List<String>>> getFlashcardIdsFromPack(String packId) async {
     final result = await _packService.getFlashcardIds(packId);
     switch (result) {
