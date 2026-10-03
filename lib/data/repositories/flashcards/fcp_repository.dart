@@ -18,6 +18,7 @@ import 'package:flashcards/domain/models/flashcards/ignored_flashcard/ignored_fl
 import 'package:flashcards/domain/models/flashcards/pack/pack.dart';
 import 'package:flashcards/domain/models/flashcards/stat_record/stat_record.dart';
 import 'package:flashcards/utils/result.dart';
+import 'package:flashcards/data/services/local/study_log_store.dart';
 import 'package:fsrs/fsrs.dart';
 
 class FcpRepository {
@@ -31,13 +32,17 @@ class FcpRepository {
 
   final PageCache<Pack> _packsCache;
 
+  final StudyLogStore? _studyLog;
+
   FcpRepository({
     required FcpService fcpService,
     required AuthService authService,
     required FlashcardService flashcardService,
     required PackService packService,
     required PageCache<Pack> packCache,
-  }) : _fcpService = fcpService,
+    StudyLogStore? studyLog,
+  }) : _studyLog = studyLog,
+       _fcpService = fcpService,
        _authService = authService,
        _packService = packService,
        _flashcardService = flashcardService,
@@ -465,6 +470,7 @@ class FcpRepository {
           newStatRecord.card,
           currStatRecord.packId,
         );
+        _recordReview(currStatRecord.card, newStatRecord.card);
         return Result.ok(null);
       case Error<void>():
     }
@@ -489,7 +495,19 @@ class FcpRepository {
       newStatRecord.card,
       currStatRecord.packId,
     );
+    _recordReview(currStatRecord.card, newStatRecord.card);
     return Result.ok(null);
+  }
+
+  /// Keeps the daily history shown on the Progress tab.
+  void _recordReview(Card before, Card after) {
+    _studyLog?.update(
+      (log) => log.recordReview(
+        now: DateTime.now(),
+        isNew: before.state == State.newState || before.reps == 0,
+        forgot: after.lapses > before.lapses,
+      ),
+    );
   }
 
   List<int> _calculateSeenAndNewCount(

@@ -80,6 +80,7 @@ dependencies:
   archive: ^4.0.9
   sqlite3: ^2.9.0
   sqlite3_flutter_libs: ^0.5.40
+  fl_chart: ^1.2.0
 
 dev_dependencies:
   flutter_test:

@@ -3,7 +3,9 @@ import 'package:flashcards/bloc/osce_performance_blocs/save_osce_attempt/save_os
 import 'package:flashcards/bloc/osce_performance_blocs/save_osce_attempt/save_osce_attempt_state.dart';
 import 'package:flashcards/config/router/router.dart';
 import 'package:flashcards/data/repositories/osces/osce_performance_repository.dart';
+import 'package:flashcards/data/services/local/study_log_store.dart';
 import 'package:flashcards/domain/enums/score_status.dart';
+import 'package:flashcards/domain/models/progress/study_log.dart';
 import 'package:flashcards/domain/models/osce/osce.dart';
 import 'package:flashcards/domain/models/osce/question/check/check.dart';
 import 'package:flashcards/domain/models/osce/question/question.dart';
@@ -56,6 +58,29 @@ class _ViewState extends State<_View> {
     );
   }
 
+  /// Remembers which sections and checks were missed, for the Progress tab.
+  void _recordOsceDetails() {
+    context.read<StudyLogStore>().update(
+      (log) => log.recordOsce(
+        osceId: osce.id,
+        name: osce.name,
+        results: [
+          for (final question in questions)
+            if (question.getMaxScore() > 0)
+              OsceQuestionResult(
+                text: question.text,
+                achieved: question.getAchievedScore(),
+                max: question.getMaxScore(),
+                missedChecks: [
+                  for (final check in question.checks)
+                    if (!check.isTitle && !check.isChecked) check.text,
+                ],
+              ),
+        ],
+      ),
+    );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -67,6 +92,7 @@ class _ViewState extends State<_View> {
     maxScore = osce.getMaxScore();
 
     _saveOsceAttempt();
+    _recordOsceDetails();
   }
 
   @override

@@ -31,6 +31,44 @@ class FcpService {
     }
   }
 
+  /// One page of all the progress documents of the profile, for statistics.
+  Future<Result<PaginatedDtoResult<FcpDataDto>>> getProfileDocsPagination({
+    required String profileId,
+    required bool hasCards,
+    required DocumentSnapshot? startAfter,
+    required int limit,
+  }) async {
+    try {
+      var query = _fcpData
+          .where('profileId', isEqualTo: profileId)
+          .orderBy(FieldPath.documentId)
+          .limit(limit);
+      if (!hasCards) {
+        query = query.where('isPaid', isEqualTo: false);
+      }
+      if (startAfter != null) {
+        query = query.startAfterDocument(startAfter);
+      }
+      final snapshot = await query.get();
+      final dtoList = <FcpDataDto>[];
+      for (final doc in snapshot.docs) {
+        try {
+          dtoList.add(FcpDataDto.fromJson(doc.data()));
+        } on Object {
+          // An old or damaged document shouldn't hide all the statistics.
+        }
+      }
+      return Result.ok(
+        PaginatedDtoResult(
+          items: dtoList,
+          lastDocument: getLastDocFromSnapshot(snapshot),
+        ),
+      );
+    } on Exception catch (error) {
+      return Result.error(error);
+    }
+  }
+
   Future<Result<List<FcpDataDto>>> getDueCardsForPack(
     String profileId,
     String packId,

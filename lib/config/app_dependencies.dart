@@ -40,6 +40,8 @@ import 'package:flashcards/data/services/local/local_storage_service.dart';
 import 'package:flashcards/domain/models/flashcards/admin_pack/admin_pack.dart';
 import 'package:flashcards/domain/models/flashcards/pack/pack.dart';
 import 'package:flashcards/domain/models/flashcards/tag/tag.dart';
+import 'package:flashcards/data/repositories/progress/progress_repository.dart';
+import 'package:flashcards/data/services/local/study_log_store.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 import 'package:provider/single_child_widget.dart';
@@ -56,6 +58,7 @@ class AppDependencies {
   late final CloudStorageService _storage;
   late final AuthService _authService;
   late final LocalStorageService _localStorageService;
+  late final StudyLogStore _studyLogStore;
 
 
   late final NotificationService _notificationService;
@@ -91,6 +94,7 @@ class AppDependencies {
 
     _authService = AuthService();
     _localStorageService = LocalStorageService(authService: _authService);
+    _studyLogStore = StudyLogStore(authService: _authService);
 
     _themeCubit = ThemeCubit(storageService: _localStorageService);
     await _themeCubit.loadTheme();
@@ -116,6 +120,7 @@ class AppDependencies {
       //Services
       Provider.value(value: _authService),
       Provider.value(value: _localStorageService),
+      Provider.value(value: _studyLogStore),
       Provider(create: (context) => ProfileService(dbContext: _dbContext)),
       Provider(
         create: (context) =>
@@ -214,6 +219,17 @@ class AppDependencies {
           flashcardService: context.read<FlashcardService>(),
           packService: context.read<PackService>(),
           packCache: _packsCache,
+          studyLog: _studyLogStore,
+        ),
+      ),
+      Provider(
+        create: (context) => ProgressRepository(
+          fcpService: context.read<FcpService>(),
+          packService: context.read<PackService>(),
+          osceService: context.read<OsceService>(),
+          oscePerfService: context.read<OscePerformanceService>(),
+          authService: context.read<AuthService>(),
+          logStore: _studyLogStore,
         ),
       ),
       Provider(
