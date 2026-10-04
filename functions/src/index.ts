@@ -23,6 +23,14 @@ import {
   listHighlightsHandler,
   saveHighlightHandler,
 } from "./handlers/highlights";
+import {
+  deleteOsceFolderHandler,
+  listOsceFoldersHandler,
+  saveOsceFolderHandler,
+  setOsceFolderHandler,
+  setOscePremiumHandler,
+  setOsceScenarioImageHandler,
+} from "./handlers/osceFolders";
 import {devGrantHandler} from "./handlers/devGrant";
 import {deletePackEverywhereHandler} from "./handlers/deletePackEverywhere";
 import {deletePackWithCardsHandler} from "./handlers/deletePackWithCards";
@@ -56,6 +64,12 @@ export const renameCustomSession = onCall(renameCustomSessionHandler);
 export const saveHighlight = onCall(saveHighlightHandler);
 export const deleteHighlight = onCall(deleteHighlightHandler);
 export const listHighlights = onCall(listHighlightsHandler);
+export const listOsceFolders = onCall(listOsceFoldersHandler);
+export const saveOsceFolder = onCall(saveOsceFolderHandler);
+export const deleteOsceFolder = onCall(deleteOsceFolderHandler);
+export const setOsceFolder = onCall(setOsceFolderHandler);
+export const setOscePremium = onCall(setOscePremiumHandler);
+export const setOsceScenarioImage = onCall(setOsceScenarioImageHandler);
 
 // subscription operations
 export const devGrant = onCall(devGrantHandler);

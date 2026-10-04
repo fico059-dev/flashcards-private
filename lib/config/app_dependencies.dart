@@ -43,6 +43,7 @@ import 'package:flashcards/domain/models/flashcards/tag/tag.dart';
 import 'package:flashcards/data/repositories/progress/progress_repository.dart';
 import 'package:flashcards/data/services/local/study_log_store.dart';
 import 'package:flashcards/data/repositories/notebook/highlight_repository.dart';
+import 'package:flashcards/data/repositories/osces/osce_library_repository.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 import 'package:provider/single_child_widget.dart';
@@ -213,6 +214,13 @@ class AppDependencies {
         create: (context) => OsceRepository(
           osceService: context.read<OsceService>(),
           oscePerfService: context.read<OscePerformanceService>(),
+        ),
+      ),
+      Provider(
+        create: (context) => OsceLibraryRepository(
+          osceService: context.read<OsceService>(),
+          osceRepository: context.read<OsceRepository>(),
+          functions: _functions,
         ),
       ),
       Provider(

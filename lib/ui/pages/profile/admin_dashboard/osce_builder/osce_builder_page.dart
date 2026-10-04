@@ -11,6 +11,7 @@ import 'package:flashcards/ui/widgets/core/error_screen.dart';
 import 'package:flashcards/ui/widgets/profile/admin_dashboard/osce_builder/admin_osce_card.dart';
 import 'package:flashcards/ui/widgets/search/shimmers/pack_shimmer.dart';
 import 'package:flashcards/utils/firebase_error_mapper.dart';
+import 'package:flashcards/ui/dialogs/profile/admin_dashboard/osce_builder/osce_library_admin.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
@@ -96,6 +97,26 @@ class _ViewState extends State<_View> with AutoRouteAware {
                       child: Column(
                         spacing: 15,
                         children: [
+                          SizedBox(
+                            width: double.infinity,
+                            child: OutlinedButton.icon(
+                              onPressed: () async {
+                                final bloc = context
+                                    .read<AdminOsceGetterBloc>();
+                                await Navigator.of(context).push(
+                                  MaterialPageRoute<void>(
+                                    builder: (_) =>
+                                        const OsceFoldersAdminPage(),
+                                  ),
+                                );
+                                bloc.add(
+                                  AdminOsceGetterRefresh(completer: null),
+                                );
+                              },
+                              icon: const Icon(Icons.folder_copy_outlined),
+                              label: const Text("Manage folders"),
+                            ),
+                          ),
                           Text("Select what OSCE do you want to edit."),
                           SizedBox(height: 15),
                         ],

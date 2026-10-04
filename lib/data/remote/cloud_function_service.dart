@@ -24,9 +24,9 @@ class CloudFunctionService {
     required String sessionId,
     required String name,
   }) async {
-    final result = await _functions
-        .httpsCallable('renameCustomSession')
-        .call(<String, dynamic>{'sessionId': sessionId, 'name': name});
+    final result = await _functions.httpsCallable('renameCustomSession').call(
+      <String, dynamic>{'sessionId': sessionId, 'name': name},
+    );
     return (result.data as Map)['name'] as String;
   }
 
@@ -50,6 +50,57 @@ class CloudFunctionService {
       for (final item in data['highlights'] as List)
         Map<String, dynamic>.from(item as Map),
     ];
+  }
+
+  Future<Map<String, dynamic>> _call(
+    String name, [
+    Map<String, dynamic>? data,
+  ]) async {
+    final result = await _functions.httpsCallable(name).call(data);
+    return Map<String, dynamic>.from(result.data as Map? ?? const {});
+  }
+
+  Future<List<Map<String, dynamic>>> listOsceFolders() async {
+    final data = await _call('listOsceFolders');
+    return [
+      for (final item in data['folders'] as List)
+        Map<String, dynamic>.from(item as Map),
+    ];
+  }
+
+  /// Creates a folder (no [id]) or renames / moves one. Returns its id.
+  Future<String> saveOsceFolder({
+    String? id,
+    required String name,
+    String? parentId,
+  }) async {
+    final data = await _call('saveOsceFolder', {
+      'id': id,
+      'name': name,
+      'parentId': parentId,
+    });
+    return data['id'] as String;
+  }
+
+  Future<void> deleteOsceFolder(String id) =>
+      _call('deleteOsceFolder', {'id': id});
+
+  Future<void> setOsceFolder(String osceId, String? folderId) =>
+      _call('setOsceFolder', {'osceId': osceId, 'folderId': folderId});
+
+  Future<void> setOscePremium(String osceId, bool isPaid) =>
+      _call('setOscePremium', {'osceId': osceId, 'isPaid': isPaid});
+
+  /// Uploads a JPEG (or removes the image with null). Returns its URL.
+  Future<String?> setOsceScenarioImage(
+    String osceId,
+    String? jpegBase64,
+  ) async {
+    final data = await _call('setOsceScenarioImage', {
+      'osceId': osceId,
+      'imageBase64': jpegBase64,
+    });
+    return data['url'] as String?;
   }
 
   Future<void> deleteFlashcardEverywhere(FlashcardDto flashcardDto) async {

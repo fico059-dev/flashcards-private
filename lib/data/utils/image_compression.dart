@@ -3,6 +3,7 @@ import 'dart:isolate';
 import 'dart:math';
 import 'dart:typed_data';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:image/image.dart' as img;
 
@@ -119,4 +120,24 @@ img.Image? _tryDecode(Uint8List bytes) {
   } on Object {
     return null;
   }
+}
+
+/// Turns a picked image into a JPEG at most [maxSide] pixels wide or high,
+/// for images uploaded through a function (e.g. OSCE descriptions).
+Future<Uint8List?> prepareJpeg(Uint8List bytes, {int maxSide = 1600}) async {
+  Uint8List? work() {
+    final image = _tryDecode(bytes);
+    if (image == null) return null;
+    final scaled = image.width >= image.height
+        ? (image.width > maxSide
+              ? img.copyResize(image, width: maxSide)
+              : image)
+        : (image.height > maxSide
+              ? img.copyResize(image, height: maxSide)
+              : image);
+    return img.encodeJpg(scaled, quality: 82);
+  }
+
+  if (kIsWeb) return work();
+  return Isolate.run(work);
 }

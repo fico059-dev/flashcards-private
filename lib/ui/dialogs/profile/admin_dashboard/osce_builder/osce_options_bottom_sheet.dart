@@ -1,10 +1,11 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flashcards/bloc/osces/admin_osce_getter/admin_osce_getter_bloc.dart';
+import 'package:flashcards/bloc/osces/admin_osce_getter/admin_osce_getter_event.dart';
+import 'package:flashcards/ui/dialogs/profile/admin_dashboard/osce_builder/osce_library_admin.dart';
 import 'package:flashcards/config/router/router.dart';
 import 'package:flashcards/domain/models/osce/simple_osce/simple_osce.dart';
 import 'package:flashcards/ui/dialogs/profile/admin_dashboard/osce/rename_osce_bottom_sheet.dart';
 import 'package:flashcards/ui/dialogs/profile/admin_dashboard/osce_builder/delete_osce_dialog.dart';
-import 'package:flashcards/ui/theme/theme_extensions.dart';
 import 'package:flashcards/ui/theme/theme_extensions.dart';
 import 'package:flashcards/ui/constants/styles.dart';
 import 'package:flutter/material.dart';
@@ -27,7 +28,6 @@ void showOsceOptionsBottomSheet(BuildContext context, SimpleOsce osce) {
       return Container(
         decoration: BoxDecoration(borderRadius: BorderRadius.circular(24)),
         padding: EdgeInsets.only(left: 15, right: 15, bottom: 15),
-        height: 310,
         child: Column(
           children: [
             ListTile(leading: Icon(Icons.folder), title: Text(osce.name)),
@@ -50,6 +50,11 @@ void showOsceOptionsBottomSheet(BuildContext context, SimpleOsce osce) {
                 color: context.colors.primaryContainer,
               ),
               title: Text("Edit OSCE Description"),
+            ),
+            OsceStationAdminOptions(
+              osce: osce,
+              onChanged: () =>
+                  readBloc.add(AdminOsceGetterRefresh(completer: null)),
             ),
             ListTile(
               onTap: () async {

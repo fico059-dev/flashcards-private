@@ -31,6 +31,9 @@ class OsceRepository {
   }) : _osceService = osceService,
        _oscePerfService = oscePerfService;
 
+  /// Forgets the cached station pages, after admin changes elsewhere.
+  void invalidateCache() => _osceCache.invalidate();
+
   List<SimpleOsce>? getOscePageFromCache(int pageIndex) {
     if (!_osceCache.isPageFresh(pageIndex)) return null;
 
