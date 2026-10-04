@@ -54,10 +54,9 @@ class ProgressRepository {
       uid == _uid &&
       DateTime.now().difference(fetchedAt) < _cacheDuration;
 
-  Future<StudyLog> getLog() => _logStore.load();
+  Future<StudyLog> getLog() => _logStore.loadCombined();
 
-  Future<StudyLog> saveGoal(StudyGoal goal) =>
-      _logStore.update((log) => log.copyWith(goal: goal));
+  Future<StudyLog> saveGoal(StudyGoal goal) => _logStore.saveGoal(goal);
 
   Future<Result<CardProgressStats>> getCardStats({bool refresh = false}) async {
     try {
@@ -81,9 +80,8 @@ class ProgressRepository {
       final studied = items
           .where((i) => i.isStudied && packs.any((p) => p.id == i.packId))
           .length;
-      final log = await _logStore.update(
-        (log) => log.recordStudiedCount(now, studied),
-      );
+      await _logStore.update((log) => log.recordStudiedCount(now, studied));
+      final log = await _logStore.loadCombined();
 
       return Result.ok(
         CardProgressStats.calculate(
@@ -119,7 +117,7 @@ class ProgressRepository {
         OsceProgressStats.calculate(
           allStations: stations,
           attemptsByStation: attempts,
-          log: await _logStore.load(),
+          log: await _logStore.loadCombined(),
           now: DateTime.now(),
         ),
       );

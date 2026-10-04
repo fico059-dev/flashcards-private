@@ -62,7 +62,6 @@ class AppDependencies {
   late final LocalStorageService _localStorageService;
   late final StudyLogStore _studyLogStore;
 
-
   late final NotificationService _notificationService;
 
   late final ThemeCubit _themeCubit;
@@ -104,7 +103,13 @@ class AppDependencies {
     _authService = AuthService();
     step('saved settings');
     _localStorageService = LocalStorageService(authService: _authService);
-    _studyLogStore = StudyLogStore(authService: _authService);
+    _studyLogStore = StudyLogStore(
+      authService: _authService,
+      remote: CloudStudyLogRemote(
+        get: _functions.getStudyLog,
+        save: _functions.saveStudyLog,
+      ),
+    );
 
     step('theme');
     _themeCubit = ThemeCubit(storageService: _localStorageService);
@@ -166,12 +171,10 @@ class AppDependencies {
         ),
       ),
       Provider(
-        create: (context) =>
-            PacksSearcherService(dbContext: _dbContext),
+        create: (context) => PacksSearcherService(dbContext: _dbContext),
       ),
       Provider(
-        create: (context) =>
-            FlashcardsSearcherService(dbContext: _dbContext),
+        create: (context) => FlashcardsSearcherService(dbContext: _dbContext),
       ),
 
       // Repositories

@@ -52,6 +52,29 @@ class CloudFunctionService {
     ];
   }
 
+  /// Saves this device's study history (and the goal when it changed).
+  Future<void> saveStudyLog({
+    required String deviceId,
+    required String log,
+    String? goal,
+  }) async {
+    await _call('saveStudyLog', {
+      'deviceId': deviceId,
+      'log': log,
+      'goal': ?goal,
+    });
+  }
+
+  /// The study history of every device, and the saved goal.
+  Future<({Map<String, String> devices, String? goal})> getStudyLog() async {
+    final data = await _call('getStudyLog');
+    final devices = Map<String, dynamic>.from(data['devices'] as Map? ?? {});
+    return (
+      devices: devices.map((key, value) => MapEntry(key, value as String)),
+      goal: data['goal'] as String?,
+    );
+  }
+
   Future<Map<String, dynamic>> _call(
     String name, [
     Map<String, dynamic>? data,

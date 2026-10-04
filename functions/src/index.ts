@@ -24,6 +24,10 @@ import {
   saveHighlightHandler,
 } from "./handlers/highlights";
 import {
+  getStudyLogHandler,
+  saveStudyLogHandler,
+} from "./handlers/studyLog";
+import {
   deleteOsceFolderHandler,
   listOsceFoldersHandler,
   saveOsceFolderHandler,
@@ -64,6 +68,8 @@ export const renameCustomSession = onCall(renameCustomSessionHandler);
 export const saveHighlight = onCall(saveHighlightHandler);
 export const deleteHighlight = onCall(deleteHighlightHandler);
 export const listHighlights = onCall(listHighlightsHandler);
+export const saveStudyLog = onCall(saveStudyLogHandler);
+export const getStudyLog = onCall(getStudyLogHandler);
 export const listOsceFolders = onCall(listOsceFoldersHandler);
 export const saveOsceFolder = onCall(saveOsceFolderHandler);
 export const deleteOsceFolder = onCall(deleteOsceFolderHandler);

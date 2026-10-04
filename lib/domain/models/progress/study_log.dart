@@ -230,6 +230,63 @@ class StudyLog {
     );
   }
 
+  /// Combines the history recorded on several devices: activity and OSCE
+  /// results are added up, studied-card counts take the highest value.
+  /// The goal comes from [goal] when given, otherwise from the first log.
+  static StudyLog merge(List<StudyLog> logs, {StudyGoal? goal}) {
+    if (logs.isEmpty) return StudyLog(goal: goal ?? const StudyGoal());
+    final days = <String, DayActivity>{};
+    final studied = <String, int>{};
+    final osce = <String, OsceStationLog>{};
+    for (final log in logs) {
+      log.days.forEach((key, value) {
+        final current = days[key] ?? const DayActivity();
+        days[key] = DayActivity(
+          reviews: current.reviews + value.reviews,
+          newCards: current.newCards + value.newCards,
+          forgotten: current.forgotten + value.forgotten,
+        );
+      });
+      log.studiedSnapshots.forEach((key, value) {
+        if (value > (studied[key] ?? -1)) studied[key] = value;
+      });
+      log.osce.forEach((id, station) {
+        final current = osce[id];
+        if (current == null) {
+          osce[id] = station;
+          return;
+        }
+        final questions = {...current.questions};
+        station.questions.forEach((key, value) {
+          final q = questions[key];
+          questions[key] = q == null
+              ? value
+              : OsceQuestionLog(
+                  text: value.text,
+                  attempts: q.attempts + value.attempts,
+                  achieved: q.achieved + value.achieved,
+                  max: q.max + value.max,
+                );
+        });
+        final missed = {...current.missedChecks};
+        station.missedChecks.forEach((key, value) {
+          missed[key] = (missed[key] ?? 0) + value;
+        });
+        osce[id] = OsceStationLog(
+          name: current.name.isEmpty ? station.name : current.name,
+          questions: questions,
+          missedChecks: missed,
+        );
+      });
+    }
+    return StudyLog(
+      days: days,
+      studiedSnapshots: studied,
+      osce: osce,
+      goal: goal ?? logs.first.goal,
+    );
+  }
+
   Map<String, T> _trim<T>(Map<String, T> map, DateTime now) {
     final oldest = dayKey(now.subtract(const Duration(days: _keepDays)));
     return Map.fromEntries(
@@ -237,12 +294,14 @@ class StudyLog {
     );
   }
 
-  String encode() => jsonEncode({
+  String encode() => jsonEncode(toJson());
+
+  Map<String, dynamic> toJson() => {
     'days': days.map((key, value) => MapEntry(key, value.toJson())),
     'studied': studiedSnapshots,
     'osce': osce.map((key, value) => MapEntry(key, value.toJson())),
     'goal': goal.toJson(),
-  });
+  };
 
   factory StudyLog.decode(String? source) {
     if (source == null || source.isEmpty) return const StudyLog();
