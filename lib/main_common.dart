@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:auto_route/auto_route.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flashcards/bloc/theme/theme_cubit.dart';
@@ -43,7 +45,20 @@ class Flavor {
   static bool get isProd => current == AppFlavor.prod;
 }
 
-Future<void> bootstrap({required bool isDev}) async {
+Future<void> bootstrap({required bool isDev}) {
+  // The app prints many debug messages. In a browser each one is written to
+  // the console, which slows the website down, so the published website
+  // skips them.
+  if (kIsWeb && kReleaseMode) {
+    return runZoned(
+      () => _bootstrap(isDev: isDev),
+      zoneSpecification: ZoneSpecification(print: (_, _, _, _) {}),
+    );
+  }
+  return _bootstrap(isDev: isDev);
+}
+
+Future<void> _bootstrap({required bool isDev}) async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // On the website the browser's own menu replaces the app's selection

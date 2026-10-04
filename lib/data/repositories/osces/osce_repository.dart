@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:collection/collection.dart';
 import 'package:flashcards/data/services/api/dto/osces/osce/osce_dto.dart';
 import 'package:flashcards/data/services/api/dto/osces/osce/patch_osce/patch_osce_dto.dart';
@@ -72,8 +73,9 @@ class OsceRepository {
       case Ok<PaginatedDtoResult<OsceDto>>():
     }
 
-    final osceList =
-        result.value.items.map((dto) => dto.toSimpleOsceDomain()).toList();
+    final osceList = result.value.items
+        .map((dto) => dto.toSimpleOsceDomain())
+        .toList();
     final osceListUpdated = _osceCache.removeDuplicatesFromManualCache(
       osceList,
     );
@@ -136,20 +138,8 @@ class OsceRepository {
   }
 
   Future<Result<void>> patchOsce(String osceId, PatchOsceDto dto) async {
-    // we also need to patch the osce performances that reference this osce
-    final perfDto = PatchOscePerformanceDto(
-      osceSnapshot: dto.toOscePatchSnapshot(),
-    );
-    final perfResult = await _oscePerfService.patchOscePerformances(
-      osceId: osceId,
-      patch: perfDto,
-    );
-    switch (perfResult) {
-      case Error<void>(:final error):
-        return Result.error(error);
-      case Ok<void>():
-    }
-
+    // Save the OSCE itself first, so a problem with the copies below never
+    // loses the admin's change.
     final result = await _osceService.patchOsce(osceId, dto);
     switch (result) {
       case Error<void>(:final error):
@@ -159,12 +149,21 @@ class OsceRepository {
 
     _osceCache.updateItem(
       id: osceId,
-      copyWith:
-          (item) => item.copyWith(
-            name: dto.name ?? item.name,
-            scenario: dto.scenario ?? item.scenario,
-          ),
+      copyWith: (item) => item.copyWith(
+        name: dto.name ?? item.name,
+        scenario: dto.scenario ?? item.scenario,
+      ),
     );
+
+    // Students' results keep a copy of the OSCE; update it too. If that
+    // fails (e.g. the database index is missing) the OSCE is still saved.
+    final perfResult = await _oscePerfService.patchOscePerformances(
+      osceId: osceId,
+      patch: PatchOscePerformanceDto(osceSnapshot: dto.toOscePatchSnapshot()),
+    );
+    if (perfResult case Error<void>(:final error)) {
+      debugPrint("OSCE saved, but results copies not updated: $error");
+    }
     return Result.ok(null);
   }
 
@@ -190,8 +189,9 @@ class OsceRepository {
       case Ok<List<QuestionDto>>():
     }
 
-    final list =
-        result.value.map((dto) => MapEntry(dto.id!, dto.toDomain())).toList();
+    final list = result.value
+        .map((dto) => MapEntry(dto.id!, dto.toDomain()))
+        .toList();
     return Result.ok(list);
   }
 
@@ -234,17 +234,16 @@ class OsceRepository {
     ImageDataWrapper questionImageData = const ImageDataWrapper(),
   }) async {
     var patchDto = PatchQuestionDto(
-      checks:
-          question.checks
-              .mapIndexed((index, check) => CheckDto.fromDomain(check, index))
-              .toList(),
+      checks: question.checks
+          .mapIndexed((index, check) => CheckDto.fromDomain(check, index))
+          .toList(),
       text: question.text,
       index: question.index,
     );
     bool includeNullImage = false;
 
-    final (shouldDeleteQuestion, questionPickedImage) =
-        questionImageData.getPickedImageAndDeletedFlag();
+    final (shouldDeleteQuestion, questionPickedImage) = questionImageData
+        .getPickedImageAndDeletedFlag();
 
     if (shouldDeleteQuestion) {
       await _osceService.deleteQuestionImage(
