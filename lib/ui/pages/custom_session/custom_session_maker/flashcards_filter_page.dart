@@ -10,6 +10,7 @@ import 'package:flashcards/ui/widgets/core/error_screen.dart';
 import 'package:flashcards/ui/widgets/core/loading_overlay_listener.dart';
 import 'package:flashcards/utils/firebase_error_mapper.dart';
 import 'package:flashcards/domain/models/flashcards/flashcard_filter_counts/pack_filter_counts.dart';
+import 'package:flashcards/ui/widgets/core/desktop_layout.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -44,26 +45,28 @@ class _FlashcardsFilterPageState extends State<FlashcardsFilterPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: LoadingOverlayListener<PackFilterBloc, PackFilterState>(
-        isLoading: (state) => state is PackFilterLoading,
-        child: Container(
-          padding: EdgeInsets.symmetric(horizontal: horizontalScreenPadding),
-          child: BlocBuilder<PackFilterBloc, PackFilterState>(
-            builder: (context, state) {
-              switch (state) {
-                case PackFilterError(:final error):
-                  return ErrorScreen(
-                    errorMessage: extractErrorMessage(error),
-                    onReload:
-                        () =>
-                            _loadCounts(widget.selectedPacks, widget.allCount),
-                  );
-                case PackFilterLoaded():
-                  return _LoadedContent(state: state);
-                default:
-                  return SizedBox.expand();
-              }
-            },
+      body: ReadableWidth(
+        maxWidth: 820,
+        child: LoadingOverlayListener<PackFilterBloc, PackFilterState>(
+          isLoading: (state) => state is PackFilterLoading,
+          child: Container(
+            padding: EdgeInsets.symmetric(horizontal: horizontalScreenPadding),
+            child: BlocBuilder<PackFilterBloc, PackFilterState>(
+              builder: (context, state) {
+                switch (state) {
+                  case PackFilterError(:final error):
+                    return ErrorScreen(
+                      errorMessage: extractErrorMessage(error),
+                      onReload: () =>
+                          _loadCounts(widget.selectedPacks, widget.allCount),
+                    );
+                  case PackFilterLoaded():
+                    return _LoadedContent(state: state);
+                  default:
+                    return SizedBox.expand();
+                }
+              },
+            ),
           ),
         ),
       ),
@@ -121,28 +124,25 @@ class _LoadedContent extends StatelessWidget {
             ChoiceChip(
               label: Text("Seen cards ${state.packFilterCounts.seenCount}"),
               selected: selected == PackSelectedFilter.seen,
-              onSelected:
-                  seenCount > 0
-                      ? (_) => selectOption(PackSelectedFilter.seen)
-                      : null,
+              onSelected: seenCount > 0
+                  ? (_) => selectOption(PackSelectedFilter.seen)
+                  : null,
             ),
             ChoiceChip(
               label: Text(
                 "Bookmarked ${state.packFilterCounts.bookmarkedCount}",
               ),
               selected: selected == PackSelectedFilter.bookmarked,
-              onSelected:
-                  bookmarkCount > 0
-                      ? (_) => selectOption(PackSelectedFilter.bookmarked)
-                      : null,
+              onSelected: bookmarkCount > 0
+                  ? (_) => selectOption(PackSelectedFilter.bookmarked)
+                  : null,
             ),
             ChoiceChip(
               label: Text("Ignored ${state.packFilterCounts.ignoredCount}"),
               selected: selected == PackSelectedFilter.ignored,
-              onSelected:
-                  ignoredCount > 0
-                      ? (_) => selectOption(PackSelectedFilter.ignored)
-                      : null,
+              onSelected: ignoredCount > 0
+                  ? (_) => selectOption(PackSelectedFilter.ignored)
+                  : null,
             ),
           ],
         ),
@@ -167,7 +167,8 @@ class _LoadedContent extends StatelessWidget {
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
               TextSpan(
-                text: " – Cards you've never studied, in regular study or "
+                text:
+                    " – Cards you've never studied, in regular study or "
                     "a custom session.\n",
               ),
 

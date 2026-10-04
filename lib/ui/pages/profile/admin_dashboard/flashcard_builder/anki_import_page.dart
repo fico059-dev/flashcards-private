@@ -12,6 +12,7 @@ import 'package:flashcards/ui/constants/styles.dart';
 import 'package:flashcards/ui/theme/theme_extensions.dart';
 import 'package:flashcards/utils/firebase_error_mapper.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flashcards/ui/widgets/core/desktop_layout.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -90,43 +91,48 @@ class _ViewState extends State<_View> {
               title: const Text("Import from Anki"),
               automaticallyImplyLeading: !isImporting,
             ),
-            body: SafeArea(
-              child: Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: horizontalScreenPadding,
-                ),
-                child: switch (state) {
-                  AnkiImportInitial() => _Instructions(
-                    packName: widget.pack.packName,
-                    onPickFile: _pickFile,
+            body: ReadableWidth(
+              maxWidth: 820,
+              child: SafeArea(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: horizontalScreenPadding,
                   ),
-                  AnkiImportReading(:final fileName) => _Loading(
-                    message: "Reading $fileName…",
-                  ),
-                  AnkiImportPreview(:final fileName, :final result) => _Preview(
-                    fileName: fileName,
-                    result: result,
-                    packName: widget.pack.packName,
-                    importTags: _importTags,
-                    onImportTagsChanged: (value) =>
-                        setState(() => _importTags = value),
-                    onImport: () => context.read<AnkiImportCubit>().importCards(
-                      packId: widget.pack.packId,
-                      importTags: _importTags,
+                  child: switch (state) {
+                    AnkiImportInitial() => _Instructions(
+                      packName: widget.pack.packName,
+                      onPickFile: _pickFile,
                     ),
-                    onPickAnother: _pickFile,
-                  ),
-                  AnkiImportImporting(:final processed, :final total) =>
-                    _Progress(processed: processed, total: total),
-                  AnkiImportDone(:final summary) => _Done(
-                    summary: summary,
-                    packName: widget.pack.packName,
-                  ),
-                  AnkiImportError(:final error) => _ReadError(
-                    error: error,
-                    onPickAnother: _pickFile,
-                  ),
-                },
+                    AnkiImportReading(:final fileName) => _Loading(
+                      message: "Reading $fileName…",
+                    ),
+                    AnkiImportPreview(:final fileName, :final result) =>
+                      _Preview(
+                        fileName: fileName,
+                        result: result,
+                        packName: widget.pack.packName,
+                        importTags: _importTags,
+                        onImportTagsChanged: (value) =>
+                            setState(() => _importTags = value),
+                        onImport: () =>
+                            context.read<AnkiImportCubit>().importCards(
+                              packId: widget.pack.packId,
+                              importTags: _importTags,
+                            ),
+                        onPickAnother: _pickFile,
+                      ),
+                    AnkiImportImporting(:final processed, :final total) =>
+                      _Progress(processed: processed, total: total),
+                    AnkiImportDone(:final summary) => _Done(
+                      summary: summary,
+                      packName: widget.pack.packName,
+                    ),
+                    AnkiImportError(:final error) => _ReadError(
+                      error: error,
+                      onPickAnother: _pickFile,
+                    ),
+                  },
+                ),
               ),
             ),
           ),

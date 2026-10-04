@@ -13,6 +13,7 @@ import 'package:flashcards/ui/theme/theme_extensions.dart';
 import 'package:flashcards/ui/widgets/core/images/image_preview.dart';
 import 'package:flashcards/ui/widgets/osce/osce_submit_floating_button.dart';
 import 'package:flashcards/utils/firebase_error_mapper.dart';
+import 'package:flashcards/ui/widgets/core/desktop_layout.dart';
 import 'package:flutter/material.dart';
 import 'package:flashcards/l10n/app_localizations.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -122,87 +123,95 @@ class _ViewState extends State<_View> {
       child: Scaffold(
         appBar: AppBar(title: Text("${osce.name} result")),
         floatingActionButton: OsceSubmitFloatingButton(osceId: osce.id),
-        body: SingleChildScrollView(
-          child: SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (scoreStatus == ScoreStatus.max)
-                    ScoreResultView(
-                      score: osce.getAchievedScore(),
-                      maxScore: osce.getMaxScore(),
-                      feedbackText: "Perfect score! You nailed it!",
-                      assetImagePath: "assets/images/parrot_fire_eyes.png",
+        body: ReadableWidth(
+          maxWidth: 820,
+          child: SingleChildScrollView(
+            child: SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 15,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (scoreStatus == ScoreStatus.max)
+                      ScoreResultView(
+                        score: osce.getAchievedScore(),
+                        maxScore: osce.getMaxScore(),
+                        feedbackText: "Perfect score! You nailed it!",
+                        assetImagePath: "assets/images/parrot_fire_eyes.png",
+                      ),
+                    if (scoreStatus == ScoreStatus.okay)
+                      ScoreResultView(
+                        score: osce.getAchievedScore(),
+                        maxScore: osce.getMaxScore(),
+                        feedbackText: "Great job! Keep going strong.",
+                        assetImagePath: "assets/images/parrot_like.png",
+                      ),
+                    if (scoreStatus == ScoreStatus.low)
+                      ScoreResultView(
+                        score: osce.getAchievedScore(),
+                        maxScore: osce.getMaxScore(),
+                        feedbackText:
+                            "Don’t worry, practice will get you there!",
+                        assetImagePath: "assets/images/parrot_sad.png",
+                      ),
+                    ListView(
+                      shrinkWrap: true,
+                      primary: false,
+                      children: questions
+                          .map((question) => QuestionView(question: question))
+                          .toList(),
                     ),
-                  if (scoreStatus == ScoreStatus.okay)
-                    ScoreResultView(
-                      score: osce.getAchievedScore(),
-                      maxScore: osce.getMaxScore(),
-                      feedbackText: "Great job! Keep going strong.",
-                      assetImagePath: "assets/images/parrot_like.png",
-                    ),
-                  if (scoreStatus == ScoreStatus.low)
-                    ScoreResultView(
-                      score: osce.getAchievedScore(),
-                      maxScore: osce.getMaxScore(),
-                      feedbackText: "Don’t worry, practice will get you there!",
-                      assetImagePath: "assets/images/parrot_sad.png",
-                    ),
-                  ListView(
-                    shrinkWrap: true,
-                    primary: false,
-                    children: questions
-                        .map((question) => QuestionView(question: question))
-                        .toList(),
-                  ),
-                  const SizedBox(height: 10),
-                  BlocBuilder<SaveOsceAttemptCubit, SaveOsceAttemptState>(
-                    builder: (context, state) {
-                      if (state is! SaveOsceAttemptError) {
-                        return SizedBox.shrink();
-                      }
+                    const SizedBox(height: 10),
+                    BlocBuilder<SaveOsceAttemptCubit, SaveOsceAttemptState>(
+                      builder: (context, state) {
+                        if (state is! SaveOsceAttemptError) {
+                          return SizedBox.shrink();
+                        }
 
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Text(
-                            "Saving failed. Try again.",
-                            style: TextTheme.of(context).titleMedium?.copyWith(
-                              color: context.colors.error,
-                              fontWeight: FontWeight.w600,
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Text(
+                              "Saving failed. Try again.",
+                              style: TextTheme.of(context).titleMedium
+                                  ?.copyWith(
+                                    color: context.colors.error,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                              textAlign: TextAlign.center,
                             ),
-                            textAlign: TextAlign.center,
-                          ),
-                          const SizedBox(height: 15),
-                          SizedBox(
-                            width: double.infinity,
-                            height: 40,
-                            child: FilledButton(
-                              onPressed: _saveOsceAttempt,
-                              child: Text("Retry saving this attempt"),
+                            const SizedBox(height: 15),
+                            SizedBox(
+                              width: double.infinity,
+                              height: 40,
+                              child: FilledButton(
+                                onPressed: _saveOsceAttempt,
+                                child: Text("Retry saving this attempt"),
+                              ),
                             ),
-                          ),
-                          const SizedBox(height: 10),
-                        ],
-                      );
-                    },
-                  ),
-                  SizedBox(
-                    width: double.infinity,
-                    height: 40,
-                    child: OutlinedButton(
-                      onPressed: () {
-                        context.router.replace(HomeRoute());
+                            const SizedBox(height: 10),
+                          ],
+                        );
                       },
-                      child: Text(
-                        AppLocalizations.of(context)!.osceSubmitPage_back,
+                    ),
+                    SizedBox(
+                      width: double.infinity,
+                      height: 40,
+                      child: OutlinedButton(
+                        onPressed: () {
+                          context.router.replace(HomeRoute());
+                        },
+                        child: Text(
+                          AppLocalizations.of(context)!.osceSubmitPage_back,
+                        ),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 65),
-                ],
+                    const SizedBox(height: 65),
+                  ],
+                ),
               ),
             ),
           ),

@@ -6,6 +6,7 @@ import 'package:flashcards/domain/enums/report_reason.dart';
 import 'package:flashcards/domain/models/flashcards/flashcard/flashcard.dart';
 import 'package:flashcards/ui/widgets/core/bloc_buttons/bloc_button_text.dart';
 import 'package:flashcards/utils/firebase_error_mapper.dart';
+import 'package:flashcards/ui/widgets/core/desktop_layout.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flashcards/l10n/app_localizations.dart';
@@ -116,50 +117,53 @@ class _ReportFlashcardViewState extends State<_ReportFlashcardView> {
             ),
           ],
         ),
-        body: Padding(
-          padding: const EdgeInsets.all(16),
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                Row(
-                  children: [
-                    Text(
-                      AppLocalizations.of(
-                        context,
-                      )!.reportFlashcardPage_whyReporting,
-                      style: TextStyle(fontSize: 16),
+        body: ReadableWidth(
+          maxWidth: 820,
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      Text(
+                        AppLocalizations.of(
+                          context,
+                        )!.reportFlashcardPage_whyReporting,
+                        style: TextStyle(fontSize: 16),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  ...ReportReason.values.map(
+                    (reason) => RadioListTile<ReportReason>(
+                      title: Text(reason.toLocalizedString(context)),
+                      value: reason,
+                      groupValue: selectedReason,
+                      onChanged: (value) {
+                        setState(() {
+                          selectedReason = value;
+                        });
+                      },
                     ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                ...ReportReason.values.map(
-                  (reason) => RadioListTile<ReportReason>(
-                    title: Text(reason.toLocalizedString(context)),
-                    value: reason,
-                    groupValue: selectedReason,
-                    onChanged: (value) {
-                      setState(() {
-                        selectedReason = value;
-                      });
-                    },
                   ),
-                ),
-                const SizedBox(height: 25),
-                TextField(
-                  controller: _messageController,
-                  decoration: InputDecoration(
-                    labelText: AppLocalizations.of(
-                      context,
-                    )!.reportFlashcardPage_additionalDetails,
-                    hintText: AppLocalizations.of(
-                      context,
-                    )!.reportFlashcardPage_explain,
-                    border: OutlineInputBorder(),
+                  const SizedBox(height: 25),
+                  TextField(
+                    controller: _messageController,
+                    decoration: InputDecoration(
+                      labelText: AppLocalizations.of(
+                        context,
+                      )!.reportFlashcardPage_additionalDetails,
+                      hintText: AppLocalizations.of(
+                        context,
+                      )!.reportFlashcardPage_explain,
+                      border: OutlineInputBorder(),
+                    ),
+                    minLines: 2,
+                    maxLines: 4,
                   ),
-                  minLines: 2,
-                  maxLines: 4,
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),

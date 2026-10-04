@@ -13,6 +13,7 @@ import 'package:flashcards/ui/widgets/core/card_factory.dart';
 import 'package:flashcards/ui/widgets/core/loading_overlay_listener.dart';
 import 'package:flashcards/ui/widgets/core/tag_chip.dart';
 import 'package:flashcards/utils/firebase_error_mapper.dart';
+import 'package:flashcards/ui/widgets/core/desktop_layout.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -95,32 +96,35 @@ class _FlashcardLimitPageState extends State<FlashcardLimitPage> {
           }
         },
         child: Scaffold(
-          body: SingleChildScrollView(
-            child: Container(
-              padding: EdgeInsets.symmetric(
-                horizontal: horizontalScreenPadding,
-              ),
-              child: BlocBuilder<SessionLimitCubit, SessionLimitState>(
-                builder: (context, state) {
-                  switch (state) {
-                    case SessionLimitLoaded(
-                      :final flashcardsCount,
-                      :final isEstimatePrecise,
-                    ):
-                      return _LoadedContent(
-                        flashcardsCount: flashcardsCount,
-                        isEstimatePrecise: isEstimatePrecise,
-                        filter: widget.filter,
-                        selectedPacks: widget.selectedPacks,
-                        selectedTags: widget.selectedTags,
-                        countCont: _countCont,
-                        nameCont: _nameCont,
-                        packFilterCount: widget.packFilterCount,
-                      );
-                    default:
-                      return SizedBox.shrink();
-                  }
-                },
+          body: ReadableWidth(
+            maxWidth: 820,
+            child: SingleChildScrollView(
+              child: Container(
+                padding: EdgeInsets.symmetric(
+                  horizontal: horizontalScreenPadding,
+                ),
+                child: BlocBuilder<SessionLimitCubit, SessionLimitState>(
+                  builder: (context, state) {
+                    switch (state) {
+                      case SessionLimitLoaded(
+                        :final flashcardsCount,
+                        :final isEstimatePrecise,
+                      ):
+                        return _LoadedContent(
+                          flashcardsCount: flashcardsCount,
+                          isEstimatePrecise: isEstimatePrecise,
+                          filter: widget.filter,
+                          selectedPacks: widget.selectedPacks,
+                          selectedTags: widget.selectedTags,
+                          countCont: _countCont,
+                          nameCont: _nameCont,
+                          packFilterCount: widget.packFilterCount,
+                        );
+                      default:
+                        return SizedBox.shrink();
+                    }
+                  },
+                ),
               ),
             ),
           ),

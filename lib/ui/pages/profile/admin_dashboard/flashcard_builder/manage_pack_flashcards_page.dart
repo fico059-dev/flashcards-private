@@ -13,6 +13,7 @@ import 'package:flashcards/ui/widgets/core/error_screen.dart';
 import 'package:flashcards/ui/widgets/profile/admin_dashboard/flashcard_builder/manage_flashcard_packs/edit_flashcard_card.dart';
 import 'package:flashcards/ui/widgets/profile/admin_dashboard/flashcard_builder/manage_flashcard_packs/edit_flashcard_shimmer.dart';
 import 'package:flashcards/utils/firebase_error_mapper.dart';
+import 'package:flashcards/ui/widgets/core/desktop_layout.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
@@ -26,10 +27,9 @@ class ManagePackFlashcardsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create:
-          (context) => ManageFlashcardsBloc(
-            flashcardRepo: context.read<FlashcardRepository>(),
-          ),
+      create: (context) => ManageFlashcardsBloc(
+        flashcardRepo: context.read<FlashcardRepository>(),
+      ),
       child: _View(pack: pack),
     );
   }
@@ -64,95 +64,95 @@ class _View extends StatelessWidget {
           icon: Icon(Icons.arrow_back),
         ),
       ),
-      body: BlocListener<ManageFlashcardsBloc, ManageFlashcardsState>(
-        listener: (context, state) {
-          switch (state.status) {
-            case ManageFlashcardsLoadedStatus.deleteSuccessful:
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text("Successfully deleted flashcard")),
-              );
-              context.read<ManageFlashcardsBloc>().add(
-                ManageFlashcardCacheRead(packId: pack.packId),
-              );
-              break;
-            case ManageFlashcardsLoadedStatus.error:
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(extractErrorMessage(state.error!))),
-              );
-              break;
-            default:
-              return;
-          }
-        },
-        child: BlocBuilder<ManageFlashcardsBloc, ManageFlashcardsState>(
-          builder: (context, state) {
-            return RefreshIndicator(
-              onRefresh: () => _handleRefresh(context),
-              child: CustomScrollView(
-                slivers: [
-                  SliverPadding(
-                    padding: EdgeInsets.only(
-                      bottom: 20,
-                      top: 10,
-                      left: horizontalScreenPadding,
-                      right: horizontalScreenPadding,
-                    ),
-                    sliver: SliverToBoxAdapter(
-                      child: CardFactory.info(
-                        title: Text("Swipe to Edit & Delete Flashcards"),
-                        subtitle: Text(
-                          "Swipe left to edit or delete flashcard from this pack,"
-                          " or long press to show all options.",
+      body: ReadableWidth(
+        maxWidth: 820,
+        child: BlocListener<ManageFlashcardsBloc, ManageFlashcardsState>(
+          listener: (context, state) {
+            switch (state.status) {
+              case ManageFlashcardsLoadedStatus.deleteSuccessful:
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text("Successfully deleted flashcard")),
+                );
+                context.read<ManageFlashcardsBloc>().add(
+                  ManageFlashcardCacheRead(packId: pack.packId),
+                );
+                break;
+              case ManageFlashcardsLoadedStatus.error:
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text(extractErrorMessage(state.error!))),
+                );
+                break;
+              default:
+                return;
+            }
+          },
+          child: BlocBuilder<ManageFlashcardsBloc, ManageFlashcardsState>(
+            builder: (context, state) {
+              return RefreshIndicator(
+                onRefresh: () => _handleRefresh(context),
+                child: CustomScrollView(
+                  slivers: [
+                    SliverPadding(
+                      padding: EdgeInsets.only(
+                        bottom: 20,
+                        top: 10,
+                        left: horizontalScreenPadding,
+                        right: horizontalScreenPadding,
+                      ),
+                      sliver: SliverToBoxAdapter(
+                        child: CardFactory.info(
+                          title: Text("Swipe to Edit & Delete Flashcards"),
+                          subtitle: Text(
+                            "Swipe left to edit or delete flashcard from this pack,"
+                            " or long press to show all options.",
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  SliverPadding(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: horizontalScreenPadding,
-                    ),
-                    sliver: PagedSliverList.separated(
-                      state: state.pagingState,
-                      fetchNextPage:
-                          () => context
-                              .read<ManageFlashcardsBloc>()
-                              .fetchNextPage(pack.packId),
-                      builderDelegate: PagedChildBuilderDelegate(
-                        firstPageProgressIndicatorBuilder:
-                            (context) => EditFlashcardShimmer(),
-                        noItemsFoundIndicatorBuilder:
-                            (context) => _EmptyListContainer(pack: pack),
-                        firstPageErrorIndicatorBuilder:
-                            (context) => ErrorScreen(
-                              errorMessage: extractErrorMessage(
-                                state.pagingState.error!,
-                              ),
-                              onReload:
-                                  () => context
-                                      .read<ManageFlashcardsBloc>()
-                                      .fetchNextPage(pack.packId),
-                            ),
-
-                        itemBuilder: (context, item, index) {
-                          // return EditFlashcardShimmer();
-                          final card = item as Flashcard;
-                          return EditFlashcardCard(
-                            flashcard: card,
-                            packId: pack.packId,
-                          );
-                        },
-                        invisibleItemsThreshold: 0,
+                    SliverPadding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: horizontalScreenPadding,
                       ),
-                      separatorBuilder:
-                          (BuildContext context, int index) =>
-                              SizedBox(height: 10),
+                      sliver: PagedSliverList.separated(
+                        state: state.pagingState,
+                        fetchNextPage: () => context
+                            .read<ManageFlashcardsBloc>()
+                            .fetchNextPage(pack.packId),
+                        builderDelegate: PagedChildBuilderDelegate(
+                          firstPageProgressIndicatorBuilder: (context) =>
+                              EditFlashcardShimmer(),
+                          noItemsFoundIndicatorBuilder: (context) =>
+                              _EmptyListContainer(pack: pack),
+                          firstPageErrorIndicatorBuilder: (context) =>
+                              ErrorScreen(
+                                errorMessage: extractErrorMessage(
+                                  state.pagingState.error!,
+                                ),
+                                onReload: () => context
+                                    .read<ManageFlashcardsBloc>()
+                                    .fetchNextPage(pack.packId),
+                              ),
+
+                          itemBuilder: (context, item, index) {
+                            // return EditFlashcardShimmer();
+                            final card = item as Flashcard;
+                            return EditFlashcardCard(
+                              flashcard: card,
+                              packId: pack.packId,
+                            );
+                          },
+                          invisibleItemsThreshold: 0,
+                        ),
+                        separatorBuilder: (BuildContext context, int index) =>
+                            SizedBox(height: 10),
+                      ),
                     ),
-                  ),
-                ],
-              ),
-            );
-          },
-          //
+                  ],
+                ),
+              );
+            },
+            //
+          ),
         ),
       ),
     );

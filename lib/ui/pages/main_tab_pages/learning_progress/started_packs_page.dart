@@ -11,6 +11,7 @@ import 'package:flashcards/ui/widgets/core/error_screen.dart';
 import 'package:flashcards/ui/widgets/core/loading_overlay_with_text.dart';
 import 'package:flashcards/ui/widgets/profile/flashcard_settings/started_packs/started_pack_card.dart';
 import 'package:flashcards/utils/firebase_error_mapper.dart';
+import 'package:flashcards/ui/widgets/core/desktop_layout.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
@@ -66,56 +67,61 @@ class _StartedPacksViewState extends State<_StartedPacksView> {
           icon: Icon(Icons.arrow_back),
         ),
       ),
-      body: Container(
-        padding: EdgeInsets.symmetric(horizontal: horizontalScreenPadding),
-        child: BlocListener<StartedPacksBloc, StartedPacksState>(
-          listenWhen: (previous, current) {
-            return !current.status.isInitial &&
-                current.status != previous.status;
-          },
-          listener: (context, state) {
-            if (state.status.isResettingProgress) {
-              context.loaderOverlay.show(
-                widgetBuilder: (progress) => LoadingOverlayWithText(
-                  textString:
-                      "Resetting data for pack. This might take a while",
-                ),
-              );
-            } else {
-              context.loaderOverlay.hide();
-            }
-
-            if (state.status.isError) {
-              final error = state.error!;
-              ScaffoldMessenger.of(
-                context,
-              ).showSnackBar(SnackBar(content: Text(error.toString())));
-            }
-
-            if (state.status.isResetSuccessful) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text("Successfully reset pack progress")),
-              );
-            }
-          },
-          child: BlocBuilder<StartedPacksBloc, StartedPacksState>(
-            builder: (context, state) => RefreshIndicator(
-              onRefresh: () => _handleRefresh(context),
-              child: PagedListView(
-                state: state.pagingState,
-                fetchNextPage: _loadData,
-                builderDelegate: PagedChildBuilderDelegate(
-                  invisibleItemsThreshold: 3,
-                  firstPageProgressIndicatorBuilder: (context) =>
-                      StartedPacksShimmer(),
-                  firstPageErrorIndicatorBuilder: (context) => ErrorScreen(
-                    errorMessage: extractErrorMessage(state.pagingState.error!),
-                    onReload: _loadData,
+      body: ReadableWidth(
+        maxWidth: 820,
+        child: Container(
+          padding: EdgeInsets.symmetric(horizontal: horizontalScreenPadding),
+          child: BlocListener<StartedPacksBloc, StartedPacksState>(
+            listenWhen: (previous, current) {
+              return !current.status.isInitial &&
+                  current.status != previous.status;
+            },
+            listener: (context, state) {
+              if (state.status.isResettingProgress) {
+                context.loaderOverlay.show(
+                  widgetBuilder: (progress) => LoadingOverlayWithText(
+                    textString:
+                        "Resetting data for pack. This might take a while",
                   ),
-                  noItemsFoundIndicatorBuilder: (context) =>
-                      _EmptyListContainer(),
-                  itemBuilder: (context, item, index) =>
-                      StartedPackCard(packProgress: item as PackProgress),
+                );
+              } else {
+                context.loaderOverlay.hide();
+              }
+
+              if (state.status.isError) {
+                final error = state.error!;
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(SnackBar(content: Text(error.toString())));
+              }
+
+              if (state.status.isResetSuccessful) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text("Successfully reset pack progress")),
+                );
+              }
+            },
+            child: BlocBuilder<StartedPacksBloc, StartedPacksState>(
+              builder: (context, state) => RefreshIndicator(
+                onRefresh: () => _handleRefresh(context),
+                child: PagedListView(
+                  state: state.pagingState,
+                  fetchNextPage: _loadData,
+                  builderDelegate: PagedChildBuilderDelegate(
+                    invisibleItemsThreshold: 3,
+                    firstPageProgressIndicatorBuilder: (context) =>
+                        StartedPacksShimmer(),
+                    firstPageErrorIndicatorBuilder: (context) => ErrorScreen(
+                      errorMessage: extractErrorMessage(
+                        state.pagingState.error!,
+                      ),
+                      onReload: _loadData,
+                    ),
+                    noItemsFoundIndicatorBuilder: (context) =>
+                        _EmptyListContainer(),
+                    itemBuilder: (context, item, index) =>
+                        StartedPackCard(packProgress: item as PackProgress),
+                  ),
                 ),
               ),
             ),

@@ -1,4 +1,5 @@
 import 'package:flashcards/ui/theme/theme_extensions.dart';
+import 'package:flashcards/ui/widgets/core/desktop_layout.dart';
 import 'package:flutter/material.dart';
 import 'package:flashcards/data/remote/cloud_function_service.dart';
 
@@ -29,22 +30,25 @@ class _DevPaywallPageState extends State<DevPaywallPage> {
     final period = annual ? 'Annual' : 'Monthly';
     return Scaffold(
       appBar: AppBar(title: const Text('Upgrade')),
-      body: Column(
-        children: [
-          SwitchListTile(
-            inactiveTrackColor: context.colors.outlineVariant,
-            title: Text('Billing period: $period'),
-            value: annual,
-            onChanged: (v) => setState(() => annual = v),
-          ),
-          _Plan('Cards only', () => _grant('packs')),
-          _Plan('All Access', () => _grant('both')),
-          if (loading)
-            const Padding(
-              padding: EdgeInsets.all(16),
-              child: CircularProgressIndicator(),
+      body: ReadableWidth(
+        maxWidth: 820,
+        child: Column(
+          children: [
+            SwitchListTile(
+              inactiveTrackColor: context.colors.outlineVariant,
+              title: Text('Billing period: $period'),
+              value: annual,
+              onChanged: (v) => setState(() => annual = v),
             ),
-        ],
+            _Plan('Cards only', () => _grant('packs')),
+            _Plan('All Access', () => _grant('both')),
+            if (loading)
+              const Padding(
+                padding: EdgeInsets.all(16),
+                child: CircularProgressIndicator(),
+              ),
+          ],
+        ),
       ),
     );
   }

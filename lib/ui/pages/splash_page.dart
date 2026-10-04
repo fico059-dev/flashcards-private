@@ -6,6 +6,7 @@ import 'package:flashcards/bloc/authorization/auth/auth_bloc.dart';
 import 'package:flashcards/bloc/authorization/auth/auth_state.dart';
 import 'package:flashcards/config/router/router.dart';
 import 'package:flashcards/utils/firebase_error_mapper.dart';
+import 'package:flashcards/ui/widgets/core/desktop_layout.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flashcards/l10n/app_localizations.dart';
@@ -96,41 +97,44 @@ class _SplashPageState extends State<SplashPage> {
         _redirectUser(context, state);
       },
       child: Scaffold(
-        body: BlocBuilder<AuthBloc, AuthState>(
-          builder: (context, state) {
-            final error = switch (state) {
-              AuthInitial(:final error) => error,
-              AuthLoading(:final error) => error,
-              _ => null,
-            };
-            if (error != null || _isSlow) {
-              return _StartupProblem(
-                error: error,
-                onRetry: _retry,
-                onSignOut: () => context.read<AuthBloc>().add(AuthSignOut()),
-              );
-            }
-            return Center(
-              child: Column(
-                spacing: 20,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  SizedBox(
-                    width: 60,
-                    height: 60,
-                    child: CircularProgressIndicator(
-                      color: Colors.indigo,
-                      strokeWidth: 5,
+        body: ReadableWidth(
+          maxWidth: 820,
+          child: BlocBuilder<AuthBloc, AuthState>(
+            builder: (context, state) {
+              final error = switch (state) {
+                AuthInitial(:final error) => error,
+                AuthLoading(:final error) => error,
+                _ => null,
+              };
+              if (error != null || _isSlow) {
+                return _StartupProblem(
+                  error: error,
+                  onRetry: _retry,
+                  onSignOut: () => context.read<AuthBloc>().add(AuthSignOut()),
+                );
+              }
+              return Center(
+                child: Column(
+                  spacing: 20,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    SizedBox(
+                      width: 60,
+                      height: 60,
+                      child: CircularProgressIndicator(
+                        color: Colors.indigo,
+                        strokeWidth: 5,
+                      ),
                     ),
-                  ),
-                  Text(
-                    AppLocalizations.of(context)!.splashPageText,
-                    style: TextTheme.of(context).headlineSmall,
-                  ),
-                ],
-              ),
-            );
-          },
+                    Text(
+                      AppLocalizations.of(context)!.splashPageText,
+                      style: TextTheme.of(context).headlineSmall,
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
         ),
       ),
     );

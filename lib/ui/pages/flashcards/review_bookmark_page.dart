@@ -12,6 +12,7 @@ import 'package:flashcards/ui/widgets/core/error_screen.dart';
 import 'package:flashcards/ui/widgets/flashcard/bookmarks/bookmark_card.dart';
 import 'package:flashcards/ui/widgets/flashcard/bookmarks/bookmarks_shimmer.dart';
 import 'package:flashcards/utils/firebase_error_mapper.dart';
+import 'package:flashcards/ui/widgets/core/desktop_layout.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flashcards/l10n/app_localizations.dart';
@@ -101,71 +102,74 @@ class _BookmarkReviewViewState extends State<_BookmarkReviewView> {
                 icon: Icon(Icons.arrow_back),
               ),
             ),
-      body: BlocBuilder<BookmarkReviewBloc, BookmarkReviewState>(
-        builder: (context, state) {
-          return RefreshIndicator(
-            onRefresh: () => _handleRefresh(context),
-            child: CustomScrollView(
-              slivers: [
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: horizontalScreenPadding,
-                    ),
-                    child: Column(
-                      children: [
-                        CardFactory.info(
-                          title: Text(
-                            AppLocalizations.of(
-                              context,
-                            )!.reviewBookmarkPage_remove,
-                          ),
-                          subtitle: Text(
-                            AppLocalizations.of(
-                              context,
-                            )!.reviewBookmarkPage_swipe,
-                          ),
-                          closable: true,
-                        ),
-                        SizedBox(height: 15),
-                      ],
-                    ),
-                  ),
-                ),
-
-                PagedSliverList(
-                  state: state.pagingState,
-                  fetchNextPage: _fetchNextPage,
-                  builderDelegate: PagedChildBuilderDelegate(
-                    firstPageProgressIndicatorBuilder: (context) =>
-                        BookmarksShimmer(),
-                    noItemsFoundIndicatorBuilder: (context) =>
-                        _EmptyListContainer(),
-                    firstPageErrorIndicatorBuilder: (context) => ErrorScreen(
-                      errorMessage: extractErrorMessage(
-                        state.pagingState.error!,
+      body: ReadableWidth(
+        maxWidth: 820,
+        child: BlocBuilder<BookmarkReviewBloc, BookmarkReviewState>(
+          builder: (context, state) {
+            return RefreshIndicator(
+              onRefresh: () => _handleRefresh(context),
+              child: CustomScrollView(
+                slivers: [
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: horizontalScreenPadding,
                       ),
-                      onReload: _fetchNextPage,
+                      child: Column(
+                        children: [
+                          CardFactory.info(
+                            title: Text(
+                              AppLocalizations.of(
+                                context,
+                              )!.reviewBookmarkPage_remove,
+                            ),
+                            subtitle: Text(
+                              AppLocalizations.of(
+                                context,
+                              )!.reviewBookmarkPage_swipe,
+                            ),
+                            closable: true,
+                          ),
+                          SizedBox(height: 15),
+                        ],
+                      ),
                     ),
-                    itemBuilder: (context, item, index) {
-                      //return BookmarksShimmer();
-                      final bookmark = item as Bookmark;
-                      final isVisible =
-                          state.visibleAnswers[bookmark.flashcardId] ?? false;
-                      return BookmarkCard(
-                        key: ValueKey(bookmark.flashcardId),
-                        index: index,
-                        bookmark: bookmark,
-                        isAnswerVisible: isVisible,
-                        onUndo: onUndo,
-                      );
-                    },
                   ),
-                ),
-              ],
-            ),
-          );
-        },
+
+                  PagedSliverList(
+                    state: state.pagingState,
+                    fetchNextPage: _fetchNextPage,
+                    builderDelegate: PagedChildBuilderDelegate(
+                      firstPageProgressIndicatorBuilder: (context) =>
+                          BookmarksShimmer(),
+                      noItemsFoundIndicatorBuilder: (context) =>
+                          _EmptyListContainer(),
+                      firstPageErrorIndicatorBuilder: (context) => ErrorScreen(
+                        errorMessage: extractErrorMessage(
+                          state.pagingState.error!,
+                        ),
+                        onReload: _fetchNextPage,
+                      ),
+                      itemBuilder: (context, item, index) {
+                        //return BookmarksShimmer();
+                        final bookmark = item as Bookmark;
+                        final isVisible =
+                            state.visibleAnswers[bookmark.flashcardId] ?? false;
+                        return BookmarkCard(
+                          key: ValueKey(bookmark.flashcardId),
+                          index: index,
+                          bookmark: bookmark,
+                          isAnswerVisible: isVisible,
+                          onUndo: onUndo,
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
       ),
     );
   }

@@ -5,6 +5,7 @@ import 'package:flashcards/domain/models/osce/simple_osce/simple_osce.dart';
 import 'package:flashcards/ui/theme/theme_extensions.dart';
 import 'package:flashcards/utils/firebase_error_mapper.dart';
 import 'package:flashcards/utils/result.dart';
+import 'package:flashcards/ui/widgets/core/desktop_layout.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -301,79 +302,85 @@ class _OsceFoldersAdminPageState extends State<OsceFoldersAdminPage> {
         icon: const Icon(Icons.create_new_folder_outlined),
         label: const Text('New folder'),
       ),
-      body: library == null
-          ? Center(
-              child: _error == null
-                  ? const CircularProgressIndicator()
-                  : Text(extractErrorMessage(_error!)),
-            )
-          : RefreshIndicator(
-              onRefresh: _load,
-              child: ListView(
-                padding: const EdgeInsets.fromLTRB(12, 12, 12, 96),
-                children: [
-                  const Padding(
-                    padding: EdgeInsets.fromLTRB(8, 0, 8, 12),
-                    child: Text(
-                      'Create a folder for each speciality, and sub-folders '
-                      'inside them if you like. Put stations in folders from '
-                      'each OSCE\'s menu ("Move to folder").',
+      body: ReadableWidth(
+        maxWidth: 820,
+        child: library == null
+            ? Center(
+                child: _error == null
+                    ? const CircularProgressIndicator()
+                    : Text(extractErrorMessage(_error!)),
+              )
+            : RefreshIndicator(
+                onRefresh: _load,
+                child: ListView(
+                  padding: const EdgeInsets.fromLTRB(12, 12, 12, 96),
+                  children: [
+                    const Padding(
+                      padding: EdgeInsets.fromLTRB(8, 0, 8, 12),
+                      child: Text(
+                        'Create a folder for each speciality, and sub-folders '
+                        'inside them if you like. Put stations in folders from '
+                        'each OSCE\'s menu ("Move to folder").',
+                      ),
                     ),
-                  ),
-                  for (final (folder, depth) in folderTree(library))
-                    Padding(
-                      padding: EdgeInsets.only(left: depth * 24.0),
-                      child: Card(
-                        margin: const EdgeInsets.only(bottom: 8),
-                        child: ListTile(
-                          leading: Icon(
-                            depth == 0 ? Icons.folder : Icons.folder_outlined,
-                            color: context.colors.primary,
-                          ),
-                          title: Text(folder.name),
-                          subtitle: Text(
-                            stationCountLabel(
-                              library.allStationsUnder(folder.id).length,
+                    for (final (folder, depth) in folderTree(library))
+                      Padding(
+                        padding: EdgeInsets.only(left: depth * 24.0),
+                        child: Card(
+                          margin: const EdgeInsets.only(bottom: 8),
+                          child: ListTile(
+                            leading: Icon(
+                              depth == 0 ? Icons.folder : Icons.folder_outlined,
+                              color: context.colors.primary,
                             ),
-                          ),
-                          trailing: PopupMenuButton<String>(
-                            tooltip: 'Folder options',
-                            onSelected: (action) => switch (action) {
-                              'sub' => _create(folder.id),
-                              'rename' => _rename(folder),
-                              'move' => _move(folder),
-                              _ => _delete(folder),
-                            },
-                            itemBuilder: (_) => const [
-                              PopupMenuItem(
-                                value: 'sub',
-                                child: Text('Add sub-folder'),
+                            title: Text(folder.name),
+                            subtitle: Text(
+                              stationCountLabel(
+                                library.allStationsUnder(folder.id).length,
                               ),
-                              PopupMenuItem(
-                                value: 'rename',
-                                child: Text('Rename'),
-                              ),
-                              PopupMenuItem(value: 'move', child: Text('Move')),
-                              PopupMenuItem(
-                                value: 'delete',
-                                child: Text('Delete'),
-                              ),
-                            ],
+                            ),
+                            trailing: PopupMenuButton<String>(
+                              tooltip: 'Folder options',
+                              onSelected: (action) => switch (action) {
+                                'sub' => _create(folder.id),
+                                'rename' => _rename(folder),
+                                'move' => _move(folder),
+                                _ => _delete(folder),
+                              },
+                              itemBuilder: (_) => const [
+                                PopupMenuItem(
+                                  value: 'sub',
+                                  child: Text('Add sub-folder'),
+                                ),
+                                PopupMenuItem(
+                                  value: 'rename',
+                                  child: Text('Rename'),
+                                ),
+                                PopupMenuItem(
+                                  value: 'move',
+                                  child: Text('Move'),
+                                ),
+                                PopupMenuItem(
+                                  value: 'delete',
+                                  child: Text('Delete'),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                  if (library.folders.isEmpty)
-                    const Padding(
-                      padding: EdgeInsets.all(32),
-                      child: Text(
-                        'No folders yet. Tap "New folder" to create one.',
-                        textAlign: TextAlign.center,
+                    if (library.folders.isEmpty)
+                      const Padding(
+                        padding: EdgeInsets.all(32),
+                        child: Text(
+                          'No folders yet. Tap "New folder" to create one.',
+                          textAlign: TextAlign.center,
+                        ),
                       ),
-                    ),
-                ],
+                  ],
+                ),
               ),
-            ),
+      ),
     );
   }
 }

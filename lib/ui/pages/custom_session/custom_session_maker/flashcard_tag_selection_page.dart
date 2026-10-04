@@ -6,6 +6,7 @@ import 'package:flashcards/domain/models/flashcards/tag/tag.dart';
 import 'package:flashcards/ui/constants/styles.dart';
 import 'package:flashcards/ui/theme/theme_extensions.dart';
 import 'package:flashcards/ui/widgets/core/card_factory.dart';
+import 'package:flashcards/ui/widgets/core/desktop_layout.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -39,110 +40,113 @@ class _FlashcardTagSelectionPageState extends State<FlashcardTagSelectionPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SingleChildScrollView(
-        child: Container(
-          padding: EdgeInsets.symmetric(horizontal: horizontalScreenPadding),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              CardFactory.info(
-                title: Text("Select tags"),
-                subtitle: Text(
-                  "Only cards that have ALL the tags you select are included, "
-                  "e.g. Neoreview + 2025 gives cards tagged with both. "
-                  "Select no tags to include every card.",
+      body: ReadableWidth(
+        maxWidth: 820,
+        child: SingleChildScrollView(
+          child: Container(
+            padding: EdgeInsets.symmetric(horizontal: horizontalScreenPadding),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                CardFactory.info(
+                  title: Text("Select tags"),
+                  subtitle: Text(
+                    "Only cards that have ALL the tags you select are included, "
+                    "e.g. Neoreview + 2025 gives cards tagged with both. "
+                    "Select no tags to include every card.",
+                  ),
                 ),
-              ),
 
-              SizedBox(height: 16),
+                SizedBox(height: 16),
 
-              BlocBuilder<SessionTagPickerCubit, SessionTagPickerState>(
-                builder: (context, state) {
-                  switch (state) {
-                    case SessionTagPickerInitial():
-                      return Center(child: CircularProgressIndicator());
-                    case SessionTagPickerLoaded(
-                      :final allTagCounts,
-                      :final selectedTags,
-                    ):
-                      if (allTagCounts.isEmpty) {
-                        return Center(
-                          child: Text(
-                            "Looks like the packs you selected don't have "
-                            "tags in them, you can skip this step.",
-                          ),
-                        );
-                      }
+                BlocBuilder<SessionTagPickerCubit, SessionTagPickerState>(
+                  builder: (context, state) {
+                    switch (state) {
+                      case SessionTagPickerInitial():
+                        return Center(child: CircularProgressIndicator());
+                      case SessionTagPickerLoaded(
+                        :final allTagCounts,
+                        :final selectedTags,
+                      ):
+                        if (allTagCounts.isEmpty) {
+                          return Center(
+                            child: Text(
+                              "Looks like the packs you selected don't have "
+                              "tags in them, you can skip this step.",
+                            ),
+                          );
+                        }
 
-                      final query = _query.trim().toLowerCase();
-                      final entries = allTagCounts.entries
-                          .where(
-                            (e) =>
-                                query.isEmpty ||
-                                e.key.name.toLowerCase().contains(query),
-                          )
-                          .toList();
-                      final selected = allTagCounts.keys
-                          .where((tag) => selectedTags[tag.id] == true)
-                          .toList();
+                        final query = _query.trim().toLowerCase();
+                        final entries = allTagCounts.entries
+                            .where(
+                              (e) =>
+                                  query.isEmpty ||
+                                  e.key.name.toLowerCase().contains(query),
+                            )
+                            .toList();
+                        final selected = allTagCounts.keys
+                            .where((tag) => selectedTags[tag.id] == true)
+                            .toList();
 
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _SelectionSummary(selected: selected),
-                          SizedBox(height: 12),
-                          if (allTagCounts.length > 8)
-                            Padding(
-                              padding: const EdgeInsets.only(bottom: 8),
-                              child: TextField(
-                                controller: _searchController,
-                                onChanged: (value) =>
-                                    setState(() => _query = value),
-                                decoration: InputDecoration(
-                                  prefixIcon: Icon(Icons.search),
-                                  hintText: 'Search tags',
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(12),
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _SelectionSummary(selected: selected),
+                            SizedBox(height: 12),
+                            if (allTagCounts.length > 8)
+                              Padding(
+                                padding: const EdgeInsets.only(bottom: 8),
+                                child: TextField(
+                                  controller: _searchController,
+                                  onChanged: (value) =>
+                                      setState(() => _query = value),
+                                  decoration: InputDecoration(
+                                    prefixIcon: Icon(Icons.search),
+                                    hintText: 'Search tags',
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    isDense: true,
+                                    suffixIcon: _query.isEmpty
+                                        ? null
+                                        : IconButton(
+                                            tooltip: 'Clear search',
+                                            icon: Icon(Icons.close),
+                                            onPressed: () {
+                                              _searchController.clear();
+                                              setState(() => _query = '');
+                                            },
+                                          ),
                                   ),
-                                  isDense: true,
-                                  suffixIcon: _query.isEmpty
-                                      ? null
-                                      : IconButton(
-                                          tooltip: 'Clear search',
-                                          icon: Icon(Icons.close),
-                                          onPressed: () {
-                                            _searchController.clear();
-                                            setState(() => _query = '');
-                                          },
-                                        ),
                                 ),
                               ),
+                            if (entries.isEmpty)
+                              Padding(
+                                padding: const EdgeInsets.all(16),
+                                child: Text('No tags match "$_query".'),
+                              ),
+                            ListView.builder(
+                              primary: false,
+                              shrinkWrap: true,
+                              itemCount: entries.length,
+                              itemBuilder: (context, index) {
+                                final tagCount = entries[index];
+                                return _TagCountItem(
+                                  tagCount: tagCount,
+                                  isSelected:
+                                      selectedTags[tagCount.key.id] == true,
+                                );
+                              },
                             ),
-                          if (entries.isEmpty)
-                            Padding(
-                              padding: const EdgeInsets.all(16),
-                              child: Text('No tags match "$_query".'),
-                            ),
-                          ListView.builder(
-                            primary: false,
-                            shrinkWrap: true,
-                            itemCount: entries.length,
-                            itemBuilder: (context, index) {
-                              final tagCount = entries[index];
-                              return _TagCountItem(
-                                tagCount: tagCount,
-                                isSelected:
-                                    selectedTags[tagCount.key.id] == true,
-                              );
-                            },
-                          ),
-                          SizedBox(height: 16),
-                        ],
-                      );
-                  }
-                },
-              ),
-            ],
+                            SizedBox(height: 16),
+                          ],
+                        );
+                    }
+                  },
+                ),
+              ],
+            ),
           ),
         ),
       ),

@@ -253,7 +253,7 @@ class _MyAppState extends State<_MyApp> {
               builder: (context, child) {
                 return Stack(
                   children: [
-                    _PhoneWidthOnWeb(child: child!),
+                    _WebFrame(child: child!),
                     if (kDebugMode)
                       Positioned(
                         right: 16,
@@ -271,14 +271,15 @@ class _MyAppState extends State<_MyApp> {
   }
 }
 
-/// The app is designed for phones. On the website, wide screens show it in a
-/// centred, phone-width column instead of stretching it edge to edge.
-class _PhoneWidthOnWeb extends StatelessWidget {
-  static const _maxWidth = 600.0;
+/// On the website, very wide screens show the app in a centred frame
+/// instead of stretching it edge to edge. Below that it uses the full
+/// width: phones get the phone layout, computers the desktop layout.
+class _WebFrame extends StatelessWidget {
+  static const _maxWidth = 1280.0;
 
   final Widget child;
 
-  const _PhoneWidthOnWeb({required this.child});
+  const _WebFrame({required this.child});
 
   @override
   Widget build(BuildContext context) {

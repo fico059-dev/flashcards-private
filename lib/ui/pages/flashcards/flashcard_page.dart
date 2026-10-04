@@ -14,6 +14,7 @@ import 'package:flashcards/data/repositories/users/profile_repository.dart';
 import 'package:flashcards/data/services/local/local_storage_service.dart';
 import 'package:flashcards/domain/models/flashcards/pack/pack.dart';
 import 'package:flashcards/ui/constants/styles.dart';
+import 'package:flashcards/ui/widgets/core/desktop_layout.dart';
 import 'package:flashcards/ui/widgets/core/loading_overlay_listener.dart';
 import 'package:flashcards/ui/widgets/flashcard/flashcard_test/answer_container/flashcard_answer_with_flashcard_bloc.dart';
 import 'package:flashcards/ui/widgets/flashcard/flashcard_test/flashcard_main_button/main_button_with_flashcard_bloc.dart';
@@ -29,6 +30,7 @@ import 'package:flashcards/ui/widgets/flashcard/flashcard_test/timer_container.d
 import 'package:flashcards/utils/firebase_error_mapper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fsrs/fsrs.dart' as fsrs;
 import 'package:flashcards/l10n/app_localizations.dart';
 
 @RoutePage()
@@ -119,6 +121,26 @@ class _FlashcardViewState extends State<_FlashcardView> {
     super.dispose();
   }
 
+  void _showAnswerFromKeyboard() {
+    final state = context.read<FlashcardBloc>().state;
+    if ((state.status.isLoaded || state.flashcard != null) &&
+        !state.answerVisible) {
+      context.read<FlashcardBloc>().add(FlashcardAnswerShown());
+    }
+  }
+
+  void _rateFromKeyboard(fsrs.Rating rating) {
+    final state = context.read<FlashcardBloc>().state;
+    final profileState = context.read<ProfileReaderCubit>().state;
+    if (!state.answerVisible || profileState is! ProfileReaderIsLoaded) return;
+    context.read<FlashcardBloc>().add(
+      FlashcardRatingGiven(
+        rating: rating,
+        userStreak: profileState.profile.streak,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final titleText = switch (widget.testType) {
@@ -147,54 +169,65 @@ class _FlashcardViewState extends State<_FlashcardView> {
           ),
         ),
         body: SafeArea(
-          child: LoadingOverlayListener<FlashcardBloc, FlashcardState>(
-            isLoading: (state) => state.status.isLoading,
-            child: TutorialSeenListenerWithFcBloc(
-              child: StreakListenerWithFcBloc(
-                child: FcBlocStatusListener(
-                  testType: widget.testType,
-                  child: Padding(
-                    padding: flashcardPagePadding,
-                    child: Column(
-                      children: [
-                        Expanded(
-                          child: SingleChildScrollView(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                TimerContainer<FlashcardBloc, FlashcardState>(
-                                  listenWhen: (previous, current) =>
-                                      current.status.isLoaded,
-                                  shouldStartTimer: (state) =>
-                                      state.status.isLoaded,
+          child: ReadableWidth(
+            child: ReviewShortcuts(
+              onShowAnswer: _showAnswerFromKeyboard,
+              onRate: _rateFromKeyboard,
+              child: LoadingOverlayListener<FlashcardBloc, FlashcardState>(
+                isLoading: (state) => state.status.isLoading,
+                child: TutorialSeenListenerWithFcBloc(
+                  child: StreakListenerWithFcBloc(
+                    child: FcBlocStatusListener(
+                      testType: widget.testType,
+                      child: Padding(
+                        padding: flashcardPagePadding,
+                        child: Column(
+                          children: [
+                            Expanded(
+                              child: SingleChildScrollView(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    TimerContainer<
+                                      FlashcardBloc,
+                                      FlashcardState
+                                    >(
+                                      listenWhen: (previous, current) =>
+                                          current.status.isLoaded,
+                                      shouldStartTimer: (state) =>
+                                          state.status.isLoaded,
+                                    ),
+
+                                    SizedBox(height: 15),
+
+                                    QuestionContainerWithFlashcardBloc(),
+
+                                    TopRowWithFlashcardBloc(),
+                                    MainCardWithFlashcardBloc(
+                                      onStart: _onStart,
+                                    ),
+
+                                    SizedBox(height: 40),
+                                    MainButtonWithFlashcardBloc(),
+                                    SizedBox(height: 40),
+
+                                    FlashcardAnswerWithFlashcardBloc(),
+                                    SizedBox(height: 15),
+                                  ],
                                 ),
-
-                                SizedBox(height: 15),
-
-                                QuestionContainerWithFlashcardBloc(),
-
-                                TopRowWithFlashcardBloc(),
-                                MainCardWithFlashcardBloc(onStart: _onStart),
-
-                                SizedBox(height: 40),
-                                MainButtonWithFlashcardBloc(),
-                                SizedBox(height: 40),
-
-                                FlashcardAnswerWithFlashcardBloc(),
-                                SizedBox(height: 15),
-                              ],
+                              ),
                             ),
-                          ),
-                        ),
 
-                        SafeArea(
-                          top: false,
-                          child: Padding(
-                            padding: EdgeInsets.only(top: 15),
-                            child: FlashcardRatingButtons(),
-                          ),
+                            SafeArea(
+                              top: false,
+                              child: Padding(
+                                padding: EdgeInsets.only(top: 15),
+                                child: FlashcardRatingButtons(),
+                              ),
+                            ),
+                          ],
                         ),
-                      ],
+                      ),
                     ),
                   ),
                 ),

@@ -9,6 +9,7 @@ import 'package:flashcards/ui/widgets/core/error_screen.dart';
 import 'package:flashcards/ui/widgets/core/loading_overlay_listener.dart';
 import 'package:flashcards/ui/widgets/profile/admin_dashboard/osce_builder/question_input_widget.dart';
 import 'package:flashcards/utils/firebase_error_mapper.dart';
+import 'package:flashcards/ui/widgets/core/desktop_layout.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -21,9 +22,8 @@ class QuestionEditorPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create:
-          (context) =>
-              UpdateOsceCubit(osceRepo: context.read<OsceRepository>()),
+      create: (context) =>
+          UpdateOsceCubit(osceRepo: context.read<OsceRepository>()),
       child: _View(osceId: osceId),
     );
   }
@@ -53,25 +53,30 @@ class _ViewState extends State<_View> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text("Edit OSCE")),
-      body: BlocBuilder<UpdateOsceCubit, UpdateOsceState>(
-        buildWhen:
-            (previous, current) => previous.runtimeType != current.runtimeType,
-        builder: (context, state) {
-          switch (state) {
-            case UpdateOsceInitial():
-            case UpdateOsceLoading():
-              return Center(
-                child: CircularProgressIndicator(color: context.colors.primary),
-              );
-            case UpdateOsceError(:final error):
-              return ErrorScreen(
-                errorMessage: extractErrorMessage(error),
-                onReload: _loadQuestions,
-              );
-            case UpdateOsceLoaded():
-              return _LoadedContent(state: state);
-          }
-        },
+      body: ReadableWidth(
+        maxWidth: 820,
+        child: BlocBuilder<UpdateOsceCubit, UpdateOsceState>(
+          buildWhen: (previous, current) =>
+              previous.runtimeType != current.runtimeType,
+          builder: (context, state) {
+            switch (state) {
+              case UpdateOsceInitial():
+              case UpdateOsceLoading():
+                return Center(
+                  child: CircularProgressIndicator(
+                    color: context.colors.primary,
+                  ),
+                );
+              case UpdateOsceError(:final error):
+                return ErrorScreen(
+                  errorMessage: extractErrorMessage(error),
+                  onReload: _loadQuestions,
+                );
+              case UpdateOsceLoaded():
+                return _LoadedContent(state: state);
+            }
+          },
+        ),
       ),
     );
   }
