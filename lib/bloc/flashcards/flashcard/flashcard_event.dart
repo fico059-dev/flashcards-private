@@ -1,3 +1,4 @@
+import 'package:flashcards/domain/models/flashcards/flashcard/flashcard.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flashcards/domain/models/flashcards/pack/pack.dart';
 import 'package:flashcards/domain/models/profile/streak/streak.dart';
@@ -67,3 +68,13 @@ class FlashcardCardsPerSessionUpdated extends FlashcardEvent {
 class FlashcardTutorialSeenChecked extends FlashcardEvent {}
 
 class FlashcardTutorialFinished extends FlashcardEvent {}
+
+/// An admin edited the current card while studying.
+class FlashcardEdited extends FlashcardEvent {
+  final Flashcard flashcard;
+
+  FlashcardEdited(this.flashcard);
+
+  @override
+  List<Object?> get props => [flashcard];
+}

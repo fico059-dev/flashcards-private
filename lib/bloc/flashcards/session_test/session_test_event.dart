@@ -1,3 +1,4 @@
+import 'package:flashcards/domain/models/flashcards/flashcard/flashcard.dart';
 import 'package:equatable/equatable.dart';
 import 'package:fsrs/fsrs.dart';
 import 'package:flashcards/domain/models/flashcards/custom_session_summary/custom_session_summary.dart';
@@ -49,4 +50,14 @@ class SessionTestStreakChanged extends SessionTestEvent {
 
   @override
   List<Object?> get props => [streak];
+}
+
+/// An admin edited the current card while studying.
+class SessionTestCardEdited extends SessionTestEvent {
+  final Flashcard flashcard;
+
+  SessionTestCardEdited(this.flashcard);
+
+  @override
+  List<Object?> get props => [flashcard];
 }

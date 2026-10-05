@@ -126,6 +126,7 @@ class FlashcardBloc extends Bloc<FlashcardEvent, FlashcardState> {
     on<FlashcardIgnored>(_onFlashcardIgnored);
     on<FlashcardTutorialSeenChecked>(_onTutorialChecked);
     on<FlashcardTutorialFinished>(_onTutorialFinished);
+    on<FlashcardEdited>(_onFlashcardEdited);
   }
 
   void _onTutorialChecked(
@@ -505,6 +506,30 @@ class FlashcardBloc extends Bloc<FlashcardEvent, FlashcardState> {
         status: FlashcardStatus.loaded,
         answerVisible: true,
         flashcard: clozeFlashcard,
+      ),
+    );
+  }
+
+  void _onFlashcardEdited(FlashcardEdited event, Emitter<FlashcardState> emit) {
+    final index = state.currentCardIndex;
+    if (state.flashcard == null ||
+        index >= state.statRecords.length ||
+        state.statRecords[index].flashcardId != event.flashcard.id) {
+      return;
+    }
+    final edited = event.flashcard;
+    emit(
+      state.copyWith(
+        statRecords: _updateStatRecordAt(
+          state.statRecords,
+          index,
+          (record) => record.copyWith(flashcard: edited),
+        ),
+        flashcard: edited.copyWith(
+          question: state.answerVisible
+              ? revealClozeQuestion(edited.question)
+              : redactClozeQuestion(edited.question),
+        ),
       ),
     );
   }

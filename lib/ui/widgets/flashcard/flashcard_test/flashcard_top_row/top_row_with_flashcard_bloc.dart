@@ -4,6 +4,7 @@ import 'package:flashcards/bloc/flashcards/flashcard/flashcard_event.dart';
 import 'package:flashcards/bloc/flashcards/flashcard/flashcard_state.dart';
 import 'package:flashcards/config/router/router.dart';
 import 'package:flashcards/domain/models/flashcards/flashcard/flashcard.dart';
+import 'package:flashcards/ui/widgets/flashcard/flashcard_test/flashcard_top_row/widgets/admin_edit_card_button.dart';
 import 'package:flashcards/ui/widgets/flashcard/flashcard_test/flashcard_top_row/widgets/batch_counter.dart';
 import 'package:flashcards/ui/widgets/flashcard/flashcard_test/flashcard_top_row/widgets/bookmark_button.dart';
 import 'package:flashcards/ui/widgets/flashcard/flashcard_test/flashcard_top_row/widgets/popup_menu_button.dart';
@@ -67,6 +68,13 @@ class TopRowWithFlashcardBloc extends StatelessWidget {
 
             Row(
               children: [
+                AdminEditCardButton(
+                  flashcard: state.flashcard == null
+                      ? null
+                      : state.statRecords[state.currentCardIndex].flashcard,
+                  onEdited: (card) =>
+                      context.read<FlashcardBloc>().add(FlashcardEdited(card)),
+                ),
                 BookmarkButton(
                   isBookmarked: isBookmarked,
                   onToggleBookmark: onToggleBookmark,

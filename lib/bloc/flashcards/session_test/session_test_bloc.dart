@@ -32,6 +32,7 @@ class SessionTestBloc extends Bloc<SessionTestEvent, SessionTestState> {
     on<SessionTestNextPressed>(_onNextPressed);
     on<SessionTestBookmarkToggled>(_onBookmarkToggled);
     on<SessionTestAnswerShown>(_onAnswerShown);
+    on<SessionTestCardEdited>(_onCardEdited);
     on<SessionTestStreakChanged>((event, emit) {
       final state = this.state;
       if (state is SessionTestLoaded) {
@@ -121,6 +122,32 @@ class SessionTestBloc extends Bloc<SessionTestEvent, SessionTestState> {
     _saver.dispose();
     _upcomingImages.close();
     return super.close();
+  }
+
+  void _onCardEdited(
+    SessionTestCardEdited event,
+    Emitter<SessionTestState> emit,
+  ) {
+    final state = this.state;
+    if (state is! SessionTestLoaded ||
+        state.statRecord.flashcardId != event.flashcard.id) {
+      return;
+    }
+    final edited = event.flashcard;
+    _readyRecords.remove(edited.id);
+    _prefetched.remove(edited.id);
+    emit(
+      state.copyWith(
+        unformattedQuestion: edited.question,
+        statRecord: state.statRecord.copyWith(
+          flashcard: edited.copyWith(
+            question: state.answerShown
+                ? revealClozeQuestion(edited.question)
+                : redactClozeQuestion(edited.question),
+          ),
+        ),
+      ),
+    );
   }
 
   void _onAnswerShown(
