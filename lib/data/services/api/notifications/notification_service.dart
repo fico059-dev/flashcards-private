@@ -93,6 +93,12 @@ class NotificationService {
           IOSFlutterLocalNotificationsPlugin
         >()
         ?.requestPermissions(alert: true, badge: true, sound: true);
+    // Android 13 and newer also ask before showing notifications.
+    await _plugin
+        .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin
+        >()
+        ?.requestNotificationsPermission();
   }
 
   Future<void> cancelAll() async {
