@@ -3,6 +3,7 @@ import {CallableRequest, HttpsError} from "firebase-functions/v2/https";
 import {checkAuthAndThrow, getMissingParams} from "../utils/utils";
 import {getFirestore, Timestamp} from "firebase-admin/firestore";
 import {hasCards} from "../utils/claimsUtils";
+import {canUsePack} from "./packAccess";
 
 enum PackSelectedFilter {
   all = "all",
@@ -128,6 +129,16 @@ export async function createCustomSessionHandler(request: CallableRequest) {
       throw new HttpsError(
         "invalid-argument",
         "packIds array must not contain more than 30 pack IDs.",
+      );
+    }
+
+    const packSnapshots = await Promise.all(
+      packIds.map((id) => getFirestore().collection("packs").doc(id).get()),
+    );
+    if (packSnapshots.some((doc) => !canUsePack(doc.data(), claims))) {
+      throw new HttpsError(
+        "permission-denied",
+        "One of the selected packs isn't available for your account.",
       );
     }
 
@@ -357,7 +368,11 @@ export async function createCustomSessionHandler(request: CallableRequest) {
   }
 }
 
-/** Returns a shuffled copy of [items] (Fisher-Yates). */
+/**
+ * Returns a shuffled copy of the items (Fisher-Yates).
+ * @param {T[]} items The items.
+ * @return {T[]} A shuffled copy.
+ */
 function shuffle<T>(items: T[]): T[] {
   const result = [...items];
   for (let i = result.length - 1; i > 0; i--) {

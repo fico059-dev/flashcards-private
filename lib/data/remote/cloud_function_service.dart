@@ -52,6 +52,15 @@ class CloudFunctionService {
     ];
   }
 
+  /// Limits a pack to [emails] (empty: everyone). Returns the saved list.
+  Future<List<String>> setPackAccess(String packId, List<String> emails) async {
+    final data = await _call('setPackAccess', {
+      'packId': packId,
+      'emails': emails,
+    });
+    return List<String>.from(data['allowedEmails'] as List? ?? const []);
+  }
+
   /// Saves this device's study history (and the goal when it changed).
   Future<void> saveStudyLog({
     required String deviceId,

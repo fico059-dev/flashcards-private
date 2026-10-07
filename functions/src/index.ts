@@ -27,6 +27,7 @@ import {
   getStudyLogHandler,
   saveStudyLogHandler,
 } from "./handlers/studyLog";
+import {setPackAccessHandler} from "./handlers/packAccess";
 import {
   deleteOsceFolderHandler,
   listOsceFoldersHandler,
@@ -70,6 +71,7 @@ export const deleteHighlight = onCall(deleteHighlightHandler);
 export const listHighlights = onCall(listHighlightsHandler);
 export const saveStudyLog = onCall(saveStudyLogHandler);
 export const getStudyLog = onCall(getStudyLogHandler);
+export const setPackAccess = onCall(setPackAccessHandler);
 export const listOsceFolders = onCall(listOsceFoldersHandler);
 export const saveOsceFolder = onCall(saveOsceFolderHandler);
 export const deleteOsceFolder = onCall(deleteOsceFolderHandler);

@@ -8,6 +8,7 @@ import 'package:flashcards/domain/models/flashcards/admin_pack/admin_pack.dart';
 import 'package:flashcards/ui/constants/styles.dart';
 import 'package:flashcards/ui/dialogs/profile/admin_dashboard/flashcard_builder/delete_pack_dialog.dart';
 import 'package:flashcards/ui/dialogs/profile/admin_dashboard/flashcard_builder/export_pack.dart';
+import 'package:flashcards/ui/dialogs/profile/admin_dashboard/flashcard_builder/pack_access_page.dart';
 import 'package:flashcards/ui/dialogs/profile/admin_dashboard/flashcard_builder/pack_premium_dialog.dart';
 import 'package:flashcards/ui/dialogs/profile/admin_dashboard/flashcard_builder/rename_pack_dialog.dart';
 import 'package:flashcards/ui/theme/theme_extensions.dart';
@@ -93,6 +94,28 @@ void showPackOptionsBottomSheet(BuildContext context, AdminPack pack) {
                       getterBloc.add(AdminPacksGetterCacheRead());
                     }
                   },
+                ),
+                ListTile(
+                  onTap: () async {
+                    final getterBloc = context.read<AdminPacksGetterBloc>();
+                    context.router.pop();
+                    final saved = await showPackAccessPage(context, pack);
+                    if (saved != null) {
+                      getterBloc.add(AdminPacksGetterCacheRead());
+                    }
+                  },
+                  leading: Icon(
+                    pack.allowedEmails.isEmpty
+                        ? Icons.lock_open
+                        : Icons.lock_person,
+                    color: context.colors.primaryContainer,
+                  ),
+                  title: Text("Who can see this pack"),
+                  subtitle: Text(
+                    pack.allowedEmails.isEmpty
+                        ? "Everyone"
+                        : "Only ${pack.allowedEmails.length} user(s)",
+                  ),
                 ),
                 ExportPackTile(pack: pack),
                 ListTile(

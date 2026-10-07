@@ -24,6 +24,12 @@ class AdminPackCard extends StatelessWidget {
           child: Icon(Icons.folder),
         ),
         title: Text(pack.packName),
+        trailing: pack.allowedEmails.isEmpty
+            ? null
+            : Tooltip(
+                message: "Only ${pack.allowedEmails.length} user(s)",
+                child: const Icon(Icons.lock_person),
+              ),
       ),
     );
   }

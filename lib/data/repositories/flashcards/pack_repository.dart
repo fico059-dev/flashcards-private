@@ -366,6 +366,22 @@ class PackRepository {
     return Result.ok(null);
   }
 
+  /// Limits the pack to [emails]; an empty list opens it to everyone.
+  Future<Result<List<String>>> setPackAccess(
+    String packId,
+    List<String> emails,
+  ) async {
+    final result = await _packService.setPackAccess(packId, emails);
+    if (result case Ok<List<String>>(:final value)) {
+      _packsCache.invalidate();
+      _adminPacksCache.updateItem(
+        id: packId,
+        copyWith: (item) => item.copyWith(allowedEmails: value),
+      );
+    }
+    return result;
+  }
+
   Future<Result<List<String>>> getFlashcardIdsFromPack(String packId) async {
     final result = await _packService.getFlashcardIds(packId);
     switch (result) {

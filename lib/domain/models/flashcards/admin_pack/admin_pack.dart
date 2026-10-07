@@ -11,6 +11,9 @@ abstract class AdminPack with _$AdminPack {
     required int flashcardsCount,
     required bool isPaid,
     @Default({}) Map<String, int> tagCounts,
+
+    /// When not empty, only these users (and admins) see the pack.
+    @Default([]) List<String> allowedEmails,
   }) = _AdminPack;
 }
 

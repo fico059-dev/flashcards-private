@@ -1,3 +1,4 @@
+import 'package:flashcards/data/repositories/utils/pack_visibility.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flashcards/data/remote/firestore_db_context.dart';
 import 'package:flashcards/domain/models/algolia/algolia_pack/algolia_pack.dart';
@@ -26,16 +27,26 @@ class PacksSearcherService {
             .orderBy('name')
             .get();
       }
+      final visibility = await PackVisibility.current();
       return Result.ok(
-        snapshot.docs.map((doc) {
-          final data = doc.data();
-          return AlgoliaPack(
-            objectID: doc.id,
-            name: data['name'] as String? ?? '',
-            tags: List<String>.from(data['tags'] as List? ?? const []),
-            isPaid: data['isPaid'] as bool? ?? false,
-          );
-        }).toList(),
+        snapshot.docs
+            .where(
+              (doc) => visibility.allows(
+                List<String>.from(
+                  doc.data()['allowedEmails'] as List? ?? const [],
+                ),
+              ),
+            )
+            .map((doc) {
+              final data = doc.data();
+              return AlgoliaPack(
+                objectID: doc.id,
+                name: data['name'] as String? ?? '',
+                tags: List<String>.from(data['tags'] as List? ?? const []),
+                isPaid: data['isPaid'] as bool? ?? false,
+              );
+            })
+            .toList(),
       );
     } on Exception catch (error) {
       return Result.error(error);
