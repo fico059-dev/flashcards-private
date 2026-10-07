@@ -18,6 +18,7 @@ import 'package:flashcards/domain/models/flashcards/ignored_flashcard/ignored_fl
 import 'package:flashcards/domain/models/flashcards/pack/pack.dart';
 import 'package:flashcards/domain/models/flashcards/stat_record/stat_record.dart';
 import 'package:flashcards/utils/result.dart';
+import 'package:flashcards/data/services/local/seen_cards_store.dart';
 import 'package:flashcards/data/services/local/study_log_store.dart';
 import 'package:fsrs/fsrs.dart';
 
@@ -33,6 +34,7 @@ class FcpRepository {
   final PageCache<Pack> _packsCache;
 
   final StudyLogStore? _studyLog;
+  final SeenCardsStore _seenCards;
 
   FcpRepository({
     required FcpService fcpService,
@@ -41,7 +43,9 @@ class FcpRepository {
     required PackService packService,
     required PageCache<Pack> packCache,
     StudyLogStore? studyLog,
+    SeenCardsStore? seenCards,
   }) : _studyLog = studyLog,
+       _seenCards = seenCards ?? SeenCardsStore(),
        _fcpService = fcpService,
        _authService = authService,
        _packService = packService,
@@ -104,34 +108,55 @@ class FcpRepository {
         return Result.error(error);
       case Ok<int>():
     }
-    final seen = countResult.value;
+    final seenIds = await _seenFlashcardIds(
+      uid: uid,
+      packId: packId,
+      serverCount: countResult.value,
+      hasCards: hasCards,
+    );
+    switch (seenIds) {
+      case Error<Set<String>>(:final error):
+        return Result.error(error);
+      case Ok<Set<String>>():
+    }
+    final unseenCount = packFlashcardIds
+        .where((id) => !seenIds.value.contains(id))
+        .length;
+    // Progress of cards removed from the pack can still be due, so "seen"
+    // is never less than the due cards found.
+    final dueList = dueRecords.take(all).toList();
+    final seen = (all - unseenCount).clamp(dueList.length, all);
 
     final [newCount, dueCount] = _calculateSeenAndNewCount(
       all,
       seen,
-      dueRecords.length,
+      dueList.length,
       normalizedTarget,
       newCardsPercentage,
     );
 
     final List<StatRecord> resultList = [];
 
-    resultList.addAll(dueRecords.take(dueCount));
+    resultList.addAll(dueList.take(dueCount));
 
-    // now to get new cards
+    // New cards are picked at random from the cards not studied yet, so
+    // the student doesn't go through the pack in the order it was made.
     if (newCount > 0) {
-      // we start from last seen card, and grab newCount amount from all list
-      final newFcIds = packFlashcardIds.sublist(seen, seen + newCount);
-      final newRecordsIterable = newFcIds.map(
-        (fcId) => StatRecord(
-          packId: packId,
-          flashcardId: fcId,
-          card: Card(),
-          isPaid: isPaid,
+      final newFcIds = pickNewCardIds(
+        packFlashcardIds,
+        seenIds.value,
+        newCount,
+      );
+      resultList.addAll(
+        newFcIds.map(
+          (fcId) => StatRecord(
+            packId: packId,
+            flashcardId: fcId,
+            card: Card(),
+            isPaid: isPaid,
+          ),
         ),
       );
-
-      resultList.addAll(newRecordsIterable);
     }
 
     return Result.ok(resultList);
@@ -156,9 +181,7 @@ class FcpRepository {
     }
     final dueCardsDtoList = result.value;
 
-    final records = [
-      ...dueCardsDtoList.map((dto) => dto.toStatRecordDomain()),
-    ];
+    final records = [...dueCardsDtoList.map((dto) => dto.toStatRecordDomain())];
 
     return Result.ok(records);
   }
@@ -214,10 +237,9 @@ class FcpRepository {
       case Ok<PaginatedDtoResult<FcpDataDto>>():
     }
 
-    final domainList =
-        result.value.items
-            .map((dto) => dto.toIgnoredFlashcardDomain())
-            .toList();
+    final domainList = result.value.items
+        .map((dto) => dto.toIgnoredFlashcardDomain())
+        .toList();
     _ignoredCursorMap.put(pageIndex, result.value.lastDocument);
 
     return Result.ok(domainList);
@@ -468,6 +490,7 @@ class FcpRepository {
           return Result.error(error);
         case Ok<void>():
       }
+      _rememberSeen(currStatRecord);
       _updateCacheForRatingGiven(
         currStatRecord,
         newStatRecord.card,
@@ -510,6 +533,7 @@ class FcpRepository {
         return Result.error(error);
       case Ok<void>():
     }
+    _rememberSeen(currStatRecord);
 
     _updateCacheForRatingGiven(
       currStatRecord,
@@ -518,6 +542,31 @@ class FcpRepository {
     );
     _recordReview(currStatRecord.card, newStatRecord.card);
     return Result.ok(null);
+  }
+
+  /// The cards of the pack the user has studied, from the device when its
+  /// list matches the server's count, otherwise read again from the server.
+  Future<Result<Set<String>>> _seenFlashcardIds({
+    required String uid,
+    required String packId,
+    required int serverCount,
+    required bool hasCards,
+  }) async {
+    final saved = await _seenCards.load(uid, packId);
+    if (saved != null && saved.length == serverCount) return Result.ok(saved);
+    final result = await _fcpService.getSeenFlashcardIdsForPack(
+      uid,
+      packId,
+      hasCards,
+    );
+    if (result case Ok<Set<String>>(:final value)) {
+      await _seenCards.save(uid, packId, value);
+    }
+    return result;
+  }
+
+  void _rememberSeen(StatRecord record) {
+    _seenCards.add(_getUid(), record.packId, record.flashcardId);
   }
 
   /// Keeps the daily history shown on the Progress tab.
@@ -584,10 +633,9 @@ class FcpRepository {
     if (cardState.isNewState && !currStatRecord.isPulledFromDb) {
       _packsCache.updateItem(
         id: packId,
-        copyWith:
-            (pack) => pack.copyWith(
-              newCount: pack.newCount != 0 ? pack.newCount - 1 : pack.newCount,
-            ),
+        copyWith: (pack) => pack.copyWith(
+          newCount: pack.newCount != 0 ? pack.newCount - 1 : pack.newCount,
+        ),
       );
       return;
     }
@@ -595,15 +643,14 @@ class FcpRepository {
     if (!cardState.isNewState) {
       _packsCache.updateItem(
         id: packId,
-        copyWith:
-            (pack) => pack.copyWith(
-              dueCount: pack.dueCount - 1,
-              learningCount:
-                  (cardState.isLearning || cardState.isRelearning) &&
-                          pack.learningCount > 0
-                      ? pack.learningCount - 1
-                      : pack.learningCount,
-            ),
+        copyWith: (pack) => pack.copyWith(
+          dueCount: pack.dueCount - 1,
+          learningCount:
+              (cardState.isLearning || cardState.isRelearning) &&
+                  pack.learningCount > 0
+              ? pack.learningCount - 1
+              : pack.learningCount,
+        ),
       );
     }
   }
@@ -622,10 +669,9 @@ class FcpRepository {
 
     _packsCache.updateItem(
       id: packId,
-      copyWith:
-          (pack) => pack.copyWith(
-            newCount: pack.newCount != 0 ? pack.newCount - 1 : pack.newCount,
-          ),
+      copyWith: (pack) => pack.copyWith(
+        newCount: pack.newCount != 0 ? pack.newCount - 1 : pack.newCount,
+      ),
     );
   }
 

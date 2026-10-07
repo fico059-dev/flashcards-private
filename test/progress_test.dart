@@ -267,7 +267,8 @@ void main() {
 
     expect(find.text('Goal & trajectory'), findsOneWidget);
     expect(find.text('On track'), findsOneWidget);
-    expect(find.text('Review 7 due cards first'), findsOneWidget);
+    // The number depends on today's date (the sample cards have fixed dates).
+    expect(find.textContaining('due cards first'), findsOneWidget);
 
     // Scroll through the whole Cards tab.
     for (final title in [
