@@ -33,45 +33,29 @@ class PackParentTile extends StatelessWidget {
 }
 
 /// Lets the admin choose the pack [pack] is shown inside, then saves it.
-/// Returns true when it changed.
+/// Returns true when it changed. Safe to call right after closing the menu
+/// it was opened from.
 Future<bool> showPackParentDialog(BuildContext context, AdminPack pack) async {
   final repo = context.read<PackRepository>();
   final messenger = ScaffoldMessenger.of(context);
+  // The menu that opened this may be closing; use the app's navigator.
+  final navigator = Navigator.of(context, rootNavigator: true);
 
-  final packsResult = await repo.getAllAdminPacks();
-  if (!context.mounted) return false;
-  final allPacks = switch (packsResult) {
-    Ok(:final value) => value,
-    Error(:final error) => () {
-      messenger.showSnackBar(
-        SnackBar(content: Text(extractErrorMessage(error))),
-      );
-      return null;
-    }(),
-  };
-  if (allPacks == null) return false;
-
-  // A pack can't go inside itself or one of its own sub-packs.
-  final blocked = packAndDescendantIds(pack.packId, {
-    for (final p in allPacks) p.packId: p.parentId,
-  });
-  final choices = allPacks.where((p) => !blocked.contains(p.packId)).toList()
-    ..sort(
-      (a, b) => a.packName.toLowerCase().compareTo(b.packName.toLowerCase()),
-    );
-  final names = {for (final p in allPacks) p.packId: p.packName};
+  final packsFuture = repo.getAllAdminPacks().then(
+    (result) => switch (result) {
+      Ok(:final value) => value,
+      Error(:final error) => throw error,
+    },
+  );
 
   // "" means: top level.
-  final chosen = await showDialog<String>(
-    context: context,
-    builder: (context) => _ParentPicker(
-      pack: pack,
-      choices: choices,
-      currentParentName: names[pack.parentId],
-    ),
+  final chosen = await showDialog<(String, String?)>(
+    context: navigator.context,
+    builder: (context) => _ParentPicker(pack: pack, packs: packsFuture),
   );
-  if (chosen == null || !context.mounted) return false;
-  final parentId = chosen.isEmpty ? null : chosen;
+  if (chosen == null) return false;
+  final (chosenId, chosenName) = chosen;
+  final parentId = chosenId.isEmpty ? null : chosenId;
   if (parentId == pack.parentId) return false;
 
   final result = await repo.setPackParent(pack.packId, parentId);
@@ -82,7 +66,7 @@ Future<bool> showPackParentDialog(BuildContext context, AdminPack pack) async {
           content: Text(
             parentId == null
                 ? '"${pack.packName}" is now a main pack'
-                : '"${pack.packName}" is now inside "${names[parentId]}"',
+                : '"${pack.packName}" is now inside "$chosenName"',
           ),
         ),
       );
@@ -97,14 +81,9 @@ Future<bool> showPackParentDialog(BuildContext context, AdminPack pack) async {
 
 class _ParentPicker extends StatefulWidget {
   final AdminPack pack;
-  final List<AdminPack> choices;
-  final String? currentParentName;
+  final Future<List<AdminPack>> packs;
 
-  const _ParentPicker({
-    required this.pack,
-    required this.choices,
-    required this.currentParentName,
-  });
+  const _ParentPicker({required this.pack, required this.packs});
 
   @override
   State<_ParentPicker> createState() => _ParentPickerState();
@@ -115,55 +94,92 @@ class _ParentPickerState extends State<_ParentPicker> {
 
   @override
   Widget build(BuildContext context) {
-    final shown = widget.choices
-        .where((p) => p.packName.toLowerCase().contains(_search.toLowerCase()))
-        .toList();
     return AlertDialog(
       title: Text('Put "${widget.pack.packName}" inside…'),
       content: SizedBox(
         width: 440,
         height: 420,
-        child: Column(
-          children: [
-            if (widget.currentParentName != null)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 8),
-                child: Text("Now inside: ${widget.currentParentName}"),
-              ),
-            TextField(
-              decoration: const InputDecoration(
-                hintText: "Find a pack",
-                prefixIcon: Icon(Icons.search),
-                isDense: true,
-                border: OutlineInputBorder(),
-              ),
-              onChanged: (value) => setState(() => _search = value),
-            ),
-            const SizedBox(height: 8),
-            Expanded(
-              child: ListView(
-                children: [
-                  ListTile(
-                    leading: const Icon(Icons.vertical_align_top),
-                    title: const Text("No parent (main pack)"),
-                    selected: widget.pack.parentId == null,
-                    onTap: () => Navigator.of(context).pop(''),
-                  ),
-                  const Divider(height: 1),
-                  for (final p in shown)
-                    ListTile(
-                      leading: const Icon(Icons.folder_outlined),
-                      title: Text(p.packName),
-                      subtitle: p.parentId != null
-                          ? const Text("Itself a sub-pack")
-                          : null,
-                      selected: p.packId == widget.pack.parentId,
-                      onTap: () => Navigator.of(context).pop(p.packId),
+        child: FutureBuilder<List<AdminPack>>(
+          future: widget.packs,
+          builder: (context, snapshot) {
+            if (snapshot.hasError) {
+              return Center(
+                child: Text(
+                  "Packs couldn't be loaded: "
+                  "${extractErrorMessage(snapshot.error!)}",
+                ),
+              );
+            }
+            final allPacks = snapshot.data;
+            if (allPacks == null) {
+              return const Center(child: CircularProgressIndicator());
+            }
+
+            // A pack can't go inside itself or one of its own sub-packs.
+            final blocked = packAndDescendantIds(widget.pack.packId, {
+              for (final p in allPacks) p.packId: p.parentId,
+            });
+            final names = {for (final p in allPacks) p.packId: p.packName};
+            final shown =
+                allPacks
+                    .where((p) => !blocked.contains(p.packId))
+                    .where(
+                      (p) => p.packName.toLowerCase().contains(
+                        _search.toLowerCase(),
+                      ),
+                    )
+                    .toList()
+                  ..sort(
+                    (a, b) => a.packName.toLowerCase().compareTo(
+                      b.packName.toLowerCase(),
                     ),
-                ],
-              ),
-            ),
-          ],
+                  );
+            final currentParent = names[widget.pack.parentId];
+
+            return Column(
+              children: [
+                if (currentParent != null)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: Text("Now inside: $currentParent"),
+                  ),
+                TextField(
+                  decoration: const InputDecoration(
+                    hintText: "Find a pack",
+                    prefixIcon: Icon(Icons.search),
+                    isDense: true,
+                    border: OutlineInputBorder(),
+                  ),
+                  onChanged: (value) => setState(() => _search = value),
+                ),
+                const SizedBox(height: 8),
+                Expanded(
+                  child: ListView(
+                    children: [
+                      ListTile(
+                        leading: const Icon(Icons.vertical_align_top),
+                        title: const Text("No parent (main pack)"),
+                        selected: widget.pack.parentId == null,
+                        onTap: () => Navigator.of(context).pop(('', null)),
+                      ),
+                      const Divider(height: 1),
+                      for (final p in shown)
+                        ListTile(
+                          leading: const Icon(Icons.folder_outlined),
+                          title: Text(p.packName),
+                          subtitle: p.parentId != null
+                              ? Text("Inside ${names[p.parentId] ?? 'a pack'}")
+                              : null,
+                          selected: p.packId == widget.pack.parentId,
+                          onTap: () =>
+                              Navigator.of(context).pop((p.packId, p.packName)),
+                        ),
+                    ],
+                  ),
+                ),
+              ],
+            );
+          },
         ),
       ),
       actions: [

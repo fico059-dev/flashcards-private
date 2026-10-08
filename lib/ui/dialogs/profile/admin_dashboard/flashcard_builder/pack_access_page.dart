@@ -30,7 +30,7 @@ final _emailPattern = RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$');
 /// Opens the page where the admin chooses who can see [pack].
 /// Returns the saved email list, or null if nothing was saved.
 Future<List<String>?> showPackAccessPage(BuildContext context, AdminPack pack) {
-  return Navigator.of(context).push<List<String>>(
+  return Navigator.of(context, rootNavigator: true).push<List<String>>(
     MaterialPageRoute(builder: (_) => PackAccessPage(pack: pack)),
   );
 }
