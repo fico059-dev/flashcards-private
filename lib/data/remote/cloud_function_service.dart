@@ -61,6 +61,22 @@ class CloudFunctionService {
     return List<String>.from(data['allowedEmails'] as List? ?? const []);
   }
 
+  /// The emails a pack is limited to (empty: everyone). Admins only.
+  Future<List<String>> getPackAccess(String packId) async {
+    final data = await _call('getPackAccess', {'packId': packId});
+    return List<String>.from(data['allowedEmails'] as List? ?? const []);
+  }
+
+  /// Every card the user may search (premium and limited packs filtered
+  /// on the server).
+  Future<List<Map<String, dynamic>>> listSearchableFlashcards() async {
+    final data = await _call('listSearchableFlashcards');
+    return [
+      for (final item in data['flashcards'] as List? ?? const [])
+        Map<String, dynamic>.from(item as Map),
+    ];
+  }
+
   /// Saves this device's study history (and the goal when it changed).
   Future<void> saveStudyLog({
     required String deviceId,

@@ -174,7 +174,7 @@ class AppDependencies {
         create: (context) => PacksSearcherService(dbContext: _dbContext),
       ),
       Provider(
-        create: (context) => FlashcardsSearcherService(dbContext: _dbContext),
+        create: (context) => FlashcardsSearcherService(functions: _functions),
       ),
 
       // Repositories

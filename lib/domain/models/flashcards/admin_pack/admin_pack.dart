@@ -12,8 +12,8 @@ abstract class AdminPack with _$AdminPack {
     required bool isPaid,
     @Default({}) Map<String, int> tagCounts,
 
-    /// When not empty, only these users (and admins) see the pack.
-    @Default([]) List<String> allowedEmails,
+    /// Only some users (and admins) see the pack.
+    @Default(false) bool restricted,
   }) = _AdminPack;
 }
 

@@ -1,3 +1,4 @@
+import 'package:flashcards/data/repositories/utils/pack_visibility.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flashcards/data/repositories/utils/pagination/paginated_cursor_map.dart';
 import 'package:flashcards/data/repositories/utils/user_claims.dart';
@@ -374,13 +375,18 @@ class PackRepository {
     final result = await _packService.setPackAccess(packId, emails);
     if (result case Ok<List<String>>(:final value)) {
       _packsCache.invalidate();
+      PackVisibility.invalidate();
       _adminPacksCache.updateItem(
         id: packId,
-        copyWith: (item) => item.copyWith(allowedEmails: value),
+        copyWith: (item) => item.copyWith(restricted: value.isNotEmpty),
       );
     }
     return result;
   }
+
+  /// The emails the pack is limited to (empty: everyone). Admins only.
+  Future<Result<List<String>>> getPackAccess(String packId) =>
+      _packService.getPackAccess(packId);
 
   Future<Result<List<String>>> getFlashcardIdsFromPack(String packId) async {
     final result = await _packService.getFlashcardIds(packId);

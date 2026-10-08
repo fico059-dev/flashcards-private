@@ -32,9 +32,8 @@ class PacksSearcherService {
         snapshot.docs
             .where(
               (doc) => visibility.allows(
-                List<String>.from(
-                  doc.data()['allowedEmails'] as List? ?? const [],
-                ),
+                doc.id,
+                restricted: doc.data()['restricted'] == true,
               ),
             )
             .map((doc) {

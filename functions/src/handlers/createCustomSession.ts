@@ -135,7 +135,10 @@ export async function createCustomSessionHandler(request: CallableRequest) {
     const packSnapshots = await Promise.all(
       packIds.map((id) => getFirestore().collection("packs").doc(id).get()),
     );
-    if (packSnapshots.some((doc) => !canUsePack(doc.data(), claims))) {
+    const allowed = await Promise.all(
+      packSnapshots.map((doc) => canUsePack(doc.id, doc.data(), claims)),
+    );
+    if (allowed.includes(false)) {
       throw new HttpsError(
         "permission-denied",
         "One of the selected packs isn't available for your account.",

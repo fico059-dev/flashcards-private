@@ -27,7 +27,11 @@ import {
   getStudyLogHandler,
   saveStudyLogHandler,
 } from "./handlers/studyLog";
-import {setPackAccessHandler} from "./handlers/packAccess";
+import {
+  getPackAccessHandler,
+  listSearchableFlashcardsHandler,
+  setPackAccessHandler,
+} from "./handlers/packAccess";
 import {
   deleteOsceFolderHandler,
   listOsceFoldersHandler,
@@ -72,6 +76,11 @@ export const listHighlights = onCall(listHighlightsHandler);
 export const saveStudyLog = onCall(saveStudyLogHandler);
 export const getStudyLog = onCall(getStudyLogHandler);
 export const setPackAccess = onCall(setPackAccessHandler);
+export const getPackAccess = onCall(getPackAccessHandler);
+export const listSearchableFlashcards = onCall(
+  {memory: "1GiB", timeoutSeconds: 120},
+  listSearchableFlashcardsHandler,
+);
 export const listOsceFolders = onCall(listOsceFoldersHandler);
 export const saveOsceFolder = onCall(saveOsceFolderHandler);
 export const deleteOsceFolder = onCall(deleteOsceFolderHandler);

@@ -105,16 +105,12 @@ void showPackOptionsBottomSheet(BuildContext context, AdminPack pack) {
                     }
                   },
                   leading: Icon(
-                    pack.allowedEmails.isEmpty
-                        ? Icons.lock_open
-                        : Icons.lock_person,
+                    pack.restricted ? Icons.lock_person : Icons.lock_open,
                     color: context.colors.primaryContainer,
                   ),
                   title: Text("Who can see this pack"),
                   subtitle: Text(
-                    pack.allowedEmails.isEmpty
-                        ? "Everyone"
-                        : "Only ${pack.allowedEmails.length} user(s)",
+                    pack.restricted ? "Only chosen users" : "Everyone",
                   ),
                 ),
                 ExportPackTile(pack: pack),

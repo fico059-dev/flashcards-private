@@ -16,9 +16,9 @@ abstract class PackDto with _$PackDto {
     @Default([]) List<String> tags,
     @Default(false) bool isPaid,
 
-    /// When not empty, only these users (and admins) see the pack. Set by
-    /// the setPackAccess function only.
-    @JsonKey(includeToJson: false) @Default([]) List<String> allowedEmails,
+    /// Only some users (and admins) may see the pack. Set by the
+    /// setPackAccess function only.
+    @JsonKey(includeToJson: false) @Default(false) bool restricted,
   }) = _PackDto;
 
   factory PackDto.fromJson(JsonMap json) => _$PackDtoFromJson(json);
@@ -56,6 +56,6 @@ extension PackDtoX on PackDto {
     packName: name,
     flashcardsCount: flashcardsCount,
     tagCounts: tagCounts,
-    allowedEmails: allowedEmails,
+    restricted: restricted,
   );
 }

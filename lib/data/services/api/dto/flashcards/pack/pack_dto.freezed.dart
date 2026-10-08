@@ -15,9 +15,9 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$PackDto {
 
-@JsonKey(includeToJson: false) String? get id; String get name; int get flashcardsCount; Map<String, int> get tagCounts; List<String> get tags; bool get isPaid;/// When not empty, only these users (and admins) see the pack. Set by
-/// the setPackAccess function only.
-@JsonKey(includeToJson: false) List<String> get allowedEmails;
+@JsonKey(includeToJson: false) String? get id; String get name; int get flashcardsCount; Map<String, int> get tagCounts; List<String> get tags; bool get isPaid;/// Only some users (and admins) may see the pack. Set by the
+/// setPackAccess function only.
+@JsonKey(includeToJson: false) bool get restricted;
 /// Create a copy of PackDto
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -30,16 +30,16 @@ $PackDtoCopyWith<PackDto> get copyWith => _$PackDtoCopyWithImpl<PackDto>(this as
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is PackDto&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.flashcardsCount, flashcardsCount) || other.flashcardsCount == flashcardsCount)&&const DeepCollectionEquality().equals(other.tagCounts, tagCounts)&&const DeepCollectionEquality().equals(other.tags, tags)&&(identical(other.isPaid, isPaid) || other.isPaid == isPaid)&&const DeepCollectionEquality().equals(other.allowedEmails, allowedEmails));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is PackDto&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.flashcardsCount, flashcardsCount) || other.flashcardsCount == flashcardsCount)&&const DeepCollectionEquality().equals(other.tagCounts, tagCounts)&&const DeepCollectionEquality().equals(other.tags, tags)&&(identical(other.isPaid, isPaid) || other.isPaid == isPaid)&&(identical(other.restricted, restricted) || other.restricted == restricted));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,name,flashcardsCount,const DeepCollectionEquality().hash(tagCounts),const DeepCollectionEquality().hash(tags),isPaid,const DeepCollectionEquality().hash(allowedEmails));
+int get hashCode => Object.hash(runtimeType,id,name,flashcardsCount,const DeepCollectionEquality().hash(tagCounts),const DeepCollectionEquality().hash(tags),isPaid,restricted);
 
 @override
 String toString() {
-  return 'PackDto(id: $id, name: $name, flashcardsCount: $flashcardsCount, tagCounts: $tagCounts, tags: $tags, isPaid: $isPaid, allowedEmails: $allowedEmails)';
+  return 'PackDto(id: $id, name: $name, flashcardsCount: $flashcardsCount, tagCounts: $tagCounts, tags: $tags, isPaid: $isPaid, restricted: $restricted)';
 }
 
 
@@ -50,7 +50,7 @@ abstract mixin class $PackDtoCopyWith<$Res>  {
   factory $PackDtoCopyWith(PackDto value, $Res Function(PackDto) _then) = _$PackDtoCopyWithImpl;
 @useResult
 $Res call({
-@JsonKey(includeToJson: false) String? id, String name, int flashcardsCount, Map<String, int> tagCounts, List<String> tags, bool isPaid,@JsonKey(includeToJson: false) List<String> allowedEmails
+@JsonKey(includeToJson: false) String? id, String name, int flashcardsCount, Map<String, int> tagCounts, List<String> tags, bool isPaid,@JsonKey(includeToJson: false) bool restricted
 });
 
 
@@ -67,7 +67,7 @@ class _$PackDtoCopyWithImpl<$Res>
 
 /// Create a copy of PackDto
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = freezed,Object? name = null,Object? flashcardsCount = null,Object? tagCounts = null,Object? tags = null,Object? isPaid = null,Object? allowedEmails = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = freezed,Object? name = null,Object? flashcardsCount = null,Object? tagCounts = null,Object? tags = null,Object? isPaid = null,Object? restricted = null,}) {
   return _then(_self.copyWith(
 id: freezed == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String?,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
@@ -75,8 +75,8 @@ as String,flashcardsCount: null == flashcardsCount ? _self.flashcardsCount : fla
 as int,tagCounts: null == tagCounts ? _self.tagCounts : tagCounts // ignore: cast_nullable_to_non_nullable
 as Map<String, int>,tags: null == tags ? _self.tags : tags // ignore: cast_nullable_to_non_nullable
 as List<String>,isPaid: null == isPaid ? _self.isPaid : isPaid // ignore: cast_nullable_to_non_nullable
-as bool,allowedEmails: null == allowedEmails ? _self.allowedEmails : allowedEmails // ignore: cast_nullable_to_non_nullable
-as List<String>,
+as bool,restricted: null == restricted ? _self.restricted : restricted // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 
@@ -161,10 +161,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function(@JsonKey(includeToJson: false)  String? id,  String name,  int flashcardsCount,  Map<String, int> tagCounts,  List<String> tags,  bool isPaid, @JsonKey(includeToJson: false)  List<String> allowedEmails)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function(@JsonKey(includeToJson: false)  String? id,  String name,  int flashcardsCount,  Map<String, int> tagCounts,  List<String> tags,  bool isPaid, @JsonKey(includeToJson: false)  bool restricted)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _PackDto() when $default != null:
-return $default(_that.id,_that.name,_that.flashcardsCount,_that.tagCounts,_that.tags,_that.isPaid,_that.allowedEmails);case _:
+return $default(_that.id,_that.name,_that.flashcardsCount,_that.tagCounts,_that.tags,_that.isPaid,_that.restricted);case _:
   return orElse();
 
 }
@@ -182,10 +182,10 @@ return $default(_that.id,_that.name,_that.flashcardsCount,_that.tagCounts,_that.
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function(@JsonKey(includeToJson: false)  String? id,  String name,  int flashcardsCount,  Map<String, int> tagCounts,  List<String> tags,  bool isPaid, @JsonKey(includeToJson: false)  List<String> allowedEmails)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function(@JsonKey(includeToJson: false)  String? id,  String name,  int flashcardsCount,  Map<String, int> tagCounts,  List<String> tags,  bool isPaid, @JsonKey(includeToJson: false)  bool restricted)  $default,) {final _that = this;
 switch (_that) {
 case _PackDto():
-return $default(_that.id,_that.name,_that.flashcardsCount,_that.tagCounts,_that.tags,_that.isPaid,_that.allowedEmails);case _:
+return $default(_that.id,_that.name,_that.flashcardsCount,_that.tagCounts,_that.tags,_that.isPaid,_that.restricted);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -202,10 +202,10 @@ return $default(_that.id,_that.name,_that.flashcardsCount,_that.tagCounts,_that.
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function(@JsonKey(includeToJson: false)  String? id,  String name,  int flashcardsCount,  Map<String, int> tagCounts,  List<String> tags,  bool isPaid, @JsonKey(includeToJson: false)  List<String> allowedEmails)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function(@JsonKey(includeToJson: false)  String? id,  String name,  int flashcardsCount,  Map<String, int> tagCounts,  List<String> tags,  bool isPaid, @JsonKey(includeToJson: false)  bool restricted)?  $default,) {final _that = this;
 switch (_that) {
 case _PackDto() when $default != null:
-return $default(_that.id,_that.name,_that.flashcardsCount,_that.tagCounts,_that.tags,_that.isPaid,_that.allowedEmails);case _:
+return $default(_that.id,_that.name,_that.flashcardsCount,_that.tagCounts,_that.tags,_that.isPaid,_that.restricted);case _:
   return null;
 
 }
@@ -217,7 +217,7 @@ return $default(_that.id,_that.name,_that.flashcardsCount,_that.tagCounts,_that.
 @JsonSerializable()
 
 class _PackDto implements PackDto {
-  const _PackDto({@JsonKey(includeToJson: false) required this.id, required this.name, required this.flashcardsCount, final  Map<String, int> tagCounts = const {}, final  List<String> tags = const [], this.isPaid = false, @JsonKey(includeToJson: false) final  List<String> allowedEmails = const []}): _tagCounts = tagCounts,_tags = tags,_allowedEmails = allowedEmails;
+  const _PackDto({@JsonKey(includeToJson: false) required this.id, required this.name, required this.flashcardsCount, final  Map<String, int> tagCounts = const {}, final  List<String> tags = const [], this.isPaid = false, @JsonKey(includeToJson: false) this.restricted = false}): _tagCounts = tagCounts,_tags = tags;
   factory _PackDto.fromJson(Map<String, dynamic> json) => _$PackDtoFromJson(json);
 
 @override@JsonKey(includeToJson: false) final  String? id;
@@ -238,17 +238,9 @@ class _PackDto implements PackDto {
 }
 
 @override@JsonKey() final  bool isPaid;
-/// When not empty, only these users (and admins) see the pack. Set by
-/// the setPackAccess function only.
- final  List<String> _allowedEmails;
-/// When not empty, only these users (and admins) see the pack. Set by
-/// the setPackAccess function only.
-@override@JsonKey(includeToJson: false) List<String> get allowedEmails {
-  if (_allowedEmails is EqualUnmodifiableListView) return _allowedEmails;
-  // ignore: implicit_dynamic_type
-  return EqualUnmodifiableListView(_allowedEmails);
-}
-
+/// Only some users (and admins) may see the pack. Set by the
+/// setPackAccess function only.
+@override@JsonKey(includeToJson: false) final  bool restricted;
 
 /// Create a copy of PackDto
 /// with the given fields replaced by the non-null parameter values.
@@ -263,16 +255,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _PackDto&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.flashcardsCount, flashcardsCount) || other.flashcardsCount == flashcardsCount)&&const DeepCollectionEquality().equals(other._tagCounts, _tagCounts)&&const DeepCollectionEquality().equals(other._tags, _tags)&&(identical(other.isPaid, isPaid) || other.isPaid == isPaid)&&const DeepCollectionEquality().equals(other._allowedEmails, _allowedEmails));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _PackDto&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.flashcardsCount, flashcardsCount) || other.flashcardsCount == flashcardsCount)&&const DeepCollectionEquality().equals(other._tagCounts, _tagCounts)&&const DeepCollectionEquality().equals(other._tags, _tags)&&(identical(other.isPaid, isPaid) || other.isPaid == isPaid)&&(identical(other.restricted, restricted) || other.restricted == restricted));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,name,flashcardsCount,const DeepCollectionEquality().hash(_tagCounts),const DeepCollectionEquality().hash(_tags),isPaid,const DeepCollectionEquality().hash(_allowedEmails));
+int get hashCode => Object.hash(runtimeType,id,name,flashcardsCount,const DeepCollectionEquality().hash(_tagCounts),const DeepCollectionEquality().hash(_tags),isPaid,restricted);
 
 @override
 String toString() {
-  return 'PackDto(id: $id, name: $name, flashcardsCount: $flashcardsCount, tagCounts: $tagCounts, tags: $tags, isPaid: $isPaid, allowedEmails: $allowedEmails)';
+  return 'PackDto(id: $id, name: $name, flashcardsCount: $flashcardsCount, tagCounts: $tagCounts, tags: $tags, isPaid: $isPaid, restricted: $restricted)';
 }
 
 
@@ -283,7 +275,7 @@ abstract mixin class _$PackDtoCopyWith<$Res> implements $PackDtoCopyWith<$Res> {
   factory _$PackDtoCopyWith(_PackDto value, $Res Function(_PackDto) _then) = __$PackDtoCopyWithImpl;
 @override @useResult
 $Res call({
-@JsonKey(includeToJson: false) String? id, String name, int flashcardsCount, Map<String, int> tagCounts, List<String> tags, bool isPaid,@JsonKey(includeToJson: false) List<String> allowedEmails
+@JsonKey(includeToJson: false) String? id, String name, int flashcardsCount, Map<String, int> tagCounts, List<String> tags, bool isPaid,@JsonKey(includeToJson: false) bool restricted
 });
 
 
@@ -300,7 +292,7 @@ class __$PackDtoCopyWithImpl<$Res>
 
 /// Create a copy of PackDto
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = freezed,Object? name = null,Object? flashcardsCount = null,Object? tagCounts = null,Object? tags = null,Object? isPaid = null,Object? allowedEmails = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = freezed,Object? name = null,Object? flashcardsCount = null,Object? tagCounts = null,Object? tags = null,Object? isPaid = null,Object? restricted = null,}) {
   return _then(_PackDto(
 id: freezed == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String?,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
@@ -308,8 +300,8 @@ as String,flashcardsCount: null == flashcardsCount ? _self.flashcardsCount : fla
 as int,tagCounts: null == tagCounts ? _self._tagCounts : tagCounts // ignore: cast_nullable_to_non_nullable
 as Map<String, int>,tags: null == tags ? _self._tags : tags // ignore: cast_nullable_to_non_nullable
 as List<String>,isPaid: null == isPaid ? _self.isPaid : isPaid // ignore: cast_nullable_to_non_nullable
-as bool,allowedEmails: null == allowedEmails ? _self._allowedEmails : allowedEmails // ignore: cast_nullable_to_non_nullable
-as List<String>,
+as bool,restricted: null == restricted ? _self.restricted : restricted // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 

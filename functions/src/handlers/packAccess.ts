@@ -1,15 +1,27 @@
 import {logger} from "firebase-functions";
 import {CallableRequest, HttpsError} from "firebase-functions/v2/https";
 import {FieldValue, getFirestore} from "firebase-admin/firestore";
-import {checkIfAdminAndThrow} from "../utils/utils";
+import {checkAuthAndThrow, checkIfAdminAndThrow} from "../utils/utils";
+import {hasCards} from "../utils/claimsUtils";
+
+/*
+ * A pack can be limited to some users:
+ * - packs/{packId}.restricted = true marks it (readable by everyone, so it
+ *   holds no emails),
+ * - pack_access/{packId}.emails is the list (admins only),
+ * - pack_access_by_email/{email}.packIds lets a user (and the security
+ *   rules) check which limited packs that email may open.
+ */
 
 /** Most emails one pack can be limited to. */
 const maxEmails = 2000;
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+type Token = {email?: string; roles?: unknown};
+
 /**
  * Cleans the email list sent by the admin: trimmed, lower case, no
- * duplicates.
+ * duplicates, sorted.
  * @param {unknown} value The emails.
  * @return {string[]} The cleaned list.
  */
@@ -22,63 +34,170 @@ export function cleanEmails(value: unknown): string[] {
     if (typeof item !== "string") continue;
     const email = item.trim().toLowerCase();
     if (!email) continue;
-    if (!emailPattern.test(email)) {
+    if (!emailPattern.test(email) || email.includes("/")) {
       throw new HttpsError("invalid-argument", `"${item}" is not an email.`);
     }
     emails.add(email);
   }
   if (emails.size > maxEmails) {
     throw new HttpsError(
-      "invalid-argument", `A pack can be limited to at most ${maxEmails} emails.`);
+      "invalid-argument",
+      `A pack can be limited to at most ${maxEmails} emails.`,
+    );
   }
   return [...emails].sort();
 }
 
 /**
- * Whether the caller may use a pack: packs without a list are for everyone,
- * admins see every pack.
+ * Whether the caller may use a pack. Packs not limited are for everyone,
+ * admins may use every pack.
+ * @param {string} packId The pack id.
  * @param {FirebaseFirestore.DocumentData | undefined} pack The pack data.
- * @param {object} token The caller's auth token.
- * @return {boolean} True when allowed.
+ * @param {Token} token The caller's auth token.
+ * @return {Promise<boolean>} True when allowed.
  */
-export function canUsePack(
+export async function canUsePack(
+  packId: string,
   pack: FirebaseFirestore.DocumentData | undefined,
-  token: {email?: string; roles?: unknown},
-): boolean {
-  const allowed = pack?.allowedEmails;
-  if (!Array.isArray(allowed) || allowed.length === 0) return true;
+  token: Token,
+): Promise<boolean> {
+  if (pack?.restricted !== true) return true;
   const roles = Array.isArray(token.roles) ? token.roles : [];
   if (roles.includes("admin")) return true;
   const email = (token.email ?? "").toLowerCase();
-  return email !== "" && allowed.includes(email);
+  if (!email) return false;
+  const access = await getFirestore()
+    .collection("pack_access").doc(packId).get();
+  const emails = access.data()?.emails;
+  return Array.isArray(emails) && emails.includes(email);
 }
 
 /**
  * Limits a pack to the given emails, or opens it to everyone when the list
  * is empty. Admins only.
  * @param {CallableRequest} request Has packId and emails.
- * @return {Promise<{allowedEmails: string[]}>} The saved list.
+ * @return {Promise<object>} The saved list.
  */
 export async function setPackAccessHandler(request: CallableRequest) {
   try {
     checkIfAdminAndThrow(request.auth);
     const packId = request.data?.packId;
-    if (typeof packId !== "string" || !packId) {
+    if (typeof packId !== "string" || !packId || packId.includes("/")) {
       throw new HttpsError("invalid-argument", "Missing packId.");
     }
     const emails = cleanEmails(request.data?.emails);
-    const ref = getFirestore().collection("packs").doc(packId);
-    if (!(await ref.get()).exists) {
-      throw new HttpsError("not-found", "This pack no longer exists.");
-    }
-    await ref.update({
-      allowedEmails: emails.length ? emails : FieldValue.delete(),
+    const db = getFirestore();
+    const packRef = db.collection("packs").doc(packId);
+    const accessRef = db.collection("pack_access").doc(packId);
+    const byEmail = (email: string) =>
+      db.collection("pack_access_by_email").doc(email);
+
+    await db.runTransaction(async (tx) => {
+      const [pack, access] = await Promise.all([tx.get(packRef), tx.get(accessRef)]);
+      if (!pack.exists) {
+        throw new HttpsError("not-found", "This pack no longer exists.");
+      }
+      const before: string[] = Array.isArray(access.data()?.emails) ?
+        access.data()!.emails : [];
+      const removed = before.filter((e) => !emails.includes(e));
+      const added = emails.filter((e) => !before.includes(e));
+
+      for (const email of removed) {
+        tx.set(byEmail(email),
+          {packIds: FieldValue.arrayRemove(packId)}, {merge: true});
+      }
+      for (const email of added) {
+        tx.set(byEmail(email),
+          {packIds: FieldValue.arrayUnion(packId)}, {merge: true});
+      }
+      if (emails.length) {
+        tx.set(accessRef, {emails});
+        tx.update(packRef, {restricted: true});
+      } else {
+        tx.delete(accessRef);
+        tx.update(packRef, {restricted: FieldValue.delete()});
+      }
     });
     logger.info("Pack access changed", {packId, count: emails.length});
     return {allowedEmails: emails};
   } catch (error: any) {
     if (error instanceof HttpsError) throw error;
     logger.error("setPackAccess failed", {error});
+    throw new HttpsError("internal", error.message || "Internal error");
+  }
+}
+
+/**
+ * The emails a pack is limited to (empty when it is for everyone).
+ * Admins only.
+ * @param {CallableRequest} request Has packId.
+ * @return {Promise<object>} The list.
+ */
+export async function getPackAccessHandler(request: CallableRequest) {
+  try {
+    checkIfAdminAndThrow(request.auth);
+    const packId = request.data?.packId;
+    if (typeof packId !== "string" || !packId || packId.includes("/")) {
+      throw new HttpsError("invalid-argument", "Missing packId.");
+    }
+    const access = await getFirestore()
+      .collection("pack_access").doc(packId).get();
+    const emails = access.data()?.emails;
+    return {allowedEmails: Array.isArray(emails) ? emails : []};
+  } catch (error: any) {
+    if (error instanceof HttpsError) throw error;
+    logger.error("getPackAccess failed", {error});
+    throw new HttpsError("internal", error.message || "Internal error");
+  }
+}
+
+/**
+ * Every flashcard the caller may search: premium cards only with a
+ * subscription, limited packs only for their users. Flashcards can no
+ * longer be listed directly from the app (security rules), so search uses
+ * this.
+ * @param {CallableRequest} request No data needed.
+ * @return {Promise<object>} The cards' search fields.
+ */
+export async function listSearchableFlashcardsHandler(
+  request: CallableRequest,
+) {
+  try {
+    checkAuthAndThrow(request.auth);
+    const token = request.auth!.token as Token;
+    const roles = Array.isArray(token.roles) ? token.roles : [];
+    const isAdmin = roles.includes("admin");
+    const paidAllowed = isAdmin || hasCards(token as any);
+    const db = getFirestore();
+
+    const packs = await db.collection("packs").get();
+    const hidden = new Set<string>();
+    for (const pack of packs.docs) {
+      if (!(await canUsePack(pack.id, pack.data(), token))) {
+        hidden.add(pack.id);
+      }
+    }
+
+    const cards = await db.collection("flashcards")
+      .select("question", "answer", "isPaid", "tags", "packId")
+      .get();
+    const result = [];
+    for (const doc of cards.docs) {
+      const data = doc.data();
+      if (hidden.has(data.packId)) continue;
+      if (data.isPaid === true && !paidAllowed) continue;
+      result.push({
+        id: doc.id,
+        question: data.question ?? "",
+        answer: data.answer ?? "",
+        isPaid: data.isPaid === true,
+        tags: Array.isArray(data.tags) ? data.tags : [],
+      });
+    }
+    return {flashcards: result};
+  } catch (error: any) {
+    if (error instanceof HttpsError) throw error;
+    logger.error("listSearchableFlashcards failed", {error});
     throw new HttpsError("internal", error.message || "Internal error");
   }
 }

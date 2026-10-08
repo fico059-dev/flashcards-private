@@ -10,6 +10,11 @@ import 'package:provider/provider.dart';
 
 class _FakePacks implements PackRepository {
   List<String>? saved;
+  List<String> current = const [];
+
+  @override
+  Future<Result<List<String>>> getPackAccess(String packId) async =>
+      Result.ok(current);
 
   @override
   Future<Result<List<String>>> setPackAccess(
@@ -26,29 +31,19 @@ class _FakePacks implements PackRepository {
 
 void main() {
   group('PackVisibility', () {
-    test('packs without a list are for everyone', () {
-      const user = PackVisibility(email: 'a@x.com', isAdmin: false);
-      expect(user.allows(const []), isTrue);
+    test('packs not limited are for everyone', () {
+      const user = PackVisibility(isAdmin: false, openedPackIds: {});
+      expect(user.allows('p', restricted: false), isTrue);
     });
 
-    test('limited packs: only listed emails, any case, and admins', () {
-      const list = ['a@x.com'];
-      expect(
-        const PackVisibility(email: 'A@X.com', isAdmin: false).allows(list),
-        isTrue,
-      );
-      expect(
-        const PackVisibility(email: 'b@x.com', isAdmin: false).allows(list),
-        isFalse,
-      );
-      expect(
-        const PackVisibility(email: null, isAdmin: false).allows(list),
-        isFalse,
-      );
-      expect(
-        const PackVisibility(email: 'b@x.com', isAdmin: true).allows(list),
-        isTrue,
-      );
+    test('limited packs: only opened ones, and admins see all', () {
+      const ali = PackVisibility(isAdmin: false, openedPackIds: {'p'});
+      const bob = PackVisibility(isAdmin: false, openedPackIds: {});
+      const admin = PackVisibility(isAdmin: true, openedPackIds: {});
+      expect(ali.allows('p', restricted: true), isTrue);
+      expect(ali.allows('q', restricted: true), isFalse);
+      expect(bob.allows('p', restricted: true), isFalse);
+      expect(admin.allows('p', restricted: true), isTrue);
     });
   });
 
@@ -60,9 +55,7 @@ void main() {
     expect(invalid, ['bad-email']);
   });
 
-  testWidgets('admin limits a pack to pasted emails and saves', (
-    tester,
-  ) async {
+  testWidgets('admin limits a pack to pasted emails and saves', (tester) async {
     final repo = _FakePacks();
     await tester.pumpWidget(
       Provider<PackRepository>.value(
@@ -101,7 +94,7 @@ void main() {
   });
 
   testWidgets('choosing Everyone opens the pack again', (tester) async {
-    final repo = _FakePacks();
+    final repo = _FakePacks()..current = ['ali@mail.com'];
     await tester.pumpWidget(
       Provider<PackRepository>.value(
         value: repo,
@@ -113,12 +106,14 @@ void main() {
               packName: 'Private pack',
               flashcardsCount: 10,
               isPaid: false,
-              allowedEmails: ['ali@mail.com'],
+              restricted: true,
             ),
           ),
         ),
       ),
     );
+    await tester.pumpAndSettle();
+    expect(find.text('ali@mail.com'), findsOneWidget);
     await tester.tap(find.text('Everyone'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Save'));

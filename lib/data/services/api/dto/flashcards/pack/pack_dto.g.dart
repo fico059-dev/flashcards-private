@@ -19,11 +19,7 @@ _PackDto _$PackDtoFromJson(Map<String, dynamic> json) => _PackDto(
       (json['tags'] as List<dynamic>?)?.map((e) => e as String).toList() ??
       const [],
   isPaid: json['isPaid'] as bool? ?? false,
-  allowedEmails:
-      (json['allowedEmails'] as List<dynamic>?)
-          ?.map((e) => e as String)
-          .toList() ??
-      const [],
+  restricted: json['restricted'] as bool? ?? false,
 );
 
 Map<String, dynamic> _$PackDtoToJson(_PackDto instance) => <String, dynamic>{

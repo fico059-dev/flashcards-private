@@ -60,7 +60,9 @@ class PackService {
                 .get();
         for (final doc in page.docs) {
           final dto = PackDto.fromJsonWithId(doc.data(), doc.id);
-          if (visibility.allows(dto.allowedEmails)) dtoList.add(dto);
+          if (visibility.allows(dto.id!, restricted: dto.restricted)) {
+            dtoList.add(dto);
+          }
         }
         if (page.docs.isNotEmpty) last = page.docs.last;
         if (page.docs.length < limit || dtoList.length >= limit) break;
@@ -79,7 +81,10 @@ class PackService {
         return Result.error(Exception("Pack doesn't exist"));
       }
       var dto = PackDto.fromJsonWithId(snapshot.data()!, snapshot.id);
-      if (!(await PackVisibility.current()).allows(dto.allowedEmails)) {
+      if (!(await PackVisibility.current()).allows(
+        dto.id!,
+        restricted: dto.restricted,
+      )) {
         return Result.error(
           Exception("This pack isn't available for your account."),
         );
@@ -121,6 +126,14 @@ class PackService {
   ) async {
     try {
       return Result.ok(await _functions.setPackAccess(packId, emails));
+    } on Exception catch (error) {
+      return Result.error(error);
+    }
+  }
+
+  Future<Result<List<String>>> getPackAccess(String packId) async {
+    try {
+      return Result.ok(await _functions.getPackAccess(packId));
     } on Exception catch (error) {
       return Result.error(error);
     }

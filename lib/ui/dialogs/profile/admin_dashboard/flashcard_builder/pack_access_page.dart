@@ -46,10 +46,41 @@ class PackAccessPage extends StatefulWidget {
 
 class _PackAccessPageState extends State<PackAccessPage> {
   final _input = TextEditingController();
-  late final List<String> _emails = [...widget.pack.allowedEmails];
-  late bool _limited = widget.pack.allowedEmails.isNotEmpty;
+  final List<String> _emails = [];
+  late bool _limited = widget.pack.restricted;
   String _search = '';
   bool _saving = false;
+  bool _loading = true;
+  Object? _loadError;
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    setState(() {
+      _loading = true;
+      _loadError = null;
+    });
+    final result = await context.read<PackRepository>().getPackAccess(
+      widget.pack.packId,
+    );
+    if (!mounted) return;
+    setState(() {
+      _loading = false;
+      switch (result) {
+        case Ok<List<String>>(:final value):
+          _emails
+            ..clear()
+            ..addAll(value);
+          if (value.isNotEmpty) _limited = true;
+        case Error<List<String>>(:final error):
+          _loadError = error;
+      }
+    });
+  }
 
   @override
   void dispose() {
@@ -133,7 +164,9 @@ class _PackAccessPageState extends State<PackAccessPage> {
           Padding(
             padding: const EdgeInsets.only(right: 8),
             child: FilledButton(
-              onPressed: _saving ? null : _save,
+              onPressed: _saving || _loading || _loadError != null
+                  ? null
+                  : _save,
               child: _saving
                   ? const SizedBox.square(
                       dimension: 18,
