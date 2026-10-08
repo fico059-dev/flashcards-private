@@ -52,12 +52,15 @@ class FcpRepository {
        _flashcardService = flashcardService,
        _packsCache = packCache;
 
+  /// Cards for one study session of a pack. [subPacks] are the packs shown
+  /// inside it: their cards are studied together with the pack's own.
   Future<Result<List<StatRecord>>> loadDataForStandardTest({
     required String packId,
     required bool isPaid,
     required int target,
     required double newCardsPercentage,
     required hasCards,
+    List<Pack> subPacks = const [],
   }) async {
     if (target < 0 || newCardsPercentage > 1 || newCardsPercentage < 0) {
       throw Exception("Invalid inputs in loadDataForStandardTest");
@@ -65,13 +68,46 @@ class FcpRepository {
 
     final uid = _getUid();
 
-    final flashcardIdsResult = await _packService.getFlashcardIds(packId);
-    switch (flashcardIdsResult) {
-      case Error<FlashcardIdsDto>(:final error):
-        return Result.error(error);
-      case Ok<FlashcardIdsDto>():
+    // Premium sub-packs are left out without a subscription.
+    final studyPacks = <(String, bool)>[
+      (packId, isPaid),
+      for (final sub in subPacks)
+        if (sub.id != packId && (!sub.isPaid || hasCards == true))
+          (sub.id, sub.isPaid),
+    ];
+
+    final pieces = await Future.wait(
+      studyPacks.map(
+        (pack) => _loadPackPieces(
+          uid: uid,
+          packId: pack.$1,
+          target: target,
+          hasCards: hasCards,
+        ),
+      ),
+    );
+
+    final packFlashcardIds = <String>[];
+    final packOfCard = <String, (String, bool)>{};
+    final seenIds = <String>{};
+    final dueRecords = <StatRecord>[];
+    for (var i = 0; i < pieces.length; i++) {
+      final piece = pieces[i];
+      switch (piece) {
+        case Error<_PackPieces>(:final error):
+          return Result.error(error);
+        case Ok<_PackPieces>(:final value):
+          for (final id in value.flashcardIds) {
+            if (packOfCard.containsKey(id)) continue;
+            packOfCard[id] = studyPacks[i];
+            packFlashcardIds.add(id);
+          }
+          seenIds.addAll(value.seenIds);
+          dueRecords.addAll(value.due);
+      }
     }
-    final packFlashcardIds = flashcardIdsResult.value.flashcardIds;
+    // Most overdue first, across all the packs.
+    dueRecords.sort((a, b) => a.card.due.compareTo(b.card.due));
 
     final all = packFlashcardIds.length;
     var normalizedTarget = target;
@@ -80,47 +116,9 @@ class FcpRepository {
     if (normalizedTarget == 0) {
       return Result.ok([]);
     }
-    // fetch target amount of due cards
-    final recordResult = await _fcpService.getDueCardsForPack(
-      uid,
-      packId,
-      normalizedTarget,
-      hasCards,
-    );
-    switch (recordResult) {
-      case Error<List<FcpDataDto>>(:final error):
-        return Result.error(error);
-      case Ok<List<FcpDataDto>>():
-    }
-    final dueRecords = recordResult.value.map(
-      (dto) => dto.toStatRecordDomain(),
-    );
 
-    // count how many fcp data documents we have for this flashcard_builder and this profile
-    // that represents the amount of flashcards user saw from that flashcard_builder
-    final countResult = await _fcpService.countDocumentsForProfileAndPack(
-      uid,
-      packId,
-      hasCards,
-    );
-    switch (countResult) {
-      case Error<int>(:final error):
-        return Result.error(error);
-      case Ok<int>():
-    }
-    final seenIds = await _seenFlashcardIds(
-      uid: uid,
-      packId: packId,
-      serverCount: countResult.value,
-      hasCards: hasCards,
-    );
-    switch (seenIds) {
-      case Error<Set<String>>(:final error):
-        return Result.error(error);
-      case Ok<Set<String>>():
-    }
     final unseenCount = packFlashcardIds
-        .where((id) => !seenIds.value.contains(id))
+        .where((id) => !seenIds.contains(id))
         .length;
     // Progress of cards removed from the pack can still be due, so "seen"
     // is never less than the due cards found.
@@ -142,24 +140,83 @@ class FcpRepository {
     // New cards are picked at random from the cards not studied yet, so
     // the student doesn't go through the pack in the order it was made.
     if (newCount > 0) {
-      final newFcIds = pickNewCardIds(
-        packFlashcardIds,
-        seenIds.value,
-        newCount,
-      );
+      final newFcIds = pickNewCardIds(packFlashcardIds, seenIds, newCount);
       resultList.addAll(
-        newFcIds.map(
-          (fcId) => StatRecord(
-            packId: packId,
+        newFcIds.map((fcId) {
+          final (cardPackId, cardIsPaid) = packOfCard[fcId]!;
+          return StatRecord(
+            packId: cardPackId,
             flashcardId: fcId,
             card: Card(),
-            isPaid: isPaid,
-          ),
-        ),
+            isPaid: cardIsPaid,
+          );
+        }),
       );
     }
 
     return Result.ok(resultList);
+  }
+
+  /// One pack's card ids, its due cards (at most [target]) and the cards
+  /// the user has studied.
+  Future<Result<_PackPieces>> _loadPackPieces({
+    required String uid,
+    required String packId,
+    required int target,
+    required hasCards,
+  }) async {
+    final flashcardIdsResult = await _packService.getFlashcardIds(packId);
+    switch (flashcardIdsResult) {
+      case Error<FlashcardIdsDto>(:final error):
+        return Result.error(error);
+      case Ok<FlashcardIdsDto>():
+    }
+    final ids = flashcardIdsResult.value.flashcardIds;
+    if (ids.isEmpty || target == 0) {
+      return Result.ok(_PackPieces(ids, const [], const {}));
+    }
+
+    final results = await Future.wait([
+      _fcpService.getDueCardsForPack(
+        uid,
+        packId,
+        target > ids.length ? ids.length : target,
+        hasCards,
+      ),
+      _fcpService.countDocumentsForProfileAndPack(uid, packId, hasCards),
+    ]);
+    final dueResult = results[0] as Result<List<FcpDataDto>>;
+    final countResult = results[1] as Result<int>;
+    switch (dueResult) {
+      case Error<List<FcpDataDto>>(:final error):
+        return Result.error(error);
+      case Ok<List<FcpDataDto>>():
+    }
+    switch (countResult) {
+      case Error<int>(:final error):
+        return Result.error(error);
+      case Ok<int>():
+    }
+
+    final seenIds = await _seenFlashcardIds(
+      uid: uid,
+      packId: packId,
+      serverCount: countResult.value,
+      hasCards: hasCards,
+    );
+    switch (seenIds) {
+      case Error<Set<String>>(:final error):
+        return Result.error(error);
+      case Ok<Set<String>>():
+    }
+
+    return Result.ok(
+      _PackPieces(
+        ids,
+        dueResult.value.map((dto) => dto.toStatRecordDomain()).toList(),
+        seenIds.value,
+      ),
+    );
   }
 
   Future<Result<List<StatRecord>>> loadDataForBookmarksTest(
@@ -718,4 +775,12 @@ class FcpRepository {
       },
     );
   }
+}
+
+class _PackPieces {
+  final List<String> flashcardIds;
+  final List<StatRecord> due;
+  final Set<String> seenIds;
+
+  const _PackPieces(this.flashcardIds, this.due, this.seenIds);
 }

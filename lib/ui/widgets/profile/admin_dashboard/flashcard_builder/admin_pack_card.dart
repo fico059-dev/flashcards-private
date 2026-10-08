@@ -24,6 +24,7 @@ class AdminPackCard extends StatelessWidget {
           child: Icon(Icons.folder),
         ),
         title: Text(pack.packName),
+        subtitle: pack.parentId == null ? null : const Text("Sub-pack"),
         trailing: pack.restricted
             ? const Tooltip(
                 message: "Only chosen users",

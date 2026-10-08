@@ -11,11 +11,19 @@ class PackUiCard extends StatelessWidget {
   final VoidCallback? onTap;
   final bool? hasCards;
 
+  /// Shown before the name, e.g. the button that opens the sub-packs.
+  final Widget? leading;
+
+  /// Shown under the name, e.g. how many sub-packs there are.
+  final String? subtitle;
+
   const PackUiCard({
     super.key,
     required this.pack,
     this.onTap,
     required this.hasCards,
+    this.leading,
+    this.subtitle,
   });
 
   @override
@@ -37,10 +45,28 @@ class PackUiCard extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    pack.name,
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w600,
+                  Expanded(
+                    child: Row(
+                      children: [
+                        ?leading,
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                pack.name,
+                                style: Theme.of(context).textTheme.titleMedium
+                                    ?.copyWith(fontWeight: FontWeight.w600),
+                              ),
+                              if (subtitle != null)
+                                Text(
+                                  subtitle!,
+                                  style: Theme.of(context).textTheme.bodySmall,
+                                ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                   Row(

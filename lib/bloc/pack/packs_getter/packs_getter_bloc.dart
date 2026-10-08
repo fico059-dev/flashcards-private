@@ -10,7 +10,9 @@ import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 
 class PacksGetterBloc extends Bloc<PacksGetterEvent, PacksGetterState> {
   final PackRepository _packRepository;
-  final int _pageSize = 10;
+  // Large pages: sub-packs are shown inside their pack, so the whole list
+  // is loaded.
+  final int _pageSize = 50;
 
   PacksGetterBloc({required PackRepository packRepository})
     : _packRepository = packRepository,
@@ -133,8 +135,8 @@ class PacksGetterBloc extends Bloc<PacksGetterEvent, PacksGetterState> {
     );
 
     if (state.hasCards == null) {
-        final claims = await UserClaims.current();
-        emit(state.copyWith(hasCards: claims.hasCards));
+      final claims = await UserClaims.current();
+      emit(state.copyWith(hasCards: claims.hasCards));
     }
 
     final newKey = getNewKey(pagingState.keys);

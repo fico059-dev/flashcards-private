@@ -82,11 +82,21 @@ class TopRowWithFlashcardBloc extends StatelessWidget {
 
                 PopupMenuButtonTopRow(
                   onIgnore: onIgnore,
-                  onReport: () => onReport(
-                    packName: state.pack!.name,
-                    flashcard: state.flashcard!,
-                    packId: state.pack!.id,
-                  ),
+                  onReport: () {
+                    // In a pack with sub-packs, the card may be from one
+                    // of the sub-packs.
+                    final pack = state.pack!;
+                    final cardPackId = state.flashcard!.packId;
+                    final cardPack = [
+                      pack,
+                      ...pack.subPacks,
+                    ].firstWhere((p) => p.id == cardPackId, orElse: () => pack);
+                    onReport(
+                      packName: cardPack.name,
+                      flashcard: state.flashcard!,
+                      packId: cardPack.id,
+                    );
+                  },
                   enabled: enabled,
                 ),
               ],

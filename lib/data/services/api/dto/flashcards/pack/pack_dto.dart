@@ -19,6 +19,10 @@ abstract class PackDto with _$PackDto {
     /// Only some users (and admins) may see the pack. Set by the
     /// setPackAccess function only.
     @JsonKey(includeToJson: false) @Default(false) bool restricted,
+
+    /// The pack this one is shown inside (a sub-pack, like Anki subdecks).
+    /// Set by admins with setPackParent only.
+    @JsonKey(includeToJson: false) String? parentId,
   }) = _PackDto;
 
   factory PackDto.fromJson(JsonMap json) => _$PackDtoFromJson(json);
@@ -48,6 +52,7 @@ extension PackDtoX on PackDto {
     learningCount: learningCount,
     tagCounts: tagCounts,
     isPaid: isPaid ?? false,
+    parentId: parentId,
   );
 
   AdminPack toAdminPackDomain() => AdminPack(
@@ -57,5 +62,6 @@ extension PackDtoX on PackDto {
     flashcardsCount: flashcardsCount,
     tagCounts: tagCounts,
     restricted: restricted,
+    parentId: parentId,
   );
 }

@@ -14,6 +14,7 @@ import 'package:flashcards/domain/models/flashcards/admin_pack/admin_pack.dart';
 import 'package:flashcards/domain/models/flashcards/pack/pack.dart';
 import 'package:flashcards/domain/models/flashcards/simple_pack/simple_pack.dart';
 import 'package:flashcards/utils/result.dart';
+import 'package:flashcards/utils/typedefs.dart';
 
 enum CountType { due, learning, seen }
 
@@ -379,6 +380,38 @@ class PackRepository {
       _adminPacksCache.updateItem(
         id: packId,
         copyWith: (item) => item.copyWith(restricted: value.isNotEmpty),
+      );
+    }
+    return result;
+  }
+
+  /// Every pack, for admins (e.g. to choose a parent pack).
+  Future<Result<List<AdminPack>>> getAllAdminPacks() async {
+    final packs = <AdminPack>[];
+    DocumentSnapshot<JsonMap>? last;
+    while (true) {
+      final result = await _packService.getDocsPagination(last, 100);
+      switch (result) {
+        case Error<PaginatedDtoResult<PackDto>>(:final error):
+          return Result.error(error);
+        case Ok<PaginatedDtoResult<PackDto>>(:final value):
+          packs.addAll(value.items.map((dto) => dto.toAdminPackDomain()));
+          if (value.items.isEmpty || value.lastDocument == null) {
+            return Result.ok(packs);
+          }
+          last = value.lastDocument;
+      }
+    }
+  }
+
+  /// Shows the pack inside [parentId] (a sub-pack), or at the top level.
+  Future<Result<void>> setPackParent(String packId, String? parentId) async {
+    final result = await _packService.setPackParent(packId, parentId);
+    if (result is Ok<void>) {
+      _packsCache.invalidate();
+      _adminPacksCache.updateItem(
+        id: packId,
+        copyWith: (item) => item.copyWith(parentId: parentId),
       );
     }
     return result;

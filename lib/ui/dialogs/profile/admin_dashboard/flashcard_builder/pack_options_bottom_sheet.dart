@@ -9,6 +9,7 @@ import 'package:flashcards/ui/constants/styles.dart';
 import 'package:flashcards/ui/dialogs/profile/admin_dashboard/flashcard_builder/delete_pack_dialog.dart';
 import 'package:flashcards/ui/dialogs/profile/admin_dashboard/flashcard_builder/export_pack.dart';
 import 'package:flashcards/ui/dialogs/profile/admin_dashboard/flashcard_builder/pack_access_page.dart';
+import 'package:flashcards/ui/dialogs/profile/admin_dashboard/flashcard_builder/pack_parent_dialog.dart';
 import 'package:flashcards/ui/dialogs/profile/admin_dashboard/flashcard_builder/pack_premium_dialog.dart';
 import 'package:flashcards/ui/dialogs/profile/admin_dashboard/flashcard_builder/rename_pack_dialog.dart';
 import 'package:flashcards/ui/theme/theme_extensions.dart';
@@ -91,6 +92,16 @@ void showPackOptionsBottomSheet(BuildContext context, AdminPack pack) {
                       pack,
                     );
                     if (isPaid != null) {
+                      getterBloc.add(AdminPacksGetterCacheRead());
+                    }
+                  },
+                ),
+                PackParentTile(
+                  pack: pack,
+                  onTap: () async {
+                    final getterBloc = context.read<AdminPacksGetterBloc>();
+                    context.router.pop();
+                    if (await showPackParentDialog(context, pack)) {
                       getterBloc.add(AdminPacksGetterCacheRead());
                     }
                   },

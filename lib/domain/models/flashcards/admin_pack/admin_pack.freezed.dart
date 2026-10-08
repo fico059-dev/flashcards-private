@@ -15,7 +15,8 @@ T _$identity<T>(T value) => value;
 mixin _$AdminPack {
 
  String get packId; String get packName; int get flashcardsCount; bool get isPaid; Map<String, int> get tagCounts;/// Only some users (and admins) see the pack.
- bool get restricted;
+ bool get restricted;/// The pack this one is shown inside, if any.
+ String? get parentId;
 /// Create a copy of AdminPack
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -26,16 +27,16 @@ $AdminPackCopyWith<AdminPack> get copyWith => _$AdminPackCopyWithImpl<AdminPack>
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is AdminPack&&(identical(other.packId, packId) || other.packId == packId)&&(identical(other.packName, packName) || other.packName == packName)&&(identical(other.flashcardsCount, flashcardsCount) || other.flashcardsCount == flashcardsCount)&&(identical(other.isPaid, isPaid) || other.isPaid == isPaid)&&const DeepCollectionEquality().equals(other.tagCounts, tagCounts)&&(identical(other.restricted, restricted) || other.restricted == restricted));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is AdminPack&&(identical(other.packId, packId) || other.packId == packId)&&(identical(other.packName, packName) || other.packName == packName)&&(identical(other.flashcardsCount, flashcardsCount) || other.flashcardsCount == flashcardsCount)&&(identical(other.isPaid, isPaid) || other.isPaid == isPaid)&&const DeepCollectionEquality().equals(other.tagCounts, tagCounts)&&(identical(other.restricted, restricted) || other.restricted == restricted)&&(identical(other.parentId, parentId) || other.parentId == parentId));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,packId,packName,flashcardsCount,isPaid,const DeepCollectionEquality().hash(tagCounts),restricted);
+int get hashCode => Object.hash(runtimeType,packId,packName,flashcardsCount,isPaid,const DeepCollectionEquality().hash(tagCounts),restricted,parentId);
 
 @override
 String toString() {
-  return 'AdminPack(packId: $packId, packName: $packName, flashcardsCount: $flashcardsCount, isPaid: $isPaid, tagCounts: $tagCounts, restricted: $restricted)';
+  return 'AdminPack(packId: $packId, packName: $packName, flashcardsCount: $flashcardsCount, isPaid: $isPaid, tagCounts: $tagCounts, restricted: $restricted, parentId: $parentId)';
 }
 
 
@@ -46,7 +47,7 @@ abstract mixin class $AdminPackCopyWith<$Res>  {
   factory $AdminPackCopyWith(AdminPack value, $Res Function(AdminPack) _then) = _$AdminPackCopyWithImpl;
 @useResult
 $Res call({
- String packId, String packName, int flashcardsCount, bool isPaid, Map<String, int> tagCounts, bool restricted
+ String packId, String packName, int flashcardsCount, bool isPaid, Map<String, int> tagCounts, bool restricted, String? parentId
 });
 
 
@@ -63,7 +64,7 @@ class _$AdminPackCopyWithImpl<$Res>
 
 /// Create a copy of AdminPack
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? packId = null,Object? packName = null,Object? flashcardsCount = null,Object? isPaid = null,Object? tagCounts = null,Object? restricted = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? packId = null,Object? packName = null,Object? flashcardsCount = null,Object? isPaid = null,Object? tagCounts = null,Object? restricted = null,Object? parentId = freezed,}) {
   return _then(_self.copyWith(
 packId: null == packId ? _self.packId : packId // ignore: cast_nullable_to_non_nullable
 as String,packName: null == packName ? _self.packName : packName // ignore: cast_nullable_to_non_nullable
@@ -71,7 +72,8 @@ as String,flashcardsCount: null == flashcardsCount ? _self.flashcardsCount : fla
 as int,isPaid: null == isPaid ? _self.isPaid : isPaid // ignore: cast_nullable_to_non_nullable
 as bool,tagCounts: null == tagCounts ? _self.tagCounts : tagCounts // ignore: cast_nullable_to_non_nullable
 as Map<String, int>,restricted: null == restricted ? _self.restricted : restricted // ignore: cast_nullable_to_non_nullable
-as bool,
+as bool,parentId: freezed == parentId ? _self.parentId : parentId // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 
@@ -156,10 +158,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String packId,  String packName,  int flashcardsCount,  bool isPaid,  Map<String, int> tagCounts,  bool restricted)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String packId,  String packName,  int flashcardsCount,  bool isPaid,  Map<String, int> tagCounts,  bool restricted,  String? parentId)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _AdminPack() when $default != null:
-return $default(_that.packId,_that.packName,_that.flashcardsCount,_that.isPaid,_that.tagCounts,_that.restricted);case _:
+return $default(_that.packId,_that.packName,_that.flashcardsCount,_that.isPaid,_that.tagCounts,_that.restricted,_that.parentId);case _:
   return orElse();
 
 }
@@ -177,10 +179,10 @@ return $default(_that.packId,_that.packName,_that.flashcardsCount,_that.isPaid,_
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String packId,  String packName,  int flashcardsCount,  bool isPaid,  Map<String, int> tagCounts,  bool restricted)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String packId,  String packName,  int flashcardsCount,  bool isPaid,  Map<String, int> tagCounts,  bool restricted,  String? parentId)  $default,) {final _that = this;
 switch (_that) {
 case _AdminPack():
-return $default(_that.packId,_that.packName,_that.flashcardsCount,_that.isPaid,_that.tagCounts,_that.restricted);case _:
+return $default(_that.packId,_that.packName,_that.flashcardsCount,_that.isPaid,_that.tagCounts,_that.restricted,_that.parentId);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -197,10 +199,10 @@ return $default(_that.packId,_that.packName,_that.flashcardsCount,_that.isPaid,_
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String packId,  String packName,  int flashcardsCount,  bool isPaid,  Map<String, int> tagCounts,  bool restricted)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String packId,  String packName,  int flashcardsCount,  bool isPaid,  Map<String, int> tagCounts,  bool restricted,  String? parentId)?  $default,) {final _that = this;
 switch (_that) {
 case _AdminPack() when $default != null:
-return $default(_that.packId,_that.packName,_that.flashcardsCount,_that.isPaid,_that.tagCounts,_that.restricted);case _:
+return $default(_that.packId,_that.packName,_that.flashcardsCount,_that.isPaid,_that.tagCounts,_that.restricted,_that.parentId);case _:
   return null;
 
 }
@@ -212,7 +214,7 @@ return $default(_that.packId,_that.packName,_that.flashcardsCount,_that.isPaid,_
 
 
 class _AdminPack implements AdminPack {
-  const _AdminPack({required this.packId, required this.packName, required this.flashcardsCount, required this.isPaid, final  Map<String, int> tagCounts = const {}, this.restricted = false}): _tagCounts = tagCounts;
+  const _AdminPack({required this.packId, required this.packName, required this.flashcardsCount, required this.isPaid, final  Map<String, int> tagCounts = const {}, this.restricted = false, this.parentId}): _tagCounts = tagCounts;
   
 
 @override final  String packId;
@@ -228,6 +230,8 @@ class _AdminPack implements AdminPack {
 
 /// Only some users (and admins) see the pack.
 @override@JsonKey() final  bool restricted;
+/// The pack this one is shown inside, if any.
+@override final  String? parentId;
 
 /// Create a copy of AdminPack
 /// with the given fields replaced by the non-null parameter values.
@@ -239,16 +243,16 @@ _$AdminPackCopyWith<_AdminPack> get copyWith => __$AdminPackCopyWithImpl<_AdminP
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _AdminPack&&(identical(other.packId, packId) || other.packId == packId)&&(identical(other.packName, packName) || other.packName == packName)&&(identical(other.flashcardsCount, flashcardsCount) || other.flashcardsCount == flashcardsCount)&&(identical(other.isPaid, isPaid) || other.isPaid == isPaid)&&const DeepCollectionEquality().equals(other._tagCounts, _tagCounts)&&(identical(other.restricted, restricted) || other.restricted == restricted));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _AdminPack&&(identical(other.packId, packId) || other.packId == packId)&&(identical(other.packName, packName) || other.packName == packName)&&(identical(other.flashcardsCount, flashcardsCount) || other.flashcardsCount == flashcardsCount)&&(identical(other.isPaid, isPaid) || other.isPaid == isPaid)&&const DeepCollectionEquality().equals(other._tagCounts, _tagCounts)&&(identical(other.restricted, restricted) || other.restricted == restricted)&&(identical(other.parentId, parentId) || other.parentId == parentId));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,packId,packName,flashcardsCount,isPaid,const DeepCollectionEquality().hash(_tagCounts),restricted);
+int get hashCode => Object.hash(runtimeType,packId,packName,flashcardsCount,isPaid,const DeepCollectionEquality().hash(_tagCounts),restricted,parentId);
 
 @override
 String toString() {
-  return 'AdminPack(packId: $packId, packName: $packName, flashcardsCount: $flashcardsCount, isPaid: $isPaid, tagCounts: $tagCounts, restricted: $restricted)';
+  return 'AdminPack(packId: $packId, packName: $packName, flashcardsCount: $flashcardsCount, isPaid: $isPaid, tagCounts: $tagCounts, restricted: $restricted, parentId: $parentId)';
 }
 
 
@@ -259,7 +263,7 @@ abstract mixin class _$AdminPackCopyWith<$Res> implements $AdminPackCopyWith<$Re
   factory _$AdminPackCopyWith(_AdminPack value, $Res Function(_AdminPack) _then) = __$AdminPackCopyWithImpl;
 @override @useResult
 $Res call({
- String packId, String packName, int flashcardsCount, bool isPaid, Map<String, int> tagCounts, bool restricted
+ String packId, String packName, int flashcardsCount, bool isPaid, Map<String, int> tagCounts, bool restricted, String? parentId
 });
 
 
@@ -276,7 +280,7 @@ class __$AdminPackCopyWithImpl<$Res>
 
 /// Create a copy of AdminPack
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? packId = null,Object? packName = null,Object? flashcardsCount = null,Object? isPaid = null,Object? tagCounts = null,Object? restricted = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? packId = null,Object? packName = null,Object? flashcardsCount = null,Object? isPaid = null,Object? tagCounts = null,Object? restricted = null,Object? parentId = freezed,}) {
   return _then(_AdminPack(
 packId: null == packId ? _self.packId : packId // ignore: cast_nullable_to_non_nullable
 as String,packName: null == packName ? _self.packName : packName // ignore: cast_nullable_to_non_nullable
@@ -284,7 +288,8 @@ as String,flashcardsCount: null == flashcardsCount ? _self.flashcardsCount : fla
 as int,isPaid: null == isPaid ? _self.isPaid : isPaid // ignore: cast_nullable_to_non_nullable
 as bool,tagCounts: null == tagCounts ? _self._tagCounts : tagCounts // ignore: cast_nullable_to_non_nullable
 as Map<String, int>,restricted: null == restricted ? _self.restricted : restricted // ignore: cast_nullable_to_non_nullable
-as bool,
+as bool,parentId: freezed == parentId ? _self.parentId : parentId // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 

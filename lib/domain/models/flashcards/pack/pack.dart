@@ -14,6 +14,13 @@ abstract class Pack with _$Pack {
     required int learningCount,
     @Default({}) Map<String, int> tagCounts,
     @Default(false) bool isPaid,
+
+    /// The pack this one is shown inside, if any.
+    String? parentId,
+
+    /// Every pack inside this one (all levels). Studying this pack also
+    /// studies their cards.
+    @Default([]) List<Pack> subPacks,
   }) = _Pack;
 }
 

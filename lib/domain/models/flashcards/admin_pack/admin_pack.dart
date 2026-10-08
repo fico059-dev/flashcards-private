@@ -14,6 +14,9 @@ abstract class AdminPack with _$AdminPack {
 
     /// Only some users (and admins) see the pack.
     @Default(false) bool restricted,
+
+    /// The pack this one is shown inside, if any.
+    String? parentId,
   }) = _AdminPack;
 }
 

@@ -418,6 +418,7 @@ class FlashcardBloc extends Bloc<FlashcardEvent, FlashcardState> {
           newCardsPercentage: _newCardsPercentage,
           isPaid: event.pack!.isPaid,
           hasCards: state.hasCards,
+          subPacks: event.pack!.subPacks,
         );
 
         // Remembers the pack as started (Started packs list).
@@ -655,6 +656,7 @@ class FlashcardBloc extends Bloc<FlashcardEvent, FlashcardState> {
           target: cardsPerSession,
           newCardsPercentage: _newCardsPercentage,
           hasCards: state.hasCards,
+          subPacks: state.pack!.subPacks,
         );
         break;
       case TestType.bookmark:

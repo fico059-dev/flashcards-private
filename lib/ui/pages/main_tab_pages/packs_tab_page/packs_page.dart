@@ -5,6 +5,7 @@ import 'package:flashcards/bloc/pack/packs_getter/packs_getter_bloc.dart';
 import 'package:flashcards/bloc/pack/packs_getter/packs_getter_event.dart';
 import 'package:flashcards/bloc/pack/packs_getter/packs_getter_state.dart';
 import 'package:flashcards/domain/models/flashcards/pack/pack.dart';
+import 'package:flashcards/domain/models/flashcards/pack/pack_tree.dart';
 import 'package:flashcards/ui/constants/styles.dart';
 import 'package:flashcards/ui/widgets/core/error_screen.dart';
 import 'package:flashcards/ui/widgets/packs/pack_ui_card.dart';
@@ -89,6 +90,32 @@ class _PacksViewState extends State<_PacksView> with AutoRouteAware {
     });
   }
 
+  /// Packs whose sub-packs are shown.
+  final Set<String> _expanded = {};
+
+  Future<void> _study(Pack pack) async {
+    if (pack.isPaid == true) {
+      final ok = await ensureCardsAccess(context);
+      if (!ok || !mounted) return;
+    }
+    context.router.push(FlashcardRoute(testType: TestType.regular, pack: pack));
+  }
+
+  /// The tree as rows: (node, depth), skipping closed packs' sub-packs and
+  /// packs with nothing to study.
+  List<(PackNode, int)> _rows(List<PackNode> nodes, int depth) {
+    final rows = <(PackNode, int)>[];
+    for (final node in nodes) {
+      final pack = node.combined;
+      if (pack.dueCount == 0 && pack.newCount == 0) continue;
+      rows.add((node, depth));
+      if (_expanded.contains(node.pack.id)) {
+        rows.addAll(_rows(node.children, depth + 1));
+      }
+    }
+    return rows;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -97,46 +124,78 @@ class _PacksViewState extends State<_PacksView> with AutoRouteAware {
         padding: EdgeInsets.symmetric(horizontal: horizontalScreenPadding),
         child: BlocBuilder<PacksGetterBloc, PacksGetterState>(
           builder: (context, state) {
+            final paging = state.pagingState;
+            // Every page is loaded, so sub-packs can be put inside their
+            // pack.
+            if (paging.hasNextPage &&
+                !paging.isLoading &&
+                paging.error == null) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (mounted) context.read<PacksGetterBloc>().fetchNextPage();
+              });
+            }
+
+            final packs = [...?paging.items].cast<Pack>();
+            if (packs.isEmpty) {
+              if (paging.error != null) {
+                return ErrorScreen(
+                  errorMessage: _loadErrorMessage(paging.error),
+                  onReload: context.read<PacksGetterBloc>().fetchNextPage,
+                );
+              }
+              if (paging.isLoading || paging.hasNextPage) {
+                return PackUiShimmer();
+              }
+            }
+
+            final rows = _rows(buildPackTree(packs), 0);
             return RefreshIndicator(
               onRefresh: () => _handleRefresh(context),
-              child: PagedListView(
+              child: ListView.builder(
                 physics: const AlwaysScrollableScrollPhysics(),
-                state: state.pagingState,
-                fetchNextPage: context.read<PacksGetterBloc>().fetchNextPage,
-                builderDelegate: PagedChildBuilderDelegate(
-                  invisibleItemsThreshold: 3,
-                  firstPageProgressIndicatorBuilder: (context) =>
-                      PackUiShimmer(),
-                  firstPageErrorIndicatorBuilder: (context) => ErrorScreen(
-                    errorMessage: _loadErrorMessage(state.pagingState.error),
-                    onReload: context.read<PacksGetterBloc>().fetchNextPage,
-                  ),
-                  itemBuilder: (context, item, index) {
-                    final pack = item as Pack;
+                itemCount: rows.length + (paging.isLoading ? 1 : 0),
+                itemBuilder: (context, index) {
+                  if (index >= rows.length) {
+                    return const Padding(
+                      padding: EdgeInsets.all(16),
+                      child: Center(child: CircularProgressIndicator()),
+                    );
+                  }
+                  final (node, depth) = rows[index];
+                  final pack = node.combined;
+                  final hasChildren = node.children.isNotEmpty;
+                  final open = _expanded.contains(node.pack.id);
 
-                    if (pack.dueCount == 0 && pack.newCount == 0) {
-                      return SizedBox.shrink();
-                    }
-
-                    Future<void> openPack() async {
-                      context.router.push(
-                        FlashcardRoute(testType: TestType.regular, pack: pack),
-                      );
-                    }
-
-                    return PackUiCard(
+                  return Padding(
+                    padding: EdgeInsets.only(left: depth * 20.0),
+                    child: PackUiCard(
                       hasCards: state.hasCards,
                       pack: pack,
-                      onTap: () async {
-                        if (pack.isPaid == true) {
-                          final ok = await ensureCardsAccess(context);
-                          if (!ok) return;
-                        }
-                        await openPack();
-                      },
-                    );
-                  },
-                ),
+                      subtitle: hasChildren
+                          ? "${node.children.length} sub-pack"
+                                "${node.children.length == 1 ? '' : 's'}"
+                                " · studies all of them"
+                          : null,
+                      leading: hasChildren
+                          ? IconButton(
+                              tooltip: open
+                                  ? "Hide sub-packs"
+                                  : "Show sub-packs",
+                              visualDensity: VisualDensity.compact,
+                              icon: Icon(
+                                open ? Icons.expand_more : Icons.chevron_right,
+                              ),
+                              onPressed: () => setState(() {
+                                if (!_expanded.remove(node.pack.id)) {
+                                  _expanded.add(node.pack.id);
+                                }
+                              }),
+                            )
+                          : null,
+                      onTap: () => _study(pack),
+                    ),
+                  );
+                },
               ),
             );
           },

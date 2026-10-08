@@ -12,6 +12,7 @@ import 'package:flashcards/ui/constants/styles.dart';
 import 'package:flashcards/ui/dialogs/profile/admin_dashboard/flashcard_builder/delete_pack_dialog.dart';
 import 'package:flashcards/ui/dialogs/profile/admin_dashboard/flashcard_builder/export_pack.dart';
 import 'package:flashcards/ui/dialogs/profile/admin_dashboard/flashcard_builder/pack_access_page.dart';
+import 'package:flashcards/ui/dialogs/profile/admin_dashboard/flashcard_builder/pack_parent_dialog.dart';
 import 'package:flashcards/ui/dialogs/profile/admin_dashboard/flashcard_builder/pack_premium_dialog.dart';
 import 'package:flashcards/ui/dialogs/profile/admin_dashboard/flashcard_builder/rename_pack_dialog.dart';
 import 'package:flashcards/ui/theme/theme_extensions.dart';
@@ -207,6 +208,13 @@ class _ViewState extends State<_View> {
                       PackPremiumTile(
                         isPaid: pack.isPaid,
                         onTap: () => _onChangePremium(pack),
+                      ),
+                      PackParentTile(
+                        pack: pack,
+                        onTap: () {
+                          context.router.pop();
+                          showPackParentDialog(context, pack);
+                        },
                       ),
                       PackAccessTile(
                         restricted: pack.restricted,

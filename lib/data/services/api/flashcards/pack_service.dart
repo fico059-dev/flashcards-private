@@ -131,6 +131,18 @@ class PackService {
     }
   }
 
+  /// Shows the pack inside [parentId], or at the top level for null.
+  Future<Result<void>> setPackParent(String packId, String? parentId) async {
+    try {
+      await _packs.doc(packId).update({
+        'parentId': parentId ?? FieldValue.delete(),
+      });
+      return Result.ok(null);
+    } on Exception catch (error) {
+      return Result.error(error);
+    }
+  }
+
   Future<Result<List<String>>> getPackAccess(String packId) async {
     try {
       return Result.ok(await _functions.getPackAccess(packId));
