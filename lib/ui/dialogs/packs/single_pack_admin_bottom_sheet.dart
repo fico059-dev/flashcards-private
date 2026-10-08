@@ -11,6 +11,7 @@ import 'package:flashcards/domain/models/flashcards/simple_pack/simple_pack.dart
 import 'package:flashcards/ui/constants/styles.dart';
 import 'package:flashcards/ui/dialogs/profile/admin_dashboard/flashcard_builder/delete_pack_dialog.dart';
 import 'package:flashcards/ui/dialogs/profile/admin_dashboard/flashcard_builder/export_pack.dart';
+import 'package:flashcards/ui/dialogs/profile/admin_dashboard/flashcard_builder/pack_access_page.dart';
 import 'package:flashcards/ui/dialogs/profile/admin_dashboard/flashcard_builder/pack_premium_dialog.dart';
 import 'package:flashcards/ui/dialogs/profile/admin_dashboard/flashcard_builder/rename_pack_dialog.dart';
 import 'package:flashcards/ui/theme/theme_extensions.dart';
@@ -107,6 +108,12 @@ class _ViewState extends State<_View> {
     }
   }
 
+  // The menu reloads the pack when opened, so nothing else to update.
+  void _onChangeAccess(SimplePack pack) async {
+    context.router.pop();
+    await showPackAccessPage(context, pack);
+  }
+
   void _onDelete(SimplePack pack) async {
     context.router.pop();
     final cubit = DeletePackCubit(packRepo: context.read<PackRepository>());
@@ -200,6 +207,10 @@ class _ViewState extends State<_View> {
                       PackPremiumTile(
                         isPaid: pack.isPaid,
                         onTap: () => _onChangePremium(pack),
+                      ),
+                      PackAccessTile(
+                        restricted: pack.restricted,
+                        onTap: () => _onChangeAccess(pack),
                       ),
                       ExportPackTile(pack: pack),
                       ListTile(

@@ -95,7 +95,8 @@ void showPackOptionsBottomSheet(BuildContext context, AdminPack pack) {
                     }
                   },
                 ),
-                ListTile(
+                PackAccessTile(
+                  restricted: pack.restricted,
                   onTap: () async {
                     final getterBloc = context.read<AdminPacksGetterBloc>();
                     context.router.pop();
@@ -104,14 +105,6 @@ void showPackOptionsBottomSheet(BuildContext context, AdminPack pack) {
                       getterBloc.add(AdminPacksGetterCacheRead());
                     }
                   },
-                  leading: Icon(
-                    pack.restricted ? Icons.lock_person : Icons.lock_open,
-                    color: context.colors.primaryContainer,
-                  ),
-                  title: Text("Who can see this pack"),
-                  subtitle: Text(
-                    pack.restricted ? "Only chosen users" : "Everyone",
-                  ),
                 ),
                 ExportPackTile(pack: pack),
                 ListTile(

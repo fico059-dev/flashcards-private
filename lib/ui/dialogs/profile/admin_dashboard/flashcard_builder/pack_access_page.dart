@@ -281,3 +281,28 @@ class _PackAccessPageState extends State<PackAccessPage> {
     );
   }
 }
+
+/// "Who can see this pack" entry of the admin pack menus.
+class PackAccessTile extends StatelessWidget {
+  final bool restricted;
+  final VoidCallback onTap;
+
+  const PackAccessTile({
+    super.key,
+    required this.restricted,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      onTap: onTap,
+      leading: Icon(
+        restricted ? Icons.lock_person : Icons.group_outlined,
+        color: context.colors.primaryContainer,
+      ),
+      title: const Text("Who can see this pack"),
+      subtitle: Text(restricted ? "Only chosen users" : "Everyone"),
+    );
+  }
+}
