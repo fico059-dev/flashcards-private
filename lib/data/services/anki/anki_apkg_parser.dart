@@ -131,7 +131,7 @@ List<AnkiNote> _readNotes(ArchiveFile collection, String tempDirPath) {
   try {
     db = sqlite3.open(dbPath, mode: OpenMode.readOnly);
     // Keep the order the cards were created in Anki.
-    final rows = db.select('SELECT flds, tags FROM notes ORDER BY id');
+    final rows = db.select('SELECT * FROM notes ORDER BY id');
     return rows
         .map(
           (row) => AnkiNote(
@@ -140,6 +140,7 @@ List<AnkiNote> _readNotes(ArchiveFile collection, String tempDirPath) {
                 .split(' ')
                 .where((tag) => tag.isNotEmpty)
                 .toList(),
+            guid: row.containsKey('guid') ? row['guid'] as String? : null,
           ),
         )
         .toList();

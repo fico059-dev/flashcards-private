@@ -20,6 +20,8 @@ abstract class FlashcardDto with _$FlashcardDto {
     @Default(null) String? questionImageUrl,
     @Default(null) String? answerImageUrl,
     @Default([]) List<String> tags,
+    @JsonKey(includeIfNull: false) String? sourceKey,
+    @JsonKey(includeIfNull: false) String? sourceImages,
   }) = _FlashcardDto;
 
   factory FlashcardDto.fromJson(JsonMap json) => _$FlashcardDtoFromJson(json);
@@ -36,6 +38,8 @@ abstract class FlashcardDto with _$FlashcardDto {
     tags: flashcard.tags.map((tag) => tag.id).toList(),
     answerImageUrl: flashcard.answerImageUrl,
     questionImageUrl: flashcard.questionImageUrl,
+    sourceKey: flashcard.sourceKey,
+    sourceImages: flashcard.sourceImages,
   );
 }
 
@@ -49,6 +53,8 @@ extension FlashcardDtoX on FlashcardDto {
     tags: tags.map((e) => Tag.fromId(e)).toList(),
     questionImageUrl: questionImageUrl,
     answerImageUrl: answerImageUrl,
+    sourceKey: sourceKey,
+    sourceImages: sourceImages,
   );
 
   StatRecord toEmptyStatRecord() => StatRecord(

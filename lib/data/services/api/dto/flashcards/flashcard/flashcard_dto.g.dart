@@ -18,6 +18,8 @@ _FlashcardDto _$FlashcardDtoFromJson(Map<String, dynamic> json) =>
       tags:
           (json['tags'] as List<dynamic>?)?.map((e) => e as String).toList() ??
           const [],
+      sourceKey: json['sourceKey'] as String?,
+      sourceImages: json['sourceImages'] as String?,
     );
 
 Map<String, dynamic> _$FlashcardDtoToJson(_FlashcardDto instance) =>
@@ -29,4 +31,6 @@ Map<String, dynamic> _$FlashcardDtoToJson(_FlashcardDto instance) =>
       'questionImageUrl': instance.questionImageUrl,
       'answerImageUrl': instance.answerImageUrl,
       'tags': instance.tags,
+      'sourceKey': ?instance.sourceKey,
+      'sourceImages': ?instance.sourceImages,
     };

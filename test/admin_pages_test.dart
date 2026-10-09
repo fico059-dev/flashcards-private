@@ -155,7 +155,7 @@ void main() {
     expect(find.text('Import complete'), findsOneWidget);
     expect(find.text('2 cards were added to "Cardiology".'), findsOneWidget);
     expect(
-      find.text('1 cards were already in the pack and were skipped.'),
+      find.text('1 cards were already in the pack with no changes.'),
       findsOneWidget,
     );
   });

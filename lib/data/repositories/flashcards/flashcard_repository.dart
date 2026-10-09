@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flashcards/data/services/api/dto/flashcards/custom_session/flashcard_ids/flashcard_ids_patch/flashcard_ids_patch_dto.dart';
 import 'package:flashcards/data/services/api/dto/flashcards/fcp_data/fcp_data_dto.dart';
@@ -34,17 +36,120 @@ import 'package:flashcards/utils/util_functions.dart';
 import 'package:fsrs/fsrs.dart';
 
 class FlashcardImportSummary {
+  /// New cards added to the pack.
   final int imported;
+
+  /// Cards already in the pack that were changed in the deck and updated.
+  final int updated;
+
+  /// Cards already in the pack with no changes.
   final int skippedDuplicates;
   final int failedImages;
+
+  /// Changed cards that couldn't be updated (shown so they can be retried).
+  final int failedUpdates;
   final Exception? error;
 
   const FlashcardImportSummary({
     this.imported = 0,
+    this.updated = 0,
     this.skippedDuplicates = 0,
     this.failedImages = 0,
+    this.failedUpdates = 0,
     this.error,
   });
+}
+
+/// What importing one card will do to the pack.
+enum ImportAction { add, update, link, unchanged }
+
+/// Decides how an imported card relates to a card already in the pack.
+/// [existing] is the matching card, or null.
+ImportAction decideImportAction(
+  AnkiCard card,
+  Flashcard? existing, {
+  required bool importTags,
+}) {
+  if (existing == null) return ImportAction.add;
+  final plan = ImportImagePlan.of(card, existing);
+  final tagsChanged =
+      importTags &&
+      !_sameSet(
+        existing.tags.map((t) => t.id),
+        ankiTagsToTags(card.tags).map((t) => t.id),
+      );
+  if (existing.question != card.question ||
+      existing.answer != card.answer ||
+      tagsChanged ||
+      plan.changesAnything) {
+    return ImportAction.update;
+  }
+  if ((card.sourceKey != null && existing.sourceKey != card.sourceKey) ||
+      existing.sourceImages != card.imagesKey) {
+    return ImportAction.link;
+  }
+  return ImportAction.unchanged;
+}
+
+bool _sameSet(Iterable<String> a, Iterable<String> b) {
+  final left = a.toSet();
+  final right = b.toSet();
+  return left.length == right.length && left.containsAll(right);
+}
+
+/// Which images of an existing card to replace or remove when the deck is
+/// imported again. Images added to the card by hand (cards imported before
+/// image names were recorded) are never removed.
+class ImportImagePlan {
+  final bool uploadQuestion;
+  final bool deleteQuestion;
+  final bool uploadAnswer;
+  final bool deleteAnswer;
+
+  const ImportImagePlan({
+    this.uploadQuestion = false,
+    this.deleteQuestion = false,
+    this.uploadAnswer = false,
+    this.deleteAnswer = false,
+  });
+
+  bool get changesAnything =>
+      uploadQuestion || deleteQuestion || uploadAnswer || deleteAnswer;
+
+  static ImportImagePlan of(AnkiCard card, Flashcard existing) {
+    final known = existing.sourceImages?.split('/');
+    final knownQuestion = known == null ? null : known.first;
+    final knownAnswer = known == null || known.length < 2 ? null : known[1];
+
+    (bool, bool) side(AnkiImage? image, String? url, String? knownKey) {
+      final hasUrl = url?.isNotEmpty ?? false;
+      if (image != null) {
+        // New picture, or the deck now uses different images.
+        final upload =
+            !hasUrl || (knownKey != null && knownKey != image.key);
+        return (upload, false);
+      }
+      // Removed in the deck: only remove images that came from it.
+      return (false, hasUrl && knownKey != null && knownKey.isNotEmpty);
+    }
+
+    final (uq, dq) = side(
+      card.questionImage,
+      existing.questionImageUrl,
+      knownQuestion,
+    );
+    final (ua, da) = side(
+      card.answerImage,
+      existing.answerImageUrl,
+      knownAnswer,
+    );
+    return ImportImagePlan(
+      uploadQuestion: uq,
+      deleteQuestion: dq,
+      uploadAnswer: ua,
+      deleteAnswer: da,
+    );
+  }
 }
 
 class FlashcardRepository {
@@ -520,24 +625,65 @@ class FlashcardRepository {
     var skipped = 0;
     var failedImages = 0;
 
-    final existingResult = await _flashcardService.getQuestionsInPack(packId);
-    final Set<String> existingQuestions;
+    // Cards already in the pack: an imported card matches one by its Anki
+    // note id, or (cards imported before ids were kept, or added by hand)
+    // by the same question.
+    final existingResult = await getAllFlashcardsInPack(packId);
+    final List<Flashcard> existingCards;
     switch (existingResult) {
-      case Error<Set<String>>(:final error):
+      case Error<List<Flashcard>>(:final error):
         return FlashcardImportSummary(error: error);
-      case Ok<Set<String>>(:final value):
-        existingQuestions = value;
+      case Ok<List<Flashcard>>(:final value):
+        existingCards = value;
     }
+    final bySource = {
+      for (final card in existingCards)
+        if (card.sourceKey != null) card.sourceKey!: card,
+    };
+    final byQuestion = <String, Flashcard>{};
+    for (final card in existingCards) {
+      byQuestion.putIfAbsent(card.question, () => card);
+    }
+    final claimed = <String>{};
+    final seenInFile = <String>{};
 
     final toImport = <AnkiCard>[];
+    final toUpdate = <(Flashcard, AnkiCard)>[];
+    final toLink = <(Flashcard, AnkiCard)>[];
     for (final card in cards) {
-      if (existingQuestions.add(card.question)) {
-        toImport.add(card);
-      } else {
+      // The same card twice in the file.
+      if (!seenInFile.add(card.sourceKey ?? 'q:${card.question}')) {
         skipped++;
+        continue;
+      }
+      Flashcard? match = card.sourceKey == null
+          ? null
+          : bySource[card.sourceKey];
+      if (match == null) {
+        final sameQuestion = byQuestion[card.question];
+        if (sameQuestion != null &&
+            (sameQuestion.sourceKey == null ||
+                card.sourceKey == null ||
+                sameQuestion.sourceKey == card.sourceKey)) {
+          match = sameQuestion;
+        }
+      }
+      if (match != null && !claimed.add(match.id)) match = null;
+
+      switch (decideImportAction(card, match, importTags: importTags)) {
+        case ImportAction.add:
+          toImport.add(card);
+        case ImportAction.update:
+          toUpdate.add((match!, card));
+        case ImportAction.link:
+          toLink.add((match!, card));
+          skipped++;
+        case ImportAction.unchanged:
+          skipped++;
       }
     }
-    onProgress(0, toImport.length);
+    final total = toImport.length + toUpdate.length;
+    onProgress(0, total);
 
     final packRef = _packService.getDocumentReference(packId);
     // Every imported card's tags, used to update the cached tag counts.
@@ -578,11 +724,13 @@ class FlashcardRepository {
               tags: importTags ? ankiTagsToTags(card.tags) : const [],
               questionImageUrl: questionUrl,
               answerImageUrl: answerUrl,
+              sourceKey: card.sourceKey,
+              sourceImages: card.imagesKey,
             );
           }),
         );
         flashcards.addAll(uploaded);
-        onProgress(imported + flashcards.length, toImport.length);
+        onProgress(imported + flashcards.length, total);
       }
 
       try {
@@ -648,10 +796,86 @@ class FlashcardRepository {
     }
 
     _handleFlashcardsImportedInCache(packId, imported, importedTagIds);
+
+    // Changed cards are updated in place, so students keep their progress.
+    var updated = 0;
+    var failedUpdates = 0;
+    if (toUpdate.isNotEmpty && importTags) {
+      final newTags = {
+        for (final (_, card) in toUpdate) ...ankiTagsToTags(card.tags),
+      };
+      await _tagService.setDocuments(
+        newTags.map(TagDto.fromTagDomain).toList(),
+      );
+    }
+    const parallelUpdates = 5;
+    for (var i = 0; i < toUpdate.length; i += parallelUpdates) {
+      final group = toUpdate.skip(i).take(parallelUpdates);
+      final results = await Future.wait(
+        group.map((pair) async {
+          final (existing, card) = pair;
+          final plan = ImportImagePlan.of(card, existing);
+          Uint8List? questionBytes;
+          Uint8List? answerBytes;
+          if (plan.uploadQuestion) {
+            questionBytes = await importedImageBytes(card.questionImage!);
+            if (questionBytes == null) failedImages++;
+          }
+          if (plan.uploadAnswer) {
+            answerBytes = await importedImageBytes(card.answerImage!);
+            if (answerBytes == null) failedImages++;
+          }
+          final result = await _flashcardService.updateFlashcardEverywhere(
+            flashcardId: existing.id,
+            partialJson: UpdateFlashcardDto(
+              question: card.question,
+              answer: card.answer,
+              tags: importTags ? ankiTagsToTags(card.tags).toIdList() : null,
+            ).toJson(),
+            shouldDeleteQuestion: plan.deleteQuestion,
+            shouldDeleteAnswer: plan.deleteAnswer,
+            questionImageBytes: questionBytes,
+            answerImageBytes: answerBytes,
+          );
+          return result is Ok<void>;
+        }),
+      );
+      updated += results.where((ok) => ok).length;
+      failedUpdates += results.where((ok) => !ok).length;
+      onProgress(imported + i + group.length, total);
+    }
+
+    // Remember which Anki note each card came from, for the next import.
+    final linked = [
+      for (final (existing, card) in [...toUpdate, ...toLink])
+        (existing.id, card),
+    ];
+    for (var i = 0; i < linked.length; i += 400) {
+      final batch = _db.batch();
+      for (final (id, card) in linked.skip(i).take(400)) {
+        batch.update(_flashcardService.getDocumentReference(id), {
+          'sourceKey': ?card.sourceKey,
+          'sourceImages': card.imagesKey,
+        });
+      }
+      try {
+        await batch.commit();
+      } on Exception {
+        // Only affects matching on the next import.
+      }
+    }
+
+    if (updated > 0) {
+      _packsCache.invalidate();
+      _tagCache.invalidate();
+      _adminPageCache.invalidate(packId);
+    }
     return FlashcardImportSummary(
       imported: imported,
+      updated: updated,
       skippedDuplicates: skipped,
       failedImages: failedImages,
+      failedUpdates: failedUpdates,
     );
   }
 
@@ -663,10 +887,7 @@ class FlashcardRepository {
     required bool isQuestion,
   }) async {
     if (image == null) return null;
-    final bytes = image.count > 1
-        ? await combineImagesVertically(image.paths) ??
-              await compressImportedImage(image.path)
-        : await compressImportedImage(image.path);
+    final bytes = await importedImageBytes(image);
     if (bytes == null) return null;
 
     final picked = PickedImage(bytes: bytes);
@@ -683,6 +904,24 @@ class FlashcardRepository {
       Ok<String>(:final value) => value,
       Error<String>() => null,
     };
+  }
+
+  /// The picture to upload for an imported card side: several images are
+  /// joined into one. Images come from files (phone app) or memory
+  /// (website).
+  static Future<Uint8List?> importedImageBytes(AnkiImage image) async {
+    final inMemory = image.allBytes;
+    if (inMemory.isNotEmpty) {
+      if (inMemory.length > 1) {
+        final joined = stackImageBytes(inMemory);
+        if (joined != null) return joined;
+      }
+      return prepareJpeg(inMemory.first);
+    }
+    return image.count > 1
+        ? await combineImagesVertically(image.paths) ??
+              await compressImportedImage(image.path)
+        : await compressImportedImage(image.path);
   }
 
   void _handleFlashcardsImportedInCache(

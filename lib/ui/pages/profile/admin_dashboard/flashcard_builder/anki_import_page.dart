@@ -219,7 +219,9 @@ class _Instructions extends StatelessWidget {
                         "text.",
                       ),
                       const Text(
-                        "• Cards already in this pack (same question) are skipped.",
+                        "• Cards already in this pack are updated if they "
+                        "changed in Anki (question, answer, tags or images), "
+                        "and left alone if not. Students keep their progress.",
                       ),
                     ],
                   ),
@@ -518,15 +520,31 @@ class _ImageThumbnail extends StatelessWidget {
   Widget build(BuildContext context) {
     final thumbnail = ClipRRect(
       borderRadius: BorderRadius.circular(6),
-      child: Image.file(
-        File(image.path),
-        width: 48,
-        height: 48,
-        fit: BoxFit.cover,
-        cacheWidth: 96,
-        errorBuilder: (context, error, stackTrace) =>
-            const SizedBox(width: 48, height: 48, child: Icon(Icons.image)),
-      ),
+      child: image.bytes != null
+          ? Image.memory(
+              image.bytes!,
+              width: 48,
+              height: 48,
+              fit: BoxFit.cover,
+              cacheWidth: 96,
+              errorBuilder: (context, error, stackTrace) => const SizedBox(
+                width: 48,
+                height: 48,
+                child: Icon(Icons.image),
+              ),
+            )
+          : Image.file(
+              File(image.path),
+              width: 48,
+              height: 48,
+              fit: BoxFit.cover,
+              cacheWidth: 96,
+              errorBuilder: (context, error, stackTrace) => const SizedBox(
+                width: 48,
+                height: 48,
+                child: Icon(Icons.image),
+              ),
+            ),
     );
     if (image.count == 1) return thumbnail;
     return Badge(label: Text('${image.count}'), child: thumbnail);
@@ -592,10 +610,21 @@ class _Done extends StatelessWidget {
               "${summary.imported} cards were added to \"$packName\".",
               textAlign: TextAlign.center,
             ),
+            if (summary.updated > 0)
+              Text(
+                "${summary.updated} cards that changed in Anki were updated.",
+                textAlign: TextAlign.center,
+              ),
             if (summary.skippedDuplicates > 0)
               Text(
                 "${summary.skippedDuplicates} cards were already in the pack "
-                "and were skipped.",
+                "with no changes.",
+                textAlign: TextAlign.center,
+              ),
+            if (summary.failedUpdates > 0)
+              Text(
+                "${summary.failedUpdates} changed cards couldn't be updated. "
+                "Import the file again to retry them.",
                 textAlign: TextAlign.center,
               ),
             if (summary.failedImages > 0)
@@ -612,7 +641,7 @@ class _Done extends StatelessWidget {
               ),
               const Text(
                 "Import the same file again to add the remaining cards. "
-                "Cards already in the pack will be skipped.",
+                "Cards already in the pack won't be added twice.",
                 textAlign: TextAlign.center,
               ),
             ],

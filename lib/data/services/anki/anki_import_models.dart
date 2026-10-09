@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flashcards/data/services/anki/anki_text_converter.dart';
 
 /// An image referenced by an Anki card. It is extracted from the deck to a
@@ -7,18 +9,36 @@ import 'package:flashcards/data/services/anki/anki_text_converter.dart';
 /// into one picture when uploaded, since a flashcard side has one image.
 class AnkiImage {
   final String name;
+
+  /// Where the image was extracted to (phone app).
   final String path;
   final List<String> extraPaths;
 
+  /// The image itself, when there are no files (website).
+  final Uint8List? bytes;
+  final List<Uint8List> extraBytes;
+
+  /// Names of every image of the side, to notice when they change.
+  final List<String> names;
+
   const AnkiImage({
     required this.name,
-    required this.path,
+    this.path = '',
     this.extraPaths = const [],
+    this.bytes,
+    this.extraBytes = const [],
+    this.names = const [],
   });
 
   List<String> get paths => [path, ...extraPaths];
 
-  int get count => 1 + extraPaths.length;
+  List<Uint8List> get allBytes => [?bytes, ...extraBytes];
+
+  int get count =>
+      bytes != null ? 1 + extraBytes.length : 1 + extraPaths.length;
+
+  /// Identifies the image(s) of this side, e.g. "a.png|b.png".
+  String get key => (names.isEmpty ? [name] : names).join('|');
 }
 
 /// A card ready to be imported into a Flashpedz pack.
@@ -30,6 +50,10 @@ class AnkiCard {
   final List<String> tags;
   final bool isCloze;
 
+  /// Identifies the Anki note (and cloze number) the card came from, so a
+  /// later import of the same deck updates it instead of adding it again.
+  final String? sourceKey;
+
   const AnkiCard({
     required this.question,
     required this.answer,
@@ -37,7 +61,12 @@ class AnkiCard {
     this.answerImage,
     this.tags = const [],
     this.isCloze = false,
+    this.sourceKey,
   });
+
+  /// The images of both sides, to notice when they change.
+  String get imagesKey =>
+      '${questionImage?.key ?? ''}/${answerImage?.key ?? ''}';
 }
 
 /// Everything read from an Anki export, before anything is uploaded.
@@ -77,7 +106,10 @@ class AnkiNote {
   final List<String> fields;
   final List<String> tags;
 
-  const AnkiNote({required this.fields, required this.tags});
+  /// Anki's id for the note, the same in every export of the deck.
+  final String? guid;
+
+  const AnkiNote({required this.fields, required this.tags, this.guid});
 }
 
 /// Turns raw Anki notes into Flashpedz cards. A cloze note produces one card
@@ -143,6 +175,7 @@ class AnkiNoteConverter {
         questionImage: questionImage,
         answerImage: answerImage,
         tags: note.tags,
+        sourceKey: note.guid == null ? null : 'anki:${note.guid}',
       ),
     ];
   }
@@ -175,6 +208,7 @@ class AnkiNoteConverter {
             answerImage: answerImage,
             tags: note.tags,
             isCloze: true,
+            sourceKey: note.guid == null ? null : 'anki:${note.guid}:c$number',
           ),
         )
         .where((card) => card.question.isNotEmpty)
@@ -189,7 +223,9 @@ class AnkiNoteConverter {
       final image = _findImage(name);
       if (image == null) {
         missingImages++;
-      } else if (!found.any((f) => f.path == image.path)) {
+      } else if (!found.any(
+        (f) => f.name == image.name && f.path == image.path,
+      )) {
         found.add(image);
       }
     }
@@ -199,6 +235,9 @@ class AnkiNoteConverter {
       name: found.first.name,
       path: found.first.path,
       extraPaths: [for (final image in found.skip(1)) image.path],
+      bytes: found.first.bytes,
+      extraBytes: [for (final image in found.skip(1)) ?image.bytes],
+      names: [for (final image in found) image.name],
     );
   }
 

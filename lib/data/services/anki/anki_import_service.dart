@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flashcards/data/services/anki/anki_apkg_parser_web.dart'
     if (dart.library.io) 'package:flashcards/data/services/anki/anki_apkg_parser.dart';
+import 'package:flashcards/data/services/anki/anki_apkg_bytes_parser.dart';
 import 'package:flashcards/data/services/anki/anki_import_models.dart';
 import 'package:flashcards/data/services/anki/anki_txt_parser.dart';
 import 'package:flutter/foundation.dart';
@@ -26,8 +27,15 @@ class AnkiImportService {
       case 'apkg':
       case 'colpkg':
         if (path == null) {
-          // Only happens on the web, where the web parser explains why.
-          return parseAnkiPackage('', '');
+          // Website: the file is read from memory.
+          if (bytes == null) {
+            throw const AnkiImportException(
+              "The chosen file couldn't be read.",
+            );
+          }
+          // Let the "Reading…" screen show before the work starts.
+          await Future<void>.delayed(const Duration(milliseconds: 50));
+          return parseAnkiPackageBytes(bytes);
         }
         final tempDirPath = (await getTemporaryDirectory()).path;
         // Large decks take a while to read, keep the UI responsive.
