@@ -1,3 +1,4 @@
+import 'package:flashcards/domain/models/flashcards/card_markup/card_markup.dart';
 import 'package:flashcards/bloc/flashcards/manage_flashcards/manage_flashcards_bloc.dart';
 import 'package:flashcards/bloc/flashcards/manage_flashcards/manage_flashcards_event.dart';
 import 'package:flashcards/domain/models/flashcards/flashcard/flashcard.dart';
@@ -78,7 +79,7 @@ class EditFlashcardCard extends StatelessWidget {
                 iconColor: context.colors.primaryContainer,
                 leading: Icon(Icons.question_answer_outlined),
                 title: Text(
-                  flashcard.question,
+                  plainCardText(flashcard.question),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(color: context.colors.onSecondaryContainer),
@@ -88,7 +89,7 @@ class EditFlashcardCard extends StatelessWidget {
                 iconColor: context.colors.primaryContainer,
                 leading: Icon(Icons.check_circle_outline),
                 title: Text(
-                  flashcard.answer,
+                  plainCardText(flashcard.answer),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(color: context.colors.onSecondaryContainer),

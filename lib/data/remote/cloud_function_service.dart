@@ -61,6 +61,12 @@ class CloudFunctionService {
     return List<String>.from(data['allowedEmails'] as List? ?? const []);
   }
 
+  /// Stores an image shown inside a card's text and returns its address.
+  Future<String> uploadCardImage(String imageBase64) async {
+    final data = await _call('uploadCardImage', {'imageBase64': imageBase64});
+    return data['url'] as String;
+  }
+
   /// The emails a pack is limited to (empty: everyone). Admins only.
   Future<List<String>> getPackAccess(String packId) async {
     final data = await _call('getPackAccess', {'packId': packId});

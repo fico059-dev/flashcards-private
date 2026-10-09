@@ -1,4 +1,5 @@
 import 'package:flashcards/ui/theme/theme_extensions.dart';
+import 'package:flashcards/ui/widgets/flashcard/card_content.dart';
 import 'package:flashcards/ui/widgets/notebook/highlightable_text.dart';
 import 'package:flutter/material.dart';
 
@@ -29,7 +30,7 @@ class FlashcardAnswer extends StatelessWidget {
       child: Column(
         children: [
           // Selectable so the answer can be copied and highlighted.
-          HighlightableText(
+          CardContent(
             answer,
             target: highlightTarget,
             style: TextTheme.of(context).bodyLarge?.merge(

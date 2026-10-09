@@ -1,3 +1,4 @@
+import 'package:flashcards/domain/models/flashcards/card_markup/card_markup.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:flashcards/config/router/router.dart';
 import 'package:flashcards/data/repositories/flashcards/flashcard_repository.dart';
@@ -502,7 +503,7 @@ class _CardTile extends StatelessWidget {
                   children: [
                     const SizedBox(height: 4),
                     Text(
-                      card.question,
+                      plainCardText(card.question),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
@@ -511,7 +512,7 @@ class _CardTile extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      card.answer,
+                      plainCardText(card.answer),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(color: colors.onSecondaryContainer),

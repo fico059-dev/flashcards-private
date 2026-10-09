@@ -14,6 +14,7 @@ import 'package:flashcards/ui/widgets/core/loading_overlay_listener.dart';
 import 'package:flashcards/ui/widgets/profile/admin_dashboard/cloze_context_menu_builder.dart';
 import 'package:flashcards/ui/widgets/profile/admin_dashboard/flashcard_builder/tag_input.dart';
 import 'package:flashcards/utils/firebase_error_mapper.dart';
+import 'package:flashcards/ui/widgets/profile/admin_dashboard/flashcard_builder/card_format_toolbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -183,6 +184,7 @@ class _UpdateFormState extends State<_UpdateForm> {
                                     ),
                                   ],
                                 ),
+                                CardFormatToolbar(controller: _questionCont),
                                 BlocTextField<
                                   UpdateFlashcardCubit,
                                   UpdateFlashcardState
@@ -229,6 +231,7 @@ class _UpdateFormState extends State<_UpdateForm> {
                                     ),
                                   ],
                                 ),
+                                CardFormatToolbar(controller: _answerCont),
                                 BlocTextField<
                                   UpdateFlashcardCubit,
                                   UpdateFlashcardState

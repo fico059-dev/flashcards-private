@@ -1,3 +1,5 @@
+import 'package:flashcards/domain/models/flashcards/card_markup/card_markup.dart';
+import 'package:flashcards/ui/widgets/flashcard/card_content.dart';
 import 'package:flashcards/data/repositories/flashcards/flashcard_repository.dart';
 import 'package:flashcards/data/repositories/notebook/highlight_repository.dart';
 import 'package:flashcards/domain/models/flashcards/flashcard/flashcard.dart';
@@ -178,7 +180,9 @@ class _CardHighlights extends StatelessWidget {
                     const SizedBox(width: 6),
                     Expanded(
                       child: Text(
-                        readableQuestion(highlights.first.question),
+                        plainCardText(
+                          readableQuestion(highlights.first.question),
+                        ),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                         style: context.text.labelLarge?.copyWith(
@@ -299,7 +303,7 @@ class _CardView extends StatelessWidget {
             color: context.colors.primaryContainer,
             borderRadius: BorderRadius.circular(12),
           ),
-          child: HighlightableText(
+          child: CardContent(
             question,
             target: HighlightTarget.of(flashcard, HighlightSide.question),
             style: TextStyle(
@@ -321,7 +325,7 @@ class _CardView extends StatelessWidget {
             color: context.colors.secondaryContainer,
             borderRadius: BorderRadius.circular(12),
           ),
-          child: HighlightableText(
+          child: CardContent(
             flashcard.answer,
             target: HighlightTarget.of(flashcard, HighlightSide.answer),
             style: context.text.bodyLarge?.copyWith(

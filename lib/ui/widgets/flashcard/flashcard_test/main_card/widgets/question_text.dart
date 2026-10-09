@@ -1,5 +1,6 @@
 import 'package:flashcards/domain/models/flashcards/tag/tag.dart';
 import 'package:flashcards/ui/theme/theme_extensions.dart';
+import 'package:flashcards/ui/widgets/flashcard/card_content.dart';
 import 'package:flashcards/ui/widgets/notebook/highlightable_text.dart';
 import 'package:flutter/material.dart';
 
@@ -25,7 +26,7 @@ class QuestionText extends StatelessWidget {
       children: [
         if (tags.isNotEmpty) FlashcardTags(tags: tags),
         // Selectable so the question can be copied and highlighted.
-        HighlightableText(
+        CardContent(
           question,
           target: highlightTarget,
           style: TextStyle(

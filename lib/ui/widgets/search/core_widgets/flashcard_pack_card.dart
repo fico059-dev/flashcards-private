@@ -1,3 +1,4 @@
+import 'package:flashcards/domain/models/flashcards/card_markup/card_markup.dart';
 import 'package:flashcards/domain/models/algolia/algolia_flashcard/algolia_flashcard.dart';
 import 'package:flashcards/ui/theme/theme_extensions.dart';
 import 'package:flashcards/ui/widgets/core/subs_status_icon.dart';
@@ -27,7 +28,7 @@ class FlashcardPackCard extends StatelessWidget {
           color: context.colors.onSecondaryContainer,
         ),
         title: Text(
-          flashcard.question,
+          plainCardText(flashcard.question),
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
           style: TextStyle(color: context.colors.onSecondaryContainer),

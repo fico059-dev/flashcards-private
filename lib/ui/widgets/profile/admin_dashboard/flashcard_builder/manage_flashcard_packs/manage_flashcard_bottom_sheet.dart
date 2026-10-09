@@ -1,3 +1,4 @@
+import 'package:flashcards/domain/models/flashcards/card_markup/card_markup.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:flashcards/bloc/flashcards/manage_flashcards/manage_flashcards_bloc.dart';
 import 'package:flashcards/bloc/flashcards/manage_flashcards/manage_flashcards_event.dart';
@@ -59,7 +60,7 @@ void showManageFlashcardBottomSheet(
                     color: context.colors.primary,
                   ),
                   title: Text(
-                    flashcard.question,
+                    plainCardText(flashcard.question),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),

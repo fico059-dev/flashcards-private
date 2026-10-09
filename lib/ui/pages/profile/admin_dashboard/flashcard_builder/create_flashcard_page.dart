@@ -15,6 +15,7 @@ import 'package:flashcards/ui/widgets/profile/admin_dashboard/cloze_context_menu
 import 'package:flashcards/ui/widgets/profile/admin_dashboard/flashcard_builder/tag_input.dart';
 import 'package:flashcards/utils/firebase_error_mapper.dart';
 import 'package:flashcards/ui/widgets/core/desktop_layout.dart';
+import 'package:flashcards/ui/widgets/profile/admin_dashboard/flashcard_builder/card_format_toolbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -194,6 +195,7 @@ class _ViewState extends State<_View> {
                       ],
                     ),
 
+                    CardFormatToolbar(controller: _questionCont),
                     BlocTextField<CreateFlashcardCubit, CreateFlashcardState>(
                       contextMenuBuilder: (context, editableTextState) =>
                           clozeContextMenuBuilder(
@@ -229,6 +231,7 @@ class _ViewState extends State<_View> {
                         ),
                       ],
                     ),
+                    CardFormatToolbar(controller: _answerCont),
                     BlocTextField<CreateFlashcardCubit, CreateFlashcardState>(
                       textEditingController: _answerCont,
                       minLines: 3,

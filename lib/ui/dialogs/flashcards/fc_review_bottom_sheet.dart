@@ -1,3 +1,4 @@
+import 'package:flashcards/ui/widgets/flashcard/card_content.dart';
 import 'dart:ui';
 import 'package:flashcards/bloc/flashcards/fc_review_getter/fc_review_getter_cubit.dart';
 import 'package:flashcards/bloc/flashcards/fc_review_getter/fc_review_getter_state.dart';
@@ -290,7 +291,7 @@ Widget _buildFlashcardItem({
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
+                CardContent(
                   label,
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
                 ),
