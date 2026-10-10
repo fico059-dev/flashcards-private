@@ -10,6 +10,8 @@ import {checkIfAdminAndThrow} from "../utils/utils";
  * (fcp_data), pack progress (pp_data) and the pack's flashcard id list.
  * Unlike deletePackEverywhereIfEmpty, the pack doesn't have to be empty.
  * Custom sessions that contained these cards skip them when studied.
+ * @param {CallableRequest} request Has the packId.
+ * @return {Promise<object>} How many flashcards were deleted.
  */
 export async function deletePackWithCardsHandler(request: CallableRequest) {
   try {
@@ -30,16 +32,25 @@ export async function deletePackWithCardsHandler(request: CallableRequest) {
     const cardIds = cards.docs.map((doc) => doc.id);
     logger.info(`Deleting pack ${packId} with ${cardIds.length} flashcards`);
 
-    // Images live under flashcards/{flashcardId}/ in Storage.
+    // Images live at flashcards/{flashcardId}/question.jpg and answer.jpg.
+    // Only cards that have one are touched: checking every card one by one
+    // made large packs take longer than the function may run.
     const bucket = getStorage().bucket();
-    await inChunks(cardIds, 20, (id) =>
-      bucket.deleteFiles({prefix: `flashcards/${id}/`, force: true}),
+    const imagePaths: string[] = [];
+    for (const doc of cards.docs) {
+      const data = doc.data();
+      if (data.questionImageUrl) imagePaths.push(`flashcards/${doc.id}/question.jpg`);
+      if (data.answerImageUrl) imagePaths.push(`flashcards/${doc.id}/answer.jpg`);
+    }
+    await inChunks(imagePaths, 100, (path) =>
+      bucket.file(path).delete({ignoreNotFound: true}).catch((error) =>
+        logger.warn("Image not deleted", {path, error: String(error)})),
     );
 
-    // Reports (with their user_reports subcollection).
-    await inChunks(cardIds, 20, (id) =>
-      db.recursiveDelete(db.collection("flashcard_reports").doc(id)),
-    );
+    // Reports of these cards (with their user_reports), found in one query.
+    const reports = await db.collection("flashcard_reports")
+      .where("flashcardSnapshot.packId", "==", packId).get();
+    await inChunks(reports.docs, 20, (doc) => db.recursiveDelete(doc.ref));
 
     const progress = await deleteMatching(
       db.collection("fcp_data").where("flashcardSnapshot.packId", "==", packId),
