@@ -108,7 +108,8 @@ class OsceRepository {
     }
   }
 
-  Future<Result<void>> addSimpleOsce({
+  /// Creates an OSCE and returns its id.
+  Future<Result<String>> addSimpleOsce({
     required String name,
     required String scenario,
     required bool isPaid,
@@ -134,7 +135,7 @@ class OsceRepository {
         isPaid: isPaid,
       ),
     );
-    return Result.ok(null);
+    return Result.ok(result.value);
   }
 
   Future<Result<void>> patchOsce(String osceId, PatchOsceDto dto) async {

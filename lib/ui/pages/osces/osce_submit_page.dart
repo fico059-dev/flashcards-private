@@ -3,6 +3,7 @@ import 'package:flashcards/bloc/osce_performance_blocs/save_osce_attempt/save_os
 import 'package:flashcards/bloc/osce_performance_blocs/save_osce_attempt/save_osce_attempt_state.dart';
 import 'package:flashcards/config/router/router.dart';
 import 'package:flashcards/data/repositories/osces/osce_performance_repository.dart';
+import 'package:flashcards/data/services/local/pdf_export_service.dart';
 import 'package:flashcards/data/services/local/study_log_store.dart';
 import 'package:flashcards/domain/enums/score_status.dart';
 import 'package:flashcards/domain/models/progress/study_log.dart';
@@ -80,6 +81,26 @@ class _ViewState extends State<_View> {
         ],
       ),
     );
+  }
+
+  bool _makingPdf = false;
+
+  Future<void> _downloadPdf() async {
+    if (_makingPdf) return;
+    setState(() => _makingPdf = true);
+    try {
+      final service = await PdfExportService.create();
+      final bytes = await service.generateOscePdf(osce);
+      await service.sharePdf(bytes, pdfFileName('${osce.name} result'));
+    } catch (error) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Couldn't make the PDF. Please try again.")),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _makingPdf = false);
+    }
   }
 
   @override
@@ -197,6 +218,25 @@ class _ViewState extends State<_View> {
                         );
                       },
                     ),
+                    SizedBox(
+                      width: double.infinity,
+                      height: 40,
+                      child: FilledButton.icon(
+                        onPressed: _makingPdf ? null : _downloadPdf,
+                        icon: _makingPdf
+                            ? const SizedBox.square(
+                                dimension: 18,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
+                              )
+                            : const Icon(Icons.picture_as_pdf_outlined),
+                        label: Text(
+                          AppLocalizations.of(context)!.osceSubmitPage_download,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
                     SizedBox(
                       width: double.infinity,
                       height: 40,
@@ -358,26 +398,3 @@ class ScoreResultView extends StatelessWidget {
     );
   }
 }
-
-// FilledButton(
-//   onPressed: () async {
-//     final pdfService = await PdfExportService.create();
-//     final pdfBytes = await pdfService.generateOscePdf(widget.submittedOsce);
-//     final file = await pdfService.savePdf(pdfBytes, "osce_${widget.submittedOsce.name}");
-//
-//     final result = await OpenFile.open(file.path);
-//
-//     if (result.type != ResultType.done && Platform.isIOS) {
-//       await Share.shareXFiles([XFile(file.path)], text: "Here is your OSCE PDF");
-//     }
-//   },
-//   style: FilledButton.styleFrom(
-//     minimumSize: Size(
-//       MediaQuery.of(context).size.width * 0.3,
-//       48,
-//     ),
-//   ),
-//   child: Text(
-//     AppLocalizations.of(context)!.osceSubmitPage_download,
-//   ),
-// ),

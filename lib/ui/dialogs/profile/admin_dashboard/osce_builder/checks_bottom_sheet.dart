@@ -5,6 +5,7 @@ import 'package:flashcards/ui/constants/styles.dart';
 import 'package:flashcards/ui/theme/theme_extensions.dart';
 import 'package:flashcards/ui/widgets/core/custom_drag_handle.dart';
 import 'package:flashcards/ui/widgets/profile/admin_dashboard/osce_builder/check_input_widget.dart';
+import 'package:flashcards/ui/widgets/profile/admin_dashboard/osce_builder/question_input_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -54,11 +55,30 @@ void showChecksBottomSheet({
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 CustomDragHandle(),
-                Text(
-                  "Question Checks",
-                  style: TextTheme.of(
-                    context,
-                  ).titleLarge?.merge(TextStyle(fontWeight: FontWeight.w600)),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        "Question Checks",
+                        style: TextTheme.of(context).titleLarge?.merge(
+                          TextStyle(fontWeight: FontWeight.w600),
+                        ),
+                      ),
+                    ),
+                    TextButton.icon(
+                      icon: const Icon(Icons.edit_note),
+                      label: const Text("Edit as text"),
+                      onPressed: () {
+                        final state = context.read<UpdateOsceCubit>().state;
+                        if (state is! UpdateOsceLoaded) return;
+                        editChecksAsText(
+                          context,
+                          questionIndex,
+                          state.questionForms[questionIndex],
+                        );
+                      },
+                    ),
+                  ],
                 ),
                 SizedBox(height: 15),
 

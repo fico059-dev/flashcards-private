@@ -4,6 +4,9 @@ import 'package:flashcards/bloc/osces/update_osce/forms/question_form/question_f
 import 'package:flashcards/bloc/osces/update_osce/update_osce_cubit.dart';
 import 'package:flashcards/bloc/osces/update_osce/update_osce_state.dart';
 import 'package:flashcards/data/repositories/osces/osce_repository.dart';
+import 'package:flashcards/domain/models/osce/osce_text_format.dart';
+import 'package:flashcards/ui/dialogs/profile/admin_dashboard/osce_builder/osce_text_dialog.dart';
+import 'package:flutter/services.dart';
 import 'package:flashcards/ui/theme/theme_extensions.dart';
 import 'package:flashcards/ui/widgets/core/error_screen.dart';
 import 'package:flashcards/ui/widgets/core/loading_overlay_listener.dart';
@@ -101,6 +104,42 @@ class _LoadedContent extends StatelessWidget {
       context.read<UpdateOsceCubit>().submitOSCEQuestions();
     }
 
+    Future<void> addFromText() async {
+      final cubit = context.read<UpdateOsceCubit>();
+      final text = await showOsceTextDialog(
+        context: context,
+        title: 'Add questions from text',
+        actionLabel: 'Add questions',
+        describe: describeOsceText,
+        hint: osceTextExample,
+      );
+      if (text == null) return;
+      final parsed = parseOsceText(text);
+      cubit.addQuestionsFromText(parsed);
+      if (!context.mounted || parsed.isEmpty) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Added ${describeOsceText(text)}. Press Save Changes to keep them.',
+          ),
+        ),
+      );
+    }
+
+    Future<void> copyAsText(List<QuestionForm> questions) async {
+      final text = osceToText(questions.mapIndexed((i, q) => q.toQuestion(i)));
+      await Clipboard.setData(ClipboardData(text: text));
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Copied as text. Paste it into "Add from text" in another OSCE '
+            'to reuse it.',
+          ),
+        ),
+      );
+    }
+
     return LoadingOverlayListener<UpdateOsceCubit, UpdateOsceState>(
       isLoading: (state) => state is UpdateOsceLoaded && state.status.isLoading,
       child: BlocListener<UpdateOsceCubit, UpdateOsceState>(
@@ -150,13 +189,50 @@ class _LoadedContent extends StatelessWidget {
                 return ListView(
                   padding: const EdgeInsets.all(16),
                   children: [
+                    Card(
+                      margin: const EdgeInsets.only(bottom: 16),
+                      child: Padding(
+                        padding: const EdgeInsets.all(12),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Fastest way: write or paste the whole OSCE as '
+                              'text. Start each question with "Q:", put one '
+                              'check per line, end a heading with ":", and '
+                              'add marks in brackets like (2).',
+                            ),
+                            const SizedBox(height: 8),
+                            Wrap(
+                              spacing: 8,
+                              runSpacing: 8,
+                              children: [
+                                FilledButton.tonalIcon(
+                                  icon: const Icon(Icons.content_paste),
+                                  label: const Text('Add from text'),
+                                  onPressed: addFromText,
+                                ),
+                                if (questions.isNotEmpty)
+                                  OutlinedButton.icon(
+                                    icon: const Icon(Icons.copy),
+                                    label: const Text('Copy as text'),
+                                    onPressed: () => copyAsText(questions),
+                                  ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
                     ...questions.asMap().entries.mapIndexed((index, qEntry) {
                       final qIndex = qEntry.key;
                       final qForm = qEntry.value;
                       return Column(
                         children: [
                           QuestionInputWidget(
+                            key: ObjectKey(qForm.id),
                             questionIndex: index,
+                            questionCount: questions.length,
                             questionForm: qForm,
                             onRemoveQuestion: () => removeQuestion(qIndex),
                           ),

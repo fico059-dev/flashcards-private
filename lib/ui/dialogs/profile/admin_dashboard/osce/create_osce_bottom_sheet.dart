@@ -3,6 +3,7 @@ import 'package:flashcards/bloc/osces/admin_osce_getter/admin_osce_getter_bloc.d
 import 'package:flashcards/bloc/osces/admin_osce_getter/admin_osce_getter_event.dart';
 import 'package:flashcards/bloc/osces/osce_dr/osce_dr_cubit.dart';
 import 'package:flashcards/bloc/osces/osce_dr/osce_dr_state.dart';
+import 'package:flashcards/config/router/router.dart';
 import 'package:flashcards/data/repositories/osces/osce_repository.dart';
 import 'package:flashcards/ui/constants/styles.dart';
 import 'package:flashcards/ui/theme/theme_extensions.dart';
@@ -91,11 +92,18 @@ class _FormState extends State<_Form> {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text(
-                        "Successfully created OSCE - ${_nameCont.text}",
+                        "Created OSCE - ${_nameCont.text}. Now add its "
+                        "questions.",
                       ),
                     ),
                   );
-                  context.router.pop();
+                  final newId = context.read<OsceDrCubit>().createdOsceId;
+                  final router = context.router;
+                  router.pop();
+                  // Straight to the questions, so the OSCE is built in one go.
+                  if (newId != null) {
+                    router.push(QuestionEditorRoute(osceId: newId));
+                  }
                   break;
                 case OsceDrError(:final error):
                   ScaffoldMessenger.of(context).showSnackBar(
