@@ -21,7 +21,7 @@ void main() {
           '<div>Causes of <b>AKI</b>:</div><ul><li>Pre&nbsp;renal</li>'
           '<li>Renal &amp; post</li></ul><br>K&gt;5.5',
         ),
-        'Causes of AKI:\n• Pre renal\n• Renal & post\n\nK>5.5',
+        'Causes of **AKI**:\n• Pre renal\n• Renal & post\n\nK>5.5',
       );
     });
 
@@ -86,7 +86,7 @@ void main() {
       );
       expect(result.cards, hasLength(4));
       expect(result.cards[0].question, 'Front 1');
-      expect(result.cards[0].answer, 'Back 1');
+      expect(result.cards[0].answer, 'Back **1**');
       expect(result.cards[0].tags, ['cardio', 'Step1::Renal_Physiology']);
       expect(result.cards[1].question, 'Multi line "quoted"');
       expect(result.cards[2].question, '{Aspirin} inhibits COX');
