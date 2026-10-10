@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:auto_route/auto_route.dart';
 import 'package:flashcards/bloc/flashcards/session_test/session_test_bloc.dart';
 import 'package:flashcards/bloc/flashcards/session_test/session_test_event.dart';
@@ -13,6 +15,7 @@ import 'package:flashcards/domain/models/flashcards/custom_session_summary/custo
 import 'package:flashcards/ui/constants/styles.dart';
 import 'package:flashcards/ui/theme/theme_extensions.dart';
 import 'package:flashcards/ui/widgets/core/error_screen.dart';
+import 'package:flashcards/ui/widgets/core/desktop_layout.dart';
 import 'package:flashcards/ui/widgets/core/loading_overlay_listener.dart';
 import 'package:flashcards/ui/widgets/flashcard/flashcard_test/answer_container/answer_with_session_bloc.dart';
 import 'package:flashcards/ui/widgets/flashcard/flashcard_test/flashcard_main_button/main_button_with_session_bloc.dart';
@@ -23,6 +26,7 @@ import 'package:flashcards/ui/widgets/flashcard/flashcard_test/next_button/next_
 import 'package:flashcards/utils/firebase_error_mapper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fsrs/fsrs.dart' as fsrs;
 
 @RoutePage()
 class CustomSessionTestPage extends StatelessWidget {
@@ -67,10 +71,68 @@ class _ViewState extends State<_View> {
     }
   }
 
+  final _subscriptions = <StreamSubscription<Object>>[];
+
   @override
   void initState() {
     super.initState();
+    final bloc = context.read<SessionTestBloc>();
+    _subscriptions
+      ..add(
+        bloc.saveErrors.listen((error) {
+          if (!mounted) return;
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                "Couldn't save your progress for a card: "
+                "${extractErrorMessage(error)}",
+              ),
+            ),
+          );
+        }),
+      )
+      ..add(
+        // Load the pictures of the next cards while this one is studied.
+        bloc.upcomingImages.listen((url) {
+          if (!mounted) return;
+          precacheImage(NetworkImage(url), context, onError: (_, _) {});
+        }),
+      );
     _onStart();
+  }
+
+  @override
+  void dispose() {
+    for (final subscription in _subscriptions) {
+      subscription.cancel();
+    }
+    super.dispose();
+  }
+
+  void _showAnswerFromKeyboard() {
+    final state = context.read<SessionTestBloc>().state;
+    if (state is! SessionTestLoaded ||
+        state.status.isNoFlashcard ||
+        state.answerShown) {
+      return;
+    }
+    context.read<SessionTestBloc>().add(SessionTestAnswerShown());
+  }
+
+  void _rateFromKeyboard(fsrs.Rating rating) {
+    final state = context.read<SessionTestBloc>().state;
+    final profileState = context.read<ProfileReaderCubit>().state;
+    if (state is! SessionTestLoaded ||
+        !state.answerShown ||
+        profileState is! ProfileReaderIsLoaded) {
+      return;
+    }
+    context.read<SessionTestBloc>().add(
+      SessionTestNextPressed(
+        rating: rating,
+        userStreak: profileState.profile.streak,
+      ),
+    );
   }
 
   @override
@@ -84,92 +146,101 @@ class _ViewState extends State<_View> {
         ),
       ),
       body: SafeArea(
-        child: Padding(
-          padding: flashcardPagePadding,
-          child: LoadingOverlayListener<SessionTestBloc, SessionTestState>(
-            isLoading: (state) =>
-                state is SessionTestLoaded && state.status.isLoading,
-            child: BlocListener<SessionTestBloc, SessionTestState>(
-              listenWhen: (previous, current) {
-                final isLoadedNow = current is SessionTestLoaded;
-                if (!isLoadedNow) return false;
+        child: ReadableWidth(
+          child: ReviewShortcuts(
+            onShowAnswer: _showAnswerFromKeyboard,
+            onRate: _rateFromKeyboard,
+            child: Padding(
+              padding: flashcardPagePadding,
+              child: LoadingOverlayListener<SessionTestBloc, SessionTestState>(
+                isLoading: (state) =>
+                    state is SessionTestLoaded && state.status.isLoading,
+                child: BlocListener<SessionTestBloc, SessionTestState>(
+                  listenWhen: (previous, current) {
+                    final isLoadedNow = current is SessionTestLoaded;
+                    if (!isLoadedNow) return false;
 
-                final hasNewStreak = current.newStreak != null;
+                    final hasNewStreak = current.newStreak != null;
 
-                // is prev was now loaded, run listener
-                if (previous is! SessionTestLoaded) {
-                  return hasNewStreak;
-                }
+                    // is prev was now loaded, run listener
+                    if (previous is! SessionTestLoaded) {
+                      return hasNewStreak;
+                    }
 
-                // if it was loaded, then compare to the current
-                return hasNewStreak && current.newStreak != previous.newStreak;
-              },
-              listener: (context, state) {
-                if (state is! SessionTestLoaded) return;
-                final newStreak = state.newStreak;
-                if (newStreak == null) return;
-                print("Ha, new streak found, updating profile bloc now");
-                context.read<ProfileReaderCubit>().updateProfileState(
-                  (profile) => profile.copyWith(streak: newStreak),
-                );
-
-                final profileState = context.read<ProfileReaderCubit>().state;
-                final streakProfile =
-                    (profileState as ProfileReaderIsLoaded).profile.streak;
-                print("New streak from bloc state: $streakProfile");
-              },
-              child: BlocListener<SessionTestBloc, SessionTestState>(
-                listenWhen: (previous, current) {
-                  final isLoaded = current is SessionTestLoaded;
-                  return isLoaded &&
-                      (current.status.isError || current.status.isFinished);
-                },
-                listener: (context, state) {
-                  if (state is! SessionTestLoaded) return;
-                  if (state.status.isError) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(extractErrorMessage(state.error!)),
-                      ),
+                    // if it was loaded, then compare to the current
+                    return hasNewStreak &&
+                        current.newStreak != previous.newStreak;
+                  },
+                  listener: (context, state) {
+                    if (state is! SessionTestLoaded) return;
+                    final newStreak = state.newStreak;
+                    if (newStreak == null) return;
+                    print("Ha, new streak found, updating profile bloc now");
+                    context.read<ProfileReaderCubit>().updateProfileState(
+                      (profile) => profile.copyWith(streak: newStreak),
                     );
-                  } else if (state.status.isFinished) {
-                    final correctCount = state.session.correctCount;
-                    final allCount = state.session.cardCount;
 
-                    context.router.pop();
-                    context.router.push(
-                      CustomSessionResultRoute(
-                        scoreStatus: calculateScoreStatus(
-                          correctCount,
-                          allCount,
-                        ),
-                        correctCount: correctCount,
-                        allCount: allCount,
-                      ),
-                    );
-                  }
-                },
-                child: BlocBuilder<SessionTestBloc, SessionTestState>(
-                  buildWhen: (previous, current) =>
-                      previous.runtimeType != current.runtimeType,
-                  builder: (context, state) {
-                    switch (state) {
-                      case SessionTestInitial():
-                      case SessionTestLoading():
-                        return Center(
-                          child: CircularProgressIndicator(
-                            color: context.colors.primary,
+                    final profileState = context
+                        .read<ProfileReaderCubit>()
+                        .state;
+                    final streakProfile =
+                        (profileState as ProfileReaderIsLoaded).profile.streak;
+                    print("New streak from bloc state: $streakProfile");
+                  },
+                  child: BlocListener<SessionTestBloc, SessionTestState>(
+                    listenWhen: (previous, current) {
+                      final isLoaded = current is SessionTestLoaded;
+                      return isLoaded &&
+                          (current.status.isError || current.status.isFinished);
+                    },
+                    listener: (context, state) {
+                      if (state is! SessionTestLoaded) return;
+                      if (state.status.isError) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(extractErrorMessage(state.error!)),
                           ),
                         );
-                      case SessionTestLoaded():
-                        return _LoadedContent(state: state);
-                      case SessionTestError(:final error):
-                        return ErrorScreen(
-                          errorMessage: extractErrorMessage(error),
-                          onReload: _onStart,
+                      } else if (state.status.isFinished) {
+                        final correctCount = state.session.correctCount;
+                        final allCount = state.session.cardCount;
+
+                        context.router.pop();
+                        context.router.push(
+                          CustomSessionResultRoute(
+                            scoreStatus: calculateScoreStatus(
+                              correctCount,
+                              allCount,
+                            ),
+                            correctCount: correctCount,
+                            allCount: allCount,
+                          ),
                         );
-                    }
-                  },
+                      }
+                    },
+                    child: BlocBuilder<SessionTestBloc, SessionTestState>(
+                      buildWhen: (previous, current) =>
+                          previous.runtimeType != current.runtimeType,
+                      builder: (context, state) {
+                        switch (state) {
+                          case SessionTestInitial():
+                          case SessionTestLoading():
+                            return Center(
+                              child: CircularProgressIndicator(
+                                color: context.colors.primary,
+                              ),
+                            );
+                          case SessionTestLoaded():
+                            return _LoadedContent(state: state);
+                          case SessionTestError(:final error):
+                            return ErrorScreen(
+                              errorMessage: extractErrorMessage(error),
+                              onReload: _onStart,
+                            );
+                        }
+                      },
+                    ),
+                  ),
                 ),
               ),
             ),

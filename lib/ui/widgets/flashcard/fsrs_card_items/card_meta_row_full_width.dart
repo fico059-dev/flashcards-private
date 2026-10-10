@@ -11,7 +11,11 @@ class CardMetaRowFullWidth extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListTile(
       contentPadding: EdgeInsets.only(left: 16.0, right: 2),
-      leading: Icon(item.icon, color: context.colors.onSecondaryContainer, size: 20),
+      leading: Icon(
+        item.icon,
+        color: context.colors.onSecondaryContainer,
+        size: 20,
+      ),
       title: Text(
         "${item.label}: ${item.value}",
         style: TextStyle(
@@ -28,7 +32,11 @@ class CardMetaRowFullWidth extends StatelessWidget {
           height: 40,
           width: 40,
           //padding: const EdgeInsets.all(0),
-          child: Icon(Icons.info_outline, color: context.colors.onSecondaryContainer, size: 16),
+          child: Icon(
+            Icons.info_outline,
+            color: context.colors.onSecondaryContainer,
+            size: 16,
+          ),
         ),
       ),
     );

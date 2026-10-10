@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flashcards/bloc/flashcards/flashcard/flashcard_event.dart';
 import 'package:flashcards/bloc/flashcards/flashcard/flashcard_state.dart';
 import 'package:flashcards/data/repositories/flashcards/fcp_repository.dart';
@@ -12,6 +14,7 @@ import 'package:flashcards/data/services/local/local_storage_service.dart';
 import 'package:flashcards/domain/models/flashcards/flashcard/flashcard.dart';
 import 'package:flashcards/domain/models/flashcards/stat_record/stat_record.dart';
 import 'package:flashcards/domain/models/profile/streak/streak.dart';
+import 'package:flashcards/utils/background_save.dart';
 import 'package:flashcards/utils/result.dart';
 import 'package:flashcards/utils/util_functions.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -24,6 +27,72 @@ class FlashcardBloc extends Bloc<FlashcardEvent, FlashcardState> {
   final PpRepository _ppRepo;
   final LocalStorageService _localStorageService;
   late final String _uid;
+
+  /// Saves progress without making the student wait for the server.
+  final _saver = BackgroundSaver();
+
+  /// Saves that failed, shown to the student without stopping the review.
+  Stream<Exception> get saveErrors => _saver.errors;
+
+  /// Image URLs of the next cards, so the page can load the pictures early.
+  final _upcomingImages = StreamController<String>.broadcast();
+  Stream<String> get upcomingImages => _upcomingImages.stream;
+  final _announcedImageCards = <String>{};
+
+  /// Downloads of cards that aren't in the session data yet.
+  final _flashcardFetches = <String, Future<Result<Flashcard>>>{};
+  final _readyFlashcards = <String, Flashcard>{};
+  static const _prefetchCount = 3;
+
+  @override
+  Future<void> close() {
+    _saver.dispose();
+    _upcomingImages.close();
+    return super.close();
+  }
+
+  Future<Result<Flashcard>> _fetchFlashcard(String flashcardId) {
+    return _flashcardFetches.putIfAbsent(
+      flashcardId,
+      () => _flashcardRepo.getFlashcard(flashcardId).withReadTimeout().then((
+        result,
+      ) {
+        if (result case Ok(:final value)) {
+          _readyFlashcards[flashcardId] = value;
+          _announceImages(flashcardId, value);
+        } else {
+          // A failed download is tried again next time.
+          _flashcardFetches.remove(flashcardId);
+        }
+        return result;
+      }),
+    );
+  }
+
+  void _announceImages(String flashcardId, Flashcard flashcard) {
+    if (!_announcedImageCards.add(flashcardId)) return;
+    for (final url in [flashcard.questionImageUrl, flashcard.answerImageUrl]) {
+      if (url != null && url.isNotEmpty && !_upcomingImages.isClosed) {
+        _upcomingImages.add(url);
+      }
+    }
+  }
+
+  /// Starts loading the cards after [index] while the current one is studied.
+  void _prefetchAfter(List<StatRecord> records, int index) {
+    for (
+      var i = index + 1;
+      i < records.length && i <= index + _prefetchCount;
+      i++
+    ) {
+      final record = records[i];
+      if (record.flashcard != null) {
+        _announceImages(record.flashcardId, record.flashcard!);
+      } else {
+        _fetchFlashcard(record.flashcardId);
+      }
+    }
+  }
 
   final double _newCardsPercentage = 0.2;
   final int _sessionExtendedTargetCards = 20;
@@ -57,6 +126,7 @@ class FlashcardBloc extends Bloc<FlashcardEvent, FlashcardState> {
     on<FlashcardIgnored>(_onFlashcardIgnored);
     on<FlashcardTutorialSeenChecked>(_onTutorialChecked);
     on<FlashcardTutorialFinished>(_onTutorialFinished);
+    on<FlashcardEdited>(_onFlashcardEdited);
   }
 
   void _onTutorialChecked(
@@ -215,7 +285,24 @@ class FlashcardBloc extends Bloc<FlashcardEvent, FlashcardState> {
     emit(state.copyWith(status: FlashcardStatus.loaded));
   }
 
+  /// True while moving to the next card, so a quick double tap doesn't
+  /// rate the same card twice.
+  bool _advancing = false;
+
   void _onFlashcardRatingGiven(
+    FlashcardRatingGiven event,
+    Emitter<FlashcardState> emit,
+  ) async {
+    if (_advancing) return;
+    _advancing = true;
+    try {
+      await _rate(event, emit);
+    } finally {
+      _advancing = false;
+    }
+  }
+
+  Future<void> _rate(
     FlashcardRatingGiven event,
     Emitter<FlashcardState> emit,
   ) async {
@@ -226,22 +313,23 @@ class FlashcardBloc extends Bloc<FlashcardEvent, FlashcardState> {
       return;
     }
 
+    // Ratings are only offered once the answer is shown, so a stray second
+    // tap on a card that just appeared is ignored.
+    if (!state.answerVisible) return;
+
     if (state.flashcard == null) {
       throw Exception("Flashcard is null inside flashcard state");
     }
-    emit(state.copyWith(status: FlashcardStatus.loading, errorMessage: null));
-
     // count streak, if it needs to
-    final streakResult = await _profileRepo.checkAndIncrementCardsCount(
-      event.userStreak,
-    );
-    switch (streakResult) {
-      case Error<Streak?>(:final error):
-        print(error);
-      case Ok<Streak?>(:final value):
-        if (value == null) break;
-        print(value);
-    }
+    _saver.run('streak', () async {
+      final result = await _profileRepo.checkAndIncrementCardsCount(
+        event.userStreak,
+      );
+      return switch (result) {
+        Error<Streak?>(:final error) => Result.error(error),
+        Ok<Streak?>() => Result.ok(null),
+      };
+    });
 
     final oldCard = state.statRecords[state.currentCardIndex].card;
     final newCard = FSRS().repeat(oldCard, DateTime.now())[event.rating]!.card;
@@ -251,23 +339,19 @@ class FlashcardBloc extends Bloc<FlashcardEvent, FlashcardState> {
     );
 
     final newStatRecord = updatedRecords[state.currentCardIndex];
-    final coordinatorResult = await _fcpRepo.safeUpdateCard(
-      newStatRecord: newStatRecord,
-      currStatRecord: state.statRecords[state.currentCardIndex],
+    final currStatRecord = state.statRecords[state.currentCardIndex];
+    _saver.run(
+      'card progress',
+      () => _fcpRepo.safeUpdateCard(
+        newStatRecord: newStatRecord,
+        currStatRecord: currStatRecord,
+      ),
     );
-    switch (coordinatorResult) {
-      case Error<void>(:final error):
-        emit(
-          state.copyWith(
-            status: FlashcardStatus.error,
-            errorMessage: error.toString(),
-          ),
-        );
-        return;
-      case Ok<void>():
-    }
 
-    final shouldReturn = await _checkLengthAndEmit(emit: emit);
+    final shouldReturn = await _checkLengthAndEmit(
+      emit: emit,
+      updatedRecords: updatedRecords,
+    );
     if (shouldReturn) return;
 
     final newIndex = state.currentCardIndex + 1;
@@ -317,18 +401,13 @@ class FlashcardBloc extends Bloc<FlashcardEvent, FlashcardState> {
     emit(state.copyWith(hasCards: hasCards));
 
     // start counting, if it needs to
-    final streakResult = await _profileRepo.checkAndStartStreak(
-      event.userStreak,
-    );
-    switch (streakResult) {
-      case Error<Streak?>(:final error):
-        print(error);
-      // emit(state.copyWith(status: FlashcardStatus.error, errorMessage: error.toString()));
-      // don't exit, continue but still show the message
-      case Ok<Streak?>(:final value):
-        if (value == null) break;
-        print(value);
-    }
+    _saver.run('streak', () async {
+      final result = await _profileRepo.checkAndStartStreak(event.userStreak);
+      return switch (result) {
+        Error<Streak?>(:final error) => Result.error(error),
+        Ok<Streak?>() => Result.ok(null),
+      };
+    });
 
     late final Result<List<StatRecord>> fcpResult;
     switch (event.testType) {
@@ -339,24 +418,15 @@ class FlashcardBloc extends Bloc<FlashcardEvent, FlashcardState> {
           newCardsPercentage: _newCardsPercentage,
           isPaid: event.pack!.isPaid,
           hasCards: state.hasCards,
+          subPacks: event.pack!.subPacks,
         );
 
-        // open a flashcard_builder as well
-        final ppResult = await _ppRepo.openPack(
-          packId: event.pack!.id,
-          packName: event.pack!.name,
+        // Remembers the pack as started (Started packs list).
+        final pack = event.pack!;
+        _saver.run(
+          'pack opened',
+          () => _ppRepo.openPack(packId: pack.id, packName: pack.name),
         );
-        switch (ppResult) {
-          case Error<void>(:final error):
-            emit(
-              state.copyWith(
-                status: FlashcardStatus.error,
-                errorMessage: error.toString(),
-              ),
-            );
-            return;
-          case Ok<void>():
-        }
         break;
       case TestType.bookmark:
         fcpResult = await _fcpRepo.loadDataForBookmarksTest(
@@ -414,6 +484,8 @@ class FlashcardBloc extends Bloc<FlashcardEvent, FlashcardState> {
   ) async {
     if (!state.status.isSessionEnded) return;
 
+    // The next batch is chosen from saved progress.
+    await _saver.settle();
     await _loadNextBatchAndEmit(
       emit: emit,
       newCardsPerSession: _sessionExtendedTargetCards,
@@ -439,6 +511,30 @@ class FlashcardBloc extends Bloc<FlashcardEvent, FlashcardState> {
     );
   }
 
+  void _onFlashcardEdited(FlashcardEdited event, Emitter<FlashcardState> emit) {
+    final index = state.currentCardIndex;
+    if (state.flashcard == null ||
+        index >= state.statRecords.length ||
+        state.statRecords[index].flashcardId != event.flashcard.id) {
+      return;
+    }
+    final edited = event.flashcard;
+    emit(
+      state.copyWith(
+        statRecords: _updateStatRecordAt(
+          state.statRecords,
+          index,
+          (record) => record.copyWith(flashcard: edited),
+        ),
+        flashcard: edited.copyWith(
+          question: state.answerVisible
+              ? revealClozeQuestion(edited.question)
+              : redactClozeQuestion(edited.question),
+        ),
+      ),
+    );
+  }
+
   void _onFlashcardHintToggled(
     FlashcardHintToggled event,
     Emitter<FlashcardState> emit,
@@ -459,6 +555,8 @@ class FlashcardBloc extends Bloc<FlashcardEvent, FlashcardState> {
     if (state.currentCardIndex >= records.length - 1) {
       // if user choose an option to extend the session, we continue extending it
       if (state.currentBatch > 0) {
+        // The next batch is chosen from saved progress.
+        await _saver.settle();
         await _loadNextBatchAndEmit(emit: emit);
         return true;
       }
@@ -493,7 +591,12 @@ class FlashcardBloc extends Bloc<FlashcardEvent, FlashcardState> {
       flashcard = currStatRecord.flashcard!;
     } else {
       final fcId = currStatRecord.flashcardId;
-      final cardResult = await _flashcardRepo.getFlashcard(fcId);
+      final pending = _fetchFlashcard(fcId);
+      if (!_readyFlashcards.containsKey(fcId)) {
+        // Only now the student has to wait.
+        emit(state.copyWith(status: FlashcardStatus.loading));
+      }
+      final cardResult = await pending;
       switch (cardResult) {
         case Error<Flashcard>(:final error):
           emit(
@@ -513,6 +616,8 @@ class FlashcardBloc extends Bloc<FlashcardEvent, FlashcardState> {
         (record) => record.copyWith(flashcard: flashcard),
       );
     }
+
+    _prefetchAfter(records, currCardIndex);
 
     // if flashcard.question has cloze, we need to format it
     final clozeFlashcard = flashcard.copyWith(
@@ -551,6 +656,7 @@ class FlashcardBloc extends Bloc<FlashcardEvent, FlashcardState> {
           target: cardsPerSession,
           newCardsPercentage: _newCardsPercentage,
           hasCards: state.hasCards,
+          subPacks: state.pack!.subPacks,
         );
         break;
       case TestType.bookmark:

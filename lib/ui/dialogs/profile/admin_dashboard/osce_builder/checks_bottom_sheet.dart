@@ -5,6 +5,7 @@ import 'package:flashcards/ui/constants/styles.dart';
 import 'package:flashcards/ui/theme/theme_extensions.dart';
 import 'package:flashcards/ui/widgets/core/custom_drag_handle.dart';
 import 'package:flashcards/ui/widgets/profile/admin_dashboard/osce_builder/check_input_widget.dart';
+import 'package:flashcards/ui/widgets/profile/admin_dashboard/osce_builder/question_input_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -39,24 +40,45 @@ void showChecksBottomSheet({
         maxChildSize: 0.97,
         expand: false,
         builder: (context, scrollController) => Padding(
-          padding: bottomSheetHorizontalPadding,
+          padding: bottomSheetHorizontalPadding.copyWith(
+            bottom: MediaQuery.viewInsetsOf(context).bottom,
+          ),
           child: Scaffold(
             backgroundColor:
                 context.theme.bottomSheetTheme.backgroundColor ??
                 context.colors.surfaceContainerLow,
             floatingActionButton: FloatingActionButton(
               onPressed: addCheck,
-              child: Icon(Icons.add, color: context.colors.onPrimary,),
+              child: Icon(Icons.add, color: context.colors.onPrimary),
             ),
             body: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 CustomDragHandle(),
-                Text(
-                  "Question Checks",
-                  style: TextTheme.of(
-                    context,
-                  ).titleLarge?.merge(TextStyle(fontWeight: FontWeight.w600)),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        "Question Checks",
+                        style: TextTheme.of(context).titleLarge?.merge(
+                          TextStyle(fontWeight: FontWeight.w600),
+                        ),
+                      ),
+                    ),
+                    TextButton.icon(
+                      icon: const Icon(Icons.edit_note),
+                      label: const Text("Edit as text"),
+                      onPressed: () {
+                        final state = context.read<UpdateOsceCubit>().state;
+                        if (state is! UpdateOsceLoaded) return;
+                        editChecksAsText(
+                          context,
+                          questionIndex,
+                          state.questionForms[questionIndex],
+                        );
+                      },
+                    ),
+                  ],
                 ),
                 SizedBox(height: 15),
 
@@ -78,6 +100,8 @@ void showChecksBottomSheet({
                         builder: (context, questionForm) {
                           return ListView(
                             controller: scrollController,
+                            // Room for the add button over the last check.
+                            padding: const EdgeInsets.only(bottom: 96),
                             children: [
                               ...questionForm.checkForms.asMap().entries.map((
                                 cEntry,

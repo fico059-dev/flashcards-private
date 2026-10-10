@@ -38,6 +38,7 @@ AnkiParseResult parseAnkiTxt(String content) {
   }
 
   final tagsColumn = columnIndex('tags');
+  final guidColumn = columnIndex('guid');
   final ignoredColumns = {
     columnIndex('guid'),
     columnIndex('notetype'),
@@ -57,7 +58,12 @@ AnkiParseResult parseAnkiTxt(String content) {
     final tags = tagsColumn != null && tagsColumn < row.length
         ? row[tagsColumn].split(' ').where((t) => t.isNotEmpty).toList()
         : <String>[];
-    notes.add(AnkiNote(fields: fields, tags: tags));
+    final guid = guidColumn != null && guidColumn < row.length
+        ? row[guidColumn].trim()
+        : '';
+    notes.add(
+      AnkiNote(fields: fields, tags: tags, guid: guid.isEmpty ? null : guid),
+    );
   }
 
   if (notes.isEmpty) {

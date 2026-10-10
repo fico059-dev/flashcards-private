@@ -27,6 +27,7 @@ class CustomSessionGetterBloc
     );
     on<CustomSessionGetterDelete>(_onDelete);
     on<CustomSessionGetterReset>(_onReset);
+    on<CustomSessionGetterRename>(_onRename);
   }
 
   void _onStateReset(
@@ -121,6 +122,53 @@ class CustomSessionGetterBloc
     emit(
       state.copyWith(
         status: CustomSessionGetterStatus.resetSuccessful,
+        pagingState: state.pagingState.copyWith(pages: newPages),
+      ),
+    );
+  }
+
+  void _onRename(
+    CustomSessionGetterRename event,
+    Emitter<CustomSessionGetterState> emit,
+  ) async {
+    if (state.status.isActionLoading || state.pagingState.isLoading) return;
+
+    emit(
+      state.copyWith(
+        status: CustomSessionGetterStatus.actionLoading,
+        error: null,
+      ),
+    );
+
+    final result = await _sessionRepo.renameSession(
+      event.sessionId,
+      event.name,
+    );
+    switch (result) {
+      case Error<String>(:final error):
+        emit(
+          state.copyWith(
+            status: CustomSessionGetterStatus.actionError,
+            error: error,
+          ),
+        );
+        return;
+      case Ok<String>():
+    }
+
+    final pages = state.pagingState.pages;
+    var newPages = pages;
+    if (pages != null) {
+      newPages = updateElementInPage(
+        pages,
+        (element) => element.id == event.sessionId,
+        (element) => element.copyWith(name: result.value),
+      );
+    }
+
+    emit(
+      state.copyWith(
+        status: CustomSessionGetterStatus.renameSuccessful,
         pagingState: state.pagingState.copyWith(pages: newPages),
       ),
     );

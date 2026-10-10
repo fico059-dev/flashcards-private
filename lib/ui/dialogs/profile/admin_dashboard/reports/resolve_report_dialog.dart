@@ -13,14 +13,11 @@ Future<bool?> showResolveReportDialog({
 }) async {
   return await showDialog(
     context: context,
-    builder:
-        (context) => BlocProvider(
-          create:
-              (context) => ResolveReportCubit(
-                reportRepo: context.read<ReportRepository>(),
-              ),
-          child: _Dialog(flashcardId: flashcardId),
-        ),
+    builder: (context) => BlocProvider(
+      create: (context) =>
+          ResolveReportCubit(reportRepo: context.read<ReportRepository>()),
+      child: _Dialog(flashcardId: flashcardId),
+    ),
   );
 }
 
@@ -39,10 +36,8 @@ class _Dialog extends StatelessWidget {
       isLoading: (state) => state is ResolveReportLoading,
       loadingText: "Resolving flashcard report...",
       child: BlocListener<ResolveReportCubit, ResolveReportState>(
-        listenWhen:
-            (previous, current) =>
-                current is ResolveReportError ||
-                current is ResolveReportSuccess,
+        listenWhen: (previous, current) =>
+            current is ResolveReportError || current is ResolveReportSuccess,
         listener: (context, state) {
           switch (state) {
             case ResolveReportError(:final error):

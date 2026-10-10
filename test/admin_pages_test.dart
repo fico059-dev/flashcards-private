@@ -4,12 +4,14 @@ import 'dart:io';
 import 'package:flashcards/bloc/flashcards/anki_import/anki_import_cubit.dart';
 import 'package:flashcards/bloc/profile/profile_reader/profile_reader_cubit.dart';
 import 'package:flashcards/data/repositories/flashcards/flashcard_repository.dart';
+import 'package:flashcards/data/repositories/flashcards/pack_repository.dart';
 import 'package:flashcards/data/repositories/users/profile_repository.dart';
 import 'package:flashcards/data/repositories/users/user_roles_repository.dart';
 import 'package:flashcards/data/services/anki/anki_import_models.dart';
 import 'package:flashcards/domain/models/flashcards/admin_pack/admin_pack.dart';
 import 'package:flashcards/domain/models/profile/admin_user/admin_user.dart';
 import 'package:flashcards/l10n/app_localizations.dart';
+import 'package:flashcards/ui/dialogs/profile/admin_dashboard/flashcard_builder/pack_premium_dialog.dart';
 import 'package:flashcards/ui/pages/profile/admin_dashboard/assign_admin_page.dart';
 import 'package:flashcards/ui/pages/profile/admin_dashboard/flashcard_builder/anki_import_page.dart';
 import 'package:flashcards/utils/result.dart';
@@ -52,6 +54,19 @@ class _FakeUserRolesRepository implements UserRolesRepository {
   @override
   Future<Result<void>> removeAdminRole(String uid) async {
     removed.add(uid);
+    return Result.ok(null);
+  }
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
+class _FakePackRepository implements PackRepository {
+  final calls = <(String, bool)>[];
+
+  @override
+  Future<Result<void>> setPackPremium(String packId, bool isPaid) async {
+    calls.add((packId, isPaid));
     return Result.ok(null);
   }
 
@@ -140,7 +155,7 @@ void main() {
     expect(find.text('Import complete'), findsOneWidget);
     expect(find.text('2 cards were added to "Cardiology".'), findsOneWidget);
     expect(
-      find.text('1 cards were already in the pack and were skipped.'),
+      find.text('1 cards were already in the pack with no changes.'),
       findsOneWidget,
     );
   });
@@ -159,7 +174,12 @@ void main() {
       tester.element(find.text('Choose Anki file')),
     );
     await tester.runAsync(
-      () => cubit.readFile(fileName: 'deck.apkg', bytes: utf8.encode('nope')),
+      () => cubit.readFile(
+        fileName: 'deck.apkg',
+        path: (File(
+          '${Directory.systemTemp.path}/bad_deck.apkg',
+        )..writeAsStringSync('nope')).path,
+      ),
     );
     await tester.pumpAndSettle();
 
@@ -200,5 +220,38 @@ void main() {
       find.text('second@flashpedz.com is no longer an admin'),
       findsOneWidget,
     );
+  });
+
+  testWidgets('Premium switch asks for confirmation and updates the pack', (
+    tester,
+  ) async {
+    final packRepo = _FakePackRepository();
+    bool? result;
+    await tester.pumpWidget(
+      _app(
+        Scaffold(
+          body: Builder(
+            builder: (context) => PackPremiumTile(
+              isPaid: false,
+              onTap: () async =>
+                  result = await showChangePackPremiumDialog(context, pack),
+            ),
+          ),
+        ),
+        [RepositoryProvider<PackRepository>.value(value: packRepo)],
+      ),
+    );
+
+    expect(find.text('Free for everyone'), findsOneWidget);
+    await tester.tap(find.byType(Switch));
+    await tester.pumpAndSettle();
+    expect(find.text('Make pack Premium?'), findsOneWidget);
+
+    await tester.tap(find.text('Make Premium'));
+    await tester.pumpAndSettle();
+
+    expect(packRepo.calls, [('pack1', true)]);
+    expect(result, isTrue);
+    expect(find.text('"Cardiology" is now Premium'), findsOneWidget);
   });
 }

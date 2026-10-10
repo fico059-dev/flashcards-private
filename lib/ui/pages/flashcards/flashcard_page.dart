@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:auto_route/auto_route.dart';
 import 'package:flashcards/bloc/flashcards/flashcard/flashcard_bloc.dart';
 import 'package:flashcards/bloc/flashcards/flashcard/flashcard_event.dart';
@@ -12,6 +14,7 @@ import 'package:flashcards/data/repositories/users/profile_repository.dart';
 import 'package:flashcards/data/services/local/local_storage_service.dart';
 import 'package:flashcards/domain/models/flashcards/pack/pack.dart';
 import 'package:flashcards/ui/constants/styles.dart';
+import 'package:flashcards/ui/widgets/core/desktop_layout.dart';
 import 'package:flashcards/ui/widgets/core/loading_overlay_listener.dart';
 import 'package:flashcards/ui/widgets/flashcard/flashcard_test/answer_container/flashcard_answer_with_flashcard_bloc.dart';
 import 'package:flashcards/ui/widgets/flashcard/flashcard_test/flashcard_main_button/main_button_with_flashcard_bloc.dart';
@@ -24,8 +27,10 @@ import 'package:flashcards/ui/widgets/flashcard/flashcard_test/flashcard_page_po
 import 'package:flashcards/ui/widgets/flashcard/flashcard_test/rating_buttons/flashcard_rating_buttons.dart';
 import 'package:flashcards/ui/widgets/flashcard/flashcard_test/flashcard_top_row/top_row_with_flashcard_bloc.dart';
 import 'package:flashcards/ui/widgets/flashcard/flashcard_test/timer_container.dart';
+import 'package:flashcards/utils/firebase_error_mapper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fsrs/fsrs.dart' as fsrs;
 import 'package:flashcards/l10n/app_localizations.dart';
 
 @RoutePage()
@@ -38,15 +43,14 @@ class FlashcardPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create:
-          (context) => FlashcardBloc(
-            flashcardRepo: context.read<FlashcardRepository>(),
-            fcpRepo: context.read<FcpRepository>(),
-            authRepo: context.read<AuthRepository>(),
-            profileRepo: context.read<ProfileRepository>(),
-            ppRepo: context.read<PpRepository>(),
-            localStorageService: context.read<LocalStorageService>(),
-          ),
+      create: (context) => FlashcardBloc(
+        flashcardRepo: context.read<FlashcardRepository>(),
+        fcpRepo: context.read<FcpRepository>(),
+        authRepo: context.read<AuthRepository>(),
+        profileRepo: context.read<ProfileRepository>(),
+        ppRepo: context.read<PpRepository>(),
+        localStorageService: context.read<LocalStorageService>(),
+      ),
       child: _FlashcardView(testType: testType, pack: pack),
     );
   }
@@ -79,26 +83,80 @@ class _FlashcardViewState extends State<_FlashcardView> {
     }
   }
 
+  final _subscriptions = <StreamSubscription<Object>>[];
+
   @override
   void initState() {
     super.initState();
     WidgetsFlutterBinding.ensureInitialized();
+    final bloc = context.read<FlashcardBloc>();
+    _subscriptions
+      ..add(
+        bloc.saveErrors.listen((error) {
+          if (!mounted) return;
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                "Couldn't save your progress: ${extractErrorMessage(error)}",
+              ),
+            ),
+          );
+        }),
+      )
+      ..add(
+        // Load the pictures of the next cards while this one is studied.
+        bloc.upcomingImages.listen((url) {
+          if (!mounted) return;
+          precacheImage(NetworkImage(url), context, onError: (_, _) {});
+        }),
+      );
     _onStart();
+  }
+
+  @override
+  void dispose() {
+    for (final subscription in _subscriptions) {
+      subscription.cancel();
+    }
+    super.dispose();
+  }
+
+  void _showAnswerFromKeyboard() {
+    final state = context.read<FlashcardBloc>().state;
+    if ((state.status.isLoaded || state.flashcard != null) &&
+        !state.answerVisible) {
+      context.read<FlashcardBloc>().add(FlashcardAnswerShown());
+    }
+  }
+
+  void _rateFromKeyboard(fsrs.Rating rating) {
+    final state = context.read<FlashcardBloc>().state;
+    final profileState = context.read<ProfileReaderCubit>().state;
+    if (!state.answerVisible || profileState is! ProfileReaderIsLoaded) return;
+    context.read<FlashcardBloc>().add(
+      FlashcardRatingGiven(
+        rating: rating,
+        userStreak: profileState.profile.streak,
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     final titleText = switch (widget.testType) {
       TestType.regular => AppLocalizations.of(context)!.flashcardPage_packTitle,
-      TestType.bookmark =>
-        AppLocalizations.of(context)!.flashcardPage_bookmarksTitle,
+      TestType.bookmark => AppLocalizations.of(
+        context,
+      )!.flashcardPage_bookmarksTitle,
     };
 
     final subTextForDialog = switch (widget.testType) {
-      TestType.regular =>
-        AppLocalizations.of(context)!.flashcardPage_packSubtext,
-      TestType.bookmark =>
-        AppLocalizations.of(context)!.flashcardPage_bookmarksSubtext,
+      TestType.regular => AppLocalizations.of(
+        context,
+      )!.flashcardPage_packSubtext,
+      TestType.bookmark => AppLocalizations.of(
+        context,
+      )!.flashcardPage_bookmarksSubtext,
     };
 
     return FlashcardPagePopScope(
@@ -111,55 +169,65 @@ class _FlashcardViewState extends State<_FlashcardView> {
           ),
         ),
         body: SafeArea(
-          child: LoadingOverlayListener<FlashcardBloc, FlashcardState>(
-            isLoading: (state) => state.status.isLoading,
-            child: TutorialSeenListenerWithFcBloc(
-              child: StreakListenerWithFcBloc(
-                child: FcBlocStatusListener(
-                  testType: widget.testType,
-                  child: Padding(
-                    padding: flashcardPagePadding,
-                    child: Column(
-                      children: [
-                        Expanded(
-                          child: SingleChildScrollView(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                TimerContainer<FlashcardBloc, FlashcardState>(
-                                  listenWhen:
-                                      (previous, current) =>
+          child: ReadableWidth(
+            child: ReviewShortcuts(
+              onShowAnswer: _showAnswerFromKeyboard,
+              onRate: _rateFromKeyboard,
+              child: LoadingOverlayListener<FlashcardBloc, FlashcardState>(
+                isLoading: (state) => state.status.isLoading,
+                child: TutorialSeenListenerWithFcBloc(
+                  child: StreakListenerWithFcBloc(
+                    child: FcBlocStatusListener(
+                      testType: widget.testType,
+                      child: Padding(
+                        padding: flashcardPagePadding,
+                        child: Column(
+                          children: [
+                            Expanded(
+                              child: SingleChildScrollView(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    TimerContainer<
+                                      FlashcardBloc,
+                                      FlashcardState
+                                    >(
+                                      listenWhen: (previous, current) =>
                                           current.status.isLoaded,
-                                  shouldStartTimer:
-                                      (state) => state.status.isLoaded,
+                                      shouldStartTimer: (state) =>
+                                          state.status.isLoaded,
+                                    ),
+
+                                    SizedBox(height: 15),
+
+                                    QuestionContainerWithFlashcardBloc(),
+
+                                    TopRowWithFlashcardBloc(),
+                                    MainCardWithFlashcardBloc(
+                                      onStart: _onStart,
+                                    ),
+
+                                    SizedBox(height: 40),
+                                    MainButtonWithFlashcardBloc(),
+                                    SizedBox(height: 40),
+
+                                    FlashcardAnswerWithFlashcardBloc(),
+                                    SizedBox(height: 15),
+                                  ],
                                 ),
-
-                                SizedBox(height: 15),
-
-                                QuestionContainerWithFlashcardBloc(),
-
-                                TopRowWithFlashcardBloc(),
-                                MainCardWithFlashcardBloc(onStart: _onStart),
-
-                                SizedBox(height: 40),
-                                MainButtonWithFlashcardBloc(),
-                                SizedBox(height: 40),
-
-                                FlashcardAnswerWithFlashcardBloc(),
-                                SizedBox(height: 15),
-                              ],
+                              ),
                             ),
-                          ),
-                        ),
 
-                        SafeArea(
-                          top: false,
-                          child: Padding(
-                            padding: EdgeInsets.only(top: 15),
-                            child: FlashcardRatingButtons(),
-                          ),
+                            SafeArea(
+                              top: false,
+                              child: Padding(
+                                padding: EdgeInsets.only(top: 15),
+                                child: FlashcardRatingButtons(),
+                              ),
+                            ),
+                          ],
                         ),
-                      ],
+                      ),
                     ),
                   ),
                 ),

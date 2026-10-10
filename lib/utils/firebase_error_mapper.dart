@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
@@ -15,6 +16,10 @@ class FirebaseErrorData {
 }
 
 String extractErrorMessage(Object error) {
+  if (error is TimeoutException) {
+    return error.message ?? 'The connection timed out, please try again.';
+  }
+
   if (error is FirebaseFunctionsException) {
     return error.message ?? 'Unknown Firebase Functions error';
   }
@@ -88,8 +93,10 @@ FirebaseErrorData mapFirebaseError({
         message: error.toString().replaceAll(RegExp(r'\[.*?\]'), ''),
       );
     default:
+      // Include the code so unexpected failures can be diagnosed.
+      final authFailed = "${locale!.error_authFailed} (${error.code})";
       if (error.message == null) {
-        return FirebaseErrorData(message: locale!.error_authFailed);
+        return FirebaseErrorData(message: authFailed);
       }
 
       if (error.message!.contains("Password must contain")) {
@@ -103,7 +110,7 @@ FirebaseErrorData mapFirebaseError({
         return FirebaseErrorData(message: "Invalid email format.");
       }
 
-      return FirebaseErrorData(message: locale!.error_authFailed);
+      return FirebaseErrorData(message: "$authFailed\n${error.message}");
   }
 
   // Additional password validation cases

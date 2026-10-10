@@ -10,6 +10,7 @@ import 'package:flashcards/ui/dialogs/profile/notification_options_bottom_sheet.
 import 'package:flashcards/ui/theme/theme_extensions.dart';
 import 'package:flashcards/ui/theme/theme_extensions.dart';
 import 'package:flashcards/ui/widgets/profile/profile_menu_widget.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flashcards/l10n/app_localizations.dart';
@@ -28,33 +29,28 @@ class ProfileData extends StatelessWidget {
     void openBookmarkDialog() {
       showDialog(
         context: context,
-        builder:
-            (context) => AlertDialog(
-              title: Text(AppLocalizations.of(context)!.profileData_bookmarks),
-              content: Text(
-                AppLocalizations.of(context)!.profileData_chooseEngage,
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    context.router.pop();
-                    context.router.push(ReviewBookmarkRoute());
-                  },
-                  child: Text(AppLocalizations.of(context)!.profileData_review),
-                ),
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                    context.router.push(
-                      FlashcardRoute(testType: TestType.bookmark),
-                    );
-                  },
-                  child: Text(
-                    AppLocalizations.of(context)!.profileData_startTest,
-                  ),
-                ),
-              ],
+        builder: (context) => AlertDialog(
+          title: Text(AppLocalizations.of(context)!.profileData_bookmarks),
+          content: Text(AppLocalizations.of(context)!.profileData_chooseEngage),
+          actions: [
+            TextButton(
+              onPressed: () {
+                context.router.pop();
+                context.router.push(ReviewBookmarkRoute());
+              },
+              child: Text(AppLocalizations.of(context)!.profileData_review),
             ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                context.router.push(
+                  FlashcardRoute(testType: TestType.bookmark),
+                );
+              },
+              child: Text(AppLocalizations.of(context)!.profileData_startTest),
+            ),
+          ],
+        ),
       );
     }
 
@@ -68,7 +64,10 @@ class ProfileData extends StatelessWidget {
         children: [
           if (profile.isAdmin) const SizedBox(height: 20),
           if (profile.isAdmin)
-            Text("Admin", style: TextStyle(color: context.colors.onSurfaceVariant)),
+            Text(
+              "Admin",
+              style: TextStyle(color: context.colors.onSurfaceVariant),
+            ),
           if (profile.isAdmin)
             ProfileMenuWidget(
               title: "Admin Dashboard",
@@ -85,10 +84,9 @@ class ProfileData extends StatelessWidget {
           const SizedBox(height: 10),
 
           ProfileMenuWidget(
-            title:
-                AppLocalizations.of(
-                  context,
-                )!.personalInformationPage_personalInformation,
+            title: AppLocalizations.of(
+              context,
+            )!.personalInformationPage_personalInformation,
             icon: Icons.person,
             onPress: () => context.router.push(PersonalInformationRoute()),
           ),
@@ -111,8 +109,9 @@ class ProfileData extends StatelessWidget {
           const SizedBox(height: 10),
 
           ProfileMenuWidget(
-            title:
-                AppLocalizations.of(context)!.profileData_bookmarkedFlashcards,
+            title: AppLocalizations.of(
+              context,
+            )!.profileData_bookmarkedFlashcards,
             icon: Icons.bookmark,
             onPress: openBookmarkDialog,
           ),
@@ -121,11 +120,13 @@ class ProfileData extends StatelessWidget {
             icon: Icons.settings,
             onPress: () => context.router.push(FlashcardSettingsRoute()),
           ),
-          ProfileMenuWidget(
-            title: "Notification Settings",
-            icon: Icons.notifications,
-            onPress: () => showNotificationOptionsBottomSheet(context: context),
-          ),
+          if (!kIsWeb)
+            ProfileMenuWidget(
+              title: "Notification Settings",
+              icon: Icons.notifications,
+              onPress: () =>
+                  showNotificationOptionsBottomSheet(context: context),
+            ),
           const SizedBox(height: 10),
           Text(
             AppLocalizations.of(context)!.basicText_other,
@@ -141,10 +142,9 @@ class ProfileData extends StatelessWidget {
             builder: (context, state) {
               return ProfileMenuWidget(
                 title: AppLocalizations.of(context)!.basicText_logout,
-                icon:
-                    state is! AuthLoading
-                        ? Icons.logout
-                        : Icons.incomplete_circle_outlined,
+                icon: state is! AuthLoading
+                    ? Icons.logout
+                    : Icons.incomplete_circle_outlined,
                 textColor: context.colors.error,
                 endIcon: false,
                 onPress: state is! AuthLoading ? onSignOut : null,

@@ -3,6 +3,7 @@ import 'package:flashcards/bloc/osces/admin_osce_getter/admin_osce_getter_bloc.d
 import 'package:flashcards/bloc/osces/admin_osce_getter/admin_osce_getter_event.dart';
 import 'package:flashcards/bloc/osces/osce_dr/osce_dr_cubit.dart';
 import 'package:flashcards/bloc/osces/osce_dr/osce_dr_state.dart';
+import 'package:flashcards/config/router/router.dart';
 import 'package:flashcards/data/repositories/osces/osce_repository.dart';
 import 'package:flashcards/ui/constants/styles.dart';
 import 'package:flashcards/ui/theme/theme_extensions.dart';
@@ -21,14 +22,16 @@ void showCreateOsceDialog(BuildContext context) {
     context: context,
     isScrollControlled: true,
     builder: (context) {
-      return DraggableScrollableSheet(
-        minChildSize: 0.6,
-        maxChildSize: 0.95,
-        initialChildSize: 0.75,
-        expand: false,
-        builder: (context, scrollController) {
-          return _Form(readBloc: readBloc, controller: scrollController);
-        },
+      return KeyboardAwareSheet(
+        child: DraggableScrollableSheet(
+          minChildSize: 0.6,
+          maxChildSize: 0.95,
+          initialChildSize: 0.75,
+          expand: false,
+          builder: (context, scrollController) {
+            return _Form(readBloc: readBloc, controller: scrollController);
+          },
+        ),
       );
     },
   );
@@ -67,8 +70,8 @@ class _FormState extends State<_Form> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create:
-          (context) => OsceDrCubit(osceRepo: context.read<OsceRepository>()),
+      create: (context) =>
+          OsceDrCubit(osceRepo: context.read<OsceRepository>()),
       child: Builder(
         builder: (context) {
           void onCreate() {
@@ -80,9 +83,8 @@ class _FormState extends State<_Form> {
           }
 
           return BlocListener<OsceDrCubit, OsceDrState>(
-            listenWhen:
-                (previous, current) =>
-                    current is OsceDrSuccess || current is OsceDrError,
+            listenWhen: (previous, current) =>
+                current is OsceDrSuccess || current is OsceDrError,
             listener: (context, state) {
               switch (state) {
                 case OsceDrSuccess():
@@ -90,11 +92,18 @@ class _FormState extends State<_Form> {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text(
-                        "Successfully created OSCE - ${_nameCont.text}",
+                        "Created OSCE - ${_nameCont.text}. Now add its "
+                        "questions.",
                       ),
                     ),
                   );
-                  context.router.pop();
+                  final newId = context.read<OsceDrCubit>().createdOsceId;
+                  final router = context.router;
+                  router.pop();
+                  // Straight to the questions, so the OSCE is built in one go.
+                  if (newId != null) {
+                    router.push(QuestionEditorRoute(osceId: newId));
+                  }
                   break;
                 case OsceDrError(:final error):
                   ScaffoldMessenger.of(context).showSnackBar(

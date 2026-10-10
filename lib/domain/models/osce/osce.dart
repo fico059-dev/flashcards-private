@@ -14,6 +14,8 @@ abstract class Osce with _$Osce {
     required String scenario,
     required List<Question> questions,
     @Default(false) bool isPaid,
+    String? folderId,
+    String? scenarioImageUrl,
   }) = _Osce;
 
   factory Osce.fromSimpleOsce(
@@ -24,6 +26,9 @@ abstract class Osce with _$Osce {
     name: simpleOsce.name,
     scenario: simpleOsce.scenario,
     questions: questions,
+    isPaid: simpleOsce.isPaid,
+    folderId: simpleOsce.folderId,
+    scenarioImageUrl: simpleOsce.scenarioImageUrl,
   );
 }
 
@@ -39,6 +44,12 @@ extension OsceX on Osce {
     return calculateScoreStatus(achievedScore, maxScore);
   }
 
-  SimpleOsce toSimpleOsce() =>
-      SimpleOsce(id: id, name: name, scenario: scenario, isPaid: isPaid);
+  SimpleOsce toSimpleOsce() => SimpleOsce(
+    id: id,
+    name: name,
+    scenario: scenario,
+    isPaid: isPaid,
+    folderId: folderId,
+    scenarioImageUrl: scenarioImageUrl,
+  );
 }

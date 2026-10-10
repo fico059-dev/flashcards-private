@@ -16,7 +16,8 @@ T _$identity<T>(T value) => value;
 mixin _$CustomSessionDto {
 
  String? get id; String get profileId; int get currentIndex; bool get isPaid;/// Number of flashcards answered right
- int get correctCount; int get cardCount;@DatetimeTimestampConverter() DateTime get createdAt;
+ int get correctCount; int get cardCount;@DatetimeTimestampConverter() DateTime get createdAt;/// Set by the student, older sessions don't have one.
+ String? get name;
 /// Create a copy of CustomSessionDto
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -29,16 +30,16 @@ $CustomSessionDtoCopyWith<CustomSessionDto> get copyWith => _$CustomSessionDtoCo
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is CustomSessionDto&&(identical(other.id, id) || other.id == id)&&(identical(other.profileId, profileId) || other.profileId == profileId)&&(identical(other.currentIndex, currentIndex) || other.currentIndex == currentIndex)&&(identical(other.isPaid, isPaid) || other.isPaid == isPaid)&&(identical(other.correctCount, correctCount) || other.correctCount == correctCount)&&(identical(other.cardCount, cardCount) || other.cardCount == cardCount)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is CustomSessionDto&&(identical(other.id, id) || other.id == id)&&(identical(other.profileId, profileId) || other.profileId == profileId)&&(identical(other.currentIndex, currentIndex) || other.currentIndex == currentIndex)&&(identical(other.isPaid, isPaid) || other.isPaid == isPaid)&&(identical(other.correctCount, correctCount) || other.correctCount == correctCount)&&(identical(other.cardCount, cardCount) || other.cardCount == cardCount)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.name, name) || other.name == name));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,profileId,currentIndex,isPaid,correctCount,cardCount,createdAt);
+int get hashCode => Object.hash(runtimeType,id,profileId,currentIndex,isPaid,correctCount,cardCount,createdAt,name);
 
 @override
 String toString() {
-  return 'CustomSessionDto(id: $id, profileId: $profileId, currentIndex: $currentIndex, isPaid: $isPaid, correctCount: $correctCount, cardCount: $cardCount, createdAt: $createdAt)';
+  return 'CustomSessionDto(id: $id, profileId: $profileId, currentIndex: $currentIndex, isPaid: $isPaid, correctCount: $correctCount, cardCount: $cardCount, createdAt: $createdAt, name: $name)';
 }
 
 
@@ -49,7 +50,7 @@ abstract mixin class $CustomSessionDtoCopyWith<$Res>  {
   factory $CustomSessionDtoCopyWith(CustomSessionDto value, $Res Function(CustomSessionDto) _then) = _$CustomSessionDtoCopyWithImpl;
 @useResult
 $Res call({
- String? id, String profileId, int currentIndex, bool isPaid, int correctCount, int cardCount,@DatetimeTimestampConverter() DateTime createdAt
+ String? id, String profileId, int currentIndex, bool isPaid, int correctCount, int cardCount,@DatetimeTimestampConverter() DateTime createdAt, String? name
 });
 
 
@@ -66,7 +67,7 @@ class _$CustomSessionDtoCopyWithImpl<$Res>
 
 /// Create a copy of CustomSessionDto
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = freezed,Object? profileId = null,Object? currentIndex = null,Object? isPaid = null,Object? correctCount = null,Object? cardCount = null,Object? createdAt = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = freezed,Object? profileId = null,Object? currentIndex = null,Object? isPaid = null,Object? correctCount = null,Object? cardCount = null,Object? createdAt = null,Object? name = freezed,}) {
   return _then(_self.copyWith(
 id: freezed == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String?,profileId: null == profileId ? _self.profileId : profileId // ignore: cast_nullable_to_non_nullable
@@ -75,7 +76,8 @@ as int,isPaid: null == isPaid ? _self.isPaid : isPaid // ignore: cast_nullable_t
 as bool,correctCount: null == correctCount ? _self.correctCount : correctCount // ignore: cast_nullable_to_non_nullable
 as int,cardCount: null == cardCount ? _self.cardCount : cardCount // ignore: cast_nullable_to_non_nullable
 as int,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
-as DateTime,
+as DateTime,name: freezed == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 
@@ -160,10 +162,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String? id,  String profileId,  int currentIndex,  bool isPaid,  int correctCount,  int cardCount, @DatetimeTimestampConverter()  DateTime createdAt)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String? id,  String profileId,  int currentIndex,  bool isPaid,  int correctCount,  int cardCount, @DatetimeTimestampConverter()  DateTime createdAt,  String? name)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _CustomSessionDto() when $default != null:
-return $default(_that.id,_that.profileId,_that.currentIndex,_that.isPaid,_that.correctCount,_that.cardCount,_that.createdAt);case _:
+return $default(_that.id,_that.profileId,_that.currentIndex,_that.isPaid,_that.correctCount,_that.cardCount,_that.createdAt,_that.name);case _:
   return orElse();
 
 }
@@ -181,10 +183,10 @@ return $default(_that.id,_that.profileId,_that.currentIndex,_that.isPaid,_that.c
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String? id,  String profileId,  int currentIndex,  bool isPaid,  int correctCount,  int cardCount, @DatetimeTimestampConverter()  DateTime createdAt)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String? id,  String profileId,  int currentIndex,  bool isPaid,  int correctCount,  int cardCount, @DatetimeTimestampConverter()  DateTime createdAt,  String? name)  $default,) {final _that = this;
 switch (_that) {
 case _CustomSessionDto():
-return $default(_that.id,_that.profileId,_that.currentIndex,_that.isPaid,_that.correctCount,_that.cardCount,_that.createdAt);case _:
+return $default(_that.id,_that.profileId,_that.currentIndex,_that.isPaid,_that.correctCount,_that.cardCount,_that.createdAt,_that.name);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -201,10 +203,10 @@ return $default(_that.id,_that.profileId,_that.currentIndex,_that.isPaid,_that.c
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String? id,  String profileId,  int currentIndex,  bool isPaid,  int correctCount,  int cardCount, @DatetimeTimestampConverter()  DateTime createdAt)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String? id,  String profileId,  int currentIndex,  bool isPaid,  int correctCount,  int cardCount, @DatetimeTimestampConverter()  DateTime createdAt,  String? name)?  $default,) {final _that = this;
 switch (_that) {
 case _CustomSessionDto() when $default != null:
-return $default(_that.id,_that.profileId,_that.currentIndex,_that.isPaid,_that.correctCount,_that.cardCount,_that.createdAt);case _:
+return $default(_that.id,_that.profileId,_that.currentIndex,_that.isPaid,_that.correctCount,_that.cardCount,_that.createdAt,_that.name);case _:
   return null;
 
 }
@@ -216,7 +218,7 @@ return $default(_that.id,_that.profileId,_that.currentIndex,_that.isPaid,_that.c
 @JsonSerializable()
 
 class _CustomSessionDto implements CustomSessionDto {
-  const _CustomSessionDto({this.id, required this.profileId, required this.currentIndex, required this.isPaid, required this.correctCount, required this.cardCount, @DatetimeTimestampConverter() required this.createdAt});
+  const _CustomSessionDto({this.id, required this.profileId, required this.currentIndex, required this.isPaid, required this.correctCount, required this.cardCount, @DatetimeTimestampConverter() required this.createdAt, this.name});
   factory _CustomSessionDto.fromJson(Map<String, dynamic> json) => _$CustomSessionDtoFromJson(json);
 
 @override final  String? id;
@@ -227,6 +229,8 @@ class _CustomSessionDto implements CustomSessionDto {
 @override final  int correctCount;
 @override final  int cardCount;
 @override@DatetimeTimestampConverter() final  DateTime createdAt;
+/// Set by the student, older sessions don't have one.
+@override final  String? name;
 
 /// Create a copy of CustomSessionDto
 /// with the given fields replaced by the non-null parameter values.
@@ -241,16 +245,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _CustomSessionDto&&(identical(other.id, id) || other.id == id)&&(identical(other.profileId, profileId) || other.profileId == profileId)&&(identical(other.currentIndex, currentIndex) || other.currentIndex == currentIndex)&&(identical(other.isPaid, isPaid) || other.isPaid == isPaid)&&(identical(other.correctCount, correctCount) || other.correctCount == correctCount)&&(identical(other.cardCount, cardCount) || other.cardCount == cardCount)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _CustomSessionDto&&(identical(other.id, id) || other.id == id)&&(identical(other.profileId, profileId) || other.profileId == profileId)&&(identical(other.currentIndex, currentIndex) || other.currentIndex == currentIndex)&&(identical(other.isPaid, isPaid) || other.isPaid == isPaid)&&(identical(other.correctCount, correctCount) || other.correctCount == correctCount)&&(identical(other.cardCount, cardCount) || other.cardCount == cardCount)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.name, name) || other.name == name));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,profileId,currentIndex,isPaid,correctCount,cardCount,createdAt);
+int get hashCode => Object.hash(runtimeType,id,profileId,currentIndex,isPaid,correctCount,cardCount,createdAt,name);
 
 @override
 String toString() {
-  return 'CustomSessionDto(id: $id, profileId: $profileId, currentIndex: $currentIndex, isPaid: $isPaid, correctCount: $correctCount, cardCount: $cardCount, createdAt: $createdAt)';
+  return 'CustomSessionDto(id: $id, profileId: $profileId, currentIndex: $currentIndex, isPaid: $isPaid, correctCount: $correctCount, cardCount: $cardCount, createdAt: $createdAt, name: $name)';
 }
 
 
@@ -261,7 +265,7 @@ abstract mixin class _$CustomSessionDtoCopyWith<$Res> implements $CustomSessionD
   factory _$CustomSessionDtoCopyWith(_CustomSessionDto value, $Res Function(_CustomSessionDto) _then) = __$CustomSessionDtoCopyWithImpl;
 @override @useResult
 $Res call({
- String? id, String profileId, int currentIndex, bool isPaid, int correctCount, int cardCount,@DatetimeTimestampConverter() DateTime createdAt
+ String? id, String profileId, int currentIndex, bool isPaid, int correctCount, int cardCount,@DatetimeTimestampConverter() DateTime createdAt, String? name
 });
 
 
@@ -278,7 +282,7 @@ class __$CustomSessionDtoCopyWithImpl<$Res>
 
 /// Create a copy of CustomSessionDto
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = freezed,Object? profileId = null,Object? currentIndex = null,Object? isPaid = null,Object? correctCount = null,Object? cardCount = null,Object? createdAt = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = freezed,Object? profileId = null,Object? currentIndex = null,Object? isPaid = null,Object? correctCount = null,Object? cardCount = null,Object? createdAt = null,Object? name = freezed,}) {
   return _then(_CustomSessionDto(
 id: freezed == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String?,profileId: null == profileId ? _self.profileId : profileId // ignore: cast_nullable_to_non_nullable
@@ -287,7 +291,8 @@ as int,isPaid: null == isPaid ? _self.isPaid : isPaid // ignore: cast_nullable_t
 as bool,correctCount: null == correctCount ? _self.correctCount : correctCount // ignore: cast_nullable_to_non_nullable
 as int,cardCount: null == cardCount ? _self.cardCount : cardCount // ignore: cast_nullable_to_non_nullable
 as int,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
-as DateTime,
+as DateTime,name: freezed == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 

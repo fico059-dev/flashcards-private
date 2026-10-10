@@ -4,6 +4,7 @@ import 'package:flashcards/bloc/flashcards/flashcard/flashcard_event.dart';
 import 'package:flashcards/bloc/flashcards/flashcard/flashcard_state.dart';
 import 'package:flashcards/config/router/router.dart';
 import 'package:flashcards/domain/models/flashcards/flashcard/flashcard.dart';
+import 'package:flashcards/ui/widgets/flashcard/flashcard_test/flashcard_top_row/widgets/admin_edit_card_button.dart';
 import 'package:flashcards/ui/widgets/flashcard/flashcard_test/flashcard_top_row/widgets/batch_counter.dart';
 import 'package:flashcards/ui/widgets/flashcard/flashcard_test/flashcard_top_row/widgets/bookmark_button.dart';
 import 'package:flashcards/ui/widgets/flashcard/flashcard_test/flashcard_top_row/widgets/popup_menu_button.dart';
@@ -42,10 +43,9 @@ class TopRowWithFlashcardBloc extends StatelessWidget {
       builder: (context, state) {
         int allFlashcards = state.statRecords.length;
         int currFlashcard = state.currentCardIndex + 1;
-        final isBookmarked =
-            state.flashcard == null
-                ? false
-                : state.statRecords[state.currentCardIndex].hasBookmark;
+        final isBookmarked = state.flashcard == null
+            ? false
+            : state.statRecords[state.currentCardIndex].hasBookmark;
         var enabled = false;
         if (state.flashcard != null && state.pack != null) {
           enabled = true;
@@ -68,6 +68,13 @@ class TopRowWithFlashcardBloc extends StatelessWidget {
 
             Row(
               children: [
+                AdminEditCardButton(
+                  flashcard: state.flashcard == null
+                      ? null
+                      : state.statRecords[state.currentCardIndex].flashcard,
+                  onEdited: (card) =>
+                      context.read<FlashcardBloc>().add(FlashcardEdited(card)),
+                ),
                 BookmarkButton(
                   isBookmarked: isBookmarked,
                   onToggleBookmark: onToggleBookmark,
@@ -75,12 +82,21 @@ class TopRowWithFlashcardBloc extends StatelessWidget {
 
                 PopupMenuButtonTopRow(
                   onIgnore: onIgnore,
-                  onReport:
-                      () => onReport(
-                        packName: state.pack!.name,
-                        flashcard: state.flashcard!,
-                        packId: state.pack!.id,
-                      ),
+                  onReport: () {
+                    // In a pack with sub-packs, the card may be from one
+                    // of the sub-packs.
+                    final pack = state.pack!;
+                    final cardPackId = state.flashcard!.packId;
+                    final cardPack = [
+                      pack,
+                      ...pack.subPacks,
+                    ].firstWhere((p) => p.id == cardPackId, orElse: () => pack);
+                    onReport(
+                      packName: cardPack.name,
+                      flashcard: state.flashcard!,
+                      packId: cardPack.id,
+                    );
+                  },
                   enabled: enabled,
                 ),
               ],

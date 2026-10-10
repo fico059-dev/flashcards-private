@@ -14,7 +14,7 @@ class _PacksTabPageState extends State<PacksTabPage> {
   @override
   Widget build(BuildContext context) {
     return AutoTabsRouter.tabBar(
-      routes: const [PacksRoute(), PreviousSessionsRoute()],
+      routes: const [PacksRoute(), PreviousSessionsRoute(), NotebookRoute()],
       builder: (context, child, controller) {
         return Column(
           children: [
@@ -24,6 +24,7 @@ class _PacksTabPageState extends State<PacksTabPage> {
               tabs: const [
                 Tab(text: 'All Packs'),
                 Tab(text: 'Custom Sessions'),
+                Tab(text: 'Notebook'),
               ],
             ),
             Expanded(child: child),

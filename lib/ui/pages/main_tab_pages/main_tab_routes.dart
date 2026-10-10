@@ -37,8 +37,9 @@ class MainTabRoutes {
         return l10n.homePage_title;
       case OsceListRoute.name:
         return l10n.osceListPage_title;
-      case PacksRoute.name:
       case LearningProgressRoute.name:
+        return "Progress";
+      case PacksRoute.name:
       case PreviousSessionsRoute.name:
         return l10n.packsPage_title;
       case PacksTabRoute.name:

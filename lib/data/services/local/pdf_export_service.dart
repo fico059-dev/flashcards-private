@@ -1,141 +1,296 @@
-import 'dart:io';
+import 'dart:async';
 import 'dart:typed_data';
 import 'package:flashcards/domain/models/flashcards/flashcard/flashcard.dart';
 import 'package:flashcards/domain/models/osce/osce.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:flashcards/domain/models/osce/question/check/check.dart';
+import 'package:flashcards/domain/models/osce/question/question.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 
 class PdfExportService {
-  final pw.Font _defaultFont;
+  final pw.ThemeData _theme;
 
-  PdfExportService._(this._defaultFont);
+  /// Loads images for the PDF; returns null when one cannot be fetched.
+  final Future<pw.ImageProvider?> Function(String url) _loadImage;
 
+  PdfExportService({
+    required pw.ThemeData theme,
+    Future<pw.ImageProvider?> Function(String url)? loadImage,
+  }) : _theme = theme,
+       _loadImage = loadImage ?? _networkImageOrNull;
+
+  /// Uses Open Sans (with an Arabic fallback) and falls back to the built-in
+  /// PDF font when there is no internet for the fonts.
   static Future<PdfExportService> create() async {
-    final font = await PdfGoogleFonts.openSansRegular();
-    return PdfExportService._(font);
+    try {
+      final fonts = await Future.wait([
+        PdfGoogleFonts.openSansRegular(),
+        PdfGoogleFonts.openSansBold(),
+        PdfGoogleFonts.notoSansArabicRegular(),
+      ]).timeout(const Duration(seconds: 15));
+      return PdfExportService(
+        theme: pw.ThemeData.withFont(
+          base: fonts[0],
+          bold: fonts[1],
+          fontFallback: [fonts[2]],
+        ),
+      );
+    } catch (_) {
+      return PdfExportService(theme: pw.ThemeData.base());
+    }
+  }
+
+  static Future<pw.ImageProvider?> _networkImageOrNull(String url) async {
+    try {
+      return await networkImage(url).timeout(const Duration(seconds: 15));
+    } catch (_) {
+      return null;
+    }
   }
 
   Future<Uint8List> generateFlashcardsPdf(List<Flashcard> flashcards) async {
-    final pdf = pw.Document();
+    final pdf = pw.Document(theme: _theme);
 
     pdf.addPage(
       pw.MultiPage(
-        build:
-            (context) => [
-              pw.SizedBox(height: 16),
-              ...flashcards.map(
-                (card) => pw.Column(
-                  crossAxisAlignment: pw.CrossAxisAlignment.start,
-                  children: [
-                    pw.Text(
-                      "Question: ${card.question}",
-                      style: pw.TextStyle(font: _defaultFont, fontSize: 16),
-                    ),
-                    pw.Text(
-                      "Answer: ${card.answer}",
-                      style: pw.TextStyle(font: _defaultFont, fontSize: 16),
-                    ),
-                    pw.SizedBox(height: 12),
-                    pw.Divider(),
-                  ],
+        build: (context) => [
+          pw.SizedBox(height: 16),
+          ...flashcards.map(
+            (card) => pw.Column(
+              crossAxisAlignment: pw.CrossAxisAlignment.start,
+              children: [
+                pw.Text(
+                  "Question: ${card.question}",
+                  style: const pw.TextStyle(fontSize: 16),
                 ),
-              ),
-            ],
+                pw.Text(
+                  "Answer: ${card.answer}",
+                  style: const pw.TextStyle(fontSize: 16),
+                ),
+                pw.SizedBox(height: 12),
+                pw.Divider(),
+              ],
+            ),
+          ),
+        ],
       ),
     );
 
     return pdf.save();
   }
 
-  Future<Uint8List> generateOscePdf(Osce osce) async {
-    final pdf = pw.Document();
+  /// A printable copy of an OSCE. With [showResults] every check is marked as
+  /// done or missed and the scores are shown, for reading after an attempt.
+  Future<Uint8List> generateOscePdf(
+    Osce osce, {
+    bool showResults = true,
+    DateTime? date,
+  }) async {
+    final urls = <String>{
+      if (osce.scenarioImageUrl case final url?) url,
+      for (final q in osce.questions)
+        if (q.imageDownloadUrl case final url?) url,
+    };
+    final images = <String, pw.ImageProvider>{};
+    await Future.wait(
+      urls.map((url) async {
+        final image = await _loadImage(url);
+        if (image != null) images[url] = image;
+      }),
+    );
 
+    const done = PdfColor.fromInt(0xFF2E7D32);
+    const missed = PdfColor.fromInt(0xFFC62828);
+    const muted = PdfColor.fromInt(0xFF616161);
+    const panel = PdfColor.fromInt(0xFFF3F4F6);
+
+    final maxScore = osce.getMaxScore();
+    final achieved = osce.getAchievedScore();
+    final percent = maxScore == 0 ? 0 : (achieved * 100 / maxScore).round();
+    final day = date ?? DateTime.now();
+    final dateText =
+        '${day.day.toString().padLeft(2, '0')}/'
+        '${day.month.toString().padLeft(2, '0')}/${day.year}';
+
+    pw.Widget image(String? url) {
+      final provider = url == null ? null : images[url];
+      if (provider == null) return pw.SizedBox();
+      return pw.Padding(
+        padding: const pw.EdgeInsets.symmetric(vertical: 8),
+        child: pw.Center(
+          child: pw.Image(provider, height: 180, fit: pw.BoxFit.contain),
+        ),
+      );
+    }
+
+    pw.Widget checkRow(Check check) {
+      if (check.isTitle) {
+        return pw.Padding(
+          padding: const pw.EdgeInsets.only(top: 8, bottom: 3),
+          child: pw.Text(
+            check.text,
+            style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+          ),
+        );
+      }
+      final isChecked = check.isChecked;
+      final score = check.score;
+      return pw.Padding(
+        padding: const pw.EdgeInsets.symmetric(vertical: 2),
+        child: pw.Row(
+          crossAxisAlignment: pw.CrossAxisAlignment.start,
+          children: [
+            pw.Container(
+              width: 9,
+              height: 9,
+              margin: const pw.EdgeInsets.only(top: 3, right: 8),
+              decoration: pw.BoxDecoration(
+                shape: pw.BoxShape.circle,
+                color: showResults ? (isChecked ? done : missed) : null,
+                border: showResults
+                    ? null
+                    : pw.Border.all(color: muted, width: 0.8),
+              ),
+            ),
+            pw.Expanded(
+              child: pw.Text(
+                check.text,
+                style: pw.TextStyle(
+                  color: showResults && !isChecked ? missed : null,
+                ),
+              ),
+            ),
+            pw.SizedBox(width: 8),
+            pw.Text(
+              showResults ? '${isChecked ? score : 0}/$score' : '$score',
+              style: const pw.TextStyle(color: muted),
+            ),
+          ],
+        ),
+      );
+    }
+
+    pw.Widget question(int index, Question q) {
+      return pw.Column(
+        crossAxisAlignment: pw.CrossAxisAlignment.start,
+        children: [
+          pw.SizedBox(height: 14),
+          pw.Row(
+            crossAxisAlignment: pw.CrossAxisAlignment.start,
+            children: [
+              pw.Expanded(
+                child: pw.Text(
+                  'Question $index${q.text.trim().isEmpty ? '' : ': ${q.text}'}',
+                  style: pw.TextStyle(
+                    fontSize: 14,
+                    fontWeight: pw.FontWeight.bold,
+                  ),
+                ),
+              ),
+              if (showResults && q.getMaxScore() > 0)
+                pw.Text(
+                  '${q.getAchievedScore()}/${q.getMaxScore()}',
+                  style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+                ),
+            ],
+          ),
+          image(q.imageDownloadUrl),
+          pw.SizedBox(height: 4),
+          ...q.checks.map(checkRow),
+        ],
+      );
+    }
+
+    final pdf = pw.Document(theme: _theme, title: osce.name);
     pdf.addPage(
       pw.MultiPage(
-        build:
-            (context) => [
-              pw.Text(
-                "OSCE: ${osce.name}",
-                style: pw.TextStyle(
-                  font: _defaultFont,
-                  fontSize: 22,
-                  fontWeight: pw.FontWeight.bold,
-                ),
+        pageFormat: PdfPageFormat.a4,
+        margin: const pw.EdgeInsets.all(36),
+        footer: (context) => pw.Row(
+          children: [
+            pw.Text(
+              'FlashPedz · $dateText',
+              style: const pw.TextStyle(fontSize: 9, color: muted),
+            ),
+            pw.Spacer(),
+            pw.Text(
+              'Page ${context.pageNumber} of ${context.pagesCount}',
+              style: const pw.TextStyle(fontSize: 9, color: muted),
+            ),
+          ],
+        ),
+        build: (context) => [
+          pw.Text(
+            osce.name,
+            style: pw.TextStyle(fontSize: 22, fontWeight: pw.FontWeight.bold),
+          ),
+          if (showResults) ...[
+            pw.SizedBox(height: 10),
+            pw.Container(
+              padding: const pw.EdgeInsets.all(12),
+              decoration: const pw.BoxDecoration(
+                color: panel,
+                borderRadius: pw.BorderRadius.all(pw.Radius.circular(6)),
               ),
-              pw.SizedBox(height: 8),
-              pw.Text(
-                "Scenario:",
-                style: pw.TextStyle(
-                  font: _defaultFont,
-                  fontSize: 16,
-                  fontWeight: pw.FontWeight.bold,
-                ),
-              ),
-              pw.Text(
-                osce.scenario,
-                style: pw.TextStyle(font: _defaultFont, fontSize: 14),
-              ),
-              pw.SizedBox(height: 16),
-              ...osce.questions.asMap().entries.map((entry) {
-                final index = entry.key + 1;
-                final question = entry.value;
-
-                return pw.Column(
-                  crossAxisAlignment: pw.CrossAxisAlignment.start,
-                  children: [
-                    pw.Text(
-                      "Question $index:",
-                      style: pw.TextStyle(
-                        font: _defaultFont,
-                        fontSize: 16,
-                        fontWeight: pw.FontWeight.bold,
-                      ),
+              child: pw.Row(
+                children: [
+                  pw.Text(
+                    'Score: $achieved / $maxScore  ($percent%)',
+                    style: pw.TextStyle(
+                      fontSize: 14,
+                      fontWeight: pw.FontWeight.bold,
                     ),
-                    pw.Text(
-                      question.text,
-                      style: pw.TextStyle(font: _defaultFont, fontSize: 14),
-                    ),
-                    pw.SizedBox(height: 8),
-                    ...question.checks.map((check) {
-                      return check.isTitle
-                          ? pw.Text(
-                            check.text,
-                            style: pw.TextStyle(
-                              font: _defaultFont,
-                              fontSize: 14,
-                              fontWeight: pw.FontWeight.bold,
-                            ),
-                          )
-                          : pw.Bullet(
-                            text: check.text,
-                            style: pw.TextStyle(
-                              font: _defaultFont,
-                              fontSize: 13,
-                            ),
-                          );
-                    }),
-                    pw.SizedBox(height: 12),
-                    pw.Divider(),
-                  ],
-                );
-              }),
-            ],
+                  ),
+                  pw.Spacer(),
+                  _legendDot(done),
+                  pw.Text('Done   '),
+                  _legendDot(missed),
+                  pw.Text('Missed'),
+                ],
+              ),
+            ),
+          ],
+          if (osce.scenario.trim().isNotEmpty) ...[
+            pw.SizedBox(height: 14),
+            pw.Text(
+              'Scenario',
+              style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold),
+            ),
+            pw.SizedBox(height: 4),
+            pw.Text(osce.scenario),
+          ],
+          image(osce.scenarioImageUrl),
+          for (final (i, q) in osce.questions.indexed) question(i + 1, q),
+        ],
       ),
     );
 
     return pdf.save();
   }
 
-  Future<File> savePdf(Uint8List pdfBytes, String filename) async {
-    final dir = await getApplicationDocumentsDirectory();
-    final file = File('${dir.path}/$filename.pdf');
-    await file.writeAsBytes(pdfBytes);
-    return file;
+  static pw.Widget _legendDot(PdfColor color) => pw.Container(
+    width: 8,
+    height: 8,
+    margin: const pw.EdgeInsets.only(right: 4),
+    decoration: pw.BoxDecoration(shape: pw.BoxShape.circle, color: color),
+  );
+
+  /// Opens the share sheet on phones and downloads the file on the website.
+  Future<void> sharePdf(Uint8List pdfBytes, String filename) async {
+    await Printing.sharePdf(bytes: pdfBytes, filename: '$filename.pdf');
   }
 
   Future<void> printPdf(Uint8List pdfBytes) async {
     await Printing.layoutPdf(onLayout: (format) async => pdfBytes);
   }
+}
+
+/// A safe file name from an OSCE name.
+String pdfFileName(String name) {
+  final cleaned = name
+      .replaceAll(RegExp(r'[^\w\s-]', unicode: true), '')
+      .trim()
+      .replaceAll(RegExp(r'\s+'), '_');
+  return cleaned.isEmpty ? 'OSCE' : cleaned;
 }

@@ -18,6 +18,8 @@ import 'package:flashcards/domain/models/flashcards/ignored_flashcard/ignored_fl
 import 'package:flashcards/domain/models/flashcards/pack/pack.dart';
 import 'package:flashcards/domain/models/flashcards/stat_record/stat_record.dart';
 import 'package:flashcards/utils/result.dart';
+import 'package:flashcards/data/services/local/seen_cards_store.dart';
+import 'package:flashcards/data/services/local/study_log_store.dart';
 import 'package:fsrs/fsrs.dart';
 
 class FcpRepository {
@@ -31,24 +33,34 @@ class FcpRepository {
 
   final PageCache<Pack> _packsCache;
 
+  final StudyLogStore? _studyLog;
+  final SeenCardsStore _seenCards;
+
   FcpRepository({
     required FcpService fcpService,
     required AuthService authService,
     required FlashcardService flashcardService,
     required PackService packService,
     required PageCache<Pack> packCache,
-  }) : _fcpService = fcpService,
+    StudyLogStore? studyLog,
+    SeenCardsStore? seenCards,
+  }) : _studyLog = studyLog,
+       _seenCards = seenCards ?? SeenCardsStore(),
+       _fcpService = fcpService,
        _authService = authService,
        _packService = packService,
        _flashcardService = flashcardService,
        _packsCache = packCache;
 
+  /// Cards for one study session of a pack. [subPacks] are the packs shown
+  /// inside it: their cards are studied together with the pack's own.
   Future<Result<List<StatRecord>>> loadDataForStandardTest({
     required String packId,
     required bool isPaid,
     required int target,
     required double newCardsPercentage,
     required hasCards,
+    List<Pack> subPacks = const [],
   }) async {
     if (target < 0 || newCardsPercentage > 1 || newCardsPercentage < 0) {
       throw Exception("Invalid inputs in loadDataForStandardTest");
@@ -56,13 +68,46 @@ class FcpRepository {
 
     final uid = _getUid();
 
-    final flashcardIdsResult = await _packService.getFlashcardIds(packId);
-    switch (flashcardIdsResult) {
-      case Error<FlashcardIdsDto>(:final error):
-        return Result.error(error);
-      case Ok<FlashcardIdsDto>():
+    // Premium sub-packs are left out without a subscription.
+    final studyPacks = <(String, bool)>[
+      (packId, isPaid),
+      for (final sub in subPacks)
+        if (sub.id != packId && (!sub.isPaid || hasCards == true))
+          (sub.id, sub.isPaid),
+    ];
+
+    final pieces = await Future.wait(
+      studyPacks.map(
+        (pack) => _loadPackPieces(
+          uid: uid,
+          packId: pack.$1,
+          target: target,
+          hasCards: hasCards,
+        ),
+      ),
+    );
+
+    final packFlashcardIds = <String>[];
+    final packOfCard = <String, (String, bool)>{};
+    final seenIds = <String>{};
+    final dueRecords = <StatRecord>[];
+    for (var i = 0; i < pieces.length; i++) {
+      final piece = pieces[i];
+      switch (piece) {
+        case Error<_PackPieces>(:final error):
+          return Result.error(error);
+        case Ok<_PackPieces>(:final value):
+          for (final id in value.flashcardIds) {
+            if (packOfCard.containsKey(id)) continue;
+            packOfCard[id] = studyPacks[i];
+            packFlashcardIds.add(id);
+          }
+          seenIds.addAll(value.seenIds);
+          dueRecords.addAll(value.due);
+      }
     }
-    final packFlashcardIds = flashcardIdsResult.value.flashcardIds;
+    // Most overdue first, across all the packs.
+    dueRecords.sort((a, b) => a.card.due.compareTo(b.card.due));
 
     final all = packFlashcardIds.length;
     var normalizedTarget = target;
@@ -71,65 +116,107 @@ class FcpRepository {
     if (normalizedTarget == 0) {
       return Result.ok([]);
     }
-    // fetch target amount of due cards
-    final recordResult = await _fcpService.getDueCardsForPack(
-      uid,
-      packId,
-      normalizedTarget,
-      hasCards,
-    );
-    switch (recordResult) {
-      case Error<List<FcpDataDto>>(:final error):
-        return Result.error(error);
-      case Ok<List<FcpDataDto>>():
-    }
-    final dueRecords = recordResult.value.map(
-      (dto) => dto.toStatRecordDomain(),
-    );
 
-    // count how many fcp data documents we have for this flashcard_builder and this profile
-    // that represents the amount of flashcards user saw from that flashcard_builder
-    final countResult = await _fcpService.countDocumentsForProfileAndPack(
-      uid,
-      packId,
-      hasCards,
-    );
-    switch (countResult) {
-      case Error<int>(:final error):
-        return Result.error(error);
-      case Ok<int>():
-    }
-    final seen = countResult.value;
+    final unseenCount = packFlashcardIds
+        .where((id) => !seenIds.contains(id))
+        .length;
+    // Progress of cards removed from the pack can still be due, so "seen"
+    // is never less than the due cards found.
+    final dueList = dueRecords.take(all).toList();
+    final seen = (all - unseenCount).clamp(dueList.length, all);
 
     final [newCount, dueCount] = _calculateSeenAndNewCount(
       all,
       seen,
-      dueRecords.length,
+      dueList.length,
       normalizedTarget,
       newCardsPercentage,
     );
 
     final List<StatRecord> resultList = [];
 
-    resultList.addAll(dueRecords.take(dueCount));
+    resultList.addAll(dueList.take(dueCount));
 
-    // now to get new cards
+    // New cards are picked at random from the cards not studied yet, so
+    // the student doesn't go through the pack in the order it was made.
     if (newCount > 0) {
-      // we start from last seen card, and grab newCount amount from all list
-      final newFcIds = packFlashcardIds.sublist(seen, seen + newCount);
-      final newRecordsIterable = newFcIds.map(
-        (fcId) => StatRecord(
-          packId: packId,
-          flashcardId: fcId,
-          card: Card(),
-          isPaid: isPaid,
-        ),
+      final newFcIds = pickNewCardIds(packFlashcardIds, seenIds, newCount);
+      resultList.addAll(
+        newFcIds.map((fcId) {
+          final (cardPackId, cardIsPaid) = packOfCard[fcId]!;
+          return StatRecord(
+            packId: cardPackId,
+            flashcardId: fcId,
+            card: Card(),
+            isPaid: cardIsPaid,
+          );
+        }),
       );
-
-      resultList.addAll(newRecordsIterable);
     }
 
     return Result.ok(resultList);
+  }
+
+  /// One pack's card ids, its due cards (at most [target]) and the cards
+  /// the user has studied.
+  Future<Result<_PackPieces>> _loadPackPieces({
+    required String uid,
+    required String packId,
+    required int target,
+    required hasCards,
+  }) async {
+    final flashcardIdsResult = await _packService.getFlashcardIds(packId);
+    switch (flashcardIdsResult) {
+      case Error<FlashcardIdsDto>(:final error):
+        return Result.error(error);
+      case Ok<FlashcardIdsDto>():
+    }
+    final ids = flashcardIdsResult.value.flashcardIds;
+    if (ids.isEmpty || target == 0) {
+      return Result.ok(_PackPieces(ids, const [], const {}));
+    }
+
+    final results = await Future.wait([
+      _fcpService.getDueCardsForPack(
+        uid,
+        packId,
+        target > ids.length ? ids.length : target,
+        hasCards,
+      ),
+      _fcpService.countDocumentsForProfileAndPack(uid, packId, hasCards),
+    ]);
+    final dueResult = results[0] as Result<List<FcpDataDto>>;
+    final countResult = results[1] as Result<int>;
+    switch (dueResult) {
+      case Error<List<FcpDataDto>>(:final error):
+        return Result.error(error);
+      case Ok<List<FcpDataDto>>():
+    }
+    switch (countResult) {
+      case Error<int>(:final error):
+        return Result.error(error);
+      case Ok<int>():
+    }
+
+    final seenIds = await _seenFlashcardIds(
+      uid: uid,
+      packId: packId,
+      serverCount: countResult.value,
+      hasCards: hasCards,
+    );
+    switch (seenIds) {
+      case Error<Set<String>>(:final error):
+        return Result.error(error);
+      case Ok<Set<String>>():
+    }
+
+    return Result.ok(
+      _PackPieces(
+        ids,
+        dueResult.value.map((dto) => dto.toStatRecordDomain()).toList(),
+        seenIds.value,
+      ),
+    );
   }
 
   Future<Result<List<StatRecord>>> loadDataForBookmarksTest(
@@ -151,9 +238,7 @@ class FcpRepository {
     }
     final dueCardsDtoList = result.value;
 
-    final records = [
-      ...dueCardsDtoList.map((dto) => dto.toStatRecordDomain()),
-    ];
+    final records = [...dueCardsDtoList.map((dto) => dto.toStatRecordDomain())];
 
     return Result.ok(records);
   }
@@ -209,10 +294,9 @@ class FcpRepository {
       case Ok<PaginatedDtoResult<FcpDataDto>>():
     }
 
-    final domainList =
-        result.value.items
-            .map((dto) => dto.toIgnoredFlashcardDomain())
-            .toList();
+    final domainList = result.value.items
+        .map((dto) => dto.toIgnoredFlashcardDomain())
+        .toList();
     _ignoredCursorMap.put(pageIndex, result.value.lastDocument);
 
     return Result.ok(domainList);
@@ -451,6 +535,28 @@ class FcpRepository {
     required StatRecord newStatRecord,
     required StatRecord currStatRecord,
   }) async {
+    // A card studied for the first time has no progress document yet, so it
+    // is written in one go instead of waiting for an update to fail first.
+    if (!currStatRecord.isPulledFromDb && newStatRecord.flashcard != null) {
+      final result = await _fcpService.setDocument(
+        FcpDataDto.fromStatRecord(newStatRecord, _getUid()),
+        merge: true,
+      );
+      switch (result) {
+        case Error<void>(:final error):
+          return Result.error(error);
+        case Ok<void>():
+      }
+      _rememberSeen(currStatRecord);
+      _updateCacheForRatingGiven(
+        currStatRecord,
+        newStatRecord.card,
+        currStatRecord.packId,
+      );
+      _recordReview(currStatRecord.card, newStatRecord.card);
+      return Result.ok(null);
+    }
+
     // try to update a card, but only update the card object in document
     final updateDto = UpdateFcpDataDto(fsrsCard: newStatRecord.card);
     final updateResult = await _fcpService.updateDocument(
@@ -465,6 +571,7 @@ class FcpRepository {
           newStatRecord.card,
           currStatRecord.packId,
         );
+        _recordReview(currStatRecord.card, newStatRecord.card);
         return Result.ok(null);
       case Error<void>():
     }
@@ -483,13 +590,51 @@ class FcpRepository {
         return Result.error(error);
       case Ok<void>():
     }
+    _rememberSeen(currStatRecord);
 
     _updateCacheForRatingGiven(
       currStatRecord,
       newStatRecord.card,
       currStatRecord.packId,
     );
+    _recordReview(currStatRecord.card, newStatRecord.card);
     return Result.ok(null);
+  }
+
+  /// The cards of the pack the user has studied, from the device when its
+  /// list matches the server's count, otherwise read again from the server.
+  Future<Result<Set<String>>> _seenFlashcardIds({
+    required String uid,
+    required String packId,
+    required int serverCount,
+    required bool hasCards,
+  }) async {
+    final saved = await _seenCards.load(uid, packId);
+    if (saved != null && saved.length == serverCount) return Result.ok(saved);
+    final result = await _fcpService.getSeenFlashcardIdsForPack(
+      uid,
+      packId,
+      hasCards,
+    );
+    if (result case Ok<Set<String>>(:final value)) {
+      await _seenCards.save(uid, packId, value);
+    }
+    return result;
+  }
+
+  void _rememberSeen(StatRecord record) {
+    _seenCards.add(_getUid(), record.packId, record.flashcardId);
+  }
+
+  /// Keeps the daily history shown on the Progress tab.
+  void _recordReview(Card before, Card after) {
+    _studyLog?.update(
+      (log) => log.recordReview(
+        now: DateTime.now(),
+        isNew: before.state == State.newState || before.reps == 0,
+        forgot: after.lapses > before.lapses,
+      ),
+    );
   }
 
   List<int> _calculateSeenAndNewCount(
@@ -545,10 +690,9 @@ class FcpRepository {
     if (cardState.isNewState && !currStatRecord.isPulledFromDb) {
       _packsCache.updateItem(
         id: packId,
-        copyWith:
-            (pack) => pack.copyWith(
-              newCount: pack.newCount != 0 ? pack.newCount - 1 : pack.newCount,
-            ),
+        copyWith: (pack) => pack.copyWith(
+          newCount: pack.newCount != 0 ? pack.newCount - 1 : pack.newCount,
+        ),
       );
       return;
     }
@@ -556,15 +700,14 @@ class FcpRepository {
     if (!cardState.isNewState) {
       _packsCache.updateItem(
         id: packId,
-        copyWith:
-            (pack) => pack.copyWith(
-              dueCount: pack.dueCount - 1,
-              learningCount:
-                  (cardState.isLearning || cardState.isRelearning) &&
-                          pack.learningCount > 0
-                      ? pack.learningCount - 1
-                      : pack.learningCount,
-            ),
+        copyWith: (pack) => pack.copyWith(
+          dueCount: pack.dueCount - 1,
+          learningCount:
+              (cardState.isLearning || cardState.isRelearning) &&
+                  pack.learningCount > 0
+              ? pack.learningCount - 1
+              : pack.learningCount,
+        ),
       );
     }
   }
@@ -583,10 +726,9 @@ class FcpRepository {
 
     _packsCache.updateItem(
       id: packId,
-      copyWith:
-          (pack) => pack.copyWith(
-            newCount: pack.newCount != 0 ? pack.newCount - 1 : pack.newCount,
-          ),
+      copyWith: (pack) => pack.copyWith(
+        newCount: pack.newCount != 0 ? pack.newCount - 1 : pack.newCount,
+      ),
     );
   }
 
@@ -633,4 +775,12 @@ class FcpRepository {
       },
     );
   }
+}
+
+class _PackPieces {
+  final List<String> flashcardIds;
+  final List<StatRecord> due;
+  final Set<String> seenIds;
+
+  const _PackPieces(this.flashcardIds, this.due, this.seenIds);
 }

@@ -94,34 +94,31 @@ Future<bool?> showUpdateCardsPerSessionDialog({
   return await showDialog<bool>(
     context: context,
     //barrierDismissible: false,
-    builder:
-        (context) => AlertDialog(
-          title: Text(
-            AppLocalizations.of(context)!.flashcardPageDialog_endThisSession,
-          ),
-          content: Text(
-            AppLocalizations.of(
-              context,
-            )!.flashcardPageDialog_updateCardsPerSession(
-              cardDifference,
-              userCardsPerSession,
-              newCardsPerSession,
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(false),
-              child: Text(
-                AppLocalizations.of(context)!.flashcardPageDialog_keepCurrent,
-              ),
-            ),
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(true),
-              child: Text(
-                AppLocalizations.of(context)!.flashcardPageDialog_updateTarget,
-              ),
-            ),
-          ],
+    builder: (context) => AlertDialog(
+      title: Text(
+        AppLocalizations.of(context)!.flashcardPageDialog_endThisSession,
+      ),
+      content: Text(
+        AppLocalizations.of(context)!.flashcardPageDialog_updateCardsPerSession(
+          cardDifference,
+          userCardsPerSession,
+          newCardsPerSession,
         ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(false),
+          child: Text(
+            AppLocalizations.of(context)!.flashcardPageDialog_keepCurrent,
+          ),
+        ),
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(true),
+          child: Text(
+            AppLocalizations.of(context)!.flashcardPageDialog_updateTarget,
+          ),
+        ),
+      ],
+    ),
   );
 }

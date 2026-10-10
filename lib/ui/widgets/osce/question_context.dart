@@ -1,5 +1,4 @@
 import 'package:flashcards/bloc/osces/osce/osce_bloc.dart';
-import 'package:flashcards/bloc/osces/osce/osce_event.dart';
 import 'package:flashcards/bloc/osces/osce/osce_state.dart';
 import 'package:flashcards/domain/models/osce/question/question.dart';
 import 'package:flashcards/ui/widgets/core/images/image_preview.dart';
@@ -11,21 +10,15 @@ class QuestionContext extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocSelector<OsceBloc, OsceState, (Question, bool)>(
+    return BlocSelector<OsceBloc, OsceState, Question>(
       selector: (state) {
         if (state is! OsceLoaded) {
           throw Exception("Osce is not in loaded state");
         }
 
-        final currentQuestion = state.currentQuestion;
-        final isShown = state.revealedQuestions[currentQuestion.id] == true;
-
-        return (currentQuestion, isShown);
+        return state.currentQuestion;
       },
-      builder: (context, tuple) {
-        final question = tuple.$1;
-        final isShown = tuple.$2;
-
+      builder: (context, question) {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -43,38 +36,6 @@ class QuestionContext extends StatelessWidget {
                 showTextWhenEmpty: false,
               ),
             ),
-            if (isShown) const SizedBox(height: 16),
-            if (isShown)
-              Column(
-                children:
-                    question.checks.asMap().entries.map((entry) {
-                      final index = entry.key;
-                      final check = entry.value;
-                      return Row(
-                        children: [
-                          if (check.isTitle) ...[
-                            Text(
-                              check.text,
-                              style: TextTheme.of(context).titleMedium
-                                  ?.copyWith(fontWeight: FontWeight.w800),
-                            ),
-                            SizedBox(height: 30),
-                          ] else
-                            Expanded(
-                              child: CheckboxListTile(
-                                title: Text(check.text),
-                                value: check.isChecked,
-                                onChanged: (_) {
-                                  context.read<OsceBloc>().add(
-                                    ToggleCheck(checkIndex: index),
-                                  );
-                                },
-                              ),
-                            ),
-                        ],
-                      );
-                    }).toList(),
-              ),
           ],
         );
       },

@@ -7,6 +7,7 @@ import 'package:flashcards/ui/widgets/core/bloc_text_field.dart';
 import 'package:flashcards/ui/widgets/core/theme_toggle_button.dart';
 import 'package:flashcards/utils/firebase_error_mapper.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flashcards/ui/widgets/core/desktop_layout.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flashcards/l10n/app_localizations.dart';
@@ -18,10 +19,8 @@ class ForgotPasswordPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create:
-          (context) => ForgotPasswordCubit(
-            authRepository: context.read<AuthRepository>(),
-          ),
+      create: (context) =>
+          ForgotPasswordCubit(authRepository: context.read<AuthRepository>()),
       child: _ForgotPasswordView(),
     );
   }
@@ -81,66 +80,67 @@ class _ForgotPasswordViewState extends State<_ForgotPasswordView> {
           ),
           actions: [ThemeToggleButton()],
         ),
-        body: SafeArea(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 45),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Column(
-                  children: [
-                    Icon(
-                      CupertinoIcons.lock_rotation,
-                      size: 100,
-                      color: context.colors.primary,
-                    ),
-                    SizedBox(height: 40),
-                    Text(
-                      AppLocalizations.of(context)!.basicText_forgotPassword,
-                      style: TextTheme.of(context).headlineMedium,
-                    ),
-                    SizedBox(height: 50),
-                    Text(
-                      AppLocalizations.of(
-                        context,
-                      )!.forgotPasswordPage_enterEmail,
-                      style: TextStyle(
-                        fontWeight: FontWeight.w300,
-                        color: context.colors.onSurfaceVariant,
+        body: ReadableWidth(
+          maxWidth: 480,
+          child: SafeArea(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 45),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    children: [
+                      Icon(
+                        CupertinoIcons.lock_rotation,
+                        size: 100,
+                        color: context.colors.primary,
                       ),
-                    ),
-                    SizedBox(height: 20),
-                    BlocTextField<ForgotPasswordCubit, ForgotPasswordState>(
-                      labelText: AppLocalizations.of(context)!.basicText_email,
-                      textEditingController: _emailController,
-                      errorSelector:
-                          (state) =>
-                              state is ForgotPasswordFormInvalid
-                                  ? state.errors["email"]
-                                  : null,
-                    ),
-                    SizedBox(height: 40),
-                    BlocBuilder<ForgotPasswordCubit, ForgotPasswordState>(
-                      builder: (context, state) {
-                        final isLoading = state is ForgotPasswordLoading;
+                      SizedBox(height: 40),
+                      Text(
+                        AppLocalizations.of(context)!.basicText_forgotPassword,
+                        style: TextTheme.of(context).headlineMedium,
+                      ),
+                      SizedBox(height: 50),
+                      Text(
+                        AppLocalizations.of(
+                          context,
+                        )!.forgotPasswordPage_enterEmail,
+                        style: TextStyle(
+                          fontWeight: FontWeight.w300,
+                          color: context.colors.onSurfaceVariant,
+                        ),
+                      ),
+                      SizedBox(height: 20),
+                      BlocTextField<ForgotPasswordCubit, ForgotPasswordState>(
+                        labelText: AppLocalizations.of(
+                          context,
+                        )!.basicText_email,
+                        textEditingController: _emailController,
+                        errorSelector: (state) =>
+                            state is ForgotPasswordFormInvalid
+                            ? state.errors["email"]
+                            : null,
+                      ),
+                      SizedBox(height: 40),
+                      BlocBuilder<ForgotPasswordCubit, ForgotPasswordState>(
+                        builder: (context, state) {
+                          final isLoading = state is ForgotPasswordLoading;
 
-                        return FilledButton(
-                          onPressed:
-                              isLoading
-                                  ? null
-                                  : () {
+                          return FilledButton(
+                            onPressed: isLoading
+                                ? null
+                                : () {
                                     final email = _emailController.text.trim();
-                                    var cubit =
-                                        context.read<ForgotPasswordCubit>();
+                                    var cubit = context
+                                        .read<ForgotPasswordCubit>();
                                     cubit.validateForm(email);
                                     context
                                         .read<ForgotPasswordCubit>()
                                         .sendResetEmail(email);
                                   },
-                          child:
-                              isLoading
-                                  ? SizedBox(
+                            child: isLoading
+                                ? SizedBox(
                                     width: 20,
                                     height: 20,
                                     child: CircularProgressIndicator(
@@ -148,17 +148,18 @@ class _ForgotPasswordViewState extends State<_ForgotPasswordView> {
                                       color: context.colors.primary,
                                     ),
                                   )
-                                  : Text(
+                                : Text(
                                     AppLocalizations.of(
                                       context,
                                     )!.basicText_sendEmail,
                                   ),
-                        );
-                      },
-                    ),
-                  ],
-                ),
-              ],
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
         ),

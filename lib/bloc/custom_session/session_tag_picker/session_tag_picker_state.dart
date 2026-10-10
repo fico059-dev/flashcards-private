@@ -18,16 +18,27 @@ extension SessionTagPickerStateX on SessionTagPickerState {
     return state.selectedTags.keys.map((k) => Tag.fromId(k)).toList();
   }
 
-  bool get areAllTagsSelected {
+  /// With no tags selected every card counts, so the card count is exact.
+  /// Otherwise a card must have all the selected tags, which can only be
+  /// estimated here.
+  bool get isCountExact {
     final state = this;
-    if (state is! SessionTagPickerLoaded) return false;
+    return state is! SessionTagPickerLoaded || state.selectedTags.isEmpty;
+  }
 
-    if (state.selectedTags.length == state.allTagCounts.length ||
-        state.selectedTags.isEmpty) {
-      return true;
+  /// At most this many cards can have all the selected tags: the count of
+  /// the rarest selected tag. Null when no tags are selected.
+  int? get maxCardsWithAllTags {
+    final state = this;
+    if (state is! SessionTagPickerLoaded || state.selectedTags.isEmpty) {
+      return null;
     }
-
-    return false;
+    int? result;
+    state.allTagCounts.forEach((tag, count) {
+      if (state.selectedTags[tag.id] != true) return;
+      if (result == null || count < result!) result = count;
+    });
+    return result ?? 0;
   }
 }
 

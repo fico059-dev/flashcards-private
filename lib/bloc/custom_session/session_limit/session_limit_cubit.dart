@@ -14,7 +14,7 @@ class SessionLimitCubit extends Cubit<SessionLimitState> {
       super(SessionLimitInitial());
 
   void loadData({
-    required bool areAllTagsSelected,
+    required bool isCountExact,
     required int packFilterCount,
     required List<Tag> selectedTags,
     required List<String> selectedPackNames,
@@ -23,7 +23,7 @@ class SessionLimitCubit extends Cubit<SessionLimitState> {
     emit(
       SessionLimitLoaded(
         flashcardsCount: packFilterCount,
-        isEstimatePrecise: areAllTagsSelected,
+        isEstimatePrecise: isCountExact,
         selectedTags: selectedTags,
         selectedPacks: selectedPackNames,
         selectedFilter: filter,
@@ -37,6 +37,7 @@ class SessionLimitCubit extends Cubit<SessionLimitState> {
     required PackSelectedFilter filter,
     required List<String> selectedTags,
     required List<String> packIds,
+    String? name,
   }) async {
     final state = this.state;
     if (state is! SessionLimitLoaded) return;
@@ -58,6 +59,7 @@ class SessionLimitCubit extends Cubit<SessionLimitState> {
       filter: filter,
       tags: selectedTags,
       packIds: packIds,
+      name: name,
     );
     switch (result) {
       case Error<void>(:final error):
@@ -83,4 +85,18 @@ class SessionLimitCubit extends Cubit<SessionLimitState> {
 
     return errors;
   }
+}
+
+/// Name used when the student doesn't type one: the selected tags, or else
+/// the packs, e.g. "Neoreview + 2025" or "Cardiology, Renal".
+String defaultSessionName({
+  required List<String> tagNames,
+  required List<String> packNames,
+}) {
+  final name = tagNames.isNotEmpty
+      ? tagNames.join(' + ')
+      : packNames.isNotEmpty
+      ? packNames.join(', ')
+      : 'Custom Session';
+  return name.length <= 60 ? name : '${name.substring(0, 57)}...';
 }

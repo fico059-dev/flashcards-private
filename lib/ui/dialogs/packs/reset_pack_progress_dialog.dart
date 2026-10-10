@@ -38,7 +38,10 @@ class _View extends StatelessWidget {
             onDelete.call();
             context.router.pop();
           },
-          child: Text("Reset Progress", style: TextStyle(color: context.colors.error)),
+          child: Text(
+            "Reset Progress",
+            style: TextStyle(color: context.colors.error),
+          ),
         ),
       ],
     );

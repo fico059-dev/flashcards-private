@@ -22,14 +22,16 @@ Future<SimplePack?> showCreatePackDialog(BuildContext context) {
     isScrollControlled: true,
     context: context,
     builder: (context) {
-      return DraggableScrollableSheet(
-        expand: false,
-        initialChildSize: 0.8,
-        minChildSize: 0.6,
-        maxChildSize: 0.95,
-        builder: (context, scrollController) {
-          return _Form(getterBloc: getterBloc, controller: scrollController);
-        },
+      return KeyboardAwareSheet(
+        child: DraggableScrollableSheet(
+          expand: false,
+          initialChildSize: 0.8,
+          minChildSize: 0.6,
+          maxChildSize: 0.95,
+          builder: (context, scrollController) {
+            return _Form(getterBloc: getterBloc, controller: scrollController);
+          },
+        ),
       );
     },
   );
@@ -64,9 +66,8 @@ class _FormState extends State<_Form> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create:
-          (context) =>
-              CreatePackCubit(packRepo: context.read<PackRepository>()),
+      create: (context) =>
+          CreatePackCubit(packRepo: context.read<PackRepository>()),
       child: Builder(
         builder: (context) {
           void onCreate() {
@@ -77,10 +78,8 @@ class _FormState extends State<_Form> {
           }
 
           return BlocListener<CreatePackCubit, CreatePackState>(
-            listenWhen:
-                (previous, current) =>
-                    current is CreatePackSuccessful ||
-                    current is CreatePackError,
+            listenWhen: (previous, current) =>
+                current is CreatePackSuccessful || current is CreatePackError,
             listener: (context, state) {
               switch (state) {
                 case CreatePackSuccessful(:final pack):
@@ -112,28 +111,26 @@ class _FormState extends State<_Form> {
                     "Create new pack",
                     style: TextTheme.of(context).headlineMedium,
                   ),
-                  const SizedBox(height: 34,),
+                  const SizedBox(height: 34),
 
                   SingleChildScrollView(
                     controller: widget.controller,
                     child: Column(
                       children: [
                         BlocTextField<CreatePackCubit, CreatePackState>(
-                          errorSelector:
-                              (state) =>
-                                  state is CreatePackFormInvalid
-                                      ? state.errors['packName']
-                                      : null,
+                          errorSelector: (state) =>
+                              state is CreatePackFormInvalid
+                              ? state.errors['packName']
+                              : null,
                           labelText: "Pack Name",
                           textEditingController: _nameCont,
                         ),
                         const SizedBox(height: 16),
-                        CardFactory.warning(
+                        CardFactory.info(
                           isThreeLine: true,
                           subtitle: Text(
-                            "Once pack is created, its premium status cannot "
-                            "be changed. You cannot switch pack from Free "
-                            "to Paid or from Paid to Free.",
+                            "You can switch the pack between Free and "
+                            "Premium later from the pack's menu.",
                           ),
                         ),
                         const SizedBox(height: 24),
@@ -146,19 +143,20 @@ class _FormState extends State<_Form> {
                           onChanged: (v) => setState(() => _isPaid = v),
                         ),
 
-                        const SizedBox(height: 24,),
+                        const SizedBox(height: 24),
 
                         SizedBox(
                           width: double.infinity,
-                          child: BlocButton<
-                            CreatePackCubit,
-                            CreatePackState
-                          >.small(
-                            onPressed: (context) => onCreate(),
-                            textString: "Create",
-                            isLoadingState:
-                                (state) => state is CreatePackLoading,
-                          ),
+                          child:
+                              BlocButton<
+                                CreatePackCubit,
+                                CreatePackState
+                              >.small(
+                                onPressed: (context) => onCreate(),
+                                textString: "Create",
+                                isLoadingState: (state) =>
+                                    state is CreatePackLoading,
+                              ),
                         ),
                       ],
                     ),

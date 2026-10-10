@@ -17,6 +17,7 @@ _CustomSessionDto _$CustomSessionDtoFromJson(Map<String, dynamic> json) =>
       createdAt: const DatetimeTimestampConverter().fromJson(
         json['createdAt'] as Timestamp,
       ),
+      name: json['name'] as String?,
     );
 
 Map<String, dynamic> _$CustomSessionDtoToJson(
@@ -29,4 +30,5 @@ Map<String, dynamic> _$CustomSessionDtoToJson(
   'correctCount': instance.correctCount,
   'cardCount': instance.cardCount,
   'createdAt': const DatetimeTimestampConverter().toJson(instance.createdAt),
+  'name': instance.name,
 };

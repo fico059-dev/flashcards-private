@@ -23,12 +23,11 @@ class ChangeEmailDuringVerificationPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create:
-          (context) => UpdateEmailDuringVerificationCubit(
-            authRepository: context.read<AuthRepository>(),
-            setSignOutReason: context.read<AuthBloc>().setSignOutReason,
-            resetSignOutReason: context.read<AuthBloc>().resetSignOutReason,
-          ),
+      create: (context) => UpdateEmailDuringVerificationCubit(
+        authRepository: context.read<AuthRepository>(),
+        setSignOutReason: context.read<AuthBloc>().setSignOutReason,
+        resetSignOutReason: context.read<AuthBloc>().resetSignOutReason,
+      ),
       child: _ChangeEmailView(emailVerificationBloc: emailVerificationBloc),
     );
   }

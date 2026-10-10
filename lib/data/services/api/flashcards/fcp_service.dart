@@ -31,6 +31,44 @@ class FcpService {
     }
   }
 
+  /// One page of all the progress documents of the profile, for statistics.
+  Future<Result<PaginatedDtoResult<FcpDataDto>>> getProfileDocsPagination({
+    required String profileId,
+    required bool hasCards,
+    required DocumentSnapshot? startAfter,
+    required int limit,
+  }) async {
+    try {
+      var query = _fcpData
+          .where('profileId', isEqualTo: profileId)
+          .orderBy(FieldPath.documentId)
+          .limit(limit);
+      if (!hasCards) {
+        query = query.where('isPaid', isEqualTo: false);
+      }
+      if (startAfter != null) {
+        query = query.startAfterDocument(startAfter);
+      }
+      final snapshot = await query.get();
+      final dtoList = <FcpDataDto>[];
+      for (final doc in snapshot.docs) {
+        try {
+          dtoList.add(FcpDataDto.fromJson(doc.data()));
+        } on Object {
+          // An old or damaged document shouldn't hide all the statistics.
+        }
+      }
+      return Result.ok(
+        PaginatedDtoResult(
+          items: dtoList,
+          lastDocument: getLastDocFromSnapshot(snapshot),
+        ),
+      );
+    } on Exception catch (error) {
+      return Result.error(error);
+    }
+  }
+
   Future<Result<List<FcpDataDto>>> getDueCardsForPack(
     String profileId,
     String packId,
@@ -52,8 +90,9 @@ class FcpService {
 
       final snapshot = await query.get();
 
-      var result =
-          snapshot.docs.map((doc) => FcpDataDto.fromJson(doc.data())).toList();
+      var result = snapshot.docs
+          .map((doc) => FcpDataDto.fromJson(doc.data()))
+          .toList();
 
       return Result.ok(result);
     } on Exception catch (error) {
@@ -65,16 +104,15 @@ class FcpService {
   Future<Result<int>> countBookmarkedDocsForPacks(
     String profileId,
     List<String> packIds,
-      bool hasCards,
+    bool hasCards,
   ) async {
     try {
-      var query =
-          _fcpData
-              .where('flashcardSnapshot.packId', whereIn: packIds)
-              .where('profileId', isEqualTo: profileId)
-              .where('hasBookmark', isEqualTo: true);
+      var query = _fcpData
+          .where('flashcardSnapshot.packId', whereIn: packIds)
+          .where('profileId', isEqualTo: profileId)
+          .where('hasBookmark', isEqualTo: true);
 
-      if(!hasCards) {
+      if (!hasCards) {
         query = query.where('isPaid', isEqualTo: false);
       }
 
@@ -92,14 +130,13 @@ class FcpService {
   Future<Result<int>> countIgnoredDocsForPacks(
     String profileId,
     List<String> packIds,
-      bool hasCards,
+    bool hasCards,
   ) async {
     try {
-      var query =
-          _fcpData
-              .where('flashcardSnapshot.packId', whereIn: packIds)
-              .where('profileId', isEqualTo: profileId)
-              .where('ignored', isEqualTo: true);
+      var query = _fcpData
+          .where('flashcardSnapshot.packId', whereIn: packIds)
+          .where('profileId', isEqualTo: profileId)
+          .where('ignored', isEqualTo: true);
 
       if (!hasCards) {
         query = query.where('isPaid', isEqualTo: false);
@@ -122,10 +159,9 @@ class FcpService {
     bool hasCards,
   ) async {
     try {
-      var query =
-          _fcpData
-              .where('flashcardSnapshot.packId', whereIn: packIds)
-              .where('profileId', isEqualTo: profileId);
+      var query = _fcpData
+          .where('flashcardSnapshot.packId', whereIn: packIds)
+          .where('profileId', isEqualTo: profileId);
 
       if (!hasCards) {
         query = query.where('isPaid', isEqualTo: false);
@@ -137,6 +173,39 @@ class FcpService {
       }
 
       return Result.ok(snapshot.count!);
+    } on Exception catch (error) {
+      return Result.error(error);
+    }
+  }
+
+  /// Ids of every card of the pack the user has a progress document for.
+  Future<Result<Set<String>>> getSeenFlashcardIdsForPack(
+    String profileId,
+    String packId,
+    bool hasCards,
+  ) async {
+    try {
+      final ids = <String>{};
+      var query = _fcpData
+          .where("profileId", isEqualTo: profileId)
+          .where("flashcardSnapshot.packId", isEqualTo: packId)
+          .orderBy(FieldPath.documentId)
+          .limit(1000);
+      if (!hasCards) {
+        query = query.where('isPaid', isEqualTo: false);
+      }
+      QueryDocumentSnapshot<JsonMap>? last;
+      while (true) {
+        final page =
+            await (last == null ? query : query.startAfterDocument(last)).get();
+        for (final doc in page.docs) {
+          final id = doc.data()['flashcardId'];
+          if (id is String) ids.add(id);
+        }
+        if (page.docs.length < 1000) break;
+        last = page.docs.last;
+      }
+      return Result.ok(ids);
     } on Exception catch (error) {
       return Result.error(error);
     }
@@ -185,7 +254,7 @@ class FcpService {
           .where('flashcardSnapshot.packId', isEqualTo: packId)
           .where('ignored', isEqualTo: false)
           .where('fsrs_card.due', isLessThanOrEqualTo: Timestamp.now());
-          //.where('fsrs_card.state', isNotEqualTo: 'newState');
+      //.where('fsrs_card.state', isNotEqualTo: 'newState');
 
       if (!hasCards) {
         query = query.where('isPaid', isEqualTo: false);
@@ -292,8 +361,9 @@ class FcpService {
 
       final snapshot = await query.get();
 
-      final list =
-          snapshot.docs.map((doc) => FcpDataDto.fromJson(doc.data())).toList();
+      final list = snapshot.docs
+          .map((doc) => FcpDataDto.fromJson(doc.data()))
+          .toList();
       return Result.ok(list);
     } on Exception catch (error) {
       return Result.error(error);
@@ -349,8 +419,9 @@ class FcpService {
       }
 
       final snapshot = await query.get();
-      final dtoList =
-          snapshot.docs.map((doc) => FcpDataDto.fromJson(doc.data())).toList();
+      final dtoList = snapshot.docs
+          .map((doc) => FcpDataDto.fromJson(doc.data()))
+          .toList();
 
       return Result.ok(
         PaginatedDtoResult(
@@ -386,8 +457,9 @@ class FcpService {
 
       final snapshot = await query.get();
 
-      final dtoList =
-          snapshot.docs.map((doc) => FcpDataDto.fromJson(doc.data())).toList();
+      final dtoList = snapshot.docs
+          .map((doc) => FcpDataDto.fromJson(doc.data()))
+          .toList();
 
       final result = PaginatedDtoResult(
         items: dtoList,
@@ -400,10 +472,11 @@ class FcpService {
     }
   }
 
-  Future<Result<void>> setDocument(FcpDataDto dto) async {
+  /// With [merge], fields already in the document but not in [dto] are kept.
+  Future<Result<void>> setDocument(FcpDataDto dto, {bool merge = false}) async {
     try {
       final ref = _fcpData.doc("${dto.profileId}_${dto.flashcardId}");
-      await ref.set(dto.toJson());
+      await ref.set(dto.toJson(), merge ? SetOptions(merge: true) : null);
       return Result.ok(null);
     } on Exception catch (error) {
       return Result.error(error);

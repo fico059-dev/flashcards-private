@@ -14,7 +14,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$Osce {
 
- String get id; String get name; String get scenario; List<Question> get questions; bool get isPaid;
+ String get id; String get name; String get scenario; List<Question> get questions; bool get isPaid; String? get folderId; String? get scenarioImageUrl;
 /// Create a copy of Osce
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -25,16 +25,16 @@ $OsceCopyWith<Osce> get copyWith => _$OsceCopyWithImpl<Osce>(this as Osce, _$ide
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Osce&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.scenario, scenario) || other.scenario == scenario)&&const DeepCollectionEquality().equals(other.questions, questions)&&(identical(other.isPaid, isPaid) || other.isPaid == isPaid));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Osce&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.scenario, scenario) || other.scenario == scenario)&&const DeepCollectionEquality().equals(other.questions, questions)&&(identical(other.isPaid, isPaid) || other.isPaid == isPaid)&&(identical(other.folderId, folderId) || other.folderId == folderId)&&(identical(other.scenarioImageUrl, scenarioImageUrl) || other.scenarioImageUrl == scenarioImageUrl));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,id,name,scenario,const DeepCollectionEquality().hash(questions),isPaid);
+int get hashCode => Object.hash(runtimeType,id,name,scenario,const DeepCollectionEquality().hash(questions),isPaid,folderId,scenarioImageUrl);
 
 @override
 String toString() {
-  return 'Osce(id: $id, name: $name, scenario: $scenario, questions: $questions, isPaid: $isPaid)';
+  return 'Osce(id: $id, name: $name, scenario: $scenario, questions: $questions, isPaid: $isPaid, folderId: $folderId, scenarioImageUrl: $scenarioImageUrl)';
 }
 
 
@@ -45,7 +45,7 @@ abstract mixin class $OsceCopyWith<$Res>  {
   factory $OsceCopyWith(Osce value, $Res Function(Osce) _then) = _$OsceCopyWithImpl;
 @useResult
 $Res call({
- String id, String name, String scenario, List<Question> questions, bool isPaid
+ String id, String name, String scenario, List<Question> questions, bool isPaid, String? folderId, String? scenarioImageUrl
 });
 
 
@@ -62,14 +62,16 @@ class _$OsceCopyWithImpl<$Res>
 
 /// Create a copy of Osce
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = null,Object? scenario = null,Object? questions = null,Object? isPaid = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = null,Object? scenario = null,Object? questions = null,Object? isPaid = null,Object? folderId = freezed,Object? scenarioImageUrl = freezed,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String,scenario: null == scenario ? _self.scenario : scenario // ignore: cast_nullable_to_non_nullable
 as String,questions: null == questions ? _self.questions : questions // ignore: cast_nullable_to_non_nullable
 as List<Question>,isPaid: null == isPaid ? _self.isPaid : isPaid // ignore: cast_nullable_to_non_nullable
-as bool,
+as bool,folderId: freezed == folderId ? _self.folderId : folderId // ignore: cast_nullable_to_non_nullable
+as String?,scenarioImageUrl: freezed == scenarioImageUrl ? _self.scenarioImageUrl : scenarioImageUrl // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 
@@ -154,10 +156,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String name,  String scenario,  List<Question> questions,  bool isPaid)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String name,  String scenario,  List<Question> questions,  bool isPaid,  String? folderId,  String? scenarioImageUrl)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Osce() when $default != null:
-return $default(_that.id,_that.name,_that.scenario,_that.questions,_that.isPaid);case _:
+return $default(_that.id,_that.name,_that.scenario,_that.questions,_that.isPaid,_that.folderId,_that.scenarioImageUrl);case _:
   return orElse();
 
 }
@@ -175,10 +177,10 @@ return $default(_that.id,_that.name,_that.scenario,_that.questions,_that.isPaid)
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String name,  String scenario,  List<Question> questions,  bool isPaid)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String name,  String scenario,  List<Question> questions,  bool isPaid,  String? folderId,  String? scenarioImageUrl)  $default,) {final _that = this;
 switch (_that) {
 case _Osce():
-return $default(_that.id,_that.name,_that.scenario,_that.questions,_that.isPaid);case _:
+return $default(_that.id,_that.name,_that.scenario,_that.questions,_that.isPaid,_that.folderId,_that.scenarioImageUrl);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -195,10 +197,10 @@ return $default(_that.id,_that.name,_that.scenario,_that.questions,_that.isPaid)
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String name,  String scenario,  List<Question> questions,  bool isPaid)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String name,  String scenario,  List<Question> questions,  bool isPaid,  String? folderId,  String? scenarioImageUrl)?  $default,) {final _that = this;
 switch (_that) {
 case _Osce() when $default != null:
-return $default(_that.id,_that.name,_that.scenario,_that.questions,_that.isPaid);case _:
+return $default(_that.id,_that.name,_that.scenario,_that.questions,_that.isPaid,_that.folderId,_that.scenarioImageUrl);case _:
   return null;
 
 }
@@ -210,7 +212,7 @@ return $default(_that.id,_that.name,_that.scenario,_that.questions,_that.isPaid)
 
 
 class _Osce implements Osce {
-  const _Osce({required this.id, required this.name, required this.scenario, required final  List<Question> questions, this.isPaid = false}): _questions = questions;
+  const _Osce({required this.id, required this.name, required this.scenario, required final  List<Question> questions, this.isPaid = false, this.folderId, this.scenarioImageUrl}): _questions = questions;
   
 
 @override final  String id;
@@ -224,6 +226,8 @@ class _Osce implements Osce {
 }
 
 @override@JsonKey() final  bool isPaid;
+@override final  String? folderId;
+@override final  String? scenarioImageUrl;
 
 /// Create a copy of Osce
 /// with the given fields replaced by the non-null parameter values.
@@ -235,16 +239,16 @@ _$OsceCopyWith<_Osce> get copyWith => __$OsceCopyWithImpl<_Osce>(this, _$identit
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Osce&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.scenario, scenario) || other.scenario == scenario)&&const DeepCollectionEquality().equals(other._questions, _questions)&&(identical(other.isPaid, isPaid) || other.isPaid == isPaid));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Osce&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.scenario, scenario) || other.scenario == scenario)&&const DeepCollectionEquality().equals(other._questions, _questions)&&(identical(other.isPaid, isPaid) || other.isPaid == isPaid)&&(identical(other.folderId, folderId) || other.folderId == folderId)&&(identical(other.scenarioImageUrl, scenarioImageUrl) || other.scenarioImageUrl == scenarioImageUrl));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,id,name,scenario,const DeepCollectionEquality().hash(_questions),isPaid);
+int get hashCode => Object.hash(runtimeType,id,name,scenario,const DeepCollectionEquality().hash(_questions),isPaid,folderId,scenarioImageUrl);
 
 @override
 String toString() {
-  return 'Osce(id: $id, name: $name, scenario: $scenario, questions: $questions, isPaid: $isPaid)';
+  return 'Osce(id: $id, name: $name, scenario: $scenario, questions: $questions, isPaid: $isPaid, folderId: $folderId, scenarioImageUrl: $scenarioImageUrl)';
 }
 
 
@@ -255,7 +259,7 @@ abstract mixin class _$OsceCopyWith<$Res> implements $OsceCopyWith<$Res> {
   factory _$OsceCopyWith(_Osce value, $Res Function(_Osce) _then) = __$OsceCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String name, String scenario, List<Question> questions, bool isPaid
+ String id, String name, String scenario, List<Question> questions, bool isPaid, String? folderId, String? scenarioImageUrl
 });
 
 
@@ -272,14 +276,16 @@ class __$OsceCopyWithImpl<$Res>
 
 /// Create a copy of Osce
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = null,Object? scenario = null,Object? questions = null,Object? isPaid = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = null,Object? scenario = null,Object? questions = null,Object? isPaid = null,Object? folderId = freezed,Object? scenarioImageUrl = freezed,}) {
   return _then(_Osce(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String,scenario: null == scenario ? _self.scenario : scenario // ignore: cast_nullable_to_non_nullable
 as String,questions: null == questions ? _self._questions : questions // ignore: cast_nullable_to_non_nullable
 as List<Question>,isPaid: null == isPaid ? _self.isPaid : isPaid // ignore: cast_nullable_to_non_nullable
-as bool,
+as bool,folderId: freezed == folderId ? _self.folderId : folderId // ignore: cast_nullable_to_non_nullable
+as String?,scenarioImageUrl: freezed == scenarioImageUrl ? _self.scenarioImageUrl : scenarioImageUrl // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 

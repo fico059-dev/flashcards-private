@@ -12,6 +12,8 @@ _OsceDto _$OsceDtoFromJson(Map<String, dynamic> json) => _OsceDto(
   scenario: json['scenario'] as String,
   questions: json['questions'] as List<dynamic>? ?? const <dynamic>[],
   isPaid: json['isPaid'] as bool? ?? false,
+  folderId: json['folderId'] as String?,
+  scenarioImageUrl: json['scenarioImageUrl'] as String?,
 );
 
 Map<String, dynamic> _$OsceDtoToJson(_OsceDto instance) => <String, dynamic>{

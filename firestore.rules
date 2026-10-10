@@ -1,0 +1,227 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isLoggedIn() {
+      return request.auth != null &&
+             request.auth.token.email_verified;
+    }
+
+    function isLoggedInNotVerified() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return request.auth != null &&
+             "admin" in request.auth.token.roles;
+    }
+
+    function isOwner(profileId) {
+      return profileId == request.auth.uid;
+    }
+
+    function isOwnerIfResourceExists(resource) {
+      return resource == null ||
+             (resource.data.keys().hasAny(['profileId']) &&
+              isOwner(resource.data.profileId));
+    }
+
+    function isUnchanged(requestData, resource, field) {
+      return resource == null ||
+             !(requestData.keys().hasAny([field]) &&
+               requestData[field] != resource.data[field]);
+    }
+
+    function _nowMs() {
+      return request.time.toMillis();
+    }
+
+    function _activeMs(val) {
+      return val != null && val > _nowMs();
+    }
+
+    function hasCards() {
+      return request.auth != null && (
+        (request.auth.token.entitlements != null &&
+         request.auth.token.entitlements.hasAny(['both','packs']))
+        ||
+        _activeMs(request.auth.token.bothExp) ||
+        _activeMs(request.auth.token.packsExp)
+        ||
+        _activeMs(request.auth.token.allExp)  ||
+        _activeMs(request.auth.token.cardsExp)
+      );
+    }
+
+    function hasOsce() {
+      return request.auth != null && (
+        (request.auth.token.entitlements != null &&
+         request.auth.token.entitlements.hasAny(['both','osce']))
+        ||
+        _activeMs(request.auth.token.bothExp) ||
+        _activeMs(request.auth.token.osceExp)
+        ||
+        _activeMs(request.auth.token.allExp)
+      );
+    }
+
+    function canAccessCards() {
+      return isAdmin() || (resource.data.isPaid != true || hasCards());
+    }
+
+    function canAccessCardsFromRequest() {
+      return isAdmin() || (request.resource.data.isPaid != true || hasCards());
+    }
+
+    function canAccessCardsIfResourceExists() {
+      return resource == null ||
+               (resource.data.keys().hasAny(['isPaid']) &&
+                canAccessCards());
+    }
+
+    // ---- Packs limited to some users (set by the setPackAccess function) ----
+
+    // The caller's own list of limited packs they may open.
+    function myPackAccessPath() {
+      return /databases/$(database)/documents/pack_access_by_email/$(request.auth.token.email.lower());
+    }
+
+    function hasPackAccess(packId) {
+      return exists(myPackAccessPath()) &&
+             packId in get(myPackAccessPath()).data.packIds;
+    }
+
+    // packData: the pack document's data.
+    function canSeePack(packId, packData) {
+      return isAdmin() ||
+             packData.get('restricted', false) != true ||
+             hasPackAccess(packId);
+    }
+
+    function packPath(packId) {
+      return /databases/$(database)/documents/packs/$(packId);
+    }
+
+    // A card of a deleted pack stays readable as before.
+    function canSeeCardPack(packId) {
+      return !exists(packPath(packId)) ||
+             canSeePack(packId, get(packPath(packId)).data);
+    }
+
+    match /flashcards/{flashcardId} {
+      // Cards are opened one by one while studying. Listing many cards is
+      // for admins; search goes through the listSearchableFlashcards function.
+      allow get:   if isLoggedIn() && canAccessCards() &&
+                      (isAdmin() || canSeeCardPack(resource.data.packId));
+      allow list:  if isAdmin();
+      allow write: if isAdmin();
+    }
+
+    match /packs/{packId} {
+      // Pack lists only show names and counts; the app hides limited packs.
+      allow list: if isLoggedIn();
+      allow get:  if isLoggedIn() && canSeePack(packId, resource.data);
+      allow write: if isAdmin();
+
+      match /flashcard_ids/{docId} {
+        allow read: if isLoggedIn() &&
+            (isAdmin() ||
+             ((get(packPath(packId)).data.isPaid != true || hasCards()) &&
+              canSeePack(packId, get(packPath(packId)).data)));
+        allow write: if isAdmin();
+      }
+    }
+
+    // Who may open each limited pack: admins only, through the functions.
+    match /pack_access/{packId} {
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+
+    // Each user may read the list of limited packs opened to their email.
+    match /pack_access_by_email/{email} {
+      allow read: if isLoggedIn() &&
+                     (isAdmin() || email == request.auth.token.email.lower());
+      allow write: if false;
+    }
+
+    match /{path=**}/osce_performance/{performanceId} {
+      allow read, update: if isAdmin();
+    }
+
+    match /users/{userId} {
+      allow read:    if isLoggedInNotVerified() && isOwner(userId);
+      allow create:  if isLoggedInNotVerified() && isOwner(userId);
+      allow delete,
+            update: if isLoggedIn() && isOwner(userId);
+
+      match /osce_performance/{performanceId} {
+        allow read, write: if isLoggedIn() && isOwner(userId);
+
+        match /osce_attempts/{attemptId} {
+          allow read, write: if isLoggedIn() && isOwner(userId);
+        }
+      }
+    }
+
+    match /fcp_data/{fcpDataId} {
+      allow create: if isLoggedIn() && isOwner(request.resource.data.profileId) && canAccessCardsFromRequest();
+      allow list, delete: if isLoggedIn() && isOwner(resource.data.profileId) && canAccessCards();
+      allow get: if isLoggedIn() && isOwnerIfResourceExists(resource) && (resource == null || canAccessCards());
+      allow update: if isLoggedIn() &&
+                     isOwnerIfResourceExists(resource) &&
+                     isUnchanged(request.resource.data, resource, 'profileId') &&
+                     canAccessCardsIfResourceExists();
+    }
+
+    match /pp_data/{ppDataId} {
+      allow create: if isLoggedIn() && isOwner(request.resource.data.profileId);
+      allow read,
+            delete: if isLoggedIn() && isOwnerIfResourceExists(resource);
+      allow update: if isLoggedIn() &&
+                     isOwnerIfResourceExists(resource) &&
+                     isUnchanged(request.resource.data, resource, 'profileId');
+    }
+
+    match /flashcard_reports/{flashcardId} {
+      allow read, create, update: if isLoggedIn();
+      allow delete: if isAdmin();
+
+      match /user_reports/{userReportId} {
+        allow read, create: if (isLoggedIn() && isOwner(userReportId)) || isAdmin();
+        allow delete: if isAdmin();
+      }
+    }
+
+    match /custom_sessions/{sessionId} {
+      allow create: if isLoggedIn() && isOwner(request.resource.data.profileId);
+      allow read,
+            delete: if isLoggedIn() && isOwner(resource.data.profileId);
+      allow update: if isLoggedIn() &&
+                     isOwnerIfResourceExists(resource) &&
+                     isUnchanged(request.resource.data, resource, 'profileId');
+
+      match /flashcard_ids/{flashcardIds} {
+        allow read:  if isLoggedIn() &&
+                      (get(/databases/$(database)/documents/custom_sessions/$(sessionId)).data.isPaid != true || hasCards());
+        allow write: if isAdmin();
+      }
+    }
+
+    match /tags/{tagId} {
+      allow read, write: if isAdmin();
+    }
+
+    match /osces/{osceId} {
+      allow read: if isLoggedIn();
+      allow write: if isAdmin();
+
+      match /questions/{qId} {
+        allow read: if isLoggedIn() &&
+            (isAdmin() || (get(/databases/$(database)/documents/osces/$(osceId)).data.isPaid != true || hasOsce()));
+        allow write: if isAdmin();
+      }
+    }
+  }
+}

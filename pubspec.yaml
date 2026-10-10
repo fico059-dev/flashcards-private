@@ -16,7 +16,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 1.1.0+10
+version: 1.1.1+132
 
 environment:
   sdk: ^3.8.0
@@ -59,13 +59,11 @@ dependencies:
   infinite_scroll_pagination: ^5.1.0
   stream_transform: ^2.1.1
   bloc_concurrency: ^0.3.0
-  universal_html: ^2.2.4
   animations: ^2.0.11
   pdf: ^3.10.4
   printing: ^5.12.0
   path_provider: ^2.1.1
   open_file: ^3.3.2
-  algoliasearch: ^1.35.0
   firebase_storage: ^12.4.10
   file_picker: ^10.3.1
   flutter_image_compress: ^2.4.0
@@ -79,8 +77,10 @@ dependencies:
   flutter_local_notifications: ^19.4.2
   flutter_timezone: ^5.0.0
   archive: ^4.0.9
+  image: ^4.5.0
   sqlite3: ^2.9.0
   sqlite3_flutter_libs: ^0.5.40
+  fl_chart: ^1.2.0
 
 dev_dependencies:
   flutter_test:
@@ -147,3 +147,8 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+
+# Website only: fixes a start-up crash, see third_party/firebase_auth_web.
+dependency_overrides:
+  firebase_auth_web:
+    path: third_party/firebase_auth_web

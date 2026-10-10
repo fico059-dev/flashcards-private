@@ -18,10 +18,8 @@ class FlashcardPagePopScope extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocListener<FlashcardBloc, FlashcardState>(
-      listenWhen:
-          (previous, current) =>
-              current.status.isProfileUpdated &&
-              current.status != previous.status,
+      listenWhen: (previous, current) =>
+          current.status.isProfileUpdated && current.status != previous.status,
       listener: (context, state) {
         if (!state.status.isProfileUpdated) return;
 

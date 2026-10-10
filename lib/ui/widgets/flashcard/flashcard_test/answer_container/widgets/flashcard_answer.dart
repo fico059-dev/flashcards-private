@@ -1,14 +1,20 @@
 import 'package:flashcards/ui/theme/theme_extensions.dart';
+import 'package:flashcards/ui/widgets/flashcard/card_content.dart';
+import 'package:flashcards/ui/widgets/notebook/highlightable_text.dart';
 import 'package:flutter/material.dart';
 
 class FlashcardAnswer extends StatelessWidget {
   final String answer;
   final Widget? answerImagePreview;
 
+  /// The card this answer belongs to, so text can be highlighted.
+  final HighlightTarget? highlightTarget;
+
   const FlashcardAnswer({
     super.key,
     required this.answer,
     this.answerImagePreview,
+    this.highlightTarget,
   });
 
   @override
@@ -23,11 +29,13 @@ class FlashcardAnswer extends StatelessWidget {
       alignment: Alignment.center,
       child: Column(
         children: [
-          Text(
+          // Selectable so the answer can be copied and highlighted.
+          CardContent(
             answer,
-            style: TextTheme.of(
-              context,
-            ).bodyLarge?.merge(TextStyle(color: context.colors.onSecondaryContainer)),
+            target: highlightTarget,
+            style: TextTheme.of(context).bodyLarge?.merge(
+              TextStyle(color: context.colors.onSecondaryContainer),
+            ),
           ),
           SizedBox(height: 15),
           answerImagePreview ?? SizedBox.shrink(),

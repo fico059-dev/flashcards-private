@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:auto_route/auto_route.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flashcards/bloc/flashcards/anki_import/anki_import_cubit.dart';
@@ -9,6 +11,8 @@ import 'package:flashcards/domain/models/flashcards/admin_pack/admin_pack.dart';
 import 'package:flashcards/ui/constants/styles.dart';
 import 'package:flashcards/ui/theme/theme_extensions.dart';
 import 'package:flashcards/utils/firebase_error_mapper.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flashcards/ui/widgets/core/desktop_layout.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -46,15 +50,19 @@ class _ViewState extends State<_View> {
   Future<void> _pickFile() async {
     // FileType.any: iOS doesn't know the .apkg type, so the extension is
     // checked after picking.
+    // Only the web gets the file's bytes; on mobile the file is read from
+    // its path so large decks don't have to fit in memory.
     final result = await FilePicker.platform.pickFiles(
       type: FileType.any,
-      withData: true,
+      withData: kIsWeb,
     );
     final file = result?.files.singleOrNull;
     if (file == null || !mounted) return;
 
     final extension = file.name.split('.').last.toLowerCase();
-    if (!ankiImportExtensions.contains(extension) || file.bytes == null) {
+    final path = kIsWeb ? null : file.path;
+    if (!ankiImportExtensions.contains(extension) ||
+        (path == null && file.bytes == null)) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text("Choose an Anki .apkg or .txt export file."),
@@ -65,7 +73,8 @@ class _ViewState extends State<_View> {
 
     context.read<AnkiImportCubit>().readFile(
       fileName: file.name,
-      bytes: file.bytes!,
+      path: path,
+      bytes: path == null ? file.bytes : null,
     );
   }
 
@@ -82,43 +91,48 @@ class _ViewState extends State<_View> {
               title: const Text("Import from Anki"),
               automaticallyImplyLeading: !isImporting,
             ),
-            body: SafeArea(
-              child: Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: horizontalScreenPadding,
-                ),
-                child: switch (state) {
-                  AnkiImportInitial() => _Instructions(
-                    packName: widget.pack.packName,
-                    onPickFile: _pickFile,
+            body: ReadableWidth(
+              maxWidth: 820,
+              child: SafeArea(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: horizontalScreenPadding,
                   ),
-                  AnkiImportReading(:final fileName) => _Loading(
-                    message: "Reading $fileName…",
-                  ),
-                  AnkiImportPreview(:final fileName, :final result) => _Preview(
-                    fileName: fileName,
-                    result: result,
-                    packName: widget.pack.packName,
-                    importTags: _importTags,
-                    onImportTagsChanged: (value) =>
-                        setState(() => _importTags = value),
-                    onImport: () => context.read<AnkiImportCubit>().importCards(
-                      packId: widget.pack.packId,
-                      importTags: _importTags,
+                  child: switch (state) {
+                    AnkiImportInitial() => _Instructions(
+                      packName: widget.pack.packName,
+                      onPickFile: _pickFile,
                     ),
-                    onPickAnother: _pickFile,
-                  ),
-                  AnkiImportImporting(:final processed, :final total) =>
-                    _Progress(processed: processed, total: total),
-                  AnkiImportDone(:final summary) => _Done(
-                    summary: summary,
-                    packName: widget.pack.packName,
-                  ),
-                  AnkiImportError(:final error) => _ReadError(
-                    error: error,
-                    onPickAnother: _pickFile,
-                  ),
-                },
+                    AnkiImportReading(:final fileName) => _Loading(
+                      message: "Reading $fileName…",
+                    ),
+                    AnkiImportPreview(:final fileName, :final result) =>
+                      _Preview(
+                        fileName: fileName,
+                        result: result,
+                        packName: widget.pack.packName,
+                        importTags: _importTags,
+                        onImportTagsChanged: (value) =>
+                            setState(() => _importTags = value),
+                        onImport: () =>
+                            context.read<AnkiImportCubit>().importCards(
+                              packId: widget.pack.packId,
+                              importTags: _importTags,
+                            ),
+                        onPickAnother: _pickFile,
+                      ),
+                    AnkiImportImporting(:final processed, :final total) =>
+                      _Progress(processed: processed, total: total),
+                    AnkiImportDone(:final summary) => _Done(
+                      summary: summary,
+                      packName: widget.pack.packName,
+                    ),
+                    AnkiImportError(:final error) => _ReadError(
+                      error: error,
+                      onPickAnother: _pickFile,
+                    ),
+                  },
+                ),
               ),
             ),
           ),
@@ -205,7 +219,9 @@ class _Instructions extends StatelessWidget {
                         "text.",
                       ),
                       const Text(
-                        "• Cards already in this pack (same question) are skipped.",
+                        "• Cards already in this pack are updated if they "
+                        "changed in Anki (question, answer, tags or images), "
+                        "and left alone if not. Students keep their progress.",
                       ),
                     ],
                   ),
@@ -354,9 +370,8 @@ class _Preview extends StatelessWidget {
                     if (result.extraImagesDropped > 0)
                       _StatTile(
                         icon: Icons.photo_library,
-                        label: "Sides with extra images (first one kept)",
+                        label: "Sides with several images (joined into one)",
                         value: result.extraImagesDropped,
-                        isWarning: true,
                       ),
                   ],
                 ),
@@ -503,18 +518,36 @@ class _ImageThumbnail extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ClipRRect(
+    final thumbnail = ClipRRect(
       borderRadius: BorderRadius.circular(6),
-      child: Image.memory(
-        image.bytes,
-        width: 48,
-        height: 48,
-        fit: BoxFit.cover,
-        cacheWidth: 96,
-        errorBuilder: (context, error, stackTrace) =>
-            const SizedBox(width: 48, height: 48, child: Icon(Icons.image)),
-      ),
+      child: image.bytes != null
+          ? Image.memory(
+              image.bytes!,
+              width: 48,
+              height: 48,
+              fit: BoxFit.cover,
+              cacheWidth: 96,
+              errorBuilder: (context, error, stackTrace) => const SizedBox(
+                width: 48,
+                height: 48,
+                child: Icon(Icons.image),
+              ),
+            )
+          : Image.file(
+              File(image.path),
+              width: 48,
+              height: 48,
+              fit: BoxFit.cover,
+              cacheWidth: 96,
+              errorBuilder: (context, error, stackTrace) => const SizedBox(
+                width: 48,
+                height: 48,
+                child: Icon(Icons.image),
+              ),
+            ),
     );
+    if (image.count == 1) return thumbnail;
+    return Badge(label: Text('${image.count}'), child: thumbnail);
   }
 }
 
@@ -577,10 +610,21 @@ class _Done extends StatelessWidget {
               "${summary.imported} cards were added to \"$packName\".",
               textAlign: TextAlign.center,
             ),
+            if (summary.updated > 0)
+              Text(
+                "${summary.updated} cards that changed in Anki were updated.",
+                textAlign: TextAlign.center,
+              ),
             if (summary.skippedDuplicates > 0)
               Text(
                 "${summary.skippedDuplicates} cards were already in the pack "
-                "and were skipped.",
+                "with no changes.",
+                textAlign: TextAlign.center,
+              ),
+            if (summary.failedUpdates > 0)
+              Text(
+                "${summary.failedUpdates} changed cards couldn't be updated. "
+                "Import the file again to retry them.",
                 textAlign: TextAlign.center,
               ),
             if (summary.failedImages > 0)
@@ -597,7 +641,7 @@ class _Done extends StatelessWidget {
               ),
               const Text(
                 "Import the same file again to add the remaining cards. "
-                "Cards already in the pack will be skipped.",
+                "Cards already in the pack won't be added twice.",
                 textAlign: TextAlign.center,
               ),
             ],

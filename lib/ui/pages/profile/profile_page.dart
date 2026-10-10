@@ -8,6 +8,7 @@ import 'package:flashcards/ui/widgets/profile/main_profile_page/profile_data.dar
 import 'package:flashcards/ui/widgets/profile/profile_reader_bloc_builder.dart';
 import 'package:flashcards/ui/widgets/profile/profile_sliver_app_bar.dart';
 import 'package:flashcards/utils/firebase_error_mapper.dart';
+import 'package:flashcards/ui/widgets/core/desktop_layout.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flashcards/l10n/app_localizations.dart';
@@ -43,25 +44,30 @@ class _ProfilePageState extends State<ProfilePage> {
       },
       child: ProfileReaderBlocBuilder(
         onLoadedContent: (profile) => Scaffold(
-          body: CustomScrollView(
-            slivers: [
-              ProfileSliverAppBar(
-                title: Text(
-                  AppLocalizations.of(context)!.basicText_profile,
-                  style: TextStyle(color: context.colors.onPrimary),
-                ),
-                actions: [ThemeToggleButton(iconColor: context.colors.onPrimary,)],
-                expandedHeight: 190,
-                pinned: true,
-                flexibleSpace: FlexibleSpaceBar(
-                  background: Container(
-                    margin: EdgeInsets.only(top: 80),
-                    child: MoreProfileDetails(profile: profile),
+          body: ReadableWidth(
+            maxWidth: 820,
+            child: CustomScrollView(
+              slivers: [
+                ProfileSliverAppBar(
+                  title: Text(
+                    AppLocalizations.of(context)!.basicText_profile,
+                    style: TextStyle(color: context.colors.onPrimary),
+                  ),
+                  actions: [
+                    ThemeToggleButton(iconColor: context.colors.onPrimary),
+                  ],
+                  expandedHeight: 190,
+                  pinned: true,
+                  flexibleSpace: FlexibleSpaceBar(
+                    background: Container(
+                      margin: EdgeInsets.only(top: 80),
+                      child: MoreProfileDetails(profile: profile),
+                    ),
                   ),
                 ),
-              ),
-              SliverToBoxAdapter(child: ProfileData(profile: profile)),
-            ],
+                SliverToBoxAdapter(child: ProfileData(profile: profile)),
+              ],
+            ),
           ),
         ),
       ),
