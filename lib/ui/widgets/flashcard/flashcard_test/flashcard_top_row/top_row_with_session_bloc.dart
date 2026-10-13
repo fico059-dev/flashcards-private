@@ -74,6 +74,11 @@ class TopRowWithSessionBloc extends StatelessWidget {
                   ),
                 ),
                 IconButton(
+                  tooltip: 'Search cards',
+                  icon: const Icon(Icons.search),
+                  onPressed: () => context.router.push(StudySearchRoute()),
+                ),
+                IconButton(
                   tooltip: 'Share card',
                   icon: const Icon(Icons.share_outlined),
                   onPressed: hasBookmark == null

@@ -79,6 +79,12 @@ class TopRowWithFlashcardBloc extends StatelessWidget {
                       context.read<FlashcardBloc>().add(FlashcardEdited(card)),
                 ),
                 IconButton(
+                  tooltip: 'Search cards',
+                  icon: const Icon(Icons.search),
+                  onPressed: () =>
+                      context.router.push(StudySearchRoute(pack: state.pack)),
+                ),
+                IconButton(
                   tooltip: 'Share card',
                   icon: const Icon(Icons.share_outlined),
                   onPressed: state.flashcard == null

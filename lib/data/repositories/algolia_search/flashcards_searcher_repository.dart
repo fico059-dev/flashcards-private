@@ -23,6 +23,9 @@ class FlashcardsSearcherRepository {
     required String query,
     required List<Tag> tags,
     required int page,
+
+    /// Only cards of these packs, when given.
+    Set<String>? packIds,
   }) async {
     final isStale =
         _loadedAt == null ||
@@ -46,9 +49,12 @@ class FlashcardsSearcherRepository {
       }
     }
 
+    final items = packIds == null
+        ? _items!
+        : _items!.where((i) => packIds.contains(i.item.packId)).toList();
     return Result.ok(
       searchLocally(
-        items: _items!,
+        items: items,
         query: query,
         tagIds: tags.map((tag) => tag.id).toList(),
         page: page,

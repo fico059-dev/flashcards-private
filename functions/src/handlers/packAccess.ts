@@ -192,6 +192,7 @@ export async function listSearchableFlashcardsHandler(
         answer: data.answer ?? "",
         isPaid: data.isPaid === true,
         tags: Array.isArray(data.tags) ? data.tags : [],
+        packId: data.packId ?? "",
       });
     }
     return {flashcards: result};

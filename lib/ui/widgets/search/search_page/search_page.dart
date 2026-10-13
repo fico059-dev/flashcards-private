@@ -12,6 +12,9 @@ class SearchPage extends StatelessWidget {
   final bool searchBarAsTitle;
   final Widget? title;
 
+  /// Shown above the results, e.g. to choose where to search.
+  final Widget? header;
+
   // final String drawerTitle;
   // final String drawerSubtitle;
 
@@ -23,6 +26,7 @@ class SearchPage extends StatelessWidget {
     this.itemCount,
     this.searchBarAsTitle = true,
     this.title,
+    this.header,
     // required this.drawerTitle,
     // required this.drawerSubtitle,
   });
@@ -60,6 +64,9 @@ class SearchPage extends StatelessWidget {
               if (!searchBarAsTitle) SliverToBoxAdapter(child: searchBar),
               if (!searchBarAsTitle)
                 SliverToBoxAdapter(child: SizedBox(height: 15)),
+              if (header != null) SliverToBoxAdapter(child: header),
+              if (header != null)
+                SliverToBoxAdapter(child: SizedBox(height: 12)),
               if (itemCount != null) itemCount!,
               if (itemCount != null)
                 SliverToBoxAdapter(child: SizedBox(height: 15)),

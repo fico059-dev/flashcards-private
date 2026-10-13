@@ -29,6 +29,7 @@ class FlashcardsSearcherService {
             answer: data['answer'] as String? ?? '',
             isPaid: data['isPaid'] as bool? ?? false,
             tags: List<String>.from(data['tags'] as List? ?? const []),
+            packId: data['packId'] as String? ?? '',
           ),
       ]);
     } on Exception catch (error) {

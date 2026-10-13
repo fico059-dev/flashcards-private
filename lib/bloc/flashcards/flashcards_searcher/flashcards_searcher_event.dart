@@ -61,4 +61,14 @@ class FlashcardsSearcherTagToggled extends FlashcardsSearcherEvent {
   List<Object?> get props => [tag];
 }
 
+/// Searches only [packIds], or every pack when null.
+class FlashcardsSearcherScopeChanged extends FlashcardsSearcherEvent {
+  final Set<String>? packIds;
+
+  FlashcardsSearcherScopeChanged({required this.packIds});
+
+  @override
+  List<Object?> get props => [packIds];
+}
+
 // class FlashcardsSearcherClaimsFetched extends FlashcardsSearcherEvent {}

@@ -1698,6 +1698,52 @@ class StatsRoute extends PageRouteInfo<void> {
 }
 
 /// generated route for
+/// [StudySearchPage]
+class StudySearchRoute extends PageRouteInfo<StudySearchRouteArgs> {
+  StudySearchRoute({Key? key, Pack? pack, List<PageRouteInfo>? children})
+    : super(
+        StudySearchRoute.name,
+        args: StudySearchRouteArgs(key: key, pack: pack),
+        initialChildren: children,
+      );
+
+  static const String name = 'StudySearchRoute';
+
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      final args = data.argsAs<StudySearchRouteArgs>(
+        orElse: () => const StudySearchRouteArgs(),
+      );
+      return StudySearchPage(key: args.key, pack: args.pack);
+    },
+  );
+}
+
+class StudySearchRouteArgs {
+  const StudySearchRouteArgs({this.key, this.pack});
+
+  final Key? key;
+
+  final Pack? pack;
+
+  @override
+  String toString() {
+    return 'StudySearchRouteArgs{key: $key, pack: $pack}';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other is! StudySearchRouteArgs) return false;
+    return key == other.key && pack == other.pack;
+  }
+
+  @override
+  int get hashCode => key.hashCode ^ pack.hashCode;
+}
+
+/// generated route for
 /// [UpdateCardsPerSessionPage]
 class UpdateCardsPerSessionRoute extends PageRouteInfo<void> {
   const UpdateCardsPerSessionRoute({List<PageRouteInfo>? children})
