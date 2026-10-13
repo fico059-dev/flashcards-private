@@ -42,8 +42,10 @@ class TopRowWithFlashcardBloc extends StatelessWidget {
 
     return BlocBuilder<FlashcardBloc, FlashcardState>(
       builder: (context, state) {
-        int allFlashcards = state.statRecords.length;
-        int currFlashcard = state.currentCardIndex + 1;
+        // The first batch continues today's session of this pack.
+        final done = state.currentBatch == 0 ? state.sessionDone : 0;
+        int allFlashcards = done + state.statRecords.length;
+        int currFlashcard = done + state.currentCardIndex + 1;
         final isBookmarked = state.flashcard == null
             ? false
             : state.statRecords[state.currentCardIndex].hasBookmark;

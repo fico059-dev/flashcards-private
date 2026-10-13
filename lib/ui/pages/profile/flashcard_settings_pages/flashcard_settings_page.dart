@@ -27,10 +27,11 @@ class FlashcardSettingsPage extends StatelessWidget {
           child: Column(
             children: [
               ProfileMenuWidget(
-                title: "Update Cards Per Session",
-                icon: Icons.flag,
-                onPress: () =>
-                    context.router.push(const UpdateCardsPerSessionRoute()),
+                title: "Progress",
+                icon: Icons.insights,
+                onPress: () => context.router.navigate(
+                  const MainTabRoute(children: [LearningProgressRoute()]),
+                ),
               ),
               ProfileMenuWidget(
                 title: "Manage Ignored Flashcards",

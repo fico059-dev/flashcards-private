@@ -41,6 +41,10 @@ abstract class FlashcardState with _$FlashcardState {
     @Default([]) List<StatRecord> statRecords,
     @Default(0) int currentCardIndex,
     @Default(0) int currentBatch,
+
+    /// Cards of today's target already studied in this pack before the
+    /// pack was opened this time, so the count continues.
+    @Default(0) int sessionDone,
     Flashcard? flashcard,
 
     bool? hasCards,

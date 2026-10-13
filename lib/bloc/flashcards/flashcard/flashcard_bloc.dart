@@ -11,6 +11,7 @@ import 'package:flashcards/data/repositories/utils/user_claims.dart';
 import 'package:flashcards/data/services/api/dto/users/profile/update_profile/update_profile_dto.dart';
 import 'package:flashcards/data/services/api/dto/users/profile/update_profile/update_profile_settings/update_profile_settings_dto.dart';
 import 'package:flashcards/data/services/local/local_storage_service.dart';
+import 'package:flashcards/data/services/local/session_progress_store.dart';
 import 'package:flashcards/domain/models/flashcards/flashcard/flashcard.dart';
 import 'package:flashcards/domain/models/flashcards/stat_record/stat_record.dart';
 import 'package:flashcards/domain/models/profile/streak/streak.dart';
@@ -26,6 +27,7 @@ class FlashcardBloc extends Bloc<FlashcardEvent, FlashcardState> {
   final ProfileRepository _profileRepo;
   final PpRepository _ppRepo;
   final LocalStorageService _localStorageService;
+  final SessionProgressStore _sessionProgress;
   late final String _uid;
 
   /// Saves progress without making the student wait for the server.
@@ -104,7 +106,9 @@ class FlashcardBloc extends Bloc<FlashcardEvent, FlashcardState> {
     required ProfileRepository profileRepo,
     required PpRepository ppRepo,
     required LocalStorageService localStorageService,
+    SessionProgressStore? sessionProgress,
   }) : _flashcardRepo = flashcardRepo,
+       _sessionProgress = sessionProgress ?? SessionProgressStore(),
        _localStorageService = localStorageService,
        _fcpRepo = fcpRepo,
        _profileRepo = profileRepo,
@@ -331,6 +335,13 @@ class FlashcardBloc extends Bloc<FlashcardEvent, FlashcardState> {
       };
     });
 
+    // Counts towards today's target of this pack (not extra batches).
+    if (state.testType == TestType.regular &&
+        state.currentBatch == 0 &&
+        state.pack != null) {
+      _sessionProgress.add(_uid, state.pack!.id);
+    }
+
     final oldCard = state.statRecords[state.currentCardIndex].card;
     final newCard = FSRS().repeat(oldCard, DateTime.now())[event.rating]!.card;
 
@@ -413,9 +424,18 @@ class FlashcardBloc extends Bloc<FlashcardEvent, FlashcardState> {
     late final Result<List<StatRecord>> fcpResult;
     switch (event.testType) {
       case TestType.regular:
+        // Opening the pack again today continues the same session.
+        final done = await _sessionProgress.doneToday(_uid, event.pack!.id);
+        final remaining = event.cardsPerSession - done;
+        emit(state.copyWith(sessionDone: done));
+        if (remaining <= 0) {
+          // Today's target is done: offer to continue with more cards.
+          emit(state.copyWith(status: FlashcardStatus.sessionEnded));
+          return;
+        }
         fcpResult = await _fcpRepo.loadDataForStandardTest(
           packId: event.pack!.id,
-          target: event.cardsPerSession,
+          target: remaining,
           newCardsPercentage: _newCardsPercentage,
           isPaid: event.pack!.isPaid,
           hasCards: state.hasCards,

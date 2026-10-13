@@ -14,7 +14,9 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$FlashcardState {
 
- FlashcardStatus get status; TestType? get testType; Pack? get pack; int? get cardsPerSession; bool get answerVisible; bool get hintVisible; List<StatRecord> get statRecords; int get currentCardIndex; int get currentBatch; Flashcard? get flashcard; bool? get hasCards;/// it reads local storage to see if the flashcards tutorial has been seen or not
+ FlashcardStatus get status; TestType? get testType; Pack? get pack; int? get cardsPerSession; bool get answerVisible; bool get hintVisible; List<StatRecord> get statRecords; int get currentCardIndex; int get currentBatch;/// Cards of today's target already studied in this pack before the
+/// pack was opened this time, so the count continues.
+ int get sessionDone; Flashcard? get flashcard; bool? get hasCards;/// it reads local storage to see if the flashcards tutorial has been seen or not
  bool? get tutorialSeen;/// used to communicate with profile bloc to update the state locally
  Streak? get newStreak; String? get errorMessage;
 /// Create a copy of FlashcardState
@@ -27,16 +29,16 @@ $FlashcardStateCopyWith<FlashcardState> get copyWith => _$FlashcardStateCopyWith
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is FlashcardState&&(identical(other.status, status) || other.status == status)&&(identical(other.testType, testType) || other.testType == testType)&&(identical(other.pack, pack) || other.pack == pack)&&(identical(other.cardsPerSession, cardsPerSession) || other.cardsPerSession == cardsPerSession)&&(identical(other.answerVisible, answerVisible) || other.answerVisible == answerVisible)&&(identical(other.hintVisible, hintVisible) || other.hintVisible == hintVisible)&&const DeepCollectionEquality().equals(other.statRecords, statRecords)&&(identical(other.currentCardIndex, currentCardIndex) || other.currentCardIndex == currentCardIndex)&&(identical(other.currentBatch, currentBatch) || other.currentBatch == currentBatch)&&(identical(other.flashcard, flashcard) || other.flashcard == flashcard)&&(identical(other.hasCards, hasCards) || other.hasCards == hasCards)&&(identical(other.tutorialSeen, tutorialSeen) || other.tutorialSeen == tutorialSeen)&&(identical(other.newStreak, newStreak) || other.newStreak == newStreak)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is FlashcardState&&(identical(other.status, status) || other.status == status)&&(identical(other.testType, testType) || other.testType == testType)&&(identical(other.pack, pack) || other.pack == pack)&&(identical(other.cardsPerSession, cardsPerSession) || other.cardsPerSession == cardsPerSession)&&(identical(other.answerVisible, answerVisible) || other.answerVisible == answerVisible)&&(identical(other.hintVisible, hintVisible) || other.hintVisible == hintVisible)&&const DeepCollectionEquality().equals(other.statRecords, statRecords)&&(identical(other.currentCardIndex, currentCardIndex) || other.currentCardIndex == currentCardIndex)&&(identical(other.currentBatch, currentBatch) || other.currentBatch == currentBatch)&&(identical(other.sessionDone, sessionDone) || other.sessionDone == sessionDone)&&(identical(other.flashcard, flashcard) || other.flashcard == flashcard)&&(identical(other.hasCards, hasCards) || other.hasCards == hasCards)&&(identical(other.tutorialSeen, tutorialSeen) || other.tutorialSeen == tutorialSeen)&&(identical(other.newStreak, newStreak) || other.newStreak == newStreak)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,status,testType,pack,cardsPerSession,answerVisible,hintVisible,const DeepCollectionEquality().hash(statRecords),currentCardIndex,currentBatch,flashcard,hasCards,tutorialSeen,newStreak,errorMessage);
+int get hashCode => Object.hash(runtimeType,status,testType,pack,cardsPerSession,answerVisible,hintVisible,const DeepCollectionEquality().hash(statRecords),currentCardIndex,currentBatch,sessionDone,flashcard,hasCards,tutorialSeen,newStreak,errorMessage);
 
 @override
 String toString() {
-  return 'FlashcardState(status: $status, testType: $testType, pack: $pack, cardsPerSession: $cardsPerSession, answerVisible: $answerVisible, hintVisible: $hintVisible, statRecords: $statRecords, currentCardIndex: $currentCardIndex, currentBatch: $currentBatch, flashcard: $flashcard, hasCards: $hasCards, tutorialSeen: $tutorialSeen, newStreak: $newStreak, errorMessage: $errorMessage)';
+  return 'FlashcardState(status: $status, testType: $testType, pack: $pack, cardsPerSession: $cardsPerSession, answerVisible: $answerVisible, hintVisible: $hintVisible, statRecords: $statRecords, currentCardIndex: $currentCardIndex, currentBatch: $currentBatch, sessionDone: $sessionDone, flashcard: $flashcard, hasCards: $hasCards, tutorialSeen: $tutorialSeen, newStreak: $newStreak, errorMessage: $errorMessage)';
 }
 
 
@@ -47,7 +49,7 @@ abstract mixin class $FlashcardStateCopyWith<$Res>  {
   factory $FlashcardStateCopyWith(FlashcardState value, $Res Function(FlashcardState) _then) = _$FlashcardStateCopyWithImpl;
 @useResult
 $Res call({
- FlashcardStatus status, TestType? testType, Pack? pack, int? cardsPerSession, bool answerVisible, bool hintVisible, List<StatRecord> statRecords, int currentCardIndex, int currentBatch, Flashcard? flashcard, bool? hasCards, bool? tutorialSeen, Streak? newStreak, String? errorMessage
+ FlashcardStatus status, TestType? testType, Pack? pack, int? cardsPerSession, bool answerVisible, bool hintVisible, List<StatRecord> statRecords, int currentCardIndex, int currentBatch, int sessionDone, Flashcard? flashcard, bool? hasCards, bool? tutorialSeen, Streak? newStreak, String? errorMessage
 });
 
 
@@ -64,7 +66,7 @@ class _$FlashcardStateCopyWithImpl<$Res>
 
 /// Create a copy of FlashcardState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? status = null,Object? testType = freezed,Object? pack = freezed,Object? cardsPerSession = freezed,Object? answerVisible = null,Object? hintVisible = null,Object? statRecords = null,Object? currentCardIndex = null,Object? currentBatch = null,Object? flashcard = freezed,Object? hasCards = freezed,Object? tutorialSeen = freezed,Object? newStreak = freezed,Object? errorMessage = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? status = null,Object? testType = freezed,Object? pack = freezed,Object? cardsPerSession = freezed,Object? answerVisible = null,Object? hintVisible = null,Object? statRecords = null,Object? currentCardIndex = null,Object? currentBatch = null,Object? sessionDone = null,Object? flashcard = freezed,Object? hasCards = freezed,Object? tutorialSeen = freezed,Object? newStreak = freezed,Object? errorMessage = freezed,}) {
   return _then(_self.copyWith(
 status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as FlashcardStatus,testType: freezed == testType ? _self.testType : testType // ignore: cast_nullable_to_non_nullable
@@ -75,6 +77,7 @@ as bool,hintVisible: null == hintVisible ? _self.hintVisible : hintVisible // ig
 as bool,statRecords: null == statRecords ? _self.statRecords : statRecords // ignore: cast_nullable_to_non_nullable
 as List<StatRecord>,currentCardIndex: null == currentCardIndex ? _self.currentCardIndex : currentCardIndex // ignore: cast_nullable_to_non_nullable
 as int,currentBatch: null == currentBatch ? _self.currentBatch : currentBatch // ignore: cast_nullable_to_non_nullable
+as int,sessionDone: null == sessionDone ? _self.sessionDone : sessionDone // ignore: cast_nullable_to_non_nullable
 as int,flashcard: freezed == flashcard ? _self.flashcard : flashcard // ignore: cast_nullable_to_non_nullable
 as Flashcard?,hasCards: freezed == hasCards ? _self.hasCards : hasCards // ignore: cast_nullable_to_non_nullable
 as bool?,tutorialSeen: freezed == tutorialSeen ? _self.tutorialSeen : tutorialSeen // ignore: cast_nullable_to_non_nullable
@@ -201,10 +204,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( FlashcardStatus status,  TestType? testType,  Pack? pack,  int? cardsPerSession,  bool answerVisible,  bool hintVisible,  List<StatRecord> statRecords,  int currentCardIndex,  int currentBatch,  Flashcard? flashcard,  bool? hasCards,  bool? tutorialSeen,  Streak? newStreak,  String? errorMessage)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( FlashcardStatus status,  TestType? testType,  Pack? pack,  int? cardsPerSession,  bool answerVisible,  bool hintVisible,  List<StatRecord> statRecords,  int currentCardIndex,  int currentBatch,  int sessionDone,  Flashcard? flashcard,  bool? hasCards,  bool? tutorialSeen,  Streak? newStreak,  String? errorMessage)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _FlashcardState() when $default != null:
-return $default(_that.status,_that.testType,_that.pack,_that.cardsPerSession,_that.answerVisible,_that.hintVisible,_that.statRecords,_that.currentCardIndex,_that.currentBatch,_that.flashcard,_that.hasCards,_that.tutorialSeen,_that.newStreak,_that.errorMessage);case _:
+return $default(_that.status,_that.testType,_that.pack,_that.cardsPerSession,_that.answerVisible,_that.hintVisible,_that.statRecords,_that.currentCardIndex,_that.currentBatch,_that.sessionDone,_that.flashcard,_that.hasCards,_that.tutorialSeen,_that.newStreak,_that.errorMessage);case _:
   return orElse();
 
 }
@@ -222,10 +225,10 @@ return $default(_that.status,_that.testType,_that.pack,_that.cardsPerSession,_th
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( FlashcardStatus status,  TestType? testType,  Pack? pack,  int? cardsPerSession,  bool answerVisible,  bool hintVisible,  List<StatRecord> statRecords,  int currentCardIndex,  int currentBatch,  Flashcard? flashcard,  bool? hasCards,  bool? tutorialSeen,  Streak? newStreak,  String? errorMessage)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( FlashcardStatus status,  TestType? testType,  Pack? pack,  int? cardsPerSession,  bool answerVisible,  bool hintVisible,  List<StatRecord> statRecords,  int currentCardIndex,  int currentBatch,  int sessionDone,  Flashcard? flashcard,  bool? hasCards,  bool? tutorialSeen,  Streak? newStreak,  String? errorMessage)  $default,) {final _that = this;
 switch (_that) {
 case _FlashcardState():
-return $default(_that.status,_that.testType,_that.pack,_that.cardsPerSession,_that.answerVisible,_that.hintVisible,_that.statRecords,_that.currentCardIndex,_that.currentBatch,_that.flashcard,_that.hasCards,_that.tutorialSeen,_that.newStreak,_that.errorMessage);case _:
+return $default(_that.status,_that.testType,_that.pack,_that.cardsPerSession,_that.answerVisible,_that.hintVisible,_that.statRecords,_that.currentCardIndex,_that.currentBatch,_that.sessionDone,_that.flashcard,_that.hasCards,_that.tutorialSeen,_that.newStreak,_that.errorMessage);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -242,10 +245,10 @@ return $default(_that.status,_that.testType,_that.pack,_that.cardsPerSession,_th
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( FlashcardStatus status,  TestType? testType,  Pack? pack,  int? cardsPerSession,  bool answerVisible,  bool hintVisible,  List<StatRecord> statRecords,  int currentCardIndex,  int currentBatch,  Flashcard? flashcard,  bool? hasCards,  bool? tutorialSeen,  Streak? newStreak,  String? errorMessage)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( FlashcardStatus status,  TestType? testType,  Pack? pack,  int? cardsPerSession,  bool answerVisible,  bool hintVisible,  List<StatRecord> statRecords,  int currentCardIndex,  int currentBatch,  int sessionDone,  Flashcard? flashcard,  bool? hasCards,  bool? tutorialSeen,  Streak? newStreak,  String? errorMessage)?  $default,) {final _that = this;
 switch (_that) {
 case _FlashcardState() when $default != null:
-return $default(_that.status,_that.testType,_that.pack,_that.cardsPerSession,_that.answerVisible,_that.hintVisible,_that.statRecords,_that.currentCardIndex,_that.currentBatch,_that.flashcard,_that.hasCards,_that.tutorialSeen,_that.newStreak,_that.errorMessage);case _:
+return $default(_that.status,_that.testType,_that.pack,_that.cardsPerSession,_that.answerVisible,_that.hintVisible,_that.statRecords,_that.currentCardIndex,_that.currentBatch,_that.sessionDone,_that.flashcard,_that.hasCards,_that.tutorialSeen,_that.newStreak,_that.errorMessage);case _:
   return null;
 
 }
@@ -257,7 +260,7 @@ return $default(_that.status,_that.testType,_that.pack,_that.cardsPerSession,_th
 
 
 class _FlashcardState implements FlashcardState {
-  const _FlashcardState({this.status = FlashcardStatus.initial, this.testType, this.pack, this.cardsPerSession, this.answerVisible = false, this.hintVisible = false, final  List<StatRecord> statRecords = const [], this.currentCardIndex = 0, this.currentBatch = 0, this.flashcard, this.hasCards, this.tutorialSeen, this.newStreak, this.errorMessage}): _statRecords = statRecords;
+  const _FlashcardState({this.status = FlashcardStatus.initial, this.testType, this.pack, this.cardsPerSession, this.answerVisible = false, this.hintVisible = false, final  List<StatRecord> statRecords = const [], this.currentCardIndex = 0, this.currentBatch = 0, this.sessionDone = 0, this.flashcard, this.hasCards, this.tutorialSeen, this.newStreak, this.errorMessage}): _statRecords = statRecords;
   
 
 @override@JsonKey() final  FlashcardStatus status;
@@ -275,6 +278,9 @@ class _FlashcardState implements FlashcardState {
 
 @override@JsonKey() final  int currentCardIndex;
 @override@JsonKey() final  int currentBatch;
+/// Cards of today's target already studied in this pack before the
+/// pack was opened this time, so the count continues.
+@override@JsonKey() final  int sessionDone;
 @override final  Flashcard? flashcard;
 @override final  bool? hasCards;
 /// it reads local storage to see if the flashcards tutorial has been seen or not
@@ -293,16 +299,16 @@ _$FlashcardStateCopyWith<_FlashcardState> get copyWith => __$FlashcardStateCopyW
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _FlashcardState&&(identical(other.status, status) || other.status == status)&&(identical(other.testType, testType) || other.testType == testType)&&(identical(other.pack, pack) || other.pack == pack)&&(identical(other.cardsPerSession, cardsPerSession) || other.cardsPerSession == cardsPerSession)&&(identical(other.answerVisible, answerVisible) || other.answerVisible == answerVisible)&&(identical(other.hintVisible, hintVisible) || other.hintVisible == hintVisible)&&const DeepCollectionEquality().equals(other._statRecords, _statRecords)&&(identical(other.currentCardIndex, currentCardIndex) || other.currentCardIndex == currentCardIndex)&&(identical(other.currentBatch, currentBatch) || other.currentBatch == currentBatch)&&(identical(other.flashcard, flashcard) || other.flashcard == flashcard)&&(identical(other.hasCards, hasCards) || other.hasCards == hasCards)&&(identical(other.tutorialSeen, tutorialSeen) || other.tutorialSeen == tutorialSeen)&&(identical(other.newStreak, newStreak) || other.newStreak == newStreak)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _FlashcardState&&(identical(other.status, status) || other.status == status)&&(identical(other.testType, testType) || other.testType == testType)&&(identical(other.pack, pack) || other.pack == pack)&&(identical(other.cardsPerSession, cardsPerSession) || other.cardsPerSession == cardsPerSession)&&(identical(other.answerVisible, answerVisible) || other.answerVisible == answerVisible)&&(identical(other.hintVisible, hintVisible) || other.hintVisible == hintVisible)&&const DeepCollectionEquality().equals(other._statRecords, _statRecords)&&(identical(other.currentCardIndex, currentCardIndex) || other.currentCardIndex == currentCardIndex)&&(identical(other.currentBatch, currentBatch) || other.currentBatch == currentBatch)&&(identical(other.sessionDone, sessionDone) || other.sessionDone == sessionDone)&&(identical(other.flashcard, flashcard) || other.flashcard == flashcard)&&(identical(other.hasCards, hasCards) || other.hasCards == hasCards)&&(identical(other.tutorialSeen, tutorialSeen) || other.tutorialSeen == tutorialSeen)&&(identical(other.newStreak, newStreak) || other.newStreak == newStreak)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,status,testType,pack,cardsPerSession,answerVisible,hintVisible,const DeepCollectionEquality().hash(_statRecords),currentCardIndex,currentBatch,flashcard,hasCards,tutorialSeen,newStreak,errorMessage);
+int get hashCode => Object.hash(runtimeType,status,testType,pack,cardsPerSession,answerVisible,hintVisible,const DeepCollectionEquality().hash(_statRecords),currentCardIndex,currentBatch,sessionDone,flashcard,hasCards,tutorialSeen,newStreak,errorMessage);
 
 @override
 String toString() {
-  return 'FlashcardState(status: $status, testType: $testType, pack: $pack, cardsPerSession: $cardsPerSession, answerVisible: $answerVisible, hintVisible: $hintVisible, statRecords: $statRecords, currentCardIndex: $currentCardIndex, currentBatch: $currentBatch, flashcard: $flashcard, hasCards: $hasCards, tutorialSeen: $tutorialSeen, newStreak: $newStreak, errorMessage: $errorMessage)';
+  return 'FlashcardState(status: $status, testType: $testType, pack: $pack, cardsPerSession: $cardsPerSession, answerVisible: $answerVisible, hintVisible: $hintVisible, statRecords: $statRecords, currentCardIndex: $currentCardIndex, currentBatch: $currentBatch, sessionDone: $sessionDone, flashcard: $flashcard, hasCards: $hasCards, tutorialSeen: $tutorialSeen, newStreak: $newStreak, errorMessage: $errorMessage)';
 }
 
 
@@ -313,7 +319,7 @@ abstract mixin class _$FlashcardStateCopyWith<$Res> implements $FlashcardStateCo
   factory _$FlashcardStateCopyWith(_FlashcardState value, $Res Function(_FlashcardState) _then) = __$FlashcardStateCopyWithImpl;
 @override @useResult
 $Res call({
- FlashcardStatus status, TestType? testType, Pack? pack, int? cardsPerSession, bool answerVisible, bool hintVisible, List<StatRecord> statRecords, int currentCardIndex, int currentBatch, Flashcard? flashcard, bool? hasCards, bool? tutorialSeen, Streak? newStreak, String? errorMessage
+ FlashcardStatus status, TestType? testType, Pack? pack, int? cardsPerSession, bool answerVisible, bool hintVisible, List<StatRecord> statRecords, int currentCardIndex, int currentBatch, int sessionDone, Flashcard? flashcard, bool? hasCards, bool? tutorialSeen, Streak? newStreak, String? errorMessage
 });
 
 
@@ -330,7 +336,7 @@ class __$FlashcardStateCopyWithImpl<$Res>
 
 /// Create a copy of FlashcardState
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? status = null,Object? testType = freezed,Object? pack = freezed,Object? cardsPerSession = freezed,Object? answerVisible = null,Object? hintVisible = null,Object? statRecords = null,Object? currentCardIndex = null,Object? currentBatch = null,Object? flashcard = freezed,Object? hasCards = freezed,Object? tutorialSeen = freezed,Object? newStreak = freezed,Object? errorMessage = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? status = null,Object? testType = freezed,Object? pack = freezed,Object? cardsPerSession = freezed,Object? answerVisible = null,Object? hintVisible = null,Object? statRecords = null,Object? currentCardIndex = null,Object? currentBatch = null,Object? sessionDone = null,Object? flashcard = freezed,Object? hasCards = freezed,Object? tutorialSeen = freezed,Object? newStreak = freezed,Object? errorMessage = freezed,}) {
   return _then(_FlashcardState(
 status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as FlashcardStatus,testType: freezed == testType ? _self.testType : testType // ignore: cast_nullable_to_non_nullable
@@ -341,6 +347,7 @@ as bool,hintVisible: null == hintVisible ? _self.hintVisible : hintVisible // ig
 as bool,statRecords: null == statRecords ? _self._statRecords : statRecords // ignore: cast_nullable_to_non_nullable
 as List<StatRecord>,currentCardIndex: null == currentCardIndex ? _self.currentCardIndex : currentCardIndex // ignore: cast_nullable_to_non_nullable
 as int,currentBatch: null == currentBatch ? _self.currentBatch : currentBatch // ignore: cast_nullable_to_non_nullable
+as int,sessionDone: null == sessionDone ? _self.sessionDone : sessionDone // ignore: cast_nullable_to_non_nullable
 as int,flashcard: freezed == flashcard ? _self.flashcard : flashcard // ignore: cast_nullable_to_non_nullable
 as Flashcard?,hasCards: freezed == hasCards ? _self.hasCards : hasCards // ignore: cast_nullable_to_non_nullable
 as bool?,tutorialSeen: freezed == tutorialSeen ? _self.tutorialSeen : tutorialSeen // ignore: cast_nullable_to_non_nullable

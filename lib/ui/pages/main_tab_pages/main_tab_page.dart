@@ -11,6 +11,7 @@ import 'package:flashcards/data/repositories/flashcards/pack_repository.dart';
 import 'package:flashcards/data/repositories/osces/osce_repository.dart';
 import 'package:flashcards/ui/pages/main_tab_pages/main_tab_routes.dart';
 import 'package:flashcards/ui/widgets/core/desktop_layout.dart';
+import 'package:flashcards/ui/widgets/core/app_bar_streak.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -178,7 +179,7 @@ class _MainTabPageState extends State<MainTabPage> with AutoRouteAware {
                     },
                   ),
             automaticallyImplyLeading: false,
-            actions: appBarActions,
+            actions: [...appBarActions, const AppBarStreak()],
           ),
           body: wide
               ? Row(
