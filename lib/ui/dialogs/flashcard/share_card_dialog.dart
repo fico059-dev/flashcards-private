@@ -6,8 +6,11 @@ import 'package:flashcards/domain/models/flashcards/flashcard/flashcard.dart';
 import 'package:flashcards/domain/models/flashcards/highlight/highlight.dart';
 import 'package:flashcards/ui/widgets/flashcard/card_content.dart';
 import 'package:flashcards/ui/widgets/notebook/highlightable_text.dart';
+import 'package:flashcards/utils/file_download/file_download.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -60,16 +63,79 @@ class _ShareCardDialogState extends State<ShareCardDialog> {
     return box.localToGlobal(Offset.zero) & box.size;
   }
 
+  /// Pictures of the card, with and without highlights. They are made
+  /// before Share is tapped: browsers (Safari above all) only open the
+  /// share menu straight after a tap, not after drawing the picture.
+  final _pictures = <bool, Future<Uint8List>>{};
+
+  @override
+  void initState() {
+    super.initState();
+    _prepare();
+  }
+
+  void _prepare() {
+    final mode = _withHighlights;
+    if (_pictures.containsKey(mode)) return;
+    _pictures[mode] = _render(mode);
+    // A failed picture is made again on the next try.
+    _pictures[mode]!.catchError((Object _) {
+      _pictures.remove(mode);
+      return Uint8List(0);
+    });
+  }
+
+  Future<Uint8List> _render(bool mode) async {
+    // Wait for the card's pictures, then for them to be drawn.
+    final urls = [
+      ?widget.flashcard.questionImageUrl,
+      ?widget.flashcard.answerImageUrl,
+      for (final text in [widget.flashcard.question, widget.flashcard.answer])
+        for (final block in parseCardMarkup(text))
+          if (block is ImageBlock) block.url,
+    ];
+    await WidgetsBinding.instance.endOfFrame;
+    if (!mounted) throw StateError('closed');
+    await Future.wait(
+      urls.map(
+        (url) => precacheImage(
+          NetworkImage(url),
+          context,
+          onError: (_, _) {},
+        ).timeout(const Duration(seconds: 8), onTimeout: () {}),
+      ),
+    );
+    await Future<void>.delayed(const Duration(milliseconds: 100));
+    await WidgetsBinding.instance.endOfFrame;
+    if (!mounted || _withHighlights != mode) throw StateError('changed');
+    final boundary =
+        _cardKey.currentContext!.findRenderObject()! as RenderRepaintBoundary;
+    final image = await boundary.toImage(pixelRatio: 3);
+    final data = await image.toByteData(format: ui.ImageByteFormat.png);
+    return data!.buffer.asUint8List();
+  }
+
+  void _setMode(bool withHighlights) {
+    setState(() => _withHighlights = withHighlights);
+    _prepare();
+  }
+
+  /// Closing the share menu without sharing isn't an error.
+  static bool _isCancel(Object error) =>
+      error.toString().contains('AbortError') ||
+      error.toString().toLowerCase().contains('cancel');
+
   Future<void> _shareImage() async {
     setState(() => _sharing = true);
     final messenger = ScaffoldMessenger.of(context);
     final navigator = Navigator.of(context);
+    Uint8List? bytes;
     try {
-      final boundary =
-          _cardKey.currentContext!.findRenderObject()! as RenderRepaintBoundary;
-      final image = await boundary.toImage(pixelRatio: 3);
-      final data = await image.toByteData(format: ui.ImageByteFormat.png);
-      final bytes = data!.buffer.asUint8List();
+      final mode = _withHighlights;
+      _prepare();
+      bytes = await _pictures[mode]!.catchError((Object _) => Uint8List(0));
+      // Making it ahead of time failed: try once more now.
+      if (bytes.isEmpty) bytes = await _render(mode);
       await SharePlus.instance.share(
         ShareParams(
           files: [
@@ -80,12 +146,32 @@ class _ShareCardDialogState extends State<ShareCardDialog> {
             ),
           ],
           fileNameOverrides: const ['flashpedz-card.png'],
-          text: 'Shared from FlashPedz',
           sharePositionOrigin: _origin(),
         ),
       );
       navigator.pop();
     } catch (error) {
+      if (_isCancel(error)) return;
+      // The browser can't share files: save the picture instead.
+      if (kIsWeb &&
+          bytes != null &&
+          bytes.isNotEmpty &&
+          await downloadBytes(
+            bytes,
+            fileName: 'flashpedz-card.png',
+            mimeType: 'image/png',
+          )) {
+        navigator.pop();
+        messenger.showSnackBar(
+          const SnackBar(
+            content: Text(
+              'The card picture was downloaded. You can send it from your '
+              'Downloads.',
+            ),
+          ),
+        );
+        return;
+      }
       messenger.showSnackBar(
         const SnackBar(content: Text("Couldn't share the card. Try again.")),
       );
@@ -96,18 +182,22 @@ class _ShareCardDialogState extends State<ShareCardDialog> {
 
   Future<void> _shareText() async {
     final navigator = Navigator.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    final text = shareCardText(widget.flashcard);
     try {
       await SharePlus.instance.share(
-        ShareParams(
-          text: shareCardText(widget.flashcard),
-          sharePositionOrigin: _origin(),
-        ),
+        ShareParams(text: text, sharePositionOrigin: _origin()),
       );
       navigator.pop();
-    } catch (_) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Couldn't share the card. Try again.")),
+    } catch (error) {
+      if (_isCancel(error)) return;
+      // No share menu: copy the text so it can be pasted anywhere.
+      await Clipboard.setData(ClipboardData(text: text));
+      navigator.pop();
+      messenger.showSnackBar(
+        const SnackBar(
+          content: Text('Card copied. Paste it into any chat or note.'),
+        ),
       );
     }
   }
@@ -139,8 +229,7 @@ class _ShareCardDialogState extends State<ShareCardDialog> {
                   ),
                 ],
                 selected: {_withHighlights},
-                onSelectionChanged: (value) =>
-                    setState(() => _withHighlights = value.first),
+                onSelectionChanged: (value) => _setMode(value.first),
               ),
               if (highlights == 0)
                 Padding(
