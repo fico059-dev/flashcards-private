@@ -665,10 +665,15 @@ class FlashcardSessionSuccessRoute
   FlashcardSessionSuccessRoute({
     Key? key,
     required FlashcardBloc fcBloc,
+    bool endedForToday = false,
     List<PageRouteInfo>? children,
   }) : super(
          FlashcardSessionSuccessRoute.name,
-         args: FlashcardSessionSuccessRouteArgs(key: key, fcBloc: fcBloc),
+         args: FlashcardSessionSuccessRouteArgs(
+           key: key,
+           fcBloc: fcBloc,
+           endedForToday: endedForToday,
+         ),
          initialChildren: children,
        );
 
@@ -678,32 +683,44 @@ class FlashcardSessionSuccessRoute
     name,
     builder: (data) {
       final args = data.argsAs<FlashcardSessionSuccessRouteArgs>();
-      return FlashcardSessionSuccessPage(key: args.key, fcBloc: args.fcBloc);
+      return FlashcardSessionSuccessPage(
+        key: args.key,
+        fcBloc: args.fcBloc,
+        endedForToday: args.endedForToday,
+      );
     },
   );
 }
 
 class FlashcardSessionSuccessRouteArgs {
-  const FlashcardSessionSuccessRouteArgs({this.key, required this.fcBloc});
+  const FlashcardSessionSuccessRouteArgs({
+    this.key,
+    required this.fcBloc,
+    this.endedForToday = false,
+  });
 
   final Key? key;
 
   final FlashcardBloc fcBloc;
 
+  final bool endedForToday;
+
   @override
   String toString() {
-    return 'FlashcardSessionSuccessRouteArgs{key: $key, fcBloc: $fcBloc}';
+    return 'FlashcardSessionSuccessRouteArgs{key: $key, fcBloc: $fcBloc, endedForToday: $endedForToday}';
   }
 
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
     if (other is! FlashcardSessionSuccessRouteArgs) return false;
-    return key == other.key && fcBloc == other.fcBloc;
+    return key == other.key &&
+        fcBloc == other.fcBloc &&
+        endedForToday == other.endedForToday;
   }
 
   @override
-  int get hashCode => key.hashCode ^ fcBloc.hashCode;
+  int get hashCode => key.hashCode ^ fcBloc.hashCode ^ endedForToday.hashCode;
 }
 
 /// generated route for

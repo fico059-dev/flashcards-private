@@ -122,3 +122,38 @@ Future<bool?> showUpdateCardsPerSessionDialog({
     ),
   );
 }
+
+enum LeaveSessionChoice { exit, endForToday }
+
+/// Asked when leaving before today's cards are done.
+Future<LeaveSessionChoice?> showLeaveSessionDialog({
+  required BuildContext context,
+  required int done,
+  required int total,
+}) {
+  return showDialog<LeaveSessionChoice>(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: const Text('Leave this session?'),
+      content: Text(
+        "You've done $done of $total cards today. Your progress is saved: "
+        "open the pack again today to continue where you left off.",
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('Keep studying'),
+        ),
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(LeaveSessionChoice.exit),
+          child: const Text('Exit'),
+        ),
+        FilledButton(
+          onPressed: () =>
+              Navigator.of(context).pop(LeaveSessionChoice.endForToday),
+          child: const Text('End for today'),
+        ),
+      ],
+    ),
+  );
+}

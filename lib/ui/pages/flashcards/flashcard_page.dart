@@ -12,6 +12,7 @@ import 'package:flashcards/data/repositories/users/auth_repository.dart';
 import 'package:flashcards/data/repositories/flashcards/flashcard_repository.dart';
 import 'package:flashcards/data/repositories/users/profile_repository.dart';
 import 'package:flashcards/data/services/local/local_storage_service.dart';
+import 'package:flashcards/data/services/local/daily_target.dart';
 import 'package:flashcards/domain/models/flashcards/pack/pack.dart';
 import 'package:flashcards/ui/constants/styles.dart';
 import 'package:flashcards/ui/widgets/core/desktop_layout.dart';
@@ -21,6 +22,7 @@ import 'package:flashcards/ui/widgets/flashcard/flashcard_test/flashcard_main_bu
 import 'package:flashcards/ui/widgets/flashcard/flashcard_test/image_containers/question/question_container_with_flashcard_bloc.dart';
 import 'package:flashcards/ui/widgets/flashcard/flashcard_test/listeners/fc_bloc_status_listener.dart';
 import 'package:flashcards/ui/widgets/flashcard/flashcard_test/listeners/streak_listener_with_fc_bloc.dart';
+import 'package:flashcards/ui/widgets/flashcard/flashcard_test/listeners/session_milestone_listener.dart';
 import 'package:flashcards/ui/widgets/flashcard/flashcard_test/listeners/tutorial_seen_listener_with_fc_bloc.dart';
 import 'package:flashcards/ui/widgets/flashcard/flashcard_test/main_card/main_card_with_flashcard_bloc.dart';
 import 'package:flashcards/ui/widgets/flashcard/flashcard_test/flashcard_page_pop_scope.dart';
@@ -51,6 +53,7 @@ class FlashcardPage extends StatelessWidget {
         profileRepo: context.read<ProfileRepository>(),
         ppRepo: context.read<PpRepository>(),
         localStorageService: context.read<LocalStorageService>(),
+        dailyTarget: context.read<DailyTargetService>(),
       ),
       child: _FlashcardView(testType: testType, pack: pack),
     );
@@ -177,55 +180,57 @@ class _FlashcardViewState extends State<_FlashcardView> {
                 onRate: _rateFromKeyboard,
                 child: LoadingOverlayListener<FlashcardBloc, FlashcardState>(
                   isLoading: (state) => state.status.isLoading,
-                  child: TutorialSeenListenerWithFcBloc(
-                    child: StreakListenerWithFcBloc(
-                      child: FcBlocStatusListener(
-                        testType: widget.testType,
-                        child: Padding(
-                          padding: flashcardPagePadding,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // Pinned: stays at the top while the card
-                              // scrolls.
-                              TimerContainer<FlashcardBloc, FlashcardState>(
-                                listenWhen: (previous, current) =>
-                                    current.status.isLoaded,
-                                shouldStartTimer: (state) =>
-                                    state.status.isLoaded,
-                              ),
-                              SizedBox(height: 4),
-                              TopRowWithFlashcardBloc(),
-                              Expanded(
-                                child: SingleChildScrollView(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      QuestionContainerWithFlashcardBloc(),
-                                      MainCardWithFlashcardBloc(
-                                        onStart: _onStart,
-                                      ),
+                  child: SessionMilestoneListener(
+                    child: TutorialSeenListenerWithFcBloc(
+                      child: StreakListenerWithFcBloc(
+                        child: FcBlocStatusListener(
+                          testType: widget.testType,
+                          child: Padding(
+                            padding: flashcardPagePadding,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // Pinned: stays at the top while the card
+                                // scrolls.
+                                TimerContainer<FlashcardBloc, FlashcardState>(
+                                  listenWhen: (previous, current) =>
+                                      current.status.isLoaded,
+                                  shouldStartTimer: (state) =>
+                                      state.status.isLoaded,
+                                ),
+                                SizedBox(height: 4),
+                                TopRowWithFlashcardBloc(),
+                                Expanded(
+                                  child: SingleChildScrollView(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        QuestionContainerWithFlashcardBloc(),
+                                        MainCardWithFlashcardBloc(
+                                          onStart: _onStart,
+                                        ),
 
-                                      SizedBox(height: 40),
-                                      MainButtonWithFlashcardBloc(),
-                                      SizedBox(height: 40),
+                                        SizedBox(height: 40),
+                                        MainButtonWithFlashcardBloc(),
+                                        SizedBox(height: 40),
 
-                                      FlashcardAnswerWithFlashcardBloc(),
-                                      SizedBox(height: 15),
-                                    ],
+                                        FlashcardAnswerWithFlashcardBloc(),
+                                        SizedBox(height: 15),
+                                      ],
+                                    ),
                                   ),
                                 ),
-                              ),
 
-                              SafeArea(
-                                top: false,
-                                child: Padding(
-                                  padding: EdgeInsets.only(top: 15),
-                                  child: FlashcardRatingButtons(),
+                                SafeArea(
+                                  top: false,
+                                  child: Padding(
+                                    padding: EdgeInsets.only(top: 15),
+                                    child: FlashcardRatingButtons(),
+                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ),
                       ),

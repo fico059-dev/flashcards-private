@@ -11,6 +11,7 @@ import 'package:flashcards/data/repositories/utils/user_claims.dart';
 import 'package:flashcards/data/services/api/dto/users/profile/update_profile/update_profile_dto.dart';
 import 'package:flashcards/data/services/api/dto/users/profile/update_profile/update_profile_settings/update_profile_settings_dto.dart';
 import 'package:flashcards/data/services/local/local_storage_service.dart';
+import 'package:flashcards/data/services/local/daily_target.dart';
 import 'package:flashcards/data/services/local/session_progress_store.dart';
 import 'package:flashcards/domain/models/flashcards/flashcard/flashcard.dart';
 import 'package:flashcards/domain/models/flashcards/stat_record/stat_record.dart';
@@ -28,6 +29,11 @@ class FlashcardBloc extends Bloc<FlashcardEvent, FlashcardState> {
   final PpRepository _ppRepo;
   final LocalStorageService _localStorageService;
   final SessionProgressStore _sessionProgress;
+  final DailyTargetService? _dailyTarget;
+
+  /// Where today's count of this session is kept: the pack, or 'goal' when
+  /// the pack is part of the exam goal (one daily target for all its packs).
+  String? _progressKey;
   late final String _uid;
 
   /// Saves progress without making the student wait for the server.
@@ -97,6 +103,7 @@ class FlashcardBloc extends Bloc<FlashcardEvent, FlashcardState> {
   }
 
   final double _newCardsPercentage = 0.2;
+  final double _goalNewCardsPercentage = 0.7;
   final int _sessionExtendedTargetCards = 20;
 
   FlashcardBloc({
@@ -107,7 +114,9 @@ class FlashcardBloc extends Bloc<FlashcardEvent, FlashcardState> {
     required PpRepository ppRepo,
     required LocalStorageService localStorageService,
     SessionProgressStore? sessionProgress,
+    DailyTargetService? dailyTarget,
   }) : _flashcardRepo = flashcardRepo,
+       _dailyTarget = dailyTarget,
        _sessionProgress = sessionProgress ?? SessionProgressStore(),
        _localStorageService = localStorageService,
        _fcpRepo = fcpRepo,
@@ -339,7 +348,7 @@ class FlashcardBloc extends Bloc<FlashcardEvent, FlashcardState> {
     if (state.testType == TestType.regular &&
         state.currentBatch == 0 &&
         state.pack != null) {
-      _sessionProgress.add(_uid, state.pack!.id);
+      _sessionProgress.add(_uid, _progressKey ?? state.pack!.id);
     }
 
     final oldCard = state.statRecords[state.currentCardIndex].card;
@@ -424,26 +433,44 @@ class FlashcardBloc extends Bloc<FlashcardEvent, FlashcardState> {
     late final Result<List<StatRecord>> fcpResult;
     switch (event.testType) {
       case TestType.regular:
+        final pack = event.pack!;
+        // A pack of the exam goal studies what the goal needs today;
+        // other packs use the cards per session.
+        var target = event.cardsPerSession;
+        var key = pack.id;
+        var newShare = _newCardsPercentage;
+        final daily = _dailyTarget;
+        if (daily != null &&
+            await daily.isGoalPack([
+              pack.id,
+              ...pack.subPacks.map((p) => p.id),
+            ])) {
+          target = (await daily.todayTarget(event.cardsPerSession)).target;
+          key = 'goal';
+          // The goal counts new cards, so they make up most of the session.
+          newShare = _goalNewCardsPercentage;
+        }
+        _progressKey = key;
+
         // Opening the pack again today continues the same session.
-        final done = await _sessionProgress.doneToday(_uid, event.pack!.id);
-        final remaining = event.cardsPerSession - done;
-        emit(state.copyWith(sessionDone: done));
+        final done = await _sessionProgress.doneToday(_uid, key);
+        final remaining = target - done;
+        emit(state.copyWith(sessionDone: done, cardsPerSession: target));
         if (remaining <= 0) {
           // Today's target is done: offer to continue with more cards.
           emit(state.copyWith(status: FlashcardStatus.sessionEnded));
           return;
         }
         fcpResult = await _fcpRepo.loadDataForStandardTest(
-          packId: event.pack!.id,
+          packId: pack.id,
           target: remaining,
-          newCardsPercentage: _newCardsPercentage,
+          newCardsPercentage: newShare,
           isPaid: event.pack!.isPaid,
           hasCards: state.hasCards,
           subPacks: event.pack!.subPacks,
         );
 
         // Remembers the pack as started (Started packs list).
-        final pack = event.pack!;
         _saver.run(
           'pack opened',
           () => _ppRepo.openPack(packId: pack.id, packName: pack.name),

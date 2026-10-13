@@ -16,6 +16,7 @@ import 'package:flashcards/ui/dialogs/progress/goal_packs_dialog.dart';
 import 'package:flashcards/ui/dialogs/progress/study_goal_sheet.dart';
 import 'package:flashcards/ui/theme/themes.dart';
 import 'package:flashcards/ui/widgets/rewards/study_rewards_widgets.dart';
+import 'package:flashcards/ui/widgets/flashcard/flashcard_test/listeners/session_milestone_listener.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
@@ -301,5 +302,15 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Packs for this exam'), findsOneWidget);
     await _shot(tester, 'goal_sheet');
+  });
+
+  testWidgets('session milestone 50%', (tester) async {
+    await setup(tester);
+    await _app(
+      tester,
+      (_) => const SessionMilestoneDialog(percent: 50, done: 35, total: 70),
+    );
+    expect(find.text('Halfway through today!'), findsOneWidget);
+    await _shot(tester, 'session_milestone_50');
   });
 }

@@ -43,6 +43,7 @@ import 'package:flashcards/domain/models/flashcards/tag/tag.dart';
 import 'package:flashcards/data/repositories/progress/progress_repository.dart';
 import 'package:flashcards/data/services/local/study_log_store.dart';
 import 'package:flashcards/data/services/local/study_rewards.dart';
+import 'package:flashcards/data/services/local/daily_target.dart';
 import 'package:flashcards/data/repositories/notebook/highlight_repository.dart';
 import 'package:flashcards/data/repositories/osces/osce_library_repository.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -63,6 +64,7 @@ class AppDependencies {
   late final LocalStorageService _localStorageService;
   late final StudyLogStore _studyLogStore;
   late final StudyRewards _studyRewards;
+  late final DailyTargetService _dailyTarget;
 
   late final NotificationService _notificationService;
 
@@ -113,6 +115,10 @@ class AppDependencies {
       ),
     );
     _studyRewards = StudyRewards(store: _studyLogStore);
+    _dailyTarget = DailyTargetService(
+      logStore: _studyLogStore,
+      auth: _authService,
+    );
 
     step('theme');
     _themeCubit = ThemeCubit(storageService: _localStorageService);
@@ -141,6 +147,7 @@ class AppDependencies {
       Provider.value(value: _localStorageService),
       Provider.value(value: _studyLogStore),
       Provider.value(value: _studyRewards),
+      Provider.value(value: _dailyTarget),
       Provider(create: (context) => ProfileService(dbContext: _dbContext)),
       Provider(
         create: (context) =>
