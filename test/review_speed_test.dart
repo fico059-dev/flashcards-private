@@ -82,6 +82,7 @@ class _FcpRepo implements FcpRepository {
   Future<Result<void>> safeUpdateCard({
     required StatRecord newStatRecord,
     required StatRecord currStatRecord,
+    Rating? rating,
   }) {
     saved.add(newStatRecord.flashcardId);
     return Completer<Result<void>>().future;

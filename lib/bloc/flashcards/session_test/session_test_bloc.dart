@@ -370,6 +370,7 @@ class SessionTestBloc extends Bloc<SessionTestEvent, SessionTestState> {
         () => _fcpRepo.safeUpdateCard(
           newStatRecord: currRecord.copyWith(card: newCard),
           currStatRecord: currRecord,
+          rating: rating,
         ),
       );
     }

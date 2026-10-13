@@ -59,11 +59,14 @@ class ProgressCubit extends Cubit<ProgressState> {
   }
 
   Future<void> saveGoal(StudyGoal goal) async {
-    await _repo.saveGoal(goal);
+    final log = await _repo.saveGoal(goal);
     if (isClosed) return;
-    emit(state.copyWith(goal: goal));
+    emit(state.copyWith(goal: log.goal));
     await Future.wait([_loadCards(false), _loadOsce(false)]);
   }
+
+  /// Packs to choose from for the goal.
+  Future<List<PackInfo>> packs() => _repo.getPacks();
 
   Future<void> _loadCards(bool refresh) async {
     final result = await _repo.getCardStats(refresh: refresh);

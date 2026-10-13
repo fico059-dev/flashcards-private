@@ -20,6 +20,7 @@ import 'package:flashcards/domain/models/flashcards/stat_record/stat_record.dart
 import 'package:flashcards/utils/result.dart';
 import 'package:flashcards/data/services/local/seen_cards_store.dart';
 import 'package:flashcards/data/services/local/study_log_store.dart';
+import 'package:flashcards/data/services/local/study_rewards.dart';
 import 'package:fsrs/fsrs.dart';
 
 class FcpRepository {
@@ -34,6 +35,7 @@ class FcpRepository {
   final PageCache<Pack> _packsCache;
 
   final StudyLogStore? _studyLog;
+  final StudyRewards? _rewards;
   final SeenCardsStore _seenCards;
 
   FcpRepository({
@@ -43,8 +45,10 @@ class FcpRepository {
     required PackService packService,
     required PageCache<Pack> packCache,
     StudyLogStore? studyLog,
+    StudyRewards? rewards,
     SeenCardsStore? seenCards,
   }) : _studyLog = studyLog,
+       _rewards = rewards,
        _seenCards = seenCards ?? SeenCardsStore(),
        _fcpService = fcpService,
        _authService = authService,
@@ -534,6 +538,7 @@ class FcpRepository {
   Future<Result<void>> safeUpdateCard({
     required StatRecord newStatRecord,
     required StatRecord currStatRecord,
+    Rating? rating,
   }) async {
     // A card studied for the first time has no progress document yet, so it
     // is written in one go instead of waiting for an update to fail first.
@@ -553,7 +558,7 @@ class FcpRepository {
         newStatRecord.card,
         currStatRecord.packId,
       );
-      _recordReview(currStatRecord.card, newStatRecord.card);
+      _recordReview(currStatRecord, newStatRecord.card, rating);
       return Result.ok(null);
     }
 
@@ -571,7 +576,7 @@ class FcpRepository {
           newStatRecord.card,
           currStatRecord.packId,
         );
-        _recordReview(currStatRecord.card, newStatRecord.card);
+        _recordReview(currStatRecord, newStatRecord.card, rating);
         return Result.ok(null);
       case Error<void>():
     }
@@ -597,7 +602,7 @@ class FcpRepository {
       newStatRecord.card,
       currStatRecord.packId,
     );
-    _recordReview(currStatRecord.card, newStatRecord.card);
+    _recordReview(currStatRecord, newStatRecord.card, rating);
     return Result.ok(null);
   }
 
@@ -627,12 +632,26 @@ class FcpRepository {
   }
 
   /// Keeps the daily history shown on the Progress tab.
-  void _recordReview(Card before, Card after) {
+  /// Also gives XP and goal milestones through [StudyRewards].
+  void _recordReview(StatRecord record, Card after, Rating? rating) {
+    final before = record.card;
+    final isNew = before.state == State.newState || before.reps == 0;
+    final forgot = after.lapses > before.lapses;
+    final rewards = _rewards;
+    if (rewards != null) {
+      rewards.recordReview(
+        packId: record.packId,
+        isNew: isNew,
+        forgot: forgot,
+        rating: rating,
+      );
+      return;
+    }
     _studyLog?.update(
       (log) => log.recordReview(
         now: DateTime.now(),
-        isNew: before.state == State.newState || before.reps == 0,
-        forgot: after.lapses > before.lapses,
+        isNew: isNew,
+        forgot: forgot,
       ),
     );
   }

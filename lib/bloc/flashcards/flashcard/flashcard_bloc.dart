@@ -345,6 +345,7 @@ class FlashcardBloc extends Bloc<FlashcardEvent, FlashcardState> {
       () => _fcpRepo.safeUpdateCard(
         newStatRecord: newStatRecord,
         currStatRecord: currStatRecord,
+        rating: event.rating,
       ),
     );
 

@@ -3,6 +3,7 @@ import 'package:flashcards/domain/models/profile/profile.dart';
 import 'package:flashcards/domain/models/profile/streak/streak.dart';
 import 'package:flashcards/ui/constants/styles.dart';
 import 'package:flashcards/ui/theme/theme_extensions.dart';
+import 'package:flashcards/ui/widgets/profile/profile_avatar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -22,11 +23,12 @@ class MoreProfileDetails extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(
-                CupertinoIcons.profile_circled,
-                size: 80,
-                color: context.colors.onPrimary,
+              ProfileAvatar(
+                size: 72,
+                editable: true,
+                iconColor: context.colors.onPrimary,
               ),
+              const SizedBox(width: 12),
               Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,

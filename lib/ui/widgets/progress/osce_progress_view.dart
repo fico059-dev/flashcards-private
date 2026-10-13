@@ -21,6 +21,7 @@ class OsceProgressView extends StatelessWidget {
       context,
       goal: cubit.state.goal,
       totalCards: cubit.state.cards.data?.totalAvailable ?? 0,
+      loadPacks: cubit.packs,
     );
     if (goal != null) cubit.saveGoal(goal);
   }

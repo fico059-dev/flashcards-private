@@ -67,6 +67,15 @@ class CloudFunctionService {
     return data['url'] as String;
   }
 
+  /// Sets the user's profile photo (JPEG), or removes it when null.
+  /// Returns the photo's address.
+  Future<String?> setProfilePhoto(String? imageBase64) async {
+    final data = await _call('setProfilePhoto', {
+      'imageBase64': imageBase64 ?? '',
+    });
+    return data['url'] as String?;
+  }
+
   /// The emails a pack is limited to (empty: everyone). Admins only.
   Future<List<String>> getPackAccess(String packId) async {
     final data = await _call('getPackAccess', {'packId': packId});

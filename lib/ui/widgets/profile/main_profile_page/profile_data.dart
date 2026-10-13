@@ -10,6 +10,7 @@ import 'package:flashcards/ui/dialogs/profile/notification_options_bottom_sheet.
 import 'package:flashcards/ui/theme/theme_extensions.dart';
 import 'package:flashcards/ui/theme/theme_extensions.dart';
 import 'package:flashcards/ui/widgets/profile/profile_menu_widget.dart';
+import 'package:flashcards/ui/widgets/rewards/study_rewards_widgets.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -62,6 +63,7 @@ class ProfileData extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          const ProfileLevelCard(),
           if (profile.isAdmin) const SizedBox(height: 20),
           if (profile.isAdmin)
             Text(

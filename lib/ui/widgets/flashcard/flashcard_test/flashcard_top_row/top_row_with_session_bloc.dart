@@ -8,6 +8,7 @@ import 'package:flashcards/ui/widgets/flashcard/flashcard_test/flashcard_top_row
 import 'package:flashcards/ui/widgets/flashcard/flashcard_test/flashcard_top_row/widgets/bookmark_button.dart';
 import 'package:flashcards/ui/widgets/flashcard/flashcard_test/flashcard_top_row/widgets/popup_menu_button.dart';
 import 'package:flashcards/ui/widgets/flashcard/flashcard_test/flashcard_top_row/widgets/question_counter.dart';
+import 'package:flashcards/ui/dialogs/flashcard/share_card_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -71,6 +72,13 @@ class TopRowWithSessionBloc extends StatelessWidget {
                   onEdited: (card) => context.read<SessionTestBloc>().add(
                     SessionTestCardEdited(card),
                   ),
+                ),
+                IconButton(
+                  tooltip: 'Share card',
+                  icon: const Icon(Icons.share_outlined),
+                  onPressed: hasBookmark == null
+                      ? null
+                      : () => showShareCardDialog(context, flashcard),
                 ),
                 BookmarkButton(
                   isBookmarked: hasBookmark ?? false,

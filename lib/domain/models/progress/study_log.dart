@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math';
 
 /// The student's objective, used to draw the trajectory.
 class StudyGoal {
@@ -10,30 +11,123 @@ class StudyGoal {
   /// OSCE score (in %) the student aims for on every station.
   final int targetOsceScore;
 
-  const StudyGoal({this.examDate, this.targetCards, this.targetOsceScore = 70});
+  /// The packs studied for this exam. Empty means every pack.
+  final List<String> packIds;
 
-  bool get isEmpty => examDate == null && targetCards == null;
+  /// Day (see [dayKey]) the packs or the target were last changed. History
+  /// from before then counted different cards, so it isn't drawn.
+  final String? since;
+
+  const StudyGoal({
+    this.examDate,
+    this.targetCards,
+    this.targetOsceScore = 70,
+    this.packIds = const [],
+    this.since,
+  });
+
+  bool get isEmpty =>
+      examDate == null && targetCards == null && packIds.isEmpty;
+
+  bool get hasPacks => packIds.isNotEmpty;
+
+  /// Whether cards of [packId] count towards the goal.
+  bool includesPack(String packId) =>
+      packIds.isEmpty || packIds.contains(packId);
+
+  /// Whether [other] counts different cards, so progress starts over.
+  bool countsDifferently(StudyGoal other) =>
+      other.targetCards != targetCards || !_sameSet(other.packIds, packIds);
 
   StudyGoal copyWith({
     DateTime? Function()? examDate,
     int? Function()? targetCards,
     int? targetOsceScore,
+    List<String>? packIds,
+    String? Function()? since,
   }) => StudyGoal(
     examDate: examDate == null ? this.examDate : examDate(),
     targetCards: targetCards == null ? this.targetCards : targetCards(),
     targetOsceScore: targetOsceScore ?? this.targetOsceScore,
+    packIds: packIds ?? this.packIds,
+    since: since == null ? this.since : since(),
   );
 
   Map<String, dynamic> toJson() => {
     if (examDate != null) 'examDate': dayKey(examDate!),
     if (targetCards != null) 'targetCards': targetCards,
     'targetOsceScore': targetOsceScore,
+    if (packIds.isNotEmpty) 'packs': packIds,
+    if (since != null) 'since': since,
   };
 
   factory StudyGoal.fromJson(Map<String, dynamic> json) => StudyGoal(
     examDate: DateTime.tryParse(json['examDate'] as String? ?? ''),
     targetCards: (json['targetCards'] as num?)?.toInt(),
     targetOsceScore: (json['targetOsceScore'] as num?)?.toInt() ?? 70,
+    packIds: [
+      for (final id in json['packs'] as List<dynamic>? ?? const [])
+        if (id is String) id,
+    ],
+    since: json['since'] as String?,
+  );
+}
+
+bool _sameSet(List<String> a, List<String> b) =>
+    a.length == b.length && a.toSet().containsAll(b);
+
+/// Shares of the goal that are celebrated while studying, in percent.
+const goalMilestones = [25, 50, 75, 100];
+
+/// Bonus XP for reaching each of [goalMilestones].
+const milestoneBonusXp = {25: 50, 50: 100, 75: 150, 100: 300};
+
+/// How far the student is towards the goal, as last counted on the server
+/// plus the new goal cards studied on this device since then.
+class GoalProgress {
+  final int studied;
+  final int target;
+
+  /// New cards of the goal's packs studied since [studied] was counted.
+  final int newSince;
+
+  /// Milestones (see [goalMilestones]) already shown for this goal.
+  final List<int> reached;
+
+  const GoalProgress({
+    required this.studied,
+    required this.target,
+    this.newSince = 0,
+    this.reached = const [],
+  });
+
+  int get estimate => studied + newSince;
+
+  int get percent =>
+      target <= 0 ? 0 : min(100, (estimate * 100 / target).floor());
+
+  GoalProgress copyWith({int? newSince, List<int>? reached}) => GoalProgress(
+    studied: studied,
+    target: target,
+    newSince: newSince ?? this.newSince,
+    reached: reached ?? this.reached,
+  );
+
+  Map<String, dynamic> toJson() => {
+    's': studied,
+    't': target,
+    'n': newSince,
+    'r': reached,
+  };
+
+  factory GoalProgress.fromJson(Map<String, dynamic> json) => GoalProgress(
+    studied: (json['s'] as num?)?.toInt() ?? 0,
+    target: (json['t'] as num?)?.toInt() ?? 0,
+    newSince: (json['n'] as num?)?.toInt() ?? 0,
+    reached: [
+      for (final m in json['r'] as List<dynamic>? ?? const [])
+        if (m is num) m.toInt(),
+    ],
   );
 }
 
@@ -154,11 +248,24 @@ class StudyLog {
   final Map<String, OsceStationLog> osce;
   final StudyGoal goal;
 
+  /// This device's count towards the goal, for the milestones. Not shared
+  /// between devices.
+  final GoalProgress? goalProgress;
+
+  /// XP of days older than the kept history, so the level never drops.
+  final int archivedXp;
+
+  /// XP earned for goal milestones.
+  final int bonusXp;
+
   const StudyLog({
     this.days = const {},
     this.studiedSnapshots = const {},
     this.osce = const {},
     this.goal = const StudyGoal(),
+    this.goalProgress,
+    this.archivedXp = 0,
+    this.bonusXp = 0,
   });
 
   StudyLog copyWith({
@@ -166,12 +273,89 @@ class StudyLog {
     Map<String, int>? studiedSnapshots,
     Map<String, OsceStationLog>? osce,
     StudyGoal? goal,
+    GoalProgress? Function()? goalProgress,
+    int? archivedXp,
+    int? bonusXp,
   }) => StudyLog(
     days: days ?? this.days,
     studiedSnapshots: studiedSnapshots ?? this.studiedSnapshots,
     osce: osce ?? this.osce,
     goal: goal ?? this.goal,
+    goalProgress: goalProgress == null ? this.goalProgress : goalProgress(),
+    archivedXp: archivedXp ?? this.archivedXp,
+    bonusXp: bonusXp ?? this.bonusXp,
   );
+
+  /// Experience points from everything studied: cards, OSCEs and goal
+  /// milestones.
+  int get xp {
+    var total = archivedXp + bonusXp;
+    for (final day in days.values) {
+      total += dayXp(day);
+    }
+    for (final station in osce.values) {
+      for (final q in station.questions.values) {
+        total += q.attempts * osceQuestionXp + q.achieved;
+      }
+    }
+    return total;
+  }
+
+  /// Sets a new goal. Counting towards it starts over when it counts
+  /// different cards.
+  StudyLog setGoal(StudyGoal newGoal, DateTime now) {
+    final changed = goal.countsDifferently(newGoal);
+    return copyWith(
+      goal: changed ? newGoal.copyWith(since: () => dayKey(now)) : newGoal,
+      goalProgress: changed ? () => null : null,
+    );
+  }
+
+  /// Records the goal count from the server. Milestones already passed are
+  /// marked as reached without being celebrated again.
+  StudyLog recordGoalProgress({required int studied, required int target}) {
+    final previous = goalProgress;
+    final keepReached = previous != null && previous.target == target
+        ? previous.reached
+        : const <int>[];
+    final percent = target <= 0 ? 0 : studied * 100 / target;
+    return copyWith(
+      goalProgress: () => GoalProgress(
+        studied: studied,
+        target: target,
+        reached: {
+          ...keepReached,
+          for (final m in goalMilestones)
+            if (percent >= m) m,
+        }.toList()..sort(),
+      ),
+    );
+  }
+
+  /// Counts a new card of [packId] towards the goal. Returns the milestones
+  /// this card reached.
+  (StudyLog, List<int>) recordGoalCard(String packId) {
+    final progress = goalProgress;
+    if (progress == null || !goal.includesPack(packId)) return (this, const []);
+    final updated = progress.copyWith(newSince: progress.newSince + 1);
+    final reachedNow = [
+      for (final m in goalMilestones)
+        if (updated.percent >= m && !progress.reached.contains(m)) m,
+    ];
+    if (reachedNow.isEmpty) {
+      return (copyWith(goalProgress: () => updated), const []);
+    }
+    return (
+      copyWith(
+        goalProgress: () =>
+            updated.copyWith(reached: [...progress.reached, ...reachedNow]),
+        bonusXp:
+            bonusXp +
+            reachedNow.fold(0, (sum, m) => sum + (milestoneBonusXp[m] ?? 0)),
+      ),
+      reachedNow,
+    );
+  }
 
   DayActivity activityOn(DateTime day) =>
       days[dayKey(day)] ?? const DayActivity();
@@ -182,15 +366,15 @@ class StudyLog {
     required bool forgot,
   }) {
     final key = dayKey(now);
-    return copyWith(
-      days: _trim({
-        ...days,
-        key: (days[key] ?? const DayActivity()).add(
-          isNew: isNew,
-          forgot: forgot,
-        ),
-      }, now),
-    );
+    final updated = {
+      ...days,
+      key: (days[key] ?? const DayActivity()).add(isNew: isNew, forgot: forgot),
+    };
+    final kept = _trim(updated, now);
+    final dropped = updated.entries
+        .where((e) => !kept.containsKey(e.key))
+        .fold(0, (sum, e) => sum + dayXp(e.value));
+    return copyWith(days: kept, archivedXp: archivedXp + dropped);
   }
 
   StudyLog recordStudiedCount(DateTime now, int studied) => copyWith(
@@ -233,6 +417,9 @@ class StudyLog {
   /// Combines the history recorded on several devices: activity and OSCE
   /// results are added up, studied-card counts take the highest value.
   /// The goal comes from [goal] when given, otherwise from the first log.
+  ///
+  /// XP is added up as well; the goal count is this device's (the first
+  /// log).
   static StudyLog merge(List<StudyLog> logs, {StudyGoal? goal}) {
     if (logs.isEmpty) return StudyLog(goal: goal ?? const StudyGoal());
     final days = <String, DayActivity>{};
@@ -284,6 +471,9 @@ class StudyLog {
       studiedSnapshots: studied,
       osce: osce,
       goal: goal ?? logs.first.goal,
+      goalProgress: logs.first.goalProgress,
+      archivedXp: logs.fold(0, (sum, log) => sum + log.archivedXp),
+      bonusXp: logs.fold(0, (sum, log) => sum + log.bonusXp),
     );
   }
 
@@ -301,6 +491,9 @@ class StudyLog {
     'studied': studiedSnapshots,
     'osce': osce.map((key, value) => MapEntry(key, value.toJson())),
     'goal': goal.toJson(),
+    if (goalProgress != null) 'goalProgress': goalProgress!.toJson(),
+    if (archivedXp > 0) 'xpArchived': archivedXp,
+    if (bonusXp > 0) 'xpBonus': bonusXp,
   };
 
   factory StudyLog.decode(String? source) {
@@ -324,6 +517,13 @@ class StudyLog {
         goal: StudyGoal.fromJson(
           json['goal'] as Map<String, dynamic>? ?? const {},
         ),
+        goalProgress: json['goalProgress'] is Map<String, dynamic>
+            ? GoalProgress.fromJson(
+                json['goalProgress'] as Map<String, dynamic>,
+              )
+            : null,
+        archivedXp: (json['xpArchived'] as num?)?.toInt() ?? 0,
+        bonusXp: (json['xpBonus'] as num?)?.toInt() ?? 0,
       );
     } on Object {
       // A damaged log shouldn't break the app, start over.
@@ -343,4 +543,19 @@ String dayKey(DateTime date) {
 DateTime startOfDay(DateTime date) {
   final local = date.toLocal();
   return DateTime(local.year, local.month, local.day);
+}
+
+/// XP for each kind of review.
+const newCardXp = 10;
+const reviewXp = 5;
+const forgottenXp = 2;
+
+/// XP for each finished OSCE question, plus one per mark scored.
+const osceQuestionXp = 5;
+
+int dayXp(DayActivity day) {
+  final others = max(0, day.reviews - day.newCards - day.forgotten);
+  return day.newCards * newCardXp +
+      others * reviewXp +
+      day.forgotten * forgottenXp;
 }

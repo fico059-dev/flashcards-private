@@ -9,6 +9,7 @@ import 'package:flashcards/ui/widgets/flashcard/flashcard_test/flashcard_top_row
 import 'package:flashcards/ui/widgets/flashcard/flashcard_test/flashcard_top_row/widgets/bookmark_button.dart';
 import 'package:flashcards/ui/widgets/flashcard/flashcard_test/flashcard_top_row/widgets/popup_menu_button.dart';
 import 'package:flashcards/ui/widgets/flashcard/flashcard_test/flashcard_top_row/widgets/question_counter.dart';
+import 'package:flashcards/ui/dialogs/flashcard/share_card_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -74,6 +75,13 @@ class TopRowWithFlashcardBloc extends StatelessWidget {
                       : state.statRecords[state.currentCardIndex].flashcard,
                   onEdited: (card) =>
                       context.read<FlashcardBloc>().add(FlashcardEdited(card)),
+                ),
+                IconButton(
+                  tooltip: 'Share card',
+                  icon: const Icon(Icons.share_outlined),
+                  onPressed: state.flashcard == null
+                      ? null
+                      : () => showShareCardDialog(context, state.flashcard!),
                 ),
                 BookmarkButton(
                   isBookmarked: isBookmarked,

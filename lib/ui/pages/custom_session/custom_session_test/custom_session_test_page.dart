@@ -24,6 +24,7 @@ import 'package:flashcards/ui/widgets/flashcard/flashcard_test/image_containers/
 import 'package:flashcards/ui/widgets/flashcard/flashcard_test/main_card/main_card_with_session_bloc.dart';
 import 'package:flashcards/ui/widgets/flashcard/flashcard_test/next_button/next_button_with_session_bloc.dart';
 import 'package:flashcards/utils/firebase_error_mapper.dart';
+import 'package:flashcards/ui/widgets/rewards/study_rewards_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fsrs/fsrs.dart' as fsrs;
@@ -147,101 +148,111 @@ class _ViewState extends State<_View> {
       ),
       body: SafeArea(
         child: ReadableWidth(
-          child: ReviewShortcuts(
-            onShowAnswer: _showAnswerFromKeyboard,
-            onRate: _rateFromKeyboard,
-            child: Padding(
-              padding: flashcardPagePadding,
-              child: LoadingOverlayListener<SessionTestBloc, SessionTestState>(
-                isLoading: (state) =>
-                    state is SessionTestLoaded && state.status.isLoading,
-                child: BlocListener<SessionTestBloc, SessionTestState>(
-                  listenWhen: (previous, current) {
-                    final isLoadedNow = current is SessionTestLoaded;
-                    if (!isLoadedNow) return false;
+          child: StudyRewardsListener(
+            child: ReviewShortcuts(
+              onShowAnswer: _showAnswerFromKeyboard,
+              onRate: _rateFromKeyboard,
+              child: Padding(
+                padding: flashcardPagePadding,
+                child:
+                    LoadingOverlayListener<SessionTestBloc, SessionTestState>(
+                      isLoading: (state) =>
+                          state is SessionTestLoaded && state.status.isLoading,
+                      child: BlocListener<SessionTestBloc, SessionTestState>(
+                        listenWhen: (previous, current) {
+                          final isLoadedNow = current is SessionTestLoaded;
+                          if (!isLoadedNow) return false;
 
-                    final hasNewStreak = current.newStreak != null;
+                          final hasNewStreak = current.newStreak != null;
 
-                    // is prev was now loaded, run listener
-                    if (previous is! SessionTestLoaded) {
-                      return hasNewStreak;
-                    }
+                          // is prev was now loaded, run listener
+                          if (previous is! SessionTestLoaded) {
+                            return hasNewStreak;
+                          }
 
-                    // if it was loaded, then compare to the current
-                    return hasNewStreak &&
-                        current.newStreak != previous.newStreak;
-                  },
-                  listener: (context, state) {
-                    if (state is! SessionTestLoaded) return;
-                    final newStreak = state.newStreak;
-                    if (newStreak == null) return;
-                    print("Ha, new streak found, updating profile bloc now");
-                    context.read<ProfileReaderCubit>().updateProfileState(
-                      (profile) => profile.copyWith(streak: newStreak),
-                    );
+                          // if it was loaded, then compare to the current
+                          return hasNewStreak &&
+                              current.newStreak != previous.newStreak;
+                        },
+                        listener: (context, state) {
+                          if (state is! SessionTestLoaded) return;
+                          final newStreak = state.newStreak;
+                          if (newStreak == null) return;
+                          print(
+                            "Ha, new streak found, updating profile bloc now",
+                          );
+                          context.read<ProfileReaderCubit>().updateProfileState(
+                            (profile) => profile.copyWith(streak: newStreak),
+                          );
 
-                    final profileState = context
-                        .read<ProfileReaderCubit>()
-                        .state;
-                    final streakProfile =
-                        (profileState as ProfileReaderIsLoaded).profile.streak;
-                    print("New streak from bloc state: $streakProfile");
-                  },
-                  child: BlocListener<SessionTestBloc, SessionTestState>(
-                    listenWhen: (previous, current) {
-                      final isLoaded = current is SessionTestLoaded;
-                      return isLoaded &&
-                          (current.status.isError || current.status.isFinished);
-                    },
-                    listener: (context, state) {
-                      if (state is! SessionTestLoaded) return;
-                      if (state.status.isError) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(extractErrorMessage(state.error!)),
+                          final profileState = context
+                              .read<ProfileReaderCubit>()
+                              .state;
+                          final streakProfile =
+                              (profileState as ProfileReaderIsLoaded)
+                                  .profile
+                                  .streak;
+                          print("New streak from bloc state: $streakProfile");
+                        },
+                        child: BlocListener<SessionTestBloc, SessionTestState>(
+                          listenWhen: (previous, current) {
+                            final isLoaded = current is SessionTestLoaded;
+                            return isLoaded &&
+                                (current.status.isError ||
+                                    current.status.isFinished);
+                          },
+                          listener: (context, state) {
+                            if (state is! SessionTestLoaded) return;
+                            if (state.status.isError) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    extractErrorMessage(state.error!),
+                                  ),
+                                ),
+                              );
+                            } else if (state.status.isFinished) {
+                              final correctCount = state.session.correctCount;
+                              final allCount = state.session.cardCount;
+
+                              context.router.pop();
+                              context.router.push(
+                                CustomSessionResultRoute(
+                                  scoreStatus: calculateScoreStatus(
+                                    correctCount,
+                                    allCount,
+                                  ),
+                                  correctCount: correctCount,
+                                  allCount: allCount,
+                                ),
+                              );
+                            }
+                          },
+                          child: BlocBuilder<SessionTestBloc, SessionTestState>(
+                            buildWhen: (previous, current) =>
+                                previous.runtimeType != current.runtimeType,
+                            builder: (context, state) {
+                              switch (state) {
+                                case SessionTestInitial():
+                                case SessionTestLoading():
+                                  return Center(
+                                    child: CircularProgressIndicator(
+                                      color: context.colors.primary,
+                                    ),
+                                  );
+                                case SessionTestLoaded():
+                                  return _LoadedContent(state: state);
+                                case SessionTestError(:final error):
+                                  return ErrorScreen(
+                                    errorMessage: extractErrorMessage(error),
+                                    onReload: _onStart,
+                                  );
+                              }
+                            },
                           ),
-                        );
-                      } else if (state.status.isFinished) {
-                        final correctCount = state.session.correctCount;
-                        final allCount = state.session.cardCount;
-
-                        context.router.pop();
-                        context.router.push(
-                          CustomSessionResultRoute(
-                            scoreStatus: calculateScoreStatus(
-                              correctCount,
-                              allCount,
-                            ),
-                            correctCount: correctCount,
-                            allCount: allCount,
-                          ),
-                        );
-                      }
-                    },
-                    child: BlocBuilder<SessionTestBloc, SessionTestState>(
-                      buildWhen: (previous, current) =>
-                          previous.runtimeType != current.runtimeType,
-                      builder: (context, state) {
-                        switch (state) {
-                          case SessionTestInitial():
-                          case SessionTestLoading():
-                            return Center(
-                              child: CircularProgressIndicator(
-                                color: context.colors.primary,
-                              ),
-                            );
-                          case SessionTestLoaded():
-                            return _LoadedContent(state: state);
-                          case SessionTestError(:final error):
-                            return ErrorScreen(
-                              errorMessage: extractErrorMessage(error),
-                              onReload: _onStart,
-                            );
-                        }
-                      },
+                        ),
+                      ),
                     ),
-                  ),
-                ),
               ),
             ),
           ),

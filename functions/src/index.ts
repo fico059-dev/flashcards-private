@@ -28,6 +28,7 @@ import {
   saveStudyLogHandler,
 } from "./handlers/studyLog";
 import {uploadCardImageHandler} from "./handlers/cardImages";
+import {setProfilePhotoHandler} from "./handlers/profilePhoto";
 import {
   getPackAccessHandler,
   listSearchableFlashcardsHandler,
@@ -78,6 +79,7 @@ export const saveStudyLog = onCall(saveStudyLogHandler);
 export const getStudyLog = onCall(getStudyLogHandler);
 export const setPackAccess = onCall(setPackAccessHandler);
 export const uploadCardImage = onCall(uploadCardImageHandler);
+export const setProfilePhoto = onCall(setProfilePhotoHandler);
 export const getPackAccess = onCall(getPackAccessHandler);
 export const listSearchableFlashcards = onCall(
   {memory: "1GiB", timeoutSeconds: 120},

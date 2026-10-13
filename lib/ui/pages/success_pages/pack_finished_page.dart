@@ -1,6 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flashcards/bloc/flashcards/flashcard/flashcard_event.dart';
 import 'package:flashcards/ui/widgets/core/desktop_layout.dart';
+import 'package:flashcards/ui/widgets/rewards/study_rewards_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flashcards/config/router/router.dart';
 
@@ -18,7 +19,7 @@ class PackFinishedPage extends StatelessWidget {
       body: ReadableWidth(
         maxWidth: 820,
         child: Center(
-          child: Padding(
+          child: SingleChildScrollView(
             padding: const EdgeInsets.all(24.0),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -28,7 +29,7 @@ class PackFinishedPage extends StatelessWidget {
                   testType == TestType.regular
                       ? 'assets/images/parrot_fire_eyes.png'
                       : 'assets/images/happy_parrot.png',
-                  height: MediaQuery.of(context).size.height * 0.3,
+                  height: MediaQuery.of(context).size.height * 0.2,
                 ),
                 const SizedBox(height: 12),
 
@@ -54,7 +55,9 @@ class PackFinishedPage extends StatelessWidget {
                   style: theme.titleMedium,
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 40),
+                const SizedBox(height: 24),
+                SessionSummaryCard.current(context),
+                const SizedBox(height: 24),
 
                 // Dugmad akcija
                 SizedBox(

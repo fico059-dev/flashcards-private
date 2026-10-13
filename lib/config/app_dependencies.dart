@@ -42,6 +42,7 @@ import 'package:flashcards/domain/models/flashcards/pack/pack.dart';
 import 'package:flashcards/domain/models/flashcards/tag/tag.dart';
 import 'package:flashcards/data/repositories/progress/progress_repository.dart';
 import 'package:flashcards/data/services/local/study_log_store.dart';
+import 'package:flashcards/data/services/local/study_rewards.dart';
 import 'package:flashcards/data/repositories/notebook/highlight_repository.dart';
 import 'package:flashcards/data/repositories/osces/osce_library_repository.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -61,6 +62,7 @@ class AppDependencies {
   late final AuthService _authService;
   late final LocalStorageService _localStorageService;
   late final StudyLogStore _studyLogStore;
+  late final StudyRewards _studyRewards;
 
   late final NotificationService _notificationService;
 
@@ -110,6 +112,7 @@ class AppDependencies {
         save: _functions.saveStudyLog,
       ),
     );
+    _studyRewards = StudyRewards(store: _studyLogStore);
 
     step('theme');
     _themeCubit = ThemeCubit(storageService: _localStorageService);
@@ -137,6 +140,7 @@ class AppDependencies {
       Provider.value(value: _authService),
       Provider.value(value: _localStorageService),
       Provider.value(value: _studyLogStore),
+      Provider.value(value: _studyRewards),
       Provider(create: (context) => ProfileService(dbContext: _dbContext)),
       Provider(
         create: (context) =>
@@ -241,6 +245,7 @@ class AppDependencies {
           packService: context.read<PackService>(),
           packCache: _packsCache,
           studyLog: _studyLogStore,
+          rewards: _studyRewards,
         ),
       ),
       ChangeNotifierProvider(

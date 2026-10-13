@@ -28,6 +28,7 @@ import 'package:flashcards/ui/widgets/flashcard/flashcard_test/rating_buttons/fl
 import 'package:flashcards/ui/widgets/flashcard/flashcard_test/flashcard_top_row/top_row_with_flashcard_bloc.dart';
 import 'package:flashcards/ui/widgets/flashcard/flashcard_test/timer_container.dart';
 import 'package:flashcards/utils/firebase_error_mapper.dart';
+import 'package:flashcards/ui/widgets/rewards/study_rewards_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fsrs/fsrs.dart' as fsrs;
@@ -170,62 +171,65 @@ class _FlashcardViewState extends State<_FlashcardView> {
         ),
         body: SafeArea(
           child: ReadableWidth(
-            child: ReviewShortcuts(
-              onShowAnswer: _showAnswerFromKeyboard,
-              onRate: _rateFromKeyboard,
-              child: LoadingOverlayListener<FlashcardBloc, FlashcardState>(
-                isLoading: (state) => state.status.isLoading,
-                child: TutorialSeenListenerWithFcBloc(
-                  child: StreakListenerWithFcBloc(
-                    child: FcBlocStatusListener(
-                      testType: widget.testType,
-                      child: Padding(
-                        padding: flashcardPagePadding,
-                        child: Column(
-                          children: [
-                            Expanded(
-                              child: SingleChildScrollView(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    TimerContainer<
-                                      FlashcardBloc,
-                                      FlashcardState
-                                    >(
-                                      listenWhen: (previous, current) =>
-                                          current.status.isLoaded,
-                                      shouldStartTimer: (state) =>
-                                          state.status.isLoaded,
-                                    ),
+            child: StudyRewardsListener(
+              child: ReviewShortcuts(
+                onShowAnswer: _showAnswerFromKeyboard,
+                onRate: _rateFromKeyboard,
+                child: LoadingOverlayListener<FlashcardBloc, FlashcardState>(
+                  isLoading: (state) => state.status.isLoading,
+                  child: TutorialSeenListenerWithFcBloc(
+                    child: StreakListenerWithFcBloc(
+                      child: FcBlocStatusListener(
+                        testType: widget.testType,
+                        child: Padding(
+                          padding: flashcardPagePadding,
+                          child: Column(
+                            children: [
+                              Expanded(
+                                child: SingleChildScrollView(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      TimerContainer<
+                                        FlashcardBloc,
+                                        FlashcardState
+                                      >(
+                                        listenWhen: (previous, current) =>
+                                            current.status.isLoaded,
+                                        shouldStartTimer: (state) =>
+                                            state.status.isLoaded,
+                                      ),
 
-                                    SizedBox(height: 15),
+                                      SizedBox(height: 15),
 
-                                    QuestionContainerWithFlashcardBloc(),
+                                      QuestionContainerWithFlashcardBloc(),
 
-                                    TopRowWithFlashcardBloc(),
-                                    MainCardWithFlashcardBloc(
-                                      onStart: _onStart,
-                                    ),
+                                      TopRowWithFlashcardBloc(),
+                                      MainCardWithFlashcardBloc(
+                                        onStart: _onStart,
+                                      ),
 
-                                    SizedBox(height: 40),
-                                    MainButtonWithFlashcardBloc(),
-                                    SizedBox(height: 40),
+                                      SizedBox(height: 40),
+                                      MainButtonWithFlashcardBloc(),
+                                      SizedBox(height: 40),
 
-                                    FlashcardAnswerWithFlashcardBloc(),
-                                    SizedBox(height: 15),
-                                  ],
+                                      FlashcardAnswerWithFlashcardBloc(),
+                                      SizedBox(height: 15),
+                                    ],
+                                  ),
                                 ),
                               ),
-                            ),
 
-                            SafeArea(
-                              top: false,
-                              child: Padding(
-                                padding: EdgeInsets.only(top: 15),
-                                child: FlashcardRatingButtons(),
+                              SafeArea(
+                                top: false,
+                                child: Padding(
+                                  padding: EdgeInsets.only(top: 15),
+                                  child: FlashcardRatingButtons(),
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
                     ),

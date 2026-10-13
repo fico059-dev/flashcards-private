@@ -109,16 +109,20 @@ Future<void> _initialize(bool isDev) async {
   //await setAppOrientation();
 
   // time zone
+  // Time zones are only needed to schedule reminders, which the website
+  // doesn't have. Reading the time zone database takes a moment, so the
+  // website skips it and starts faster.
   _startupStep = 'time zone';
-  tz.initializeTimeZones();
-  try {
-    final TimezoneInfo currentTimeZone =
-        await FlutterTimezone.getLocalTimezone();
-    tz.setLocalLocation(tz.getLocation(currentTimeZone.identifier));
-  } catch (error) {
-    // Some browsers report a name the time zone database doesn't know.
-    debugPrint('Unknown time zone, using UTC: $error');
-    tz.setLocalLocation(tz.UTC);
+  if (!kIsWeb) {
+    tz.initializeTimeZones();
+    try {
+      final TimezoneInfo currentTimeZone =
+          await FlutterTimezone.getLocalTimezone();
+      tz.setLocalLocation(tz.getLocation(currentTimeZone.identifier));
+    } catch (error) {
+      debugPrint('Unknown time zone, using UTC: $error');
+      tz.setLocalLocation(tz.UTC);
+    }
   }
 
   // dependency injection

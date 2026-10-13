@@ -43,10 +43,14 @@ class PackInfo {
   final String name;
   final int totalCards;
 
+  /// The pack this one is shown inside, if any.
+  final String? parentId;
+
   const PackInfo({
     required this.id,
     required this.name,
     required this.totalCards,
+    this.parentId,
   });
 }
 
@@ -139,7 +143,11 @@ class Trajectory {
   /// Studied cards on past days, for the chart.
   final List<MapEntry<DateTime, int>> history;
 
+  /// Names of the packs the goal is for; empty when it's for every pack.
+  final List<String> packNames;
+
   const Trajectory({
+    this.packNames = const [],
     required this.target,
     required this.studied,
     required this.examDate,
@@ -269,11 +277,17 @@ class CardProgressStats {
                 : b.card.difficulty.compareTo(a.card.difficulty);
           });
 
+    // The goal can be for some packs only.
+    final goal = log.goal;
+    final goalPacks = packs.where((p) => goal.includesPack(p.id)).toList();
     final trajectory = _trajectory(
       log: log,
-      studied: studiedCards.length,
-      totalAvailable: totalAvailable,
+      studied: goal.hasPacks
+          ? goalStudiedCount(items: items, packs: packs, goal: goal)
+          : studiedCards.length,
+      totalAvailable: goalPacks.fold(0, (sum, p) => sum + p.totalCards),
       now: now,
+      packNames: goal.hasPacks ? goalPacks.map((p) => p.name).toList() : [],
     );
 
     final stats = CardProgressStats(
@@ -363,6 +377,7 @@ class CardProgressStats {
     required int studied,
     required int totalAvailable,
     required DateTime now,
+    List<String> packNames = const [],
   }) {
     final goal = log.goal;
     final today = startOfDay(now);
@@ -388,6 +403,12 @@ class CardProgressStats {
         log.studiedSnapshots.entries
             .map((e) => MapEntry(DateTime.parse(e.key), e.value))
             .where((e) => e.key.isBefore(today))
+            // Counts from before the goal changed counted other cards.
+            .where(
+              (e) =>
+                  goal.since == null ||
+                  !e.key.isBefore(DateTime.parse(goal.since!)),
+            )
             .toList()
           ..sort((a, b) => a.key.compareTo(b.key));
     history.add(MapEntry(today, studied));
@@ -439,6 +460,7 @@ class CardProgressStats {
       projectedFinish: projectedFinish,
       status: status,
       history: history,
+      packNames: packNames,
     );
   }
 
@@ -562,3 +584,23 @@ class CardProgressStats {
     );
   }
 }
+
+/// Studied cards that count towards [goal].
+int goalStudiedCount({
+  required List<CardProgressItem> items,
+  required List<PackInfo> packs,
+  required StudyGoal goal,
+}) {
+  final packIds = {
+    for (final p in packs)
+      if (goal.includesPack(p.id)) p.id,
+  };
+  return items.where((i) => i.isStudied && packIds.contains(i.packId)).length;
+}
+
+/// Cards the goal aims for: its target, or else every card of its packs.
+int goalTarget({required List<PackInfo> packs, required StudyGoal goal}) =>
+    goal.targetCards ??
+    packs
+        .where((p) => goal.includesPack(p.id))
+        .fold(0, (sum, p) => sum + p.totalCards);

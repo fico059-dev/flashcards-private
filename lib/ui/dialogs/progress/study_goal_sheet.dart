@@ -1,4 +1,6 @@
+import 'package:flashcards/domain/models/progress/card_progress.dart';
 import 'package:flashcards/domain/models/progress/study_log.dart';
+import 'package:flashcards/ui/dialogs/progress/goal_packs_dialog.dart';
 import 'package:flashcards/ui/constants/styles.dart';
 import 'package:flashcards/ui/theme/theme_extensions.dart';
 import 'package:flutter/material.dart';
@@ -11,6 +13,7 @@ Future<StudyGoal?> showStudyGoalSheet(
   BuildContext context, {
   required StudyGoal goal,
   required int totalCards,
+  Future<List<PackInfo>> Function()? loadPacks,
 }) {
   return showModalBottomSheet<StudyGoal>(
     context: context,
@@ -20,7 +23,11 @@ Future<StudyGoal?> showStudyGoalSheet(
     shape: bottomSheetShape,
     builder: (context) => KeyboardAwareSheet(
       child: SingleChildScrollView(
-        child: _GoalForm(goal: goal, totalCards: totalCards),
+        child: _GoalForm(
+          goal: goal,
+          totalCards: totalCards,
+          loadPacks: loadPacks,
+        ),
       ),
     ),
   );
@@ -29,8 +36,13 @@ Future<StudyGoal?> showStudyGoalSheet(
 class _GoalForm extends StatefulWidget {
   final StudyGoal goal;
   final int totalCards;
+  final Future<List<PackInfo>> Function()? loadPacks;
 
-  const _GoalForm({required this.goal, required this.totalCards});
+  const _GoalForm({
+    required this.goal,
+    required this.totalCards,
+    this.loadPacks,
+  });
 
   @override
   State<_GoalForm> createState() => _GoalFormState();
@@ -42,6 +54,38 @@ class _GoalFormState extends State<_GoalForm> {
     text: widget.goal.targetCards?.toString() ?? '',
   );
   late double _osceTarget = widget.goal.targetOsceScore.toDouble();
+  late List<String> _packIds = widget.goal.packIds;
+  // Future.sync turns a failure into a failed future instead of an error
+  // while building.
+  late final Future<List<PackInfo>>? _packs = widget.loadPacks == null
+      ? null
+      : Future.sync(widget.loadPacks!);
+
+  Future<void> _pickPacks() async {
+    final packsFuture = _packs;
+    if (packsFuture == null) return;
+    List<PackInfo> packs;
+    try {
+      packs = await packsFuture;
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Couldn't load the packs. Try again.")),
+      );
+      return;
+    }
+    if (!mounted) return;
+    final chosen = await showGoalPacksDialog(
+      context,
+      packs: packs,
+      selected: _packIds,
+    );
+    if (chosen != null) setState(() => _packIds = chosen);
+  }
+
+  int? _packCards(List<PackInfo>? packs) => packs
+      ?.where((p) => _packIds.contains(p.id))
+      .fold<int>(0, (sum, p) => sum + p.totalCards);
 
   @override
   void dispose() {
@@ -68,6 +112,8 @@ class _GoalFormState extends State<_GoalForm> {
         examDate: _examDate,
         targetCards: target == null || target <= 0 ? null : target,
         targetOsceScore: _osceTarget.round(),
+        packIds: _packIds,
+        since: widget.goal.since,
       ),
     );
   }
@@ -111,6 +157,42 @@ class _GoalFormState extends State<_GoalForm> {
                   ),
             onTap: _pickDate,
           ),
+          if (_packs != null)
+            FutureBuilder<List<PackInfo>>(
+              future: _packs,
+              builder: (context, snapshot) {
+                final packs = snapshot.data;
+                final names = packs == null
+                    ? const <String>[]
+                    : [
+                        for (final p in packs)
+                          if (_packIds.contains(p.id)) p.name,
+                      ];
+                return ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: const Icon(Icons.library_books_outlined),
+                  title: const Text('Packs for this exam'),
+                  subtitle: Text(
+                    _packIds.isEmpty
+                        ? 'All packs'
+                        : names.isEmpty
+                        ? '${_packIds.length} packs'
+                        : '${names.take(3).join(', ')}'
+                              '${names.length > 3 ? ' +${names.length - 3} more' : ''}'
+                              ' · ${_packCards(packs)} cards',
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  trailing: snapshot.connectionState == ConnectionState.waiting
+                      ? const SizedBox.square(
+                          dimension: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Icons.chevron_right),
+                  onTap: _pickPacks,
+                );
+              },
+            ),
           const SizedBox(height: 8),
           TextField(
             controller: _targetController,
@@ -119,9 +201,10 @@ class _GoalFormState extends State<_GoalForm> {
             decoration: InputDecoration(
               prefixIcon: const Icon(Icons.style_outlined),
               labelText: 'Target cards to study',
-              helperText:
-                  'Leave empty to aim for all ${widget.totalCards} cards '
-                  'available to you',
+              helperText: _packIds.isEmpty
+                  ? 'Leave empty to aim for all ${widget.totalCards} cards '
+                        'available to you'
+                  : 'Leave empty to aim for every card of these packs',
               border: const OutlineInputBorder(),
             ),
           ),

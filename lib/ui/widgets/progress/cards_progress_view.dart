@@ -233,6 +233,7 @@ class _GoalSection extends StatelessWidget {
       context,
       goal: cubit.state.goal,
       totalCards: stats.totalAvailable,
+      loadPacks: cubit.packs,
     );
     if (goal != null) cubit.saveGoal(goal);
   }
@@ -274,6 +275,9 @@ class _GoalSection extends StatelessWidget {
     };
 
     final lines = <String>[
+      if (t.packNames.isNotEmpty)
+        'For: ${t.packNames.take(4).join(', ')}'
+            '${t.packNames.length > 4 ? ' +${t.packNames.length - 4} more' : ''}',
       if (t.examDate != null)
         'Exam ${DateFormat('d MMM yyyy').format(t.examDate!)}'
             '${(t.daysLeft ?? 0) > 0 ? ' · ${t.daysLeft} days left' : ''}',

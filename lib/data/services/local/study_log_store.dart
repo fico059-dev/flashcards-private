@@ -114,8 +114,8 @@ class StudyLogStore {
 
   /// Saves the goal here and online straight away.
   Future<StudyLog> saveGoal(StudyGoal goal) async {
-    await update((log) => log.copyWith(goal: goal));
-    await uploadNow(goal: goal);
+    final updated = await update((log) => log.setGoal(goal, DateTime.now()));
+    await uploadNow(goal: updated.goal);
     return loadCombined();
   }
 

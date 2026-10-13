@@ -56,7 +56,29 @@ class ProgressRepository {
 
   Future<StudyLog> getLog() => _logStore.loadCombined();
 
-  Future<StudyLog> saveGoal(StudyGoal goal) => _logStore.saveGoal(goal);
+  /// Saves the goal and counts it from the cards already loaded, so the
+  /// milestones are right straight away.
+  Future<StudyLog> saveGoal(StudyGoal goal) async {
+    final log = await _logStore.saveGoal(goal);
+    final cache = _cardCache;
+    if (cache != null && cache.$2 == _uid) {
+      final (_, _, packs, items) = cache;
+      await _logStore.update(
+        (local) => local.recordGoalProgress(
+          studied: goalStudiedCount(items: items, packs: packs, goal: log.goal),
+          target: goalTarget(packs: packs, goal: log.goal),
+        ),
+      );
+    }
+    return log;
+  }
+
+  /// Packs the student can study, for choosing the goal's packs.
+  Future<List<PackInfo>> getPacks() async {
+    final cache = _cardCache;
+    if (cache != null && cache.$2 == _uid) return cache.$3;
+    return _loadPacks((await UserClaims.current()).hasCards);
+  }
 
   Future<Result<CardProgressStats>> getCardStats({bool refresh = false}) async {
     try {
@@ -77,10 +99,20 @@ class ProgressRepository {
       final (_, _, packs, items) = _cardCache!;
 
       final now = DateTime.now();
-      final studied = items
-          .where((i) => i.isStudied && packs.any((p) => p.id == i.packId))
-          .length;
-      await _logStore.update((log) => log.recordStudiedCount(now, studied));
+      // The goal can be set on another device, so it's read from the
+      // combined log.
+      final goal = (await _logStore.loadCombined()).goal;
+      final studied = goalStudiedCount(items: items, packs: packs, goal: goal);
+      await _logStore.update(
+        (log) => log
+            .copyWith(goal: goal)
+            .recordStudiedCount(now, studied)
+            // Keeps the milestones shown while studying in step.
+            .recordGoalProgress(
+              studied: studied,
+              target: goalTarget(packs: packs, goal: goal),
+            ),
+      );
       final log = await _logStore.loadCombined();
 
       return Result.ok(
@@ -141,6 +173,7 @@ class ProgressRepository {
             id: pack.packId,
             name: pack.packName,
             totalCards: pack.flashcardsCount,
+            parentId: pack.parentId,
           ),
         );
       },

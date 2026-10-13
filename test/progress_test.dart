@@ -356,6 +356,9 @@ class FakeProgressRepository implements ProgressRepository {
   Future<StudyLog> getLog() async => _currentLog;
 
   @override
+  Future<List<PackInfo>> getPacks() async => _packs;
+
+  @override
   Future<StudyLog> saveGoal(StudyGoal goal) async {
     this.goal = goal;
     return _currentLog;
