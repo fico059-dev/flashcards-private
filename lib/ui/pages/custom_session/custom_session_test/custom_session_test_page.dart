@@ -271,13 +271,14 @@ class _LoadedContent extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
+        // Pinned: stays at the top while the card scrolls.
+        TopRowWithSessionBloc(),
         Expanded(
           child: SingleChildScrollView(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 QuestionContainerWithSessionBloc(),
-                TopRowWithSessionBloc(),
                 MainCardWithSessionBloc(),
 
                 SizedBox(height: 40),

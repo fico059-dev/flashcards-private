@@ -184,28 +184,25 @@ class _FlashcardViewState extends State<_FlashcardView> {
                         child: Padding(
                           padding: flashcardPagePadding,
                           child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
+                              // Pinned: stays at the top while the card
+                              // scrolls.
+                              TimerContainer<FlashcardBloc, FlashcardState>(
+                                listenWhen: (previous, current) =>
+                                    current.status.isLoaded,
+                                shouldStartTimer: (state) =>
+                                    state.status.isLoaded,
+                              ),
+                              SizedBox(height: 4),
+                              TopRowWithFlashcardBloc(),
                               Expanded(
                                 child: SingleChildScrollView(
                                   child: Column(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
-                                      TimerContainer<
-                                        FlashcardBloc,
-                                        FlashcardState
-                                      >(
-                                        listenWhen: (previous, current) =>
-                                            current.status.isLoaded,
-                                        shouldStartTimer: (state) =>
-                                            state.status.isLoaded,
-                                      ),
-
-                                      SizedBox(height: 15),
-
                                       QuestionContainerWithFlashcardBloc(),
-
-                                      TopRowWithFlashcardBloc(),
                                       MainCardWithFlashcardBloc(
                                         onStart: _onStart,
                                       ),
