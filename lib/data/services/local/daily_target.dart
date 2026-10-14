@@ -15,7 +15,10 @@ int? goalCardsPerDay(StudyLog log, DateTime now) {
   if (exam == null || progress == null || progress.target <= 0) return null;
   final daysLeft = startOfDay(exam).difference(startOfDay(now)).inDays;
   if (daysLeft <= 0) return null;
-  final remaining = max(0, progress.target - progress.estimate);
+  // Counted from the start of the day, so studying today doesn't lower
+  // today's number.
+  final newToday = min(progress.newSince, log.activityOn(now).newCards);
+  final remaining = max(0, progress.target - (progress.estimate - newToday));
   if (remaining == 0) return null;
   return max(1, (remaining / daysLeft).ceil());
 }
@@ -123,22 +126,17 @@ class DailyTargetService {
     }
   }
 
-  /// Today's target, worked out once a day.
+  /// Today's target: what the exam goal needs per day, else the cards per
+  /// session. Remembered per day, to know later whether it was reached.
   Future<({int target, bool fromGoal})> todayTarget(int cardsPerSession) async {
     final now = _now();
     final today = dayKey(now);
     final log = await _logStore.load();
     final fromGoal = goalCardsPerDay(log, now);
-    final targets = await _readTargets();
-    final saved = targets[today];
-    if (saved != null) {
-      // Kept for the day, unless the goal was removed or set since.
-      if (fromGoal != null) return (target: saved, fromGoal: true);
-      return (target: cardsPerSession, fromGoal: false);
-    }
     final target = fromGoal ?? cardsPerSession;
+    final targets = await _readTargets();
     final key = _key;
-    if (key != null) {
+    if (key != null && targets[today] != target) {
       final oldest = dayKey(now.subtract(const Duration(days: 7)));
       final kept = {
         for (final e in targets.entries)
@@ -148,7 +146,7 @@ class DailyTargetService {
       try {
         await _prefs.setString(key, jsonEncode(kept));
       } catch (_) {
-        // The target is worked out again next time.
+        // Only yesterday's parrot can be wrong.
       }
     }
     return (target: target, fromGoal: fromGoal != null);

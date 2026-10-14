@@ -45,4 +45,28 @@ class SessionProgressStore {
       // Only the session counter is lost, never the card's progress.
     }
   }
+
+  String _targetKey(String uid, String packId) =>
+      'pack_session_target_${uid}_$packId';
+
+  /// The session target the student chose for this pack, if any.
+  Future<int?> packTarget(String uid, String packId) async {
+    try {
+      final saved = await _prefs.getString(_targetKey(uid, packId));
+      final value = saved == null ? null : int.tryParse(saved);
+      return value == null || value <= 0 ? null : value;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  /// Sets this pack's session target, or with null goes back to the
+  /// default (the exam goal, else the cards per session).
+  Future<void> setPackTarget(String uid, String packId, int? target) async {
+    try {
+      await _prefs.setString(_targetKey(uid, packId), '${target ?? 0}');
+    } catch (_) {
+      // Not saved: the default is used.
+    }
+  }
 }

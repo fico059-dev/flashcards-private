@@ -69,6 +69,17 @@ class FlashcardTutorialSeenChecked extends FlashcardEvent {}
 
 class FlashcardTutorialFinished extends FlashcardEvent {}
 
+/// The student set this pack's session target (null: back to the
+/// default). The session starts again with the new target.
+class FlashcardSessionTargetChanged extends FlashcardEvent {
+  final int? target;
+
+  FlashcardSessionTargetChanged(this.target);
+
+  @override
+  List<Object?> get props => [target];
+}
+
 /// An admin edited the current card while studying.
 class FlashcardEdited extends FlashcardEvent {
   final Flashcard flashcard;

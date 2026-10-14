@@ -49,6 +49,12 @@ void main() {
       now: () => clock,
     );
 
+    // Worked out before the goal was counted (e.g. by the streak parrot),
+    // the goal still applies once it is known.
+    await store.update((log) => log.copyWith(goalProgress: () => null));
+    expect(await service.todayTarget(100), (target: 100, fromGoal: false));
+    await store.update((_) => goalLog());
+
     expect(await service.isGoalPack(['nicu']), isTrue);
     expect(await service.isGoalPack(['oncology']), isFalse);
     expect(await service.todayTarget(100), (target: 70, fromGoal: true));

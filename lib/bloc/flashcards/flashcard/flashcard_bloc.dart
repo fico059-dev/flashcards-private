@@ -34,6 +34,9 @@ class FlashcardBloc extends Bloc<FlashcardEvent, FlashcardState> {
   /// Where today's count of this session is kept: the pack, or 'goal' when
   /// the pack is part of the exam goal (one daily target for all its packs).
   String? _progressKey;
+
+  /// How the session was started, to start it again with a new target.
+  FlashcardTestStarted? _startEvent;
   late final String _uid;
 
   /// Saves progress without making the student wait for the server.
@@ -140,6 +143,7 @@ class FlashcardBloc extends Bloc<FlashcardEvent, FlashcardState> {
     on<FlashcardTutorialSeenChecked>(_onTutorialChecked);
     on<FlashcardTutorialFinished>(_onTutorialFinished);
     on<FlashcardEdited>(_onFlashcardEdited);
+    on<FlashcardSessionTargetChanged>(_onSessionTargetChanged);
   }
 
   void _onTutorialChecked(
@@ -396,10 +400,25 @@ class FlashcardBloc extends Bloc<FlashcardEvent, FlashcardState> {
     );
   }
 
+  Future<void> _onSessionTargetChanged(
+    FlashcardSessionTargetChanged event,
+    Emitter<FlashcardState> emit,
+  ) async {
+    final pack = state.pack;
+    final start = _startEvent;
+    if (pack == null || start == null) return;
+    await _sessionProgress.setPackTarget(_uid, pack.id, event.target);
+    // Ratings already given are saved; start again with the new target.
+    await _saver.settle();
+    emit(FlashcardState());
+    add(start);
+  }
+
   void _onFlashcardTestStarted(
     FlashcardTestStarted event,
     Emitter<FlashcardState> emit,
   ) async {
+    _startEvent = event;
     if (!state.status.isInitial &&
         !(state.status.isError && state.flashcard == null)) {
       return;
@@ -440,7 +459,11 @@ class FlashcardBloc extends Bloc<FlashcardEvent, FlashcardState> {
         var key = pack.id;
         var newShare = _newCardsPercentage;
         final daily = _dailyTarget;
-        if (daily != null &&
+        // A target chosen for this pack comes first.
+        final own = await _sessionProgress.packTarget(_uid, pack.id);
+        if (own != null) {
+          target = own;
+        } else if (daily != null &&
             await daily.isGoalPack([
               pack.id,
               ...pack.subPacks.map((p) => p.id),

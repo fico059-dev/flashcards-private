@@ -45,4 +45,15 @@ void main() {
     await store.add('u1', 'neo');
     expect(await store.doneToday('u1', 'neo'), 1);
   });
+
+  test('each pack can have its own session target', () async {
+    final store = SessionProgressStore(prefs: _MemoryPrefs());
+    expect(await store.packTarget('u1', 'neo'), isNull);
+    await store.setPackTarget('u1', 'neo', 30);
+    expect(await store.packTarget('u1', 'neo'), 30);
+    expect(await store.packTarget('u1', 'onc'), isNull);
+    expect(await store.packTarget('u2', 'neo'), isNull);
+    await store.setPackTarget('u1', 'neo', null);
+    expect(await store.packTarget('u1', 'neo'), isNull);
+  });
 }

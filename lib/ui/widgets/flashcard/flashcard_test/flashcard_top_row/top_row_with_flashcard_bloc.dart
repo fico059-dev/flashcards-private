@@ -10,6 +10,7 @@ import 'package:flashcards/ui/widgets/flashcard/flashcard_test/flashcard_top_row
 import 'package:flashcards/ui/widgets/flashcard/flashcard_test/flashcard_top_row/widgets/popup_menu_button.dart';
 import 'package:flashcards/ui/widgets/flashcard/flashcard_test/flashcard_top_row/widgets/question_counter.dart';
 import 'package:flashcards/ui/dialogs/flashcard/share_card_dialog.dart';
+import 'package:flashcards/ui/dialogs/flashcard/session_target_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -64,9 +65,15 @@ class TopRowWithFlashcardBloc extends StatelessWidget {
                 allFlashcards: allFlashcards,
               )
             else
-              QuestionCounter(
-                currentFlashcard: currFlashcard,
-                allFlashcards: allFlashcards,
+              _TargetButton(
+                enabled:
+                    state.testType == TestType.regular &&
+                    state.pack != null &&
+                    state.status.isLoaded,
+                child: QuestionCounter(
+                  currentFlashcard: currFlashcard,
+                  allFlashcards: allFlashcards,
+                ),
               ),
 
             Row(
@@ -120,6 +127,60 @@ class TopRowWithFlashcardBloc extends StatelessWidget {
           ],
         );
       },
+    );
+  }
+}
+
+/// The card counter; tapping it changes how many cards this pack's session
+/// has.
+class _TargetButton extends StatelessWidget {
+  final bool enabled;
+  final Widget child;
+
+  const _TargetButton({required this.enabled, required this.child});
+
+  Future<void> _change(BuildContext context) async {
+    final bloc = context.read<FlashcardBloc>();
+    final state = bloc.state;
+    final choice = await showSessionTargetDialog(
+      context: context,
+      packName: state.pack?.name ?? 'this pack',
+      current: state.cardsPerSession ?? state.statRecords.length,
+    );
+    switch (choice) {
+      case null:
+        return;
+      case SessionTargetSet(:final target):
+        bloc.add(FlashcardSessionTargetChanged(target));
+      case SessionTargetDefault():
+        bloc.add(FlashcardSessionTargetChanged(null));
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (!enabled) return child;
+    return Tooltip(
+      message: 'Change cards per session for this pack',
+      child: InkWell(
+        borderRadius: BorderRadius.circular(8),
+        onTap: () => _change(context),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              child,
+              const SizedBox(width: 4),
+              Icon(
+                Icons.tune,
+                size: 16,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
