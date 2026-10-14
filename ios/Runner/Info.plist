@@ -72,5 +72,14 @@
     <string>This app needs access to your camera so you can take pictures.</string>
     <key>ITSAppUsesNonExemptEncryption</key>
     <false/>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>app-1-724384073851-ios-b4e4263ad0c45001d1bade</string>
+			</array>
+		</dict>
+	</array>
 </dict>
 </plist>

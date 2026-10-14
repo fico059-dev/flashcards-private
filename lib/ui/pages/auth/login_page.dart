@@ -11,6 +11,7 @@ import 'package:flashcards/ui/widgets/core/bloc_animated_icon.dart';
 import 'package:flashcards/ui/widgets/core/bloc_text_field.dart';
 import 'package:flashcards/ui/widgets/core/bloc_buttons/bloc_button.dart';
 import 'package:flashcards/utils/firebase_error_mapper.dart';
+import 'package:flashcards/ui/widgets/auth/social_sign_in_buttons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flashcards/l10n/app_localizations.dart';
@@ -111,6 +112,8 @@ class _LoginViewState extends State<_LoginView> {
             isLoadingState: (state) => state is LoginLoading,
             isDisabledState: (state) => state is LoginSuccess,
           ),
+          SizedBox(height: 16),
+          const SocialSignInButtons(),
           SizedBox(height: 5),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,

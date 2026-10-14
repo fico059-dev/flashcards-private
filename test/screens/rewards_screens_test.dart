@@ -15,6 +15,7 @@ import 'package:flashcards/ui/dialogs/flashcard/share_card_dialog.dart';
 import 'package:flashcards/ui/dialogs/progress/goal_packs_dialog.dart';
 import 'package:flashcards/ui/dialogs/progress/study_goal_sheet.dart';
 import 'package:flashcards/ui/theme/themes.dart';
+import 'package:flashcards/ui/widgets/auth/social_sign_in_buttons.dart';
 import 'package:flashcards/ui/widgets/rewards/study_rewards_widgets.dart';
 import 'package:flashcards/ui/widgets/flashcard/flashcard_test/listeners/session_milestone_listener.dart';
 import 'package:flutter/material.dart';
@@ -312,5 +313,20 @@ void main() {
     );
     expect(find.text('Halfway through today!'), findsOneWidget);
     await _shot(tester, 'session_milestone_50');
+  });
+
+  testWidgets('sign in with Google', (tester) async {
+    await setup(tester);
+    await _app(
+      tester,
+      (_) => const Dialog(
+        child: Padding(
+          padding: EdgeInsets.all(20),
+          child: SocialSignInButtons(),
+        ),
+      ),
+    );
+    expect(find.text('Continue with Google'), findsOneWidget);
+    await _shot(tester, 'social_sign_in');
   });
 }

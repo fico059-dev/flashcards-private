@@ -67,6 +67,18 @@ class AuthRepository {
     }
   }
 
+  /// Signs in with Google ('google.com') or Apple ('apple.com'). The
+  /// profile of a new account is made when the app loads it.
+  Future<Result<User>> signInWithProvider(String providerId) =>
+      _authService.signInWithProvider(providerId);
+
+  bool get hasPassword => _authService.hasPassword;
+
+  String? get socialProviderId => _authService.socialProviderId;
+
+  Future<Result<void>> reauthenticateWithProvider() =>
+      _authService.reauthenticateWithProvider();
+
   Future<Result<User>> login(String email, String password) async {
     return _authService.login(email: email, password: password);
   }
