@@ -78,6 +78,9 @@ class _Progress implements ProgressRepository {
   Future<StudyLog> getLog() async => StudyLog(goal: _goal);
 
   @override
+  Future<List<int>?> goalCardLevels(StudyGoal goal) async => null;
+
+  @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
