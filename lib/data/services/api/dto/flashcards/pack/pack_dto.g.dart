@@ -19,6 +19,8 @@ _PackDto _$PackDtoFromJson(Map<String, dynamic> json) => _PackDto(
       (json['tags'] as List<dynamic>?)?.map((e) => e as String).toList() ??
       const [],
   isPaid: json['isPaid'] as bool? ?? false,
+  restricted: json['restricted'] as bool? ?? false,
+  parentId: json['parentId'] as String?,
 );
 
 Map<String, dynamic> _$PackDtoToJson(_PackDto instance) => <String, dynamic>{

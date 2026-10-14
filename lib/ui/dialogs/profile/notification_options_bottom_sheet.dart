@@ -22,11 +22,10 @@ void showNotificationOptionsBottomSheet({required BuildContext context}) {
         maxChildSize: 0.95,
         builder: (context, scrollController) {
           return BlocProvider(
-            create:
-                (context) => NotificationOptionsCubit(
-                  notificationService: context.read<NotificationService>(),
-                  localStorageService: context.read<LocalStorageService>(),
-                ),
+            create: (context) => NotificationOptionsCubit(
+              notificationService: context.read<NotificationService>(),
+              localStorageService: context.read<LocalStorageService>(),
+            ),
             child: _Content(),
           );
         },
@@ -99,17 +98,16 @@ class _ContentState extends State<_Content> {
                         groupValue: state.frequency,
                         onChanged: onSelectionChanged,
                         child: Column(
-                          children:
-                              NotificationFrequency.values.map((freq) {
-                                return ListTile(
-                                  contentPadding: EdgeInsets.zero,
-                                  leading: Radio<NotificationFrequency>(
-                                    value: freq,
-                                  ),
-                                  title: Text(freq.displayName),
-                                  onTap: () => onSelectionChanged(freq),
-                                );
-                              }).toList(),
+                          children: NotificationFrequency.values.map((freq) {
+                            return ListTile(
+                              contentPadding: EdgeInsets.zero,
+                              leading: Radio<NotificationFrequency>(
+                                value: freq,
+                              ),
+                              title: Text(freq.displayName),
+                              onTap: () => onSelectionChanged(freq),
+                            );
+                          }).toList(),
                         ),
                       ),
                     ],

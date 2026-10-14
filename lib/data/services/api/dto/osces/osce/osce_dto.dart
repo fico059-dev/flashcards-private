@@ -14,6 +14,10 @@ abstract class OsceDto with _$OsceDto {
     required String scenario,
     @Default(<dynamic>[]) List<dynamic> questions,
     @Default(false) bool isPaid,
+
+    /// Set by the setOsceFolder / setOsceScenarioImage functions only.
+    @JsonKey(includeToJson: false) String? folderId,
+    @JsonKey(includeToJson: false) String? scenarioImageUrl,
   }) = _OsceDto;
 
   factory OsceDto.fromJson(JsonMap json) => _$OsceDtoFromJson(json);
@@ -29,8 +33,16 @@ extension OsceDtoX on OsceDto {
     scenario: scenario,
     questions: [],
     isPaid: isPaid,
+    folderId: folderId,
+    scenarioImageUrl: scenarioImageUrl,
   );
 
-  SimpleOsce toSimpleOsceDomain() =>
-      SimpleOsce(id: id!, name: name, scenario: scenario, isPaid: isPaid);
+  SimpleOsce toSimpleOsceDomain() => SimpleOsce(
+    id: id!,
+    name: name,
+    scenario: scenario,
+    isPaid: isPaid,
+    folderId: folderId,
+    scenarioImageUrl: scenarioImageUrl,
+  );
 }

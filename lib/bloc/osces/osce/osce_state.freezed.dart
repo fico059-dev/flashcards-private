@@ -128,13 +128,13 @@ return error(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  initial,TResult Function()?  loading,TResult Function( Osce osce,  bool? tutorialSeen)?  osceShowcase,TResult Function( OsceStatus status,  Osce osce,  int currentQuestionIndex,  Map<String, bool> revealedQuestions,  Exception? error)?  loaded,TResult Function( Exception error)?  error,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  initial,TResult Function()?  loading,TResult Function( Osce osce,  bool? tutorialSeen)?  osceShowcase,TResult Function( OsceStatus status,  Osce osce,  int currentQuestionIndex,  Map<String, bool> revealedQuestions,  bool reviewingChecklist,  Exception? error)?  loaded,TResult Function( Exception error)?  error,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case OsceInitial() when initial != null:
 return initial();case OsceLoading() when loading != null:
 return loading();case OsceShowcase() when osceShowcase != null:
 return osceShowcase(_that.osce,_that.tutorialSeen);case OsceLoaded() when loaded != null:
-return loaded(_that.status,_that.osce,_that.currentQuestionIndex,_that.revealedQuestions,_that.error);case OsceError() when error != null:
+return loaded(_that.status,_that.osce,_that.currentQuestionIndex,_that.revealedQuestions,_that.reviewingChecklist,_that.error);case OsceError() when error != null:
 return error(_that.error);case _:
   return orElse();
 
@@ -153,13 +153,13 @@ return error(_that.error);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  initial,required TResult Function()  loading,required TResult Function( Osce osce,  bool? tutorialSeen)  osceShowcase,required TResult Function( OsceStatus status,  Osce osce,  int currentQuestionIndex,  Map<String, bool> revealedQuestions,  Exception? error)  loaded,required TResult Function( Exception error)  error,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  initial,required TResult Function()  loading,required TResult Function( Osce osce,  bool? tutorialSeen)  osceShowcase,required TResult Function( OsceStatus status,  Osce osce,  int currentQuestionIndex,  Map<String, bool> revealedQuestions,  bool reviewingChecklist,  Exception? error)  loaded,required TResult Function( Exception error)  error,}) {final _that = this;
 switch (_that) {
 case OsceInitial():
 return initial();case OsceLoading():
 return loading();case OsceShowcase():
 return osceShowcase(_that.osce,_that.tutorialSeen);case OsceLoaded():
-return loaded(_that.status,_that.osce,_that.currentQuestionIndex,_that.revealedQuestions,_that.error);case OsceError():
+return loaded(_that.status,_that.osce,_that.currentQuestionIndex,_that.revealedQuestions,_that.reviewingChecklist,_that.error);case OsceError():
 return error(_that.error);}
 }
 /// A variant of `when` that fallback to returning `null`
@@ -174,13 +174,13 @@ return error(_that.error);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  initial,TResult? Function()?  loading,TResult? Function( Osce osce,  bool? tutorialSeen)?  osceShowcase,TResult? Function( OsceStatus status,  Osce osce,  int currentQuestionIndex,  Map<String, bool> revealedQuestions,  Exception? error)?  loaded,TResult? Function( Exception error)?  error,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  initial,TResult? Function()?  loading,TResult? Function( Osce osce,  bool? tutorialSeen)?  osceShowcase,TResult? Function( OsceStatus status,  Osce osce,  int currentQuestionIndex,  Map<String, bool> revealedQuestions,  bool reviewingChecklist,  Exception? error)?  loaded,TResult? Function( Exception error)?  error,}) {final _that = this;
 switch (_that) {
 case OsceInitial() when initial != null:
 return initial();case OsceLoading() when loading != null:
 return loading();case OsceShowcase() when osceShowcase != null:
 return osceShowcase(_that.osce,_that.tutorialSeen);case OsceLoaded() when loaded != null:
-return loaded(_that.status,_that.osce,_that.currentQuestionIndex,_that.revealedQuestions,_that.error);case OsceError() when error != null:
+return loaded(_that.status,_that.osce,_that.currentQuestionIndex,_that.revealedQuestions,_that.reviewingChecklist,_that.error);case OsceError() when error != null:
 return error(_that.error);case _:
   return null;
 
@@ -335,7 +335,7 @@ $OsceCopyWith<$Res> get osce {
 
 
 class OsceLoaded implements OsceState {
-  const OsceLoaded({this.status = OsceStatus.initial, required this.osce, this.currentQuestionIndex = 0, final  Map<String, bool> revealedQuestions = const {}, this.error}): _revealedQuestions = revealedQuestions;
+  const OsceLoaded({this.status = OsceStatus.initial, required this.osce, this.currentQuestionIndex = 0, final  Map<String, bool> revealedQuestions = const {}, this.reviewingChecklist = false, this.error}): _revealedQuestions = revealedQuestions;
   
 
 @JsonKey() final  OsceStatus status;
@@ -348,6 +348,9 @@ class OsceLoaded implements OsceState {
   return EqualUnmodifiableMapView(_revealedQuestions);
 }
 
+/// True once the questions are done and the user is ticking the
+/// checklist of every question to get their score.
+@JsonKey() final  bool reviewingChecklist;
  final  Exception? error;
 
 /// Create a copy of OsceState
@@ -360,16 +363,16 @@ $OsceLoadedCopyWith<OsceLoaded> get copyWith => _$OsceLoadedCopyWithImpl<OsceLoa
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is OsceLoaded&&(identical(other.status, status) || other.status == status)&&(identical(other.osce, osce) || other.osce == osce)&&(identical(other.currentQuestionIndex, currentQuestionIndex) || other.currentQuestionIndex == currentQuestionIndex)&&const DeepCollectionEquality().equals(other._revealedQuestions, _revealedQuestions)&&(identical(other.error, error) || other.error == error));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is OsceLoaded&&(identical(other.status, status) || other.status == status)&&(identical(other.osce, osce) || other.osce == osce)&&(identical(other.currentQuestionIndex, currentQuestionIndex) || other.currentQuestionIndex == currentQuestionIndex)&&const DeepCollectionEquality().equals(other._revealedQuestions, _revealedQuestions)&&(identical(other.reviewingChecklist, reviewingChecklist) || other.reviewingChecklist == reviewingChecklist)&&(identical(other.error, error) || other.error == error));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,status,osce,currentQuestionIndex,const DeepCollectionEquality().hash(_revealedQuestions),error);
+int get hashCode => Object.hash(runtimeType,status,osce,currentQuestionIndex,const DeepCollectionEquality().hash(_revealedQuestions),reviewingChecklist,error);
 
 @override
 String toString() {
-  return 'OsceState.loaded(status: $status, osce: $osce, currentQuestionIndex: $currentQuestionIndex, revealedQuestions: $revealedQuestions, error: $error)';
+  return 'OsceState.loaded(status: $status, osce: $osce, currentQuestionIndex: $currentQuestionIndex, revealedQuestions: $revealedQuestions, reviewingChecklist: $reviewingChecklist, error: $error)';
 }
 
 
@@ -380,7 +383,7 @@ abstract mixin class $OsceLoadedCopyWith<$Res> implements $OsceStateCopyWith<$Re
   factory $OsceLoadedCopyWith(OsceLoaded value, $Res Function(OsceLoaded) _then) = _$OsceLoadedCopyWithImpl;
 @useResult
 $Res call({
- OsceStatus status, Osce osce, int currentQuestionIndex, Map<String, bool> revealedQuestions, Exception? error
+ OsceStatus status, Osce osce, int currentQuestionIndex, Map<String, bool> revealedQuestions, bool reviewingChecklist, Exception? error
 });
 
 
@@ -397,13 +400,14 @@ class _$OsceLoadedCopyWithImpl<$Res>
 
 /// Create a copy of OsceState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') $Res call({Object? status = null,Object? osce = null,Object? currentQuestionIndex = null,Object? revealedQuestions = null,Object? error = freezed,}) {
+@pragma('vm:prefer-inline') $Res call({Object? status = null,Object? osce = null,Object? currentQuestionIndex = null,Object? revealedQuestions = null,Object? reviewingChecklist = null,Object? error = freezed,}) {
   return _then(OsceLoaded(
 status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as OsceStatus,osce: null == osce ? _self.osce : osce // ignore: cast_nullable_to_non_nullable
 as Osce,currentQuestionIndex: null == currentQuestionIndex ? _self.currentQuestionIndex : currentQuestionIndex // ignore: cast_nullable_to_non_nullable
 as int,revealedQuestions: null == revealedQuestions ? _self._revealedQuestions : revealedQuestions // ignore: cast_nullable_to_non_nullable
-as Map<String, bool>,error: freezed == error ? _self.error : error // ignore: cast_nullable_to_non_nullable
+as Map<String, bool>,reviewingChecklist: null == reviewingChecklist ? _self.reviewingChecklist : reviewingChecklist // ignore: cast_nullable_to_non_nullable
+as bool,error: freezed == error ? _self.error : error // ignore: cast_nullable_to_non_nullable
 as Exception?,
   ));
 }

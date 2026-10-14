@@ -11,9 +11,12 @@ abstract class CustomSessionSummary with _$CustomSessionSummary {
     required int cardCount,
     required int correctCount,
     required int currentIndex,
+    String? name,
   }) = _CustomSeesionSummary;
 }
 
 extension CustomSessionSummaryX on CustomSessionSummary {
   bool get isFinished => currentIndex >= cardCount;
+
+  String get displayName => name ?? 'Custom Session';
 }

@@ -14,6 +14,7 @@ import 'package:flashcards/ui/widgets/core/loading_overlay_listener.dart';
 import 'package:flashcards/ui/widgets/profile/admin_dashboard/cloze_context_menu_builder.dart';
 import 'package:flashcards/ui/widgets/profile/admin_dashboard/flashcard_builder/tag_input.dart';
 import 'package:flashcards/utils/firebase_error_mapper.dart';
+import 'package:flashcards/ui/widgets/profile/admin_dashboard/flashcard_builder/card_format_toolbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -27,12 +28,11 @@ Future<bool?> showUpdateFlashcardBottomSheet(
     shape: bottomSheetShape,
     builder: (context) {
       return BlocProvider(
-        create:
-            (context) => UpdateFlashcardCubit(
-              flashcardRepo: context.read<FlashcardRepository>(),
-              tagRepo: context.read<TagRepository>(),
-              initialFlashcard: flashcard,
-            ),
+        create: (context) => UpdateFlashcardCubit(
+          flashcardRepo: context.read<FlashcardRepository>(),
+          tagRepo: context.read<TagRepository>(),
+          initialFlashcard: flashcard,
+        ),
         child: _UpdateForm(flashcard: flashcard),
       );
     },
@@ -121,7 +121,11 @@ class _UpdateFormState extends State<_UpdateForm> {
           }
         },
         child: Padding(
-          padding: bottomSheetPaddingNoBot,
+          padding: bottomSheetPaddingNoBot.copyWith(
+            bottom:
+                bottomSheetPaddingNoBot.bottom +
+                MediaQuery.viewInsetsOf(context).bottom,
+          ),
           child: DraggableScrollableSheet(
             expand: false,
             initialChildSize: 0.75,
@@ -150,6 +154,7 @@ class _UpdateFormState extends State<_UpdateForm> {
                   Expanded(
                     child: ListView(
                       controller: scrollController,
+                      padding: const EdgeInsets.only(bottom: 40),
                       children: [
                         Column(
                           children: [
@@ -168,8 +173,8 @@ class _UpdateFormState extends State<_UpdateForm> {
                                           onError: _onImageError,
                                           label: "Question",
                                           imageData: state.questionImageData,
-                                          onImageChanged:
-                                              (pickedImage) => context
+                                          onImageChanged: (pickedImage) =>
+                                              context
                                                   .read<UpdateFlashcardCubit>()
                                                   .questionImageChanged(
                                                     pickedImage,
@@ -179,6 +184,7 @@ class _UpdateFormState extends State<_UpdateForm> {
                                     ),
                                   ],
                                 ),
+                                CardFormatToolbar(controller: _questionCont),
                                 BlocTextField<
                                   UpdateFlashcardCubit,
                                   UpdateFlashcardState
@@ -192,11 +198,10 @@ class _UpdateFormState extends State<_UpdateForm> {
                                           ),
                                   minLines: 3,
                                   maxLines: 10,
-                                  errorSelector:
-                                      (state) =>
-                                          state.status.isFormInvalid
-                                              ? state.formErrors['question']
-                                              : null,
+                                  errorSelector: (state) =>
+                                      state.status.isFormInvalid
+                                      ? state.formErrors['question']
+                                      : null,
                                   labelText: 'Question',
                                   textEditingController: _questionCont,
                                 ),
@@ -215,8 +220,8 @@ class _UpdateFormState extends State<_UpdateForm> {
                                           onError: _onImageError,
                                           label: "Answer",
                                           imageData: state.answerImageData,
-                                          onImageChanged:
-                                              (pickedImage) => context
+                                          onImageChanged: (pickedImage) =>
+                                              context
                                                   .read<UpdateFlashcardCubit>()
                                                   .answerImageChanged(
                                                     pickedImage,
@@ -226,17 +231,17 @@ class _UpdateFormState extends State<_UpdateForm> {
                                     ),
                                   ],
                                 ),
+                                CardFormatToolbar(controller: _answerCont),
                                 BlocTextField<
                                   UpdateFlashcardCubit,
                                   UpdateFlashcardState
                                 >(
                                   minLines: 3,
                                   maxLines: 10,
-                                  errorSelector:
-                                      (state) =>
-                                          state.status.isFormInvalid
-                                              ? state.formErrors['answer']
-                                              : null,
+                                  errorSelector: (state) =>
+                                      state.status.isFormInvalid
+                                      ? state.formErrors['answer']
+                                      : null,
                                   labelText: 'Answer',
                                   textEditingController: _answerCont,
                                 ),
@@ -257,14 +262,12 @@ class _UpdateFormState extends State<_UpdateForm> {
                                     return TagInput(
                                       suggestedTags: state.allAvailableTags!,
                                       selectedTags: state.selectedTags,
-                                      onTagAdded:
-                                          context
-                                              .read<UpdateFlashcardCubit>()
-                                              .addTag,
-                                      onTagRemoved:
-                                          context
-                                              .read<UpdateFlashcardCubit>()
-                                              .removeTag,
+                                      onTagAdded: context
+                                          .read<UpdateFlashcardCubit>()
+                                          .addTag,
+                                      onTagRemoved: context
+                                          .read<UpdateFlashcardCubit>()
+                                          .removeTag,
                                     );
                                   },
                                 ),
@@ -285,8 +288,8 @@ class _UpdateFormState extends State<_UpdateForm> {
                                           packId: widget.flashcard.packId,
                                         );
                                   },
-                                  isLoadingState:
-                                      (state) => state.status.isLoading,
+                                  isLoadingState: (state) =>
+                                      state.status.isLoading,
                                 ),
                               ],
                             ),

@@ -1,3 +1,4 @@
+import 'package:flashcards/domain/models/flashcards/card_markup/card_markup.dart';
 import 'package:flashcards/bloc/flashcards/bookmark_review/bookmark_review_bloc.dart';
 import 'package:flashcards/bloc/flashcards/bookmark_review/bookmark_review_event.dart';
 import 'package:flashcards/data/mappers/fsrs_mapper.dart';
@@ -147,9 +148,11 @@ class _BookmarkCardState extends State<BookmarkCard> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      widget.isAnswerVisible
-                          ? widget.bookmark.answer
-                          : widget.bookmark.question,
+                      plainCardText(
+                        widget.isAnswerVisible
+                            ? widget.bookmark.answer
+                            : widget.bookmark.question,
+                      ),
                       key: widget.isAnswerVisible ? null : _textKey,
                       style: textStyle,
                     ),

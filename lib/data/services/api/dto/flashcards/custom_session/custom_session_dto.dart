@@ -20,6 +20,9 @@ abstract class CustomSessionDto with _$CustomSessionDto {
     required int correctCount,
     required int cardCount,
     @DatetimeTimestampConverter() required DateTime createdAt,
+
+    /// Set by the student, older sessions don't have one.
+    String? name,
   }) = _CustomSessionDto;
 
   factory CustomSessionDto.fromJson(JsonMap json) =>
@@ -36,6 +39,7 @@ extension CustomSessionDtoX on CustomSessionDto {
     cardCount: cardCount,
     currentIndex: currentIndex,
     correctCount: correctCount,
-    isPaid: isPaid
+    isPaid: isPaid,
+    name: name,
   );
 }

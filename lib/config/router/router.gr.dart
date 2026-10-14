@@ -428,7 +428,7 @@ class FlashcardLimitRoute extends PageRouteInfo<FlashcardLimitRouteArgs> {
     required PackSelectedFilter filter,
     required List<Tag> selectedTags,
     required int packFilterCount,
-    required bool areAllTagsSelected,
+    required bool isCountExact,
     List<PageRouteInfo>? children,
   }) : super(
          FlashcardLimitRoute.name,
@@ -438,7 +438,7 @@ class FlashcardLimitRoute extends PageRouteInfo<FlashcardLimitRouteArgs> {
            filter: filter,
            selectedTags: selectedTags,
            packFilterCount: packFilterCount,
-           areAllTagsSelected: areAllTagsSelected,
+           isCountExact: isCountExact,
          ),
          initialChildren: children,
        );
@@ -455,7 +455,7 @@ class FlashcardLimitRoute extends PageRouteInfo<FlashcardLimitRouteArgs> {
         filter: args.filter,
         selectedTags: args.selectedTags,
         packFilterCount: args.packFilterCount,
-        areAllTagsSelected: args.areAllTagsSelected,
+        isCountExact: args.isCountExact,
       );
     },
   );
@@ -468,7 +468,7 @@ class FlashcardLimitRouteArgs {
     required this.filter,
     required this.selectedTags,
     required this.packFilterCount,
-    required this.areAllTagsSelected,
+    required this.isCountExact,
   });
 
   final Key? key;
@@ -481,11 +481,11 @@ class FlashcardLimitRouteArgs {
 
   final int packFilterCount;
 
-  final bool areAllTagsSelected;
+  final bool isCountExact;
 
   @override
   String toString() {
-    return 'FlashcardLimitRouteArgs{key: $key, selectedPacks: $selectedPacks, filter: $filter, selectedTags: $selectedTags, packFilterCount: $packFilterCount, areAllTagsSelected: $areAllTagsSelected}';
+    return 'FlashcardLimitRouteArgs{key: $key, selectedPacks: $selectedPacks, filter: $filter, selectedTags: $selectedTags, packFilterCount: $packFilterCount, isCountExact: $isCountExact}';
   }
 
   @override
@@ -500,7 +500,7 @@ class FlashcardLimitRouteArgs {
         filter == other.filter &&
         const ListEquality<Tag>().equals(selectedTags, other.selectedTags) &&
         packFilterCount == other.packFilterCount &&
-        areAllTagsSelected == other.areAllTagsSelected;
+        isCountExact == other.isCountExact;
   }
 
   @override
@@ -510,7 +510,7 @@ class FlashcardLimitRouteArgs {
       filter.hashCode ^
       const ListEquality<Tag>().hash(selectedTags) ^
       packFilterCount.hashCode ^
-      areAllTagsSelected.hashCode;
+      isCountExact.hashCode;
 }
 
 /// generated route for
@@ -665,10 +665,15 @@ class FlashcardSessionSuccessRoute
   FlashcardSessionSuccessRoute({
     Key? key,
     required FlashcardBloc fcBloc,
+    bool endedForToday = false,
     List<PageRouteInfo>? children,
   }) : super(
          FlashcardSessionSuccessRoute.name,
-         args: FlashcardSessionSuccessRouteArgs(key: key, fcBloc: fcBloc),
+         args: FlashcardSessionSuccessRouteArgs(
+           key: key,
+           fcBloc: fcBloc,
+           endedForToday: endedForToday,
+         ),
          initialChildren: children,
        );
 
@@ -678,32 +683,44 @@ class FlashcardSessionSuccessRoute
     name,
     builder: (data) {
       final args = data.argsAs<FlashcardSessionSuccessRouteArgs>();
-      return FlashcardSessionSuccessPage(key: args.key, fcBloc: args.fcBloc);
+      return FlashcardSessionSuccessPage(
+        key: args.key,
+        fcBloc: args.fcBloc,
+        endedForToday: args.endedForToday,
+      );
     },
   );
 }
 
 class FlashcardSessionSuccessRouteArgs {
-  const FlashcardSessionSuccessRouteArgs({this.key, required this.fcBloc});
+  const FlashcardSessionSuccessRouteArgs({
+    this.key,
+    required this.fcBloc,
+    this.endedForToday = false,
+  });
 
   final Key? key;
 
   final FlashcardBloc fcBloc;
 
+  final bool endedForToday;
+
   @override
   String toString() {
-    return 'FlashcardSessionSuccessRouteArgs{key: $key, fcBloc: $fcBloc}';
+    return 'FlashcardSessionSuccessRouteArgs{key: $key, fcBloc: $fcBloc, endedForToday: $endedForToday}';
   }
 
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
     if (other is! FlashcardSessionSuccessRouteArgs) return false;
-    return key == other.key && fcBloc == other.fcBloc;
+    return key == other.key &&
+        fcBloc == other.fcBloc &&
+        endedForToday == other.endedForToday;
   }
 
   @override
-  int get hashCode => key.hashCode ^ fcBloc.hashCode;
+  int get hashCode => key.hashCode ^ fcBloc.hashCode ^ endedForToday.hashCode;
 }
 
 /// generated route for
@@ -1050,6 +1067,22 @@ class ManagePackFlashcardsRouteArgs {
 
   @override
   int get hashCode => key.hashCode ^ pack.hashCode;
+}
+
+/// generated route for
+/// [NotebookPage]
+class NotebookRoute extends PageRouteInfo<void> {
+  const NotebookRoute({List<PageRouteInfo>? children})
+    : super(NotebookRoute.name, initialChildren: children);
+
+  static const String name = 'NotebookRoute';
+
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      return const NotebookPage();
+    },
+  );
 }
 
 /// generated route for
@@ -1679,6 +1712,52 @@ class StatsRoute extends PageRouteInfo<void> {
       return const StatsPage();
     },
   );
+}
+
+/// generated route for
+/// [StudySearchPage]
+class StudySearchRoute extends PageRouteInfo<StudySearchRouteArgs> {
+  StudySearchRoute({Key? key, Pack? pack, List<PageRouteInfo>? children})
+    : super(
+        StudySearchRoute.name,
+        args: StudySearchRouteArgs(key: key, pack: pack),
+        initialChildren: children,
+      );
+
+  static const String name = 'StudySearchRoute';
+
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      final args = data.argsAs<StudySearchRouteArgs>(
+        orElse: () => const StudySearchRouteArgs(),
+      );
+      return StudySearchPage(key: args.key, pack: args.pack);
+    },
+  );
+}
+
+class StudySearchRouteArgs {
+  const StudySearchRouteArgs({this.key, this.pack});
+
+  final Key? key;
+
+  final Pack? pack;
+
+  @override
+  String toString() {
+    return 'StudySearchRouteArgs{key: $key, pack: $pack}';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other is! StudySearchRouteArgs) return false;
+    return key == other.key && pack == other.pack;
+  }
+
+  @override
+  int get hashCode => key.hashCode ^ pack.hashCode;
 }
 
 /// generated route for

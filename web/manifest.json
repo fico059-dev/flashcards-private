@@ -1,11 +1,11 @@
 {
-    "name": "flashcards",
-    "short_name": "flashcards",
+    "name": "FlashPedz",
+    "short_name": "FlashPedz",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#hexcode",
-    "theme_color": "#hexcode",
-    "description": "Flutter flashcards",
+    "background_color": "#FFFFFF",
+    "theme_color": "#283593",
+    "description": "Smart flashcards and OSCE practice for medical students",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

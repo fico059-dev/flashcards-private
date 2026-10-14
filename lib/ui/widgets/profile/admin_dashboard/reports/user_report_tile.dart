@@ -39,7 +39,10 @@ class UserReportTile extends StatelessWidget {
                 ),
                 Text(
                   dateFormatted,
-                  style: TextStyle(fontSize: 12, color: context.colors.onSurfaceVariant),
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: context.colors.onSurfaceVariant,
+                  ),
                 ),
               ],
             ),

@@ -11,6 +11,8 @@ import 'package:flashcards/ui/widgets/core/error_screen.dart';
 import 'package:flashcards/ui/widgets/profile/admin_dashboard/osce_builder/admin_osce_card.dart';
 import 'package:flashcards/ui/widgets/search/shimmers/pack_shimmer.dart';
 import 'package:flashcards/utils/firebase_error_mapper.dart';
+import 'package:flashcards/ui/dialogs/profile/admin_dashboard/osce_builder/osce_library_admin.dart';
+import 'package:flashcards/ui/widgets/core/desktop_layout.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
@@ -42,8 +44,9 @@ class _ViewState extends State<_View> with AutoRouteAware {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _observer =
-        RouterScope.of(context).firstObserverOfType<AutoRouteObserver>();
+    _observer = RouterScope.of(
+      context,
+    ).firstObserverOfType<AutoRouteObserver>();
     if (_observer != null) {
       _observer!.subscribe(this, context.routeData);
     }
@@ -83,49 +86,68 @@ class _ViewState extends State<_View> with AutoRouteAware {
         onPressed: () => showCreateOsceDialog(context),
         child: Icon(Icons.add, color: context.colors.onPrimary),
       ),
-      body: Container(
-        margin: EdgeInsets.only(top: 20),
-        padding: EdgeInsets.symmetric(horizontal: horizontalScreenPadding),
-        child: BlocBuilder<AdminOsceGetterBloc, AdminOsceGetterState>(
-          builder:
-              (context, state) => RefreshIndicator(
-                onRefresh: () => _handleRefresh(context),
-                child: CustomScrollView(
-                  slivers: [
-                    SliverToBoxAdapter(
-                      child: Column(
-                        spacing: 15,
-                        children: [
-                          Text("Select what OSCE do you want to edit."),
-                          SizedBox(height: 15),
-                        ],
-                      ),
+      body: ReadableWidth(
+        maxWidth: 820,
+        child: Container(
+          margin: EdgeInsets.only(top: 20),
+          padding: EdgeInsets.symmetric(horizontal: horizontalScreenPadding),
+          child: BlocBuilder<AdminOsceGetterBloc, AdminOsceGetterState>(
+            builder: (context, state) => RefreshIndicator(
+              onRefresh: () => _handleRefresh(context),
+              child: CustomScrollView(
+                slivers: [
+                  SliverToBoxAdapter(
+                    child: Column(
+                      spacing: 15,
+                      children: [
+                        SizedBox(
+                          width: double.infinity,
+                          child: OutlinedButton.icon(
+                            onPressed: () async {
+                              final bloc = context.read<AdminOsceGetterBloc>();
+                              await Navigator.of(context).push(
+                                MaterialPageRoute<void>(
+                                  builder: (_) => const OsceFoldersAdminPage(),
+                                ),
+                              );
+                              bloc.add(AdminOsceGetterRefresh(completer: null));
+                            },
+                            icon: const Icon(Icons.folder_copy_outlined),
+                            label: const Text("Manage folders"),
+                          ),
+                        ),
+                        Text("Select what OSCE do you want to edit."),
+                        SizedBox(height: 15),
+                      ],
                     ),
+                  ),
 
-                    PagedSliverList(
-                      state: state.pagingState,
-                      fetchNextPage:
-                          context.read<AdminOsceGetterBloc>().fetchNextPage,
-                      builderDelegate: PagedChildBuilderDelegate(
-                        firstPageProgressIndicatorBuilder:
-                            (context) => PackShimmer(),
-                        firstPageErrorIndicatorBuilder:
-                            (context) => ErrorScreen(
-                              errorMessage: extractErrorMessage(state.pagingState.error!),
-                              onReload:
-                                  context
-                                      .read<AdminOsceGetterBloc>()
-                                      .fetchNextPage,
-                            ),
-                        itemBuilder: (context, item, index) {
-                          final simpleOsce = item as SimpleOsce;
-                          return AdminOsceCard(osce: simpleOsce);
-                        },
+                  PagedSliverList(
+                    state: state.pagingState,
+                    fetchNextPage: context
+                        .read<AdminOsceGetterBloc>()
+                        .fetchNextPage,
+                    builderDelegate: PagedChildBuilderDelegate(
+                      firstPageProgressIndicatorBuilder: (context) =>
+                          PackShimmer(),
+                      firstPageErrorIndicatorBuilder: (context) => ErrorScreen(
+                        errorMessage: extractErrorMessage(
+                          state.pagingState.error!,
+                        ),
+                        onReload: context
+                            .read<AdminOsceGetterBloc>()
+                            .fetchNextPage,
                       ),
+                      itemBuilder: (context, item, index) {
+                        final simpleOsce = item as SimpleOsce;
+                        return AdminOsceCard(osce: simpleOsce);
+                      },
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
+            ),
+          ),
         ),
       ),
     );

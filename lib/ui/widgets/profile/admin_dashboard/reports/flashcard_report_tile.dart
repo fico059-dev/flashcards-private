@@ -1,3 +1,4 @@
+import 'package:flashcards/domain/models/flashcards/card_markup/card_markup.dart';
 import 'package:flashcards/bloc/reports/fc_reports_getter/fc_reports_getter_bloc.dart';
 import 'package:flashcards/bloc/reports/fc_reports_getter/fc_reports_getter_event.dart';
 import 'package:flashcards/domain/models/flashcards/reports/flashcard_report/flashcard_report.dart';
@@ -74,7 +75,7 @@ class FlashcardReportTile extends StatelessWidget {
               const SizedBox(height: 8),
 
               Text(
-                report.flashcard.question,
+                plainCardText(report.flashcard.question),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
@@ -86,7 +87,7 @@ class FlashcardReportTile extends StatelessWidget {
               const SizedBox(height: 4),
 
               Text(
-                report.flashcard.answer,
+                plainCardText(report.flashcard.answer),
                 maxLines: 3,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(

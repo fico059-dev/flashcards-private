@@ -1,36 +1,52 @@
-import 'package:algoliasearch/algoliasearch_lite.dart';
-import 'package:flashcards/data/remote/algolia_service.dart';
+import 'package:flashcards/data/repositories/utils/pack_visibility.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flashcards/data/remote/firestore_db_context.dart';
+import 'package:flashcards/domain/models/algolia/algolia_pack/algolia_pack.dart';
 import 'package:flashcards/utils/result.dart';
+import 'package:flashcards/utils/typedefs.dart';
 
+/// Loads the packs that pack search runs over. Search used to go through
+/// Algolia, whose app no longer exists, so packs are read from Firestore and
+/// searched on the device.
 class PacksSearcherService {
-  final SearchClient _searchClient;
-  final String _packsIndex;
-  final List<String> _packsFacets;
+  final CollectionReference<JsonMap> _packs;
 
-  PacksSearcherService({required AlgoliaService algoliaService})
-    : _searchClient = algoliaService.client,
-      _packsIndex = algoliaService.packsIndex,
-      _packsFacets = algoliaService.packsFacets;
+  PacksSearcherService({required FirestoreDbContext dbContext})
+    : _packs = dbContext.packs;
 
-  Future<Result<SearchResponse>> search({
-    required String query,
-    required List<String> tagIds,
-    required int page,
-  }) async {
+  Future<Result<List<AlgoliaPack>>> getAllPacks() async {
     try {
-      final tagsQuery = tagIds.buildTagsAndQuery(_packsFacets[0]);
-
-      final request = SearchForHits(
-        indexName: _packsIndex,
-        query: query,
-        facets: _packsFacets,
-        facetFilters: tagsQuery,
-        page: page,
+      QuerySnapshot<JsonMap> snapshot;
+      try {
+        snapshot = await _packs.orderBy('name').get();
+      } on FirebaseException catch (error) {
+        // Users without a subscription may only be allowed to read free packs
+        if (error.code != 'permission-denied') rethrow;
+        snapshot = await _packs
+            .where('isPaid', isEqualTo: false)
+            .orderBy('name')
+            .get();
+      }
+      final visibility = await PackVisibility.current();
+      return Result.ok(
+        snapshot.docs
+            .where(
+              (doc) => visibility.allows(
+                doc.id,
+                restricted: doc.data()['restricted'] == true,
+              ),
+            )
+            .map((doc) {
+              final data = doc.data();
+              return AlgoliaPack(
+                objectID: doc.id,
+                name: data['name'] as String? ?? '',
+                tags: List<String>.from(data['tags'] as List? ?? const []),
+                isPaid: data['isPaid'] as bool? ?? false,
+              );
+            })
+            .toList(),
       );
-
-      final response = await _searchClient.searchIndex(request: request);
-
-      return Result.ok(response);
     } on Exception catch (error) {
       return Result.error(error);
     }

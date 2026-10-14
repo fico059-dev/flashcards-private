@@ -1,10 +1,7 @@
-import 'package:auto_route/auto_route.dart';
 import 'package:flashcards/bloc/osces/osce/osce_bloc.dart';
 import 'package:flashcards/bloc/osces/osce/osce_event.dart';
 import 'package:flashcards/bloc/osces/osce/osce_state.dart';
-import 'package:flashcards/config/router/router.dart';
 import 'package:flashcards/domain/models/osce/osce.dart';
-import 'package:flashcards/domain/models/osce/question/question.dart';
 import 'package:flashcards/l10n/app_localizations.dart';
 import 'package:flashcards/ui/theme/theme_extensions.dart';
 import 'package:flutter/material.dart';
@@ -16,14 +13,11 @@ class OsceBottomActionButtons extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocSelector<OsceBloc, OsceState, (Osce, bool, bool?)>(
+    return BlocSelector<OsceBloc, OsceState, (Osce, int, bool?)>(
       selector: (state) {
         if (state is! OsceLoaded) {
           throw Exception("Osce is not in loaded state");
         }
-
-        final currentQuestion = state.currentQuestion;
-        final isShown = state.revealedQuestions[currentQuestion.id] == true;
 
         // it works like this:
         // true => it's the first question
@@ -39,14 +33,14 @@ class OsceBottomActionButtons extends StatelessWidget {
           questionIndexState = false;
         }
 
-        return (state.osce, isShown, questionIndexState);
+        return (state.osce, state.currentQuestionIndex, questionIndexState);
       },
       builder: (context, tuple) {
         final osce = tuple.$1;
-        final isShown = tuple.$2;
+        final currentIndex = tuple.$2;
         final questionIndexState = tuple.$3;
-        void onReveal() {
-          context.read<OsceBloc>().add(OsceCurrentQuestionRevealed());
+        void onFinish() {
+          context.read<OsceBloc>().add(OsceChecklistOpened());
         }
 
         // if (osce == null) {
@@ -68,7 +62,9 @@ class OsceBottomActionButtons extends StatelessWidget {
                 alignment: MainAxisAlignment.center,
                 //width: MediaQuery.of(context).size.width * 0.75,
                 lineHeight: 14.0,
-                percent: osce.questions.percentChecked(),
+                // Progress through the questions; the checklist comes at the
+                // end.
+                percent: (currentIndex + 1) / osce.questions.length,
                 backgroundColor: context.colors.surfaceContainerHighest,
                 progressColor: context.colors.primary,
                 animation: true,
@@ -96,30 +92,18 @@ class OsceBottomActionButtons extends StatelessWidget {
                       ),
                     ),
 
-                  if (!isShown)
-                    FilledButton(onPressed: onReveal, child: Text("Reveal"))
+                  if (questionIndexState == false)
+                    FilledButton(
+                      onPressed: onFinish,
+                      child: const Text("Finish & see checklist"),
+                    )
                   else
-                    questionIndexState == false
-                        ? FilledButton(
-                          onPressed: () {
-                            context.router.replace(
-                              OsceSubmitRoute(submittedOsce: osce),
-                            );
-                          },
-                          child: Text(
-                            AppLocalizations.of(context)!.oscePage_submit,
-                          ),
-                        )
-                        : FilledButton(
-                          onPressed: () {
-                            context.read<OsceBloc>().add(
-                              NextQuestionRequested(),
-                            );
-                          },
-                          child: Text(
-                            AppLocalizations.of(context)!.oscePage_next,
-                          ),
-                        ),
+                    FilledButton(
+                      onPressed: () {
+                        context.read<OsceBloc>().add(NextQuestionRequested());
+                      },
+                      child: Text(AppLocalizations.of(context)!.oscePage_next),
+                    ),
                 ],
               ),
             ],

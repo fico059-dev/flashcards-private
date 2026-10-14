@@ -18,12 +18,14 @@ class AnkiImportCubit extends Cubit<AnkiImportState> {
 
   Future<void> readFile({
     required String fileName,
-    required Uint8List bytes,
+    String? path,
+    Uint8List? bytes,
   }) async {
     emit(AnkiImportReading(fileName: fileName));
     try {
       final result = await _ankiImportService.parseFile(
         fileName: fileName,
+        path: path,
         bytes: bytes,
       );
       emit(AnkiImportPreview(fileName: fileName, result: result));

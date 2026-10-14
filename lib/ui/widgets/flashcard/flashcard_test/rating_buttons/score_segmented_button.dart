@@ -77,7 +77,9 @@ class ScoreButton extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Material(
-            color: isActive ? context.colors.primary : context.colors.surfaceContainerHighest,
+            color: isActive
+                ? context.colors.primary
+                : context.colors.surfaceContainerHighest,
             borderRadius: BorderRadius.circular(80),
             child: InkWell(
               borderRadius: BorderRadius.circular(80),
@@ -98,7 +100,9 @@ class ScoreButton extends StatelessWidget {
                     label,
                     textAlign: TextAlign.center,
                     style: TextTheme.of(context).titleMedium?.copyWith(
-                      color: isActive ? context.colors.surface : context.colors.primary,
+                      color: isActive
+                          ? context.colors.surface
+                          : context.colors.primary,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -106,6 +110,13 @@ class ScoreButton extends StatelessWidget {
               ),
             ),
           ),
+          if (time != null)
+            Text(
+              time!,
+              style: TextTheme.of(
+                context,
+              ).labelMedium?.copyWith(color: context.colors.onSurfaceVariant),
+            ),
         ],
       ),
     );

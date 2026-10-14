@@ -18,21 +18,160 @@
 
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="description" content="Flutter flashcards">
+  <meta name="description" content="FlashPedz – smart flashcards and OSCE practice for medical students">
 
   <!-- iOS meta tags & icons -->
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="flashcards">
+  <meta name="apple-mobile-web-app-title" content="FlashPedz">
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
 
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="favicon.png"/>
 
-  <title>flashcards</title>
+  <title>FlashPedz</title>
   <link rel="manifest" href="manifest.json">
+
+  <!-- Start connections early, while the app is downloading. -->
+  <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://firestore.googleapis.com">
+  <link rel="preconnect" href="https://identitytoolkit.googleapis.com">
+  <link rel="preconnect" href="https://securetoken.googleapis.com">
+  <link rel="preconnect" href="https://firebasestorage.googleapis.com">
+  <!-- Firebase is otherwise only downloaded after the app has started.
+       The version must match firebase_core_web (11.9.1 for 2.24.x). -->
+  <link rel="modulepreload" crossorigin="anonymous" href="https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js">
+  <link rel="modulepreload" crossorigin="anonymous" href="https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js">
+  <link rel="modulepreload" crossorigin="anonymous" href="https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js">
+  <link rel="modulepreload" crossorigin="anonymous" href="https://www.gstatic.com/firebasejs/11.9.1/firebase-functions.js">
+  <link rel="modulepreload" crossorigin="anonymous" href="https://www.gstatic.com/firebasejs/11.9.1/firebase-storage.js">
+
+  <style>
+    html, body { margin: 0; height: 100%; background: #f9f7fd; }
+    @media (prefers-color-scheme: dark) { html, body { background: #131318; } }
+    #loading {
+      position: fixed; inset: 0; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 18px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      color: #44464f; transition: opacity .3s;
+    }
+    @media (prefers-color-scheme: dark) { #loading { color: #c5c6d0; } }
+    #loading img { width: 88px; height: 88px; border-radius: 20px; }
+    #loading .spinner {
+      width: 28px; height: 28px; border-radius: 50%;
+      border: 3px solid rgba(35, 57, 153, .2); border-top-color: #233999;
+      animation: spin .8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
 </head>
 <body>
-  <script src="flutter_bootstrap.js" async></script>
+  <!-- Shown until the app draws its first screen. -->
+  <div id="loading">
+    <img src="icons/Icon-192.png" alt="">
+    <div class="spinner"></div>
+    <div id="loading-text">Loading FlashPedz…</div>
+    <div id="loading-problem" style="display:none; max-width: 420px; text-align: center; padding: 0 16px;">
+      <div id="loading-problem-text"></div>
+      <button onclick="location.reload()" style="margin-top: 14px; padding: 10px 22px; border-radius: 20px; border: none; background: #233999; color: white; font-size: 15px;">Reload</button>
+    </div>
+  </div>
+  <script>
+    // The app can't start if the browser reports a language in a form it
+    // doesn't understand (e.g. "en-US@posix", or a calendar added by the
+    // Mac's region settings). Keep only languages written the standard way.
+    (function () {
+      try {
+        if (typeof Intl === 'undefined' || !Intl.Locale) return;
+        var valid = function (tag) {
+          try { new Intl.Locale(tag); return true; } catch (e) { return false; }
+        };
+        var clean = function (tag) {
+          if (!tag) return null;
+          if (valid(tag)) return tag;
+          var base = String(tag).split(/[@.]/)[0].replace(/_/g, '-');
+          if (valid(base)) return base;
+          var lang = base.split('-')[0];
+          return valid(lang) ? lang : null;
+        };
+        var original = navigator.languages && navigator.languages.length
+          ? Array.prototype.slice.call(navigator.languages)
+          : [navigator.language];
+        var langs = original.map(clean).filter(function (t) { return t; });
+        if (!langs.length) langs = ['en-US'];
+        if (langs.join(',') === original.join(',')) return;
+        Object.defineProperty(navigator, 'languages', {
+          get: function () { return langs; }, configurable: true
+        });
+        Object.defineProperty(navigator, 'language', {
+          get: function () { return langs[0]; }, configurable: true
+        });
+      } catch (e) {
+        console.warn('Could not check the browser languages', e);
+      }
+    })();
+  </script>
+  <script>
+    // If the app can't start, say why instead of loading forever.
+    (function () {
+      var started = false;
+      var show = function (message) {
+        if (started) return;
+        var box = document.getElementById('loading-problem');
+        var text = document.getElementById('loading-problem-text');
+        if (!box || !text) return;
+        text.textContent = message;
+        box.style.display = 'block';
+      };
+      window.addEventListener('flutter-first-frame', function () { started = true; });
+      window.addEventListener('error', function (e) {
+        show('FlashPedz could not start: ' + (e.message || e.error || 'unknown error') +
+          '. Please reload, or send a screenshot of this message.');
+      });
+      window.addEventListener('unhandledrejection', function (e) {
+        var r = e.reason;
+        show('FlashPedz could not start: ' + ((r && (r.message || r.toString())) || 'unknown error') +
+          '. Please reload, or send a screenshot of this message.');
+      });
+      setTimeout(function () {
+        show('This is taking longer than usual. Check your internet connection and reload.');
+      }, 30000);
+    })();
+    window.addEventListener('flutter-first-frame', function () {
+      var loading = document.getElementById('loading');
+      if (!loading) return;
+      loading.style.opacity = '0';
+      setTimeout(function () { loading.remove(); }, 300);
+    });
+  </script>
+  <script>
+    // Earlier versions installed an offline cache (service worker) that kept
+    // serving the old app after updates. Remove it, then start the app.
+    (async function () {
+      try {
+        if ('serviceWorker' in navigator) {
+          const registrations = await navigator.serviceWorker.getRegistrations();
+          for (const registration of registrations) await registration.unregister();
+          if (window.caches) {
+            for (const key of await caches.keys()) await caches.delete(key);
+          }
+          // This page was still loaded through the old cache: load it fresh.
+          if (navigator.serviceWorker.controller &&
+              !sessionStorage.getItem('flashpedz-cache-cleared')) {
+            sessionStorage.setItem('flashpedz-cache-cleared', '1');
+            location.reload();
+            return;
+          }
+        }
+      } catch (e) {
+        console.warn('Could not clear the old offline cache', e);
+      }
+      const script = document.createElement('script');
+      script.src = 'flutter_bootstrap.js';
+      script.async = true;
+      document.body.appendChild(script);
+    })();
+  </script>
 </body>
 </html>

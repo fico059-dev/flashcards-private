@@ -38,6 +38,7 @@ import 'package:flashcards/ui/pages/custom_session/custom_session_test/custom_se
 import 'package:flashcards/ui/pages/flashcards/flashcard_page.dart';
 import 'package:flashcards/ui/pages/flashcards/flashcard_preview_page.dart';
 import 'package:flashcards/ui/pages/flashcards/review_bookmark_page.dart';
+import 'package:flashcards/ui/pages/notebook/notebook_page.dart';
 import 'package:flashcards/ui/pages/main_tab_pages/home_page.dart';
 import 'package:flashcards/ui/pages/main_tab_pages/learning_progress/learning_progress_page.dart';
 import 'package:flashcards/ui/pages/main_tab_pages/learning_progress/started_packs_page.dart';
@@ -69,6 +70,7 @@ import 'package:flashcards/ui/pages/profile/profile_page.dart';
 import 'package:flashcards/ui/pages/profile/flashcard_settings_pages/flashcard_settings_page.dart';
 import 'package:flashcards/ui/pages/search/admin_pack_search_page.dart';
 import 'package:flashcards/ui/pages/search/flashcards_searcher_page.dart';
+import 'package:flashcards/ui/pages/search/study_search_page.dart';
 import 'package:flashcards/ui/pages/search/pack_search_page.dart';
 import 'package:flashcards/ui/pages/splash_page.dart';
 import 'package:flashcards/ui/pages/main_tab_pages/stats_page.dart';
@@ -118,10 +120,17 @@ class AppRouter extends RootStackRouter {
           children: [
             AutoRoute(page: HomeRoute.page, guards: [authGuard]),
             AutoRoute(page: OsceListRoute.page, guards: [authGuard]),
-            AutoRoute(page: PacksTabRoute.page, children: [
-              AutoRoute(page: PacksRoute.page, guards: [authGuard]),
-              AutoRoute(page: PreviousSessionsRoute.page, guards: [authGuard]),
-            ]),
+            AutoRoute(
+              page: PacksTabRoute.page,
+              children: [
+                AutoRoute(page: PacksRoute.page, guards: [authGuard]),
+                AutoRoute(
+                  page: PreviousSessionsRoute.page,
+                  guards: [authGuard],
+                ),
+                AutoRoute(page: NotebookRoute.page, guards: [authGuard]),
+              ],
+            ),
             AutoRoute(page: LearningProgressRoute.page, guards: [authGuard]),
           ],
         ),
@@ -169,10 +178,7 @@ class AppRouter extends RootStackRouter {
           page: CreateFlashcardRoute.page,
           guards: [authGuard, adminGuard],
         ),
-        AutoRoute(
-          page: AnkiImportRoute.page,
-          guards: [authGuard, adminGuard],
-        ),
+        AutoRoute(page: AnkiImportRoute.page, guards: [authGuard, adminGuard]),
         AutoRoute(
           page: QuestionEditorRoute.page,
           guards: [authGuard, adminGuard],
@@ -267,6 +273,12 @@ class AppRouter extends RootStackRouter {
           fullscreenDialog: true,
           transitionsBuilder: TransitionsBuilders.slideBottom,
           guards: [authGuard],
+        ),
+        CustomRoute(
+          page: StudySearchRoute.page,
+          fullscreenDialog: true,
+          transitionsBuilder: TransitionsBuilders.slideBottom,
+          guards: [authGuard, profileLoadedGuard],
         ),
         CustomRoute(
           page: FlashcardsSearcherRoute.page,

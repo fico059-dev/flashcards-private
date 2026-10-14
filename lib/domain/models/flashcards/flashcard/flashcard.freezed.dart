@@ -14,7 +14,10 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$Flashcard {
 
- String get id; String get packId; String get question; String get answer; bool get isPaid; String? get questionImageUrl; String? get answerImageUrl; List<Tag> get tags;
+ String get id; String get packId; String get question; String get answer; bool get isPaid; String? get questionImageUrl; String? get answerImageUrl; List<Tag> get tags;/// The Anki note the card was imported from (e.g. "anki:<guid>"), so
+/// importing the deck again updates the card instead of duplicating it.
+ String? get sourceKey;/// The Anki image names the card was imported with.
+ String? get sourceImages;
 /// Create a copy of Flashcard
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -25,16 +28,16 @@ $FlashcardCopyWith<Flashcard> get copyWith => _$FlashcardCopyWithImpl<Flashcard>
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Flashcard&&(identical(other.id, id) || other.id == id)&&(identical(other.packId, packId) || other.packId == packId)&&(identical(other.question, question) || other.question == question)&&(identical(other.answer, answer) || other.answer == answer)&&(identical(other.isPaid, isPaid) || other.isPaid == isPaid)&&(identical(other.questionImageUrl, questionImageUrl) || other.questionImageUrl == questionImageUrl)&&(identical(other.answerImageUrl, answerImageUrl) || other.answerImageUrl == answerImageUrl)&&const DeepCollectionEquality().equals(other.tags, tags));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Flashcard&&(identical(other.id, id) || other.id == id)&&(identical(other.packId, packId) || other.packId == packId)&&(identical(other.question, question) || other.question == question)&&(identical(other.answer, answer) || other.answer == answer)&&(identical(other.isPaid, isPaid) || other.isPaid == isPaid)&&(identical(other.questionImageUrl, questionImageUrl) || other.questionImageUrl == questionImageUrl)&&(identical(other.answerImageUrl, answerImageUrl) || other.answerImageUrl == answerImageUrl)&&const DeepCollectionEquality().equals(other.tags, tags)&&(identical(other.sourceKey, sourceKey) || other.sourceKey == sourceKey)&&(identical(other.sourceImages, sourceImages) || other.sourceImages == sourceImages));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,id,packId,question,answer,isPaid,questionImageUrl,answerImageUrl,const DeepCollectionEquality().hash(tags));
+int get hashCode => Object.hash(runtimeType,id,packId,question,answer,isPaid,questionImageUrl,answerImageUrl,const DeepCollectionEquality().hash(tags),sourceKey,sourceImages);
 
 @override
 String toString() {
-  return 'Flashcard(id: $id, packId: $packId, question: $question, answer: $answer, isPaid: $isPaid, questionImageUrl: $questionImageUrl, answerImageUrl: $answerImageUrl, tags: $tags)';
+  return 'Flashcard(id: $id, packId: $packId, question: $question, answer: $answer, isPaid: $isPaid, questionImageUrl: $questionImageUrl, answerImageUrl: $answerImageUrl, tags: $tags, sourceKey: $sourceKey, sourceImages: $sourceImages)';
 }
 
 
@@ -45,7 +48,7 @@ abstract mixin class $FlashcardCopyWith<$Res>  {
   factory $FlashcardCopyWith(Flashcard value, $Res Function(Flashcard) _then) = _$FlashcardCopyWithImpl;
 @useResult
 $Res call({
- String id, String packId, String question, String answer, bool isPaid, String? questionImageUrl, String? answerImageUrl, List<Tag> tags
+ String id, String packId, String question, String answer, bool isPaid, String? questionImageUrl, String? answerImageUrl, List<Tag> tags, String? sourceKey, String? sourceImages
 });
 
 
@@ -62,7 +65,7 @@ class _$FlashcardCopyWithImpl<$Res>
 
 /// Create a copy of Flashcard
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? packId = null,Object? question = null,Object? answer = null,Object? isPaid = null,Object? questionImageUrl = freezed,Object? answerImageUrl = freezed,Object? tags = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? packId = null,Object? question = null,Object? answer = null,Object? isPaid = null,Object? questionImageUrl = freezed,Object? answerImageUrl = freezed,Object? tags = null,Object? sourceKey = freezed,Object? sourceImages = freezed,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,packId: null == packId ? _self.packId : packId // ignore: cast_nullable_to_non_nullable
@@ -72,7 +75,9 @@ as String,isPaid: null == isPaid ? _self.isPaid : isPaid // ignore: cast_nullabl
 as bool,questionImageUrl: freezed == questionImageUrl ? _self.questionImageUrl : questionImageUrl // ignore: cast_nullable_to_non_nullable
 as String?,answerImageUrl: freezed == answerImageUrl ? _self.answerImageUrl : answerImageUrl // ignore: cast_nullable_to_non_nullable
 as String?,tags: null == tags ? _self.tags : tags // ignore: cast_nullable_to_non_nullable
-as List<Tag>,
+as List<Tag>,sourceKey: freezed == sourceKey ? _self.sourceKey : sourceKey // ignore: cast_nullable_to_non_nullable
+as String?,sourceImages: freezed == sourceImages ? _self.sourceImages : sourceImages // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 
@@ -157,10 +162,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String packId,  String question,  String answer,  bool isPaid,  String? questionImageUrl,  String? answerImageUrl,  List<Tag> tags)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String packId,  String question,  String answer,  bool isPaid,  String? questionImageUrl,  String? answerImageUrl,  List<Tag> tags,  String? sourceKey,  String? sourceImages)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Flashcard() when $default != null:
-return $default(_that.id,_that.packId,_that.question,_that.answer,_that.isPaid,_that.questionImageUrl,_that.answerImageUrl,_that.tags);case _:
+return $default(_that.id,_that.packId,_that.question,_that.answer,_that.isPaid,_that.questionImageUrl,_that.answerImageUrl,_that.tags,_that.sourceKey,_that.sourceImages);case _:
   return orElse();
 
 }
@@ -178,10 +183,10 @@ return $default(_that.id,_that.packId,_that.question,_that.answer,_that.isPaid,_
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String packId,  String question,  String answer,  bool isPaid,  String? questionImageUrl,  String? answerImageUrl,  List<Tag> tags)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String packId,  String question,  String answer,  bool isPaid,  String? questionImageUrl,  String? answerImageUrl,  List<Tag> tags,  String? sourceKey,  String? sourceImages)  $default,) {final _that = this;
 switch (_that) {
 case _Flashcard():
-return $default(_that.id,_that.packId,_that.question,_that.answer,_that.isPaid,_that.questionImageUrl,_that.answerImageUrl,_that.tags);case _:
+return $default(_that.id,_that.packId,_that.question,_that.answer,_that.isPaid,_that.questionImageUrl,_that.answerImageUrl,_that.tags,_that.sourceKey,_that.sourceImages);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -198,10 +203,10 @@ return $default(_that.id,_that.packId,_that.question,_that.answer,_that.isPaid,_
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String packId,  String question,  String answer,  bool isPaid,  String? questionImageUrl,  String? answerImageUrl,  List<Tag> tags)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String packId,  String question,  String answer,  bool isPaid,  String? questionImageUrl,  String? answerImageUrl,  List<Tag> tags,  String? sourceKey,  String? sourceImages)?  $default,) {final _that = this;
 switch (_that) {
 case _Flashcard() when $default != null:
-return $default(_that.id,_that.packId,_that.question,_that.answer,_that.isPaid,_that.questionImageUrl,_that.answerImageUrl,_that.tags);case _:
+return $default(_that.id,_that.packId,_that.question,_that.answer,_that.isPaid,_that.questionImageUrl,_that.answerImageUrl,_that.tags,_that.sourceKey,_that.sourceImages);case _:
   return null;
 
 }
@@ -213,7 +218,7 @@ return $default(_that.id,_that.packId,_that.question,_that.answer,_that.isPaid,_
 
 
 class _Flashcard implements Flashcard {
-  const _Flashcard({required this.id, required this.packId, required this.question, required this.answer, this.isPaid = false, this.questionImageUrl, this.answerImageUrl, required final  List<Tag> tags}): _tags = tags;
+  const _Flashcard({required this.id, required this.packId, required this.question, required this.answer, this.isPaid = false, this.questionImageUrl, this.answerImageUrl, required final  List<Tag> tags, this.sourceKey, this.sourceImages}): _tags = tags;
   
 
 @override final  String id;
@@ -230,6 +235,11 @@ class _Flashcard implements Flashcard {
   return EqualUnmodifiableListView(_tags);
 }
 
+/// The Anki note the card was imported from (e.g. "anki:<guid>"), so
+/// importing the deck again updates the card instead of duplicating it.
+@override final  String? sourceKey;
+/// The Anki image names the card was imported with.
+@override final  String? sourceImages;
 
 /// Create a copy of Flashcard
 /// with the given fields replaced by the non-null parameter values.
@@ -241,16 +251,16 @@ _$FlashcardCopyWith<_Flashcard> get copyWith => __$FlashcardCopyWithImpl<_Flashc
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Flashcard&&(identical(other.id, id) || other.id == id)&&(identical(other.packId, packId) || other.packId == packId)&&(identical(other.question, question) || other.question == question)&&(identical(other.answer, answer) || other.answer == answer)&&(identical(other.isPaid, isPaid) || other.isPaid == isPaid)&&(identical(other.questionImageUrl, questionImageUrl) || other.questionImageUrl == questionImageUrl)&&(identical(other.answerImageUrl, answerImageUrl) || other.answerImageUrl == answerImageUrl)&&const DeepCollectionEquality().equals(other._tags, _tags));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Flashcard&&(identical(other.id, id) || other.id == id)&&(identical(other.packId, packId) || other.packId == packId)&&(identical(other.question, question) || other.question == question)&&(identical(other.answer, answer) || other.answer == answer)&&(identical(other.isPaid, isPaid) || other.isPaid == isPaid)&&(identical(other.questionImageUrl, questionImageUrl) || other.questionImageUrl == questionImageUrl)&&(identical(other.answerImageUrl, answerImageUrl) || other.answerImageUrl == answerImageUrl)&&const DeepCollectionEquality().equals(other._tags, _tags)&&(identical(other.sourceKey, sourceKey) || other.sourceKey == sourceKey)&&(identical(other.sourceImages, sourceImages) || other.sourceImages == sourceImages));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,id,packId,question,answer,isPaid,questionImageUrl,answerImageUrl,const DeepCollectionEquality().hash(_tags));
+int get hashCode => Object.hash(runtimeType,id,packId,question,answer,isPaid,questionImageUrl,answerImageUrl,const DeepCollectionEquality().hash(_tags),sourceKey,sourceImages);
 
 @override
 String toString() {
-  return 'Flashcard(id: $id, packId: $packId, question: $question, answer: $answer, isPaid: $isPaid, questionImageUrl: $questionImageUrl, answerImageUrl: $answerImageUrl, tags: $tags)';
+  return 'Flashcard(id: $id, packId: $packId, question: $question, answer: $answer, isPaid: $isPaid, questionImageUrl: $questionImageUrl, answerImageUrl: $answerImageUrl, tags: $tags, sourceKey: $sourceKey, sourceImages: $sourceImages)';
 }
 
 
@@ -261,7 +271,7 @@ abstract mixin class _$FlashcardCopyWith<$Res> implements $FlashcardCopyWith<$Re
   factory _$FlashcardCopyWith(_Flashcard value, $Res Function(_Flashcard) _then) = __$FlashcardCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String packId, String question, String answer, bool isPaid, String? questionImageUrl, String? answerImageUrl, List<Tag> tags
+ String id, String packId, String question, String answer, bool isPaid, String? questionImageUrl, String? answerImageUrl, List<Tag> tags, String? sourceKey, String? sourceImages
 });
 
 
@@ -278,7 +288,7 @@ class __$FlashcardCopyWithImpl<$Res>
 
 /// Create a copy of Flashcard
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? packId = null,Object? question = null,Object? answer = null,Object? isPaid = null,Object? questionImageUrl = freezed,Object? answerImageUrl = freezed,Object? tags = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? packId = null,Object? question = null,Object? answer = null,Object? isPaid = null,Object? questionImageUrl = freezed,Object? answerImageUrl = freezed,Object? tags = null,Object? sourceKey = freezed,Object? sourceImages = freezed,}) {
   return _then(_Flashcard(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,packId: null == packId ? _self.packId : packId // ignore: cast_nullable_to_non_nullable
@@ -288,7 +298,9 @@ as String,isPaid: null == isPaid ? _self.isPaid : isPaid // ignore: cast_nullabl
 as bool,questionImageUrl: freezed == questionImageUrl ? _self.questionImageUrl : questionImageUrl // ignore: cast_nullable_to_non_nullable
 as String?,answerImageUrl: freezed == answerImageUrl ? _self.answerImageUrl : answerImageUrl // ignore: cast_nullable_to_non_nullable
 as String?,tags: null == tags ? _self._tags : tags // ignore: cast_nullable_to_non_nullable
-as List<Tag>,
+as List<Tag>,sourceKey: freezed == sourceKey ? _self.sourceKey : sourceKey // ignore: cast_nullable_to_non_nullable
+as String?,sourceImages: freezed == sourceImages ? _self.sourceImages : sourceImages // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 

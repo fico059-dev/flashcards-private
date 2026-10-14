@@ -10,6 +10,10 @@ import 'package:flashcards/data/repositories/flashcards/pack_repository.dart';
 import 'package:flashcards/domain/models/flashcards/simple_pack/simple_pack.dart';
 import 'package:flashcards/ui/constants/styles.dart';
 import 'package:flashcards/ui/dialogs/profile/admin_dashboard/flashcard_builder/delete_pack_dialog.dart';
+import 'package:flashcards/ui/dialogs/profile/admin_dashboard/flashcard_builder/export_pack.dart';
+import 'package:flashcards/ui/dialogs/profile/admin_dashboard/flashcard_builder/pack_access_page.dart';
+import 'package:flashcards/ui/dialogs/profile/admin_dashboard/flashcard_builder/pack_parent_dialog.dart';
+import 'package:flashcards/ui/dialogs/profile/admin_dashboard/flashcard_builder/pack_premium_dialog.dart';
 import 'package:flashcards/ui/dialogs/profile/admin_dashboard/flashcard_builder/rename_pack_dialog.dart';
 import 'package:flashcards/ui/theme/theme_extensions.dart';
 import 'package:flashcards/ui/widgets/core/subs_status_icon.dart';
@@ -24,12 +28,15 @@ void showSinglePackAdminBottomSheet(BuildContext context, String packId) {
   );
 
   showModalBottomSheet(
+    isScrollControlled: true,
+    useSafeArea: true,
     showDragHandle: true,
     shape: bottomSheetShape,
     context: context,
-    builder:
-        (context) =>
-            _SinglePackWidget(packId: packId, searcherBloc: packSearcherBloc),
+    builder: scrollableSheet(
+      (context) =>
+          _SinglePackWidget(packId: packId, searcherBloc: packSearcherBloc),
+    ),
   );
 }
 
@@ -46,10 +53,8 @@ class _SinglePackWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create:
-          (context) => SinglePackSimpleGetterCubit(
-            packRepo: context.read<PackRepository>(),
-          ),
+      create: (context) =>
+          SinglePackSimpleGetterCubit(packRepo: context.read<PackRepository>()),
       child: _View(packId: packId, searcherBloc: searcherBloc),
     );
   }
@@ -91,6 +96,25 @@ class _ViewState extends State<_View> {
     }
   }
 
+  void _onChangePremium(SimplePack pack) async {
+    context.router.pop();
+    final isPaid = await showChangePackPremiumDialog(context, pack);
+    if (isPaid != null) {
+      widget.searcherBloc.add(
+        PackSearcherPackUpdatedInState(
+          packId: pack.packId,
+          copyWith: (pack) => pack.copyWith(isPaid: isPaid),
+        ),
+      );
+    }
+  }
+
+  // The menu reloads the pack when opened, so nothing else to update.
+  void _onChangeAccess(SimplePack pack) async {
+    context.router.pop();
+    await showPackAccessPage(context, pack);
+  }
+
   void _onDelete(SimplePack pack) async {
     context.router.pop();
     final cubit = DeletePackCubit(packRepo: context.read<PackRepository>());
@@ -118,7 +142,9 @@ class _ViewState extends State<_View> {
                 case SinglePackSimpleGetterInitial():
                 case SinglePackSimpleGetterLoading():
                   return Center(
-                    child: CircularProgressIndicator(color: context.colors.primary),
+                    child: CircularProgressIndicator(
+                      color: context.colors.primary,
+                    ),
                   );
                 case SinglePackSimpleGetterError(:final error):
                   return Center(
@@ -143,8 +169,8 @@ class _ViewState extends State<_View> {
                       Divider(),
 
                       ListTile(
-                        onTap:
-                            () => navigateTo(CreateFlashcardRoute(pack: pack)),
+                        onTap: () =>
+                            navigateTo(CreateFlashcardRoute(pack: pack)),
                         leading: Icon(
                           Icons.add_circle_outline,
                           color: context.colors.primaryContainer,
@@ -152,10 +178,19 @@ class _ViewState extends State<_View> {
                         title: Text("Add Flashcards"),
                       ),
                       ListTile(
-                        onTap:
-                            () => navigateTo(
-                              ManagePackFlashcardsRoute(pack: pack),
-                            ),
+                        onTap: () => navigateTo(AnkiImportRoute(pack: pack)),
+                        leading: Icon(
+                          Icons.upload_file,
+                          color: context.colors.primaryContainer,
+                        ),
+                        title: Text("Import from Anki"),
+                        subtitle: Text(
+                          "Add a whole .apkg or .txt deck at once",
+                        ),
+                      ),
+                      ListTile(
+                        onTap: () =>
+                            navigateTo(ManagePackFlashcardsRoute(pack: pack)),
                         leading: Icon(
                           Icons.edit_note,
                           color: context.colors.primaryContainer,
@@ -170,14 +205,35 @@ class _ViewState extends State<_View> {
                         ),
                         title: Text("Rename Pack"),
                       ),
+                      PackPremiumTile(
+                        isPaid: pack.isPaid,
+                        onTap: () => _onChangePremium(pack),
+                      ),
+                      PackParentTile(
+                        pack: pack,
+                        onTap: () {
+                          context.router.pop();
+                          showPackParentDialog(context, pack);
+                        },
+                      ),
+                      PackAccessTile(
+                        restricted: pack.restricted,
+                        onTap: () => _onChangeAccess(pack),
+                      ),
+                      ExportPackTile(pack: pack),
                       ListTile(
                         onTap: () => _onDelete(pack),
-                        leading: Icon(Icons.delete_forever, color: context.colors.error),
+                        leading: Icon(
+                          Icons.delete_forever,
+                          color: context.colors.error,
+                        ),
                         title: Text("Delete Pack"),
                         subtitle: Text(
-                          "You can only delete pack if it's empty",
+                          "Deletes the pack and all its flashcards",
                         ),
-                        subtitleTextStyle: TextStyle(color: context.colors.onSurfaceVariant),
+                        subtitleTextStyle: TextStyle(
+                          color: context.colors.onSurfaceVariant,
+                        ),
                       ),
                     ],
                   );

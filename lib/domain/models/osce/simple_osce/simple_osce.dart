@@ -17,6 +17,12 @@ abstract class SimpleOsce with _$SimpleOsce {
     required String name,
     required String scenario,
     required bool isPaid,
+
+    /// Speciality folder; null when the station isn't in a folder.
+    String? folderId,
+
+    /// Image shown with the description (scenario).
+    String? scenarioImageUrl,
   }) = _SimpleOsce;
 
   factory SimpleOsce.fromJson(JsonMap json) => _$SimpleOsceFromJson(json);

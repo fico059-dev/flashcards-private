@@ -8,9 +8,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 class SessionTagPickerCubit extends Cubit<SessionTagPickerState> {
   SessionTagPickerCubit() : super(SessionTagPickerInitial());
 
+  /// Tags are listed A to Z and none are selected, which means every card.
   void loadAllTags(List<SimplePack> packs) {
-    final allTagCounts = packs.tagCountsConverted;
-    final selectedTags = packs.toTagSelectedMap(defaultValue: true);
+    final allTagCounts = sortTagsByName(packs.tagCountsConverted);
+    const selectedTags = <String, bool>{};
 
     emit(
       SessionTagPickerState.loaded(
@@ -52,36 +53,17 @@ class SessionTagPickerCubit extends Cubit<SessionTagPickerState> {
     );
   }
 
-  void firstOptionTapped() {
+  /// Back to no tag filter, so every card can be in the session.
+  void clearSelection() {
     final state = this.state;
     if (state is! SessionTagPickerLoaded) return;
 
-    if (state.firstOptionChecked == true) {
-      emit(
-        state.copyWith(
-          selectedTags: {},
-          firstOptionChecked: _getFirstOptionState(
-            allTagCounts: state.allTagCounts,
-            selectedTags: {},
-          ),
-        ),
-      );
-      return;
-    }
-
-    final topTags =
-        state.allTagCounts.entries
-            //.take(_selectionLimit)
-            .map((e) => e.key)
-            .toList();
-
-    final selectedTags = {for (final topTag in topTags) topTag.id: true};
     emit(
       state.copyWith(
-        selectedTags: selectedTags,
+        selectedTags: {},
         firstOptionChecked: _getFirstOptionState(
           allTagCounts: state.allTagCounts,
-          selectedTags: selectedTags,
+          selectedTags: {},
         ),
       ),
     );
@@ -111,4 +93,16 @@ class SessionTagPickerCubit extends Cubit<SessionTagPickerState> {
     if (selectedTags.isNotEmpty) return null;
     return false;
   }
+}
+
+/// Returns [tagCounts] ordered alphabetically by tag name.
+Map<Tag, int> sortTagsByName(Map<Tag, int> tagCounts) {
+  final entries = tagCounts.entries.toList()
+    ..sort((a, b) {
+      final byName = a.key.name.toLowerCase().compareTo(
+        b.key.name.toLowerCase(),
+      );
+      return byName != 0 ? byName : a.key.id.compareTo(b.key.id);
+    });
+  return Map.fromEntries(entries);
 }

@@ -3,7 +3,10 @@ import 'package:flashcards/bloc/osce_performance_blocs/save_osce_attempt/save_os
 import 'package:flashcards/bloc/osce_performance_blocs/save_osce_attempt/save_osce_attempt_state.dart';
 import 'package:flashcards/config/router/router.dart';
 import 'package:flashcards/data/repositories/osces/osce_performance_repository.dart';
+import 'package:flashcards/data/services/local/pdf_export_service.dart';
+import 'package:flashcards/data/services/local/study_log_store.dart';
 import 'package:flashcards/domain/enums/score_status.dart';
+import 'package:flashcards/domain/models/progress/study_log.dart';
 import 'package:flashcards/domain/models/osce/osce.dart';
 import 'package:flashcards/domain/models/osce/question/check/check.dart';
 import 'package:flashcards/domain/models/osce/question/question.dart';
@@ -11,6 +14,7 @@ import 'package:flashcards/ui/theme/theme_extensions.dart';
 import 'package:flashcards/ui/widgets/core/images/image_preview.dart';
 import 'package:flashcards/ui/widgets/osce/osce_submit_floating_button.dart';
 import 'package:flashcards/utils/firebase_error_mapper.dart';
+import 'package:flashcards/ui/widgets/core/desktop_layout.dart';
 import 'package:flutter/material.dart';
 import 'package:flashcards/l10n/app_localizations.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -24,10 +28,9 @@ class OsceSubmitPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create:
-          (context) => SaveOsceAttemptCubit(
-            oscePerformanceRepo: context.read<OscePerformanceRepository>(),
-          ),
+      create: (context) => SaveOsceAttemptCubit(
+        oscePerformanceRepo: context.read<OscePerformanceRepository>(),
+      ),
       child: _View(submittedOsce: submittedOsce),
     );
   }
@@ -57,6 +60,49 @@ class _ViewState extends State<_View> {
     );
   }
 
+  /// Remembers which sections and checks were missed, for the Progress tab.
+  void _recordOsceDetails() {
+    context.read<StudyLogStore>().update(
+      (log) => log.recordOsce(
+        osceId: osce.id,
+        name: osce.name,
+        results: [
+          for (final question in questions)
+            if (question.getMaxScore() > 0)
+              OsceQuestionResult(
+                text: question.text,
+                achieved: question.getAchievedScore(),
+                max: question.getMaxScore(),
+                missedChecks: [
+                  for (final check in question.checks)
+                    if (!check.isTitle && !check.isChecked) check.text,
+                ],
+              ),
+        ],
+      ),
+    );
+  }
+
+  bool _makingPdf = false;
+
+  Future<void> _downloadPdf() async {
+    if (_makingPdf) return;
+    setState(() => _makingPdf = true);
+    try {
+      final service = await PdfExportService.create();
+      final bytes = await service.generateOscePdf(osce);
+      await service.sharePdf(bytes, pdfFileName('${osce.name} result'));
+    } catch (error) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Couldn't make the PDF. Please try again.")),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _makingPdf = false);
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -68,6 +114,7 @@ class _ViewState extends State<_View> {
     maxScore = osce.getMaxScore();
 
     _saveOsceAttempt();
+    _recordOsceDetails();
   }
 
   @override
@@ -97,88 +144,114 @@ class _ViewState extends State<_View> {
       child: Scaffold(
         appBar: AppBar(title: Text("${osce.name} result")),
         floatingActionButton: OsceSubmitFloatingButton(osceId: osce.id),
-        body: SingleChildScrollView(
-          child: SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (scoreStatus == ScoreStatus.max)
-                    ScoreResultView(
-                      score: osce.getAchievedScore(),
-                      maxScore: osce.getMaxScore(),
-                      feedbackText: "Perfect score! You nailed it!",
-                      assetImagePath: "assets/images/parrot_fire_eyes.png",
+        body: ReadableWidth(
+          maxWidth: 820,
+          child: SingleChildScrollView(
+            child: SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 15,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (scoreStatus == ScoreStatus.max)
+                      ScoreResultView(
+                        score: osce.getAchievedScore(),
+                        maxScore: osce.getMaxScore(),
+                        feedbackText: "Perfect score! You nailed it!",
+                        assetImagePath: "assets/images/parrot_fire_eyes.png",
+                      ),
+                    if (scoreStatus == ScoreStatus.okay)
+                      ScoreResultView(
+                        score: osce.getAchievedScore(),
+                        maxScore: osce.getMaxScore(),
+                        feedbackText: "Great job! Keep going strong.",
+                        assetImagePath: "assets/images/parrot_like.png",
+                      ),
+                    if (scoreStatus == ScoreStatus.low)
+                      ScoreResultView(
+                        score: osce.getAchievedScore(),
+                        maxScore: osce.getMaxScore(),
+                        feedbackText:
+                            "Don’t worry, practice will get you there!",
+                        assetImagePath: "assets/images/parrot_sad.png",
+                      ),
+                    ListView(
+                      shrinkWrap: true,
+                      primary: false,
+                      children: questions
+                          .map((question) => QuestionView(question: question))
+                          .toList(),
                     ),
-                  if (scoreStatus == ScoreStatus.okay)
-                    ScoreResultView(
-                      score: osce.getAchievedScore(),
-                      maxScore: osce.getMaxScore(),
-                      feedbackText: "Great job! Keep going strong.",
-                      assetImagePath: "assets/images/parrot_like.png",
-                    ),
-                  if (scoreStatus == ScoreStatus.low)
-                    ScoreResultView(
-                      score: osce.getAchievedScore(),
-                      maxScore: osce.getMaxScore(),
-                      feedbackText: "Don’t worry, practice will get you there!",
-                      assetImagePath: "assets/images/parrot_sad.png",
-                    ),
-                  ListView(
-                    shrinkWrap: true,
-                    primary: false,
-                    children:
-                        questions
-                            .map((question) => QuestionView(question: question))
-                            .toList(),
-                  ),
-                  const SizedBox(height: 10),
-                  BlocBuilder<SaveOsceAttemptCubit, SaveOsceAttemptState>(
-                    builder: (context, state) {
-                      if (state is! SaveOsceAttemptError) {
-                        return SizedBox.shrink();
-                      }
+                    const SizedBox(height: 10),
+                    BlocBuilder<SaveOsceAttemptCubit, SaveOsceAttemptState>(
+                      builder: (context, state) {
+                        if (state is! SaveOsceAttemptError) {
+                          return SizedBox.shrink();
+                        }
 
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Text(
-                            "Saving failed. Try again.",
-                            style: TextTheme.of(context).titleMedium?.copyWith(
-                              color: context.colors.error,
-                              fontWeight: FontWeight.w600,
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Text(
+                              "Saving failed. Try again.",
+                              style: TextTheme.of(context).titleMedium
+                                  ?.copyWith(
+                                    color: context.colors.error,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                              textAlign: TextAlign.center,
                             ),
-                            textAlign: TextAlign.center,
-                          ),
-                          const SizedBox(height: 15),
-                          SizedBox(
-                            width: double.infinity,
-                            height: 40,
-                            child: FilledButton(
-                              onPressed: _saveOsceAttempt,
-                              child: Text("Retry saving this attempt"),
+                            const SizedBox(height: 15),
+                            SizedBox(
+                              width: double.infinity,
+                              height: 40,
+                              child: FilledButton(
+                                onPressed: _saveOsceAttempt,
+                                child: Text("Retry saving this attempt"),
+                              ),
                             ),
-                          ),
-                          const SizedBox(height: 10),
-                        ],
-                      );
-                    },
-                  ),
-                  SizedBox(
-                    width: double.infinity,
-                    height: 40,
-                    child: OutlinedButton(
-                      onPressed: () {
-                        context.router.replace(HomeRoute());
+                            const SizedBox(height: 10),
+                          ],
+                        );
                       },
-                      child: Text(
-                        AppLocalizations.of(context)!.osceSubmitPage_back,
+                    ),
+                    SizedBox(
+                      width: double.infinity,
+                      height: 40,
+                      child: FilledButton.icon(
+                        onPressed: _makingPdf ? null : _downloadPdf,
+                        icon: _makingPdf
+                            ? const SizedBox.square(
+                                dimension: 18,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
+                              )
+                            : const Icon(Icons.picture_as_pdf_outlined),
+                        label: Text(
+                          AppLocalizations.of(context)!.osceSubmitPage_download,
+                        ),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 65),
-                ],
+                    const SizedBox(height: 10),
+                    SizedBox(
+                      width: double.infinity,
+                      height: 40,
+                      child: OutlinedButton(
+                        onPressed: () {
+                          context.router.replace(HomeRoute());
+                        },
+                        child: Text(
+                          AppLocalizations.of(context)!.osceSubmitPage_back,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 65),
+                  ],
+                ),
               ),
             ),
           ),
@@ -226,10 +299,9 @@ class QuestionView extends StatelessWidget {
 
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children:
-                  question.checks
-                      .map((check) => _CheckView(check: check))
-                      .toList(),
+              children: question.checks
+                  .map((check) => _CheckView(check: check))
+                  .toList(),
             ),
           ],
         ),
@@ -263,7 +335,9 @@ class _CheckView extends StatelessWidget {
           children: [
             Icon(
               check.isChecked ? Icons.check_circle : Icons.cancel,
-              color: check.isChecked ? context.customColors.success : context.colors.error,
+              color: check.isChecked
+                  ? context.customColors.success
+                  : context.colors.error,
             ),
             Expanded(
               child: Text(
@@ -324,26 +398,3 @@ class ScoreResultView extends StatelessWidget {
     );
   }
 }
-
-// FilledButton(
-//   onPressed: () async {
-//     final pdfService = await PdfExportService.create();
-//     final pdfBytes = await pdfService.generateOscePdf(widget.submittedOsce);
-//     final file = await pdfService.savePdf(pdfBytes, "osce_${widget.submittedOsce.name}");
-//
-//     final result = await OpenFile.open(file.path);
-//
-//     if (result.type != ResultType.done && Platform.isIOS) {
-//       await Share.shareXFiles([XFile(file.path)], text: "Here is your OSCE PDF");
-//     }
-//   },
-//   style: FilledButton.styleFrom(
-//     minimumSize: Size(
-//       MediaQuery.of(context).size.width * 0.3,
-//       48,
-//     ),
-//   ),
-//   child: Text(
-//     AppLocalizations.of(context)!.osceSubmitPage_download,
-//   ),
-// ),

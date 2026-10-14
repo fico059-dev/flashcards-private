@@ -13,6 +13,7 @@ _AlgoliaFlashcard _$AlgoliaFlashcardFromJson(Map<String, dynamic> json) =>
       answer: json['answer'] as String,
       isPaid: json['isPaid'] as bool,
       tags: (json['tags'] as List<dynamic>).map((e) => e as String).toList(),
+      packId: json['packId'] as String? ?? '',
     );
 
 Map<String, dynamic> _$AlgoliaFlashcardToJson(_AlgoliaFlashcard instance) =>
@@ -22,4 +23,5 @@ Map<String, dynamic> _$AlgoliaFlashcardToJson(_AlgoliaFlashcard instance) =>
       'answer': instance.answer,
       'isPaid': instance.isPaid,
       'tags': instance.tags,
+      'packId': instance.packId,
     };

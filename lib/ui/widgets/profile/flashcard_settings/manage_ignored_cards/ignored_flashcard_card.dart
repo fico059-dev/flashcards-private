@@ -1,3 +1,4 @@
+import 'package:flashcards/domain/models/flashcards/card_markup/card_markup.dart';
 import 'package:flashcards/bloc/flashcards/ignored_card/ignored_card_bloc.dart';
 import 'package:flashcards/bloc/flashcards/ignored_card/ignored_card_event.dart';
 import 'package:flashcards/domain/models/flashcards/ignored_flashcard/ignored_flashcard.dart';
@@ -90,7 +91,7 @@ class IgnoredFlashcardCard extends StatelessWidget {
             padding: const EdgeInsets.all(20),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: [Text(card.question, style: textStyle)],
+              children: [Text(plainCardText(card.question), style: textStyle)],
             ),
           ),
         ),

@@ -7,6 +7,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 class OsceDrCubit extends Cubit<OsceDrState> {
   final OsceRepository _osceRepo;
 
+  /// Id of the OSCE made by [createOsce], once it succeeded.
+  String? createdOsceId;
+
   OsceDrCubit({required OsceRepository osceRepo})
     : _osceRepo = osceRepo,
       super(OsceDrInitial());
@@ -23,9 +26,10 @@ class OsceDrCubit extends Cubit<OsceDrState> {
     );
 
     switch (result) {
-      case Error<void>(:final error):
+      case Error<String>(:final error):
         emit(OsceDrError(error: error));
-      case Ok<void>():
+      case Ok<String>(:final value):
+        createdOsceId = value;
         emit(OsceDrSuccess());
     }
   }

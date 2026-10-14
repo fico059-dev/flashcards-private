@@ -33,6 +33,18 @@ class ReauthCubit extends Cubit<ReauthState> {
     }
   }
 
+  /// For accounts made with Google or Apple, which have no password.
+  Future<void> reauthenticateWithProvider() async {
+    emit(ReauthLoading());
+    final result = await _authRepository.reauthenticateWithProvider();
+    switch (result) {
+      case Ok<void>():
+        emit(ReauthSuccess());
+      case Error<void>(:final error):
+        emit(ReauthError(error: error));
+    }
+  }
+
   Map<String, String> _validateForm(String password) {
     Map<String, String> errors = {};
 

@@ -33,13 +33,22 @@ class ProfileRepository {
       throw Exception("User is null");
     }
 
+    // Accounts made with Google or Apple: use the name they give.
+    final email = user.email ?? "";
+    final emailName = email.contains('@') ? email.split('@').first : '';
+    final parts = (user.displayName ?? '').trim().split(RegExp(r'\s+'))
+      ..removeWhere((part) => part.isEmpty);
+    final name = parts.isNotEmpty
+        ? parts.first
+        : (emailName.isNotEmpty ? emailName : "FlashPedz");
+    final surname = parts.length > 1 ? parts.skip(1).join(' ') : "User";
     final profile = Profile(
-      name: "Unknown",
-      surname: "User",
-      username: "Unknown User",
-      email: user.email ?? "unknown email",
-      phoneNumber: "1111111",
-      educationLevel: EducationLevel.consultant,
+      name: name,
+      surname: surname,
+      username: emailName.isNotEmpty ? emailName : "$name $surname",
+      email: email.isEmpty ? "unknown email" : email,
+      phoneNumber: "",
+      educationLevel: EducationLevel.medicalStudent,
       streak: Streak(count: 1, lastStreakDate: DateTime.now()),
       profileSettings: ProfileSettings(),
     );

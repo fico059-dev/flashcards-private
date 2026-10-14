@@ -55,6 +55,10 @@ sealed class OsceState with _$OsceState {
     required Osce osce,
     @Default(0) int currentQuestionIndex,
     @Default({}) Map<String, bool> revealedQuestions,
+
+    /// True once the questions are done and the user is ticking the
+    /// checklist of every question to get their score.
+    @Default(false) bool reviewingChecklist,
     Exception? error,
   }) = OsceLoaded;
 

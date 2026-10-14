@@ -19,8 +19,8 @@ Future<void> showDeleteOsceDialog(
     context: context,
     builder: (context) {
       return BlocProvider(
-        create:
-            (context) => OsceDrCubit(osceRepo: context.read<OsceRepository>()),
+        create: (context) =>
+            OsceDrCubit(osceRepo: context.read<OsceRepository>()),
         child: _Content(readBloc: readBloc, osce: osce),
       );
     },
@@ -40,9 +40,8 @@ class _Content extends StatelessWidget {
     }
 
     return BlocListener<OsceDrCubit, OsceDrState>(
-      listenWhen:
-          (previous, current) =>
-              current is OsceDrSuccess || current is OsceDrError,
+      listenWhen: (previous, current) =>
+          current is OsceDrSuccess || current is OsceDrError,
       listener: (context, state) {
         switch (state) {
           case OsceDrError(:final error):

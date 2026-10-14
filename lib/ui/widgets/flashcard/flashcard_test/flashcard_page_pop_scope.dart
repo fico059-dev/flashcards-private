@@ -18,10 +18,8 @@ class FlashcardPagePopScope extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocListener<FlashcardBloc, FlashcardState>(
-      listenWhen:
-          (previous, current) =>
-              current.status.isProfileUpdated &&
-              current.status != previous.status,
+      listenWhen: (previous, current) =>
+          current.status.isProfileUpdated && current.status != previous.status,
       listener: (context, state) {
         if (!state.status.isProfileUpdated) return;
 
@@ -57,10 +55,34 @@ class FlashcardPagePopScope extends StatelessWidget {
           );
           final newTargetCardsPerSession = userCardsPerSession + cardDifference;
 
-          print("[card diff] $cardDifference");
-          // Pop the route if session is not extended
+          // Inside today's target: let the student end for the day and see
+          // the summary, or just leave (the count is kept either way).
           if (cardDifference <= 0) {
-            context.router.pop();
+            final rated =
+                flashcardState.sessionDone + flashcardState.currentCardIndex;
+            if (flashcardState.testType != TestType.regular || rated == 0) {
+              context.router.pop();
+              return;
+            }
+            final choice = await showLeaveSessionDialog(
+              context: context,
+              done: rated,
+              total:
+                  flashcardState.sessionDone +
+                  flashcardState.statRecords.length,
+            );
+            if (!context.mounted || choice == null) return;
+            switch (choice) {
+              case LeaveSessionChoice.exit:
+                context.router.pop();
+              case LeaveSessionChoice.endForToday:
+                context.router.replace(
+                  FlashcardSessionSuccessRoute(
+                    fcBloc: flashcardBloc,
+                    endedForToday: true,
+                  ),
+                );
+            }
             return;
           }
 

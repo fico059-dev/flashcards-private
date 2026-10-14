@@ -2,6 +2,7 @@ import 'package:flashcards/bloc/osces/osce/osce_bloc.dart';
 import 'package:flashcards/bloc/osces/osce/osce_event.dart';
 import 'package:flashcards/domain/models/osce/osce.dart';
 import 'package:flashcards/domain/models/osce/question/question.dart';
+import 'package:flashcards/ui/widgets/core/images/image_preview.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -34,6 +35,10 @@ class OsceShowcaseWidget extends StatelessWidget {
                   osce.scenario,
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
+                if (osce.scenarioImageUrl?.isNotEmpty ?? false) ...[
+                  const SizedBox(height: 12),
+                  ImagePreview(downloadUrl: osce.scenarioImageUrl, height: 220),
+                ],
                 const SizedBox(height: 16),
 
                 // QuestionsAndChecksCount(questions: osce.questions);

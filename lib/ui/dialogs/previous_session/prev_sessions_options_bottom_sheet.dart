@@ -13,6 +13,7 @@ void showPrevSessionsOptionsBottomSheet({
   required CustomSessionSummary session,
   required VoidCallback onSessionDelete,
   required VoidCallback onSessionReset,
+  required VoidCallback onSessionRename,
   required VoidCallback? onSessionStart,
 }) {
   final bloc = context.read<CustomSessionGetterBloc>();
@@ -20,8 +21,9 @@ void showPrevSessionsOptionsBottomSheet({
   showModalBottomSheet(
     context: context,
     isScrollControlled: true,
+    useSafeArea: true,
     showDragHandle: true,
-    builder: (context) {
+    builder: scrollableSheet((context) {
       return BlocProvider.value(
         value: bloc,
         child: BlocListener<CustomSessionGetterBloc, CustomSessionGetterState>(
@@ -52,7 +54,7 @@ void showPrevSessionsOptionsBottomSheet({
                         child: Icon(Icons.folder),
                       ),
                       title: Text(
-                        "Custom Session",
+                        session.displayName,
                         style: TextStyle(fontWeight: FontWeight.bold),
                       ),
                       subtitle: Column(
@@ -118,6 +120,17 @@ void showPrevSessionsOptionsBottomSheet({
                     ),
                     ListTile(
                       leading: Icon(
+                        Icons.drive_file_rename_outline,
+                        color: context.colors.primary,
+                      ),
+                      title: Text("Rename session"),
+                      onTap: () {
+                        context.router.pop();
+                        onSessionRename();
+                      },
+                    ),
+                    ListTile(
+                      leading: Icon(
                         Icons.refresh,
                         color: context.colors.primary,
                       ),
@@ -139,6 +152,6 @@ void showPrevSessionsOptionsBottomSheet({
           ),
         ),
       );
-    },
+    }),
   );
 }

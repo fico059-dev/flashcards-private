@@ -37,16 +37,16 @@ class OsceTutorialPage extends StatelessWidget {
       assetPath2: "assets/images/osce_tutorial/osce_reveal_button.jpg",
       title: "Read the question first",
       description:
-          "Read the question and think what you would do first. "
-          "Once you’re done, tap Reveal to see the checklist and "
-          "mark what you actually did.",
+          "Read each question and answer it as you would in the exam, "
+          "then tap Next. After the last question, tap Finish to see "
+          "the checklist.",
     ),
     TutorialSlide(
       assetPath: "assets/images/osce_tutorial/osce_question_checks.jpg",
-      title: "Check it off as you go",
+      title: "Tick what you got right",
       description:
-          "As you perform or imagine each step, check it off! Not sure? "
-          "You can skip it and move on — no worries.",
+          "The checklist of every question appears at the end. Tick each "
+          "step you covered, then submit to see your score.",
     ),
     // TutorialSlide(
     //   assetPath: "assets/images/osce_tutorial/osce_next_button.jpg",
