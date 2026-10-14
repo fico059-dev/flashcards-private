@@ -15,6 +15,7 @@ import 'package:flashcards/ui/dialogs/flashcard/share_card_dialog.dart';
 import 'package:flashcards/ui/dialogs/progress/goal_packs_dialog.dart';
 import 'package:flashcards/ui/dialogs/progress/study_goal_sheet.dart';
 import 'package:flashcards/ui/theme/themes.dart';
+import 'package:flashcards/ui/widgets/home/card_garden.dart';
 import 'package:flashcards/ui/widgets/auth/social_sign_in_buttons.dart';
 import 'package:flashcards/ui/widgets/rewards/study_rewards_widgets.dart';
 import 'package:flashcards/ui/widgets/flashcard/flashcard_test/listeners/session_milestone_listener.dart';
@@ -329,4 +330,53 @@ void main() {
     expect(find.text('Continue with Google'), findsOneWidget);
     await _shot(tester, 'social_sign_in');
   });
+
+  for (final (name, counts) in [
+    (
+      'garden_now',
+      const GardenCounts(
+        unseen: 6316,
+        learning: 40,
+        reviewing: 115,
+        mastered: 0,
+      ),
+    ),
+    (
+      'garden_later',
+      const GardenCounts(
+        unseen: 2600,
+        learning: 500,
+        reviewing: 2100,
+        mastered: 1271,
+      ),
+    ),
+    (
+      'garden_small',
+      const GardenCounts(
+        unseen: 300,
+        learning: 60,
+        reviewing: 200,
+        mastered: 160,
+      ),
+    ),
+  ]) {
+    for (final grid in [false, true]) {
+      testWidgets('$name grid=$grid', (tester) async {
+        await setup(tester);
+        await _app(
+          tester,
+          (_) => Dialog(
+            insetPadding: const EdgeInsets.all(16),
+            child: Container(
+              margin: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(8),
+              color: grid ? const Color(0x11000000) : const Color(0xFFE8F5E1),
+              child: CardGarden(plots: gardenPlots(counts), asGrid: grid),
+            ),
+          ),
+        );
+        await _shot(tester, '${name}_${grid ? 'grid' : 'garden'}');
+      });
+    }
+  }
 }

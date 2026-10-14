@@ -7,6 +7,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flashcards/config/features.dart';
 import 'package:flashcards/data/repositories/utils/user_claims.dart';
 import 'package:flashcards/ui/pages/paywall/dev_paywall_page.dart';
 
@@ -278,6 +279,10 @@ Future<bool> ensureCardsAccess(BuildContext context) async {
     if (claims.hasCards) return true;
   }
 
+  if (!Features.subscriptions) {
+    if (context.mounted) await showNotAvailableYetDialog(context);
+    return false;
+  }
   final page = Flavor.isProd ? const ProdPaywallPage() : const DevPaywallPage();
   final unlocked = await Navigator.push(
     context,
@@ -301,6 +306,10 @@ Future<bool> ensureOsceAccess(BuildContext context) async {
     if (claims.hasOsce) return true;
   }
 
+  if (!Features.subscriptions) {
+    if (context.mounted) await showNotAvailableYetDialog(context);
+    return false;
+  }
   final page = Flavor.isProd ? const ProdPaywallPage() : const DevPaywallPage();
   final unlocked = await Navigator.push(
     context,
@@ -311,4 +320,25 @@ Future<bool> ensureOsceAccess(BuildContext context) async {
     await user.getIdToken(true);
   }
   return unlocked == true;
+}
+
+/// Shown for premium content while subscriptions aren't offered.
+Future<void> showNotAvailableYetDialog(BuildContext context) {
+  return showDialog<void>(
+    context: context,
+    builder: (context) => AlertDialog(
+      icon: const Icon(Icons.lock_clock_outlined),
+      title: const Text('Coming soon'),
+      content: const Text(
+        "This content isn't available yet. Keep studying the open packs "
+        "and stations, more is on the way!",
+      ),
+      actions: [
+        FilledButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('OK'),
+        ),
+      ],
+    ),
+  );
 }
