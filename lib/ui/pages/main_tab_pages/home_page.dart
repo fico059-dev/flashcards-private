@@ -76,7 +76,15 @@ class _HomeData {
   final StudyLog log;
   final DailyStatus? today;
 
-  const _HomeData({required this.stats, required this.log, this.today});
+  /// Each goal card's progress in pack order, for the garden.
+  final List<int>? cardLevels;
+
+  const _HomeData({
+    required this.stats,
+    required this.log,
+    this.today,
+    this.cardLevels,
+  });
 }
 
 @RoutePage()
@@ -103,13 +111,15 @@ class _HomePageState extends State<HomePage> {
     } catch (_) {
       today = null;
     }
+    final stats = switch (statsResult) {
+      Ok(:final value) => value,
+      Error() => null,
+    };
     return _HomeData(
-      stats: switch (statsResult) {
-        Ok(:final value) => value,
-        Error() => null,
-      },
+      stats: stats,
       log: log,
       today: today,
+      cardLevels: stats == null ? null : await repo.goalCardLevels(log.goal),
     );
   }
 
@@ -180,6 +190,7 @@ class _HomePageState extends State<HomePage> {
                           if (data.stats != null)
                             _GardenCard(
                               stats: data.stats!,
+                              cardLevels: data.cardLevels,
                               goal: data.log.goal,
                               onSetGoal: () =>
                                   _goToTab(MainTab.learningProgress),
@@ -367,11 +378,13 @@ class _PlanItem extends StatelessWidget {
 
 class _GardenCard extends StatefulWidget {
   final CardProgressStats stats;
+  final List<int>? cardLevels;
   final StudyGoal goal;
   final VoidCallback onSetGoal;
 
   const _GardenCard({
     required this.stats,
+    this.cardLevels,
     required this.goal,
     required this.onSetGoal,
   });
@@ -385,8 +398,19 @@ class _GardenCardState extends State<_GardenCard> {
 
   @override
   Widget build(BuildContext context) {
-    final counts = goalGardenCounts(widget.stats, widget.goal);
-    final plots = gardenPlots(counts);
+    final levels = widget.cardLevels;
+    // Laid out by the packs' card order when known, else by the counts.
+    final counts = levels == null
+        ? goalGardenCounts(widget.stats, widget.goal)
+        : GardenCounts(
+            unseen: levels.where((l) => l == 0).length,
+            learning: levels.where((l) => l == 1).length,
+            reviewing: levels.where((l) => l == 2).length,
+            mastered: levels.where((l) => l == 3).length,
+          );
+    final plots = levels == null
+        ? gardenPlots(counts)
+        : gardenPlotsFromCards(levels);
     final names = [
       for (final p in widget.stats.packs)
         if (widget.goal.includesPack(p.packId)) p.name,

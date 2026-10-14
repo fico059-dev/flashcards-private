@@ -73,6 +73,41 @@ class ProgressRepository {
     return log;
   }
 
+  // Cards of each pack in their order, for the home garden.
+  final _packOrder = <String, List<String>>{};
+
+  /// How far each card of the goal's packs has come, in the packs' own
+  /// card order: 0 new, 1 learning, 2 reviewing, 3 memorized. Null when
+  /// the order couldn't be read (the garden is then drawn from the counts).
+  Future<List<int>?> goalCardLevels(StudyGoal goal) async {
+    final cache = _cardCache;
+    if (cache == null || cache.$2 != _uid) return null;
+    final (_, _, packs, items) = cache;
+    final byId = {for (final item in items) item.flashcardId: item};
+    final goalPacks = packs.where((p) => goal.includesPack(p.id)).toList();
+    try {
+      final orders = await Future.wait(
+        goalPacks.map((pack) async {
+          final known = _packOrder[pack.id];
+          if (known != null) return known;
+          final result = await _packService.getFlashcardIds(pack.id);
+          switch (result) {
+            case Ok(:final value):
+              return _packOrder[pack.id] = value.flashcardIds;
+            case Error(:final error):
+              throw error;
+          }
+        }),
+      );
+      return [
+        for (final ids in orders)
+          for (final id in ids) cardLevel(byId[id]),
+      ];
+    } catch (_) {
+      return null;
+    }
+  }
+
   /// Packs the student can study, for choosing the goal's packs.
   Future<List<PackInfo>> getPacks() async {
     final cache = _cardCache;
@@ -84,6 +119,7 @@ class ProgressRepository {
     try {
       final cache = _cardCache;
       if (refresh || !_isFresh(cache?.$1, cache?.$2)) {
+        _packOrder.clear();
         final hasCards = (await UserClaims.current()).hasCards;
         final results = await Future.wait([
           _loadPacks(hasCards),

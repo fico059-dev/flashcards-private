@@ -50,6 +50,41 @@ List<PlotStatus> gardenPlots(GardenCounts counts) {
   return result;
 }
 
+/// One plot per [cardsPerPlot] neighbouring cards, in the packs' order.
+/// The number of plots of each kind comes from the card counts, and the
+/// plots whose cards have come furthest get the most advanced flowers, so
+/// flowers grow where the studied cards are (scattered when cards are
+/// studied in shuffled order).
+List<PlotStatus> gardenPlotsFromCards(List<int> levels) {
+  if (levels.isEmpty) return const [];
+  final counts = GardenCounts(
+    unseen: levels.where((l) => l == 0).length,
+    learning: levels.where((l) => l == 1).length,
+    reviewing: levels.where((l) => l == 2).length,
+    mastered: levels.where((l) => l == 3).length,
+  );
+  // How many plots of each kind, as if sorted by progress.
+  final kinds = gardenPlots(counts)..sort((a, b) => b.index - a.index);
+
+  final plots = kinds.length;
+  final scores = <(double, int)>[];
+  for (var i = 0; i < plots; i++) {
+    final chunk = levels.skip(i * cardsPerPlot).take(cardsPerPlot);
+    final sum = chunk.fold(0, (a, b) => a + b);
+    scores.add((sum / chunk.length, i));
+  }
+  // Furthest first; equal plots keep the packs' order.
+  scores.sort((a, b) {
+    final byScore = b.$1.compareTo(a.$1);
+    return byScore != 0 ? byScore : a.$2.compareTo(b.$2);
+  });
+  final result = List.filled(plots, PlotStatus.unseen);
+  for (var rank = 0; rank < plots; rank++) {
+    result[scores[rank].$2] = kinds[rank];
+  }
+  return result;
+}
+
 /// Colors for the pixel grid: blue new, yellow learning, green learned.
 Color gridColor(PlotStatus status) => switch (status) {
   PlotStatus.unseen => const Color(0xFF64B5F6),

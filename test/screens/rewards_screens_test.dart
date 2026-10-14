@@ -15,6 +15,7 @@ import 'package:flashcards/ui/dialogs/flashcard/share_card_dialog.dart';
 import 'package:flashcards/ui/dialogs/progress/goal_packs_dialog.dart';
 import 'package:flashcards/ui/dialogs/progress/study_goal_sheet.dart';
 import 'package:flashcards/ui/theme/themes.dart';
+import 'dart:math' show Random;
 import 'package:flashcards/ui/widgets/home/card_garden.dart';
 import 'package:flashcards/ui/widgets/auth/social_sign_in_buttons.dart';
 import 'package:flashcards/ui/widgets/rewards/study_rewards_widgets.dart';
@@ -376,6 +377,37 @@ void main() {
           ),
         );
         await _shot(tester, '${name}_${grid ? 'grid' : 'garden'}');
+      });
+    }
+  }
+
+  for (final studied in [155, 2400]) {
+    for (final grid in [false, true]) {
+      testWidgets('scattered garden $studied grid=$grid', (tester) async {
+        await setup(tester);
+        final random = Random(7);
+        final levels = List.filled(6471, 0);
+        final order = List.generate(6471, (i) => i)..shuffle(random);
+        for (final i in order.take(studied)) {
+          final r = random.nextDouble();
+          levels[i] = r < 0.15 ? 1 : (r < 0.75 || studied < 1000 ? 2 : 3);
+        }
+        await _app(
+          tester,
+          (_) => Dialog(
+            insetPadding: const EdgeInsets.all(16),
+            child: Container(
+              margin: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(8),
+              color: grid ? const Color(0x11000000) : const Color(0xFFE8F5E1),
+              child: CardGarden(
+                plots: gardenPlotsFromCards(levels),
+                asGrid: grid,
+              ),
+            ),
+          ),
+        );
+        await _shot(tester, 'scatter_${studied}_${grid ? 'grid' : 'garden'}');
       });
     }
   }

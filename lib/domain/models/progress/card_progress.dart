@@ -604,3 +604,11 @@ int goalTarget({required List<PackInfo> packs, required StudyGoal goal}) =>
     packs
         .where((p) => goal.includesPack(p.id))
         .fold(0, (sum, p) => sum + p.totalCards);
+
+/// How far a card has come: 0 new, 1 learning, 2 reviewing, 3 memorized.
+int cardLevel(CardProgressItem? item) {
+  if (item == null || !item.isStudied) return 0;
+  if (item.isLearning) return 1;
+  if (item.isMastered) return 3;
+  return 2;
+}
