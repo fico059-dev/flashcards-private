@@ -71,9 +71,73 @@
   <div id="loading">
     <img src="icons/Icon-192.png" alt="">
     <div class="spinner"></div>
-    <div>Loading FlashPedz…</div>
+    <div id="loading-text">Loading FlashPedz…</div>
+    <div id="loading-problem" style="display:none; max-width: 420px; text-align: center; padding: 0 16px;">
+      <div id="loading-problem-text"></div>
+      <button onclick="location.reload()" style="margin-top: 14px; padding: 10px 22px; border-radius: 20px; border: none; background: #233999; color: white; font-size: 15px;">Reload</button>
+    </div>
   </div>
   <script>
+    // The app can't start if the browser reports a language in a form it
+    // doesn't understand (e.g. "en-US@posix", or a calendar added by the
+    // Mac's region settings). Keep only languages written the standard way.
+    (function () {
+      try {
+        if (typeof Intl === 'undefined' || !Intl.Locale) return;
+        var valid = function (tag) {
+          try { new Intl.Locale(tag); return true; } catch (e) { return false; }
+        };
+        var clean = function (tag) {
+          if (!tag) return null;
+          if (valid(tag)) return tag;
+          var base = String(tag).split(/[@.]/)[0].replace(/_/g, '-');
+          if (valid(base)) return base;
+          var lang = base.split('-')[0];
+          return valid(lang) ? lang : null;
+        };
+        var original = navigator.languages && navigator.languages.length
+          ? Array.prototype.slice.call(navigator.languages)
+          : [navigator.language];
+        var langs = original.map(clean).filter(function (t) { return t; });
+        if (!langs.length) langs = ['en-US'];
+        if (langs.join(',') === original.join(',')) return;
+        Object.defineProperty(navigator, 'languages', {
+          get: function () { return langs; }, configurable: true
+        });
+        Object.defineProperty(navigator, 'language', {
+          get: function () { return langs[0]; }, configurable: true
+        });
+      } catch (e) {
+        console.warn('Could not check the browser languages', e);
+      }
+    })();
+  </script>
+  <script>
+    // If the app can't start, say why instead of loading forever.
+    (function () {
+      var started = false;
+      var show = function (message) {
+        if (started) return;
+        var box = document.getElementById('loading-problem');
+        var text = document.getElementById('loading-problem-text');
+        if (!box || !text) return;
+        text.textContent = message;
+        box.style.display = 'block';
+      };
+      window.addEventListener('flutter-first-frame', function () { started = true; });
+      window.addEventListener('error', function (e) {
+        show('FlashPedz could not start: ' + (e.message || e.error || 'unknown error') +
+          '. Please reload, or send a screenshot of this message.');
+      });
+      window.addEventListener('unhandledrejection', function (e) {
+        var r = e.reason;
+        show('FlashPedz could not start: ' + ((r && (r.message || r.toString())) || 'unknown error') +
+          '. Please reload, or send a screenshot of this message.');
+      });
+      setTimeout(function () {
+        show('This is taking longer than usual. Check your internet connection and reload.');
+      }, 30000);
+    })();
     window.addEventListener('flutter-first-frame', function () {
       var loading = document.getElementById('loading');
       if (!loading) return;
