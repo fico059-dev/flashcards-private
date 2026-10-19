@@ -1,0 +1,317 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "fcp_data",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "profileId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "flashcardSnapshot.packId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "ignored",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "fsrs_card.due",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "fcp_data",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "profileId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "hasBookmark",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "ignored",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "fsrs_card.due",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "fcp_data",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "profileId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "hasBookmark",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "flashcardSnapshot.question",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "fcp_data",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "profileId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "ignored",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "flashcardSnapshot.question",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "fcp_data",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "profileId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "flashcardSnapshot.packId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "ignored",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "isPaid",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "fsrs_card.due",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "fcp_data",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "profileId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "hasBookmark",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "ignored",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "isPaid",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "fsrs_card.due",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "fcp_data",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "profileId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "hasBookmark",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "isPaid",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "flashcardSnapshot.question",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "fcp_data",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "profileId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "ignored",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "isPaid",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "flashcardSnapshot.question",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "pp_data",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "profileId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "lastOpenedAt",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "custom_sessions",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "profileId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "flashcards",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "packId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "question",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "packs",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "section",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "name",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "packs",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "section",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "isPaid",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "name",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "packs",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "isPaid",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "name",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "fcp_data",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "profileId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "flashcardSnapshot.packId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "ignored",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "fsrs_card.state",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "fcp_data",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "profileId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "flashcardSnapshot.packId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "ignored",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "isPaid",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "fsrs_card.state",
+          "order": "ASCENDING"
+        }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}

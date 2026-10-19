@@ -1,5 +1,6 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flashcards/config/router/router.dart';
+import 'package:flashcards/data/remote/algolia_service.dart';
 import 'package:flashcards/ui/pages/main_tab_pages/main_tab_routes.dart';
 import 'package:flashcards/ui/theme/theme_extensions.dart';
 import 'package:flutter/material.dart';
@@ -57,11 +58,13 @@ class HomePage extends StatelessWidget {
               subtitle: 'اختر حزماً ووسوماً وعدد أسئلة بنفسك',
               onTap: () => context.router.push(CustomSessionWrapperRoute()),
             ),
-            _ActionTile(
-              icon: Icons.search,
-              title: 'تصفّح البطاقات',
-              onTap: () => context.router.push(const FlashcardsSearcherRoute()),
-            ),
+            if (kSearchEnabled)
+              _ActionTile(
+                icon: Icons.search,
+                title: 'تصفّح البطاقات',
+                onTap: () =>
+                    context.router.push(const FlashcardsSearcherRoute()),
+              ),
             _ActionTile(
               icon: Icons.flag_outlined,
               title: 'هدفي اليومي',

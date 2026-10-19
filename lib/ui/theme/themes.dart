@@ -37,7 +37,7 @@ final darkScheme = ColorScheme.fromSeed(
 
 final lightThemeData = ThemeData(
   colorScheme: lightScheme,
-  fontFamily: 'Tajawal',
+  fontFamily: 'IBMPlexSansArabic',
   scaffoldBackgroundColor: Colors.white,
   appBarTheme: const AppBarTheme(
     backgroundColor: Colors.white,
@@ -58,7 +58,7 @@ final lightThemeData = ThemeData(
 
 final darkThemeData = ThemeData(
   colorScheme: darkScheme,
-  fontFamily: 'Tajawal',
+  fontFamily: 'IBMPlexSansArabic',
   navigationBarTheme: navigationBarTheme(darkScheme),
   inputDecorationTheme: inputDecorationTheme(darkScheme),
   bottomSheetTheme: bottomSheetThemeData(darkScheme),

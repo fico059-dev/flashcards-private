@@ -45,8 +45,8 @@ class _FakeUserRolesRepository implements UserRolesRepository {
 
   @override
   Future<Result<List<AdminUser>>> getAdmins() async => Result.ok(const [
-    AdminUser(uid: 'a', email: 'first@flashpedz.com', displayName: 'First'),
-    AdminUser(uid: 'b', email: 'second@flashpedz.com'),
+    AdminUser(uid: 'a', email: 'first@taqdir.sa', displayName: 'First'),
+    AdminUser(uid: 'b', email: 'second@taqdir.sa'),
   ]);
 
   @override
@@ -109,11 +109,11 @@ void main() {
       ]),
     );
 
-    expect(find.text('Import from Anki'), findsOneWidget);
-    expect(find.text('Choose Anki file'), findsOneWidget);
+    expect(find.text('استيراد من Anki'), findsOneWidget);
+    expect(find.text('اختر ملف Anki'), findsOneWidget);
 
     final cubit = BlocProvider.of<AnkiImportCubit>(
-      tester.element(find.text('Choose Anki file')),
+      tester.element(find.text('اختر ملف Anki')),
     );
     await tester.runAsync(
       () => cubit.readFile(
@@ -128,19 +128,19 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('deck.txt'), findsOneWidget);
-    expect(find.text('Cards to import'), findsOneWidget);
-    expect(find.text('Import Anki tags'), findsOneWidget);
+    expect(find.text('البطاقات للاستيراد'), findsOneWidget);
+    expect(find.text('استيراد وسوم Anki'), findsOneWidget);
     expect(find.text('What is the most common arrhythmia?'), findsOneWidget);
     expect(find.text('{Digoxin} slows AV node conduction'), findsOneWidget);
 
-    await tester.tap(find.text('Import 3 cards into "Cardiology"'));
+    await tester.tap(find.text('استيراد 3 بطاقة إلى "Cardiology"'));
     await tester.pumpAndSettle();
 
     expect(repo.importedCards, hasLength(3));
-    expect(find.text('Import complete'), findsOneWidget);
-    expect(find.text('2 cards were added to "Cardiology".'), findsOneWidget);
+    expect(find.text('اكتمل الاستيراد'), findsOneWidget);
+    expect(find.text('تمت إضافة 2 بطاقة إلى "Cardiology".'), findsOneWidget);
     expect(
-      find.text('1 cards were already in the pack and were skipped.'),
+      find.text('1 بطاقة كانت موجودة في الحزمة وتم تخطيها.'),
       findsOneWidget,
     );
   });
@@ -156,16 +156,16 @@ void main() {
       ]),
     );
     final cubit = BlocProvider.of<AnkiImportCubit>(
-      tester.element(find.text('Choose Anki file')),
+      tester.element(find.text('اختر ملف Anki')),
     );
     await tester.runAsync(
       () => cubit.readFile(fileName: 'deck.apkg', bytes: utf8.encode('nope')),
     );
     await tester.pumpAndSettle();
 
-    expect(find.text("This file couldn't be imported"), findsOneWidget);
+    expect(find.text('تعذّر استيراد هذا الملف'), findsOneWidget);
     expect(
-      find.text("This file isn't a valid Anki package (.apkg)."),
+      find.text("هذا الملف ليس حزمة Anki صالحة (.apkg)."),
       findsOneWidget,
     );
   });
@@ -183,21 +183,21 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('Current admins (2)'), findsOneWidget);
-    expect(find.text('first@flashpedz.com'), findsOneWidget);
+    expect(find.text('المشرفون الحاليون (2)'), findsOneWidget);
+    expect(find.text('first@taqdir.sa'), findsOneWidget);
     expect(find.text('First'), findsOneWidget);
 
-    await tester.tap(find.byTooltip('Remove admin').last);
+    await tester.tap(find.byTooltip('إزالة المشرف').last);
     await tester.pumpAndSettle();
-    expect(find.text('Remove admin?'), findsOneWidget);
+    expect(find.text('إزالة المشرف؟'), findsOneWidget);
 
-    await tester.tap(find.text('Remove'));
+    await tester.tap(find.text('إزالة'));
     await tester.pumpAndSettle();
 
     expect(rolesRepo.removed, ['b']);
-    expect(find.text('Current admins (1)'), findsOneWidget);
+    expect(find.text('المشرفون الحاليون (1)'), findsOneWidget);
     expect(
-      find.text('second@flashpedz.com is no longer an admin'),
+      find.text('لم يعد second@taqdir.sa مشرفاً'),
       findsOneWidget,
     );
   });

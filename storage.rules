@@ -1,0 +1,18 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    function isAdmin() {
+      return request.auth != null && request.auth.token.get('roles', []).hasAny(['admin']);
+    }
+
+    // صور البطاقات: القراءة لأي مستخدم مسجّل، والرفع للمشرفين فقط (صور حتى 5MB)
+    match /flashcards/{flashcardId}/{fileName} {
+      allow read: if request.auth != null;
+      allow write: if isAdmin()
+                   && request.resource.size < 5 * 1024 * 1024
+                   && request.resource.contentType.matches('image/.*');
+      allow delete: if isAdmin();
+    }
+  }
+}

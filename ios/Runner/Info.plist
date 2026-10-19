@@ -12,6 +12,13 @@
 	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
+	<key>CFBundleLocalizations</key>
+	<array>
+		<string>ar</string>
+		<string>en</string>
+	</array>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>ar</string>
 	<key>CFBundleName</key>
 	<string>Taqdir</string>
 	<key>CFBundlePackageType</key>

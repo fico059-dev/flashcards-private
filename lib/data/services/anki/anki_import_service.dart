@@ -35,7 +35,7 @@ class AnkiImportService {
         return compute(parseAnkiTxt, content);
       default:
         throw const AnkiImportException(
-          "Unsupported file. Choose an Anki .apkg or .txt export.",
+          "ملف غير مدعوم. اختر ملف Anki بصيغة .apkg أو .txt.",
         );
     }
   }

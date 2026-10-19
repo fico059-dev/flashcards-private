@@ -1,30 +1,45 @@
 import 'package:algoliasearch/algoliasearch_lite.dart';
 
+/// هل ميزة البحث (Algolia) مفعّلة في هذا البناء؟
+const bool kSearchEnabled =
+    String.fromEnvironment('ALGOLIA_APP_ID') != '' &&
+    String.fromEnvironment('ALGOLIA_SEARCH_KEY') != '';
+
 class AlgoliaService {
-  late final SearchClient client;
+  static const _appId = String.fromEnvironment('ALGOLIA_APP_ID');
+  // مفتاح البحث (Search-Only API Key) فقط، وليس مفتاح الإدارة.
+  // مرّره عند التشغيل:
+  //   --dart-define=ALGOLIA_APP_ID=... --dart-define=ALGOLIA_SEARCH_KEY=...
+  static const _searchKey = String.fromEnvironment('ALGOLIA_SEARCH_KEY');
 
-  late final String packsIndex;
-  late final List<String> packsFacets;
+  SearchClient? _client;
 
-  late final String flashcardsIndex;
-  late final List<String> flashcardsFacets;
+  final String packsIndex = const String.fromEnvironment(
+    'ALGOLIA_PACKS_INDEX',
+    defaultValue: 'taqdir_packs',
+  );
+  final List<String> packsFacets = const ['tags'];
 
-  AlgoliaService({required bool isDev}) {
-    packsIndex = isDev ? "dev_PACKS" : "prod_PACKS";
-    packsFacets = ['tags'];
+  final String flashcardsIndex = const String.fromEnvironment(
+    'ALGOLIA_FLASHCARDS_INDEX',
+    defaultValue: 'taqdir_flashcards',
+  );
+  final List<String> flashcardsFacets = const ['tags'];
 
-    flashcardsIndex = isDev ? "dev_FLASHCARDS" : "prod_FLASHCARDS";
-    flashcardsFacets = ['tags'];
+  AlgoliaService({required bool isDev});
 
-    // the api key is just search api kay, it only has search permissions
-    client = SearchClient(
-      appId: "ZDAF7THAOU",
-      apiKey: "de4bb3c20e7b105e7121a9219bec5cf5",
-    );
+  /// هل تم ضبط مفاتيح Algolia؟ (البحث اختياري)
+  bool get isConfigured => kSearchEnabled;
+
+  SearchClient get client {
+    if (!isConfigured) {
+      throw Exception('البحث غير مفعّل: لم يتم ضبط مفاتيح Algolia.');
+    }
+    return _client ??= SearchClient(appId: _appId, apiKey: _searchKey);
   }
 
   void dispose() {
-    client.dispose();
+    _client?.dispose();
   }
 }
 

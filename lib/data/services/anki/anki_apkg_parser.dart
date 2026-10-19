@@ -24,7 +24,7 @@ AnkiParseResult parseAnkiPackage(Uint8List bytes, String tempDirPath) {
   final archive = _decodeZip(bytes);
   if (archive == null || archive.isEmpty) {
     throw const AnkiImportException(
-      "This file isn't a valid Anki package (.apkg).",
+      "هذا الملف ليس حزمة Anki صالحة (.apkg).",
     );
   }
 
@@ -36,12 +36,12 @@ AnkiParseResult parseAnkiPackage(Uint8List bytes, String tempDirPath) {
   if (collection == null) {
     if (archive.findFile('collection.anki21b') != null) {
       throw const AnkiImportException(
-        "This deck was exported in Anki's newest format. In Anki, export it "
-        "again and tick \"Support older Anki versions\", then import that file.",
+        "صُدّرت هذه الحزمة بأحدث صيغة لـ Anki. صدّرها من جديد مع تفعيل "
+        "\"Support older Anki versions\" ثم استوردها.",
       );
     }
     throw const AnkiImportException(
-      "No Anki collection was found in this file.",
+      "لم يُعثر على مجموعة Anki داخل هذا الملف.",
     );
   }
 
@@ -59,7 +59,7 @@ AnkiParseResult parseAnkiPackage(Uint8List bytes, String tempDirPath) {
 
   final notes = _readNotes(collection.content, tempDirPath);
   if (notes.isEmpty) {
-    throw const AnkiImportException("This deck doesn't contain any cards.");
+    throw const AnkiImportException("هذه الحزمة لا تحتوي أي بطاقات.");
   }
   return AnkiNoteConverter(findImage: findImage).convert(notes);
 }
@@ -113,7 +113,7 @@ List<AnkiNote> _readNotes(Uint8List collectionBytes, String tempDirPath) {
         .toList();
   } on SqliteException {
     throw const AnkiImportException(
-      "The Anki collection in this file couldn't be read.",
+      "تعذّرت قراءة مجموعة Anki في هذا الملف.",
     );
   } finally {
     db?.dispose();

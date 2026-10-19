@@ -1,9 +1,5 @@
 {
   "projects": {
-    "default": "flashpedz",
-    "dev": "flashpedz",
-    "prod": "flashpedz-faisal"
-  },
-  "targets": {},
-  "etags": {}
+    "default": "YOUR_FIREBASE_PROJECT_ID"
+  }
 }

@@ -1,0 +1,8 @@
+{
+  "name": "taqdir-scripts",
+  "private": true,
+  "description": "سكربتات إدارية: تعبئة بيانات تجريبية وتعيين مشرف",
+  "dependencies": {
+    "firebase-admin": "^13.0.0"
+  }
+}

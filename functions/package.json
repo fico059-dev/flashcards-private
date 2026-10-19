@@ -1,0 +1,22 @@
+{
+  "name": "taqdir-functions",
+  "description": "Cloud Functions لتطبيق تقدر (حزم القدرات اللفظية والكمية)",
+  "main": "index.js",
+  "private": true,
+  "engines": {
+    "node": "22"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.js"
+  },
+  "dependencies": {
+    "algoliasearch": "^5.20.0",
+    "firebase-admin": "^13.0.0",
+    "firebase-functions": "^6.0.0",
+    "google-auth-library": "^9.0.0"
+  },
+  "devDependencies": {
+    "@firebase/rules-unit-testing": "^5.0.2",
+    "firebase": "^12.19.0"
+  }
+}

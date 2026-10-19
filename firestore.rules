@@ -1,0 +1,126 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return signedIn() && request.auth.uid == uid;
+    }
+
+    function isAdmin() {
+      return signedIn() && request.auth.token.get('roles', []).hasAny(['admin']);
+    }
+
+    // معرّف مستندات fcp_data/pp_data يبدأ دائماً بـ {uid}_
+    function docIdBelongsToUser(docId) {
+      return docId.size() > request.auth.uid.size() &&
+             docId[0:request.auth.uid.size() + 1] == request.auth.uid + '_';
+    }
+
+    // اشتراك مميّز: إما entitlement دائم أو premiumExp لم ينتهِ بعد (ثوانٍ أو مللي ثانية)
+    function isPremium() {
+      let exp = request.auth.token.get('premiumExp', 0);
+      let expMs = exp < 1000000000000 ? exp * 1000 : exp;
+      return signedIn() && (
+        request.auth.token.get('entitlements', []).hasAny(['premium']) ||
+        expMs > request.time.toMillis()
+      );
+    }
+
+    // ───── الملف الشخصي ─────
+    match /users/{uid} {
+      allow read: if isOwner(uid) || isAdmin();
+      allow create, update, delete: if isOwner(uid);
+    }
+
+    // ───── المحتوى (قراءة للجميع، كتابة للمشرفين) ─────
+    match /packs/{packId} {
+      allow read: if signedIn();
+      allow write: if isAdmin();
+
+      match /flashcard_ids/{docId} {
+        allow read: if signedIn();
+        allow write: if isAdmin();
+      }
+    }
+
+    match /flashcards/{flashcardId} {
+      // البطاقات المدفوعة تُقرأ فقط للمشتركين والمشرفين
+      allow read: if signedIn() && (!resource.data.isPaid || isPremium() || isAdmin());
+      allow write: if isAdmin();
+    }
+
+    match /tags/{tagId} {
+      allow read: if signedIn();
+      allow write: if isAdmin();
+    }
+
+    // ───── بيانات المستخدم (SRS والتقدّم) ─────
+    match /fcp_data/{docId} {
+      allow read, delete: if signedIn() && resource.data.profileId == request.auth.uid;
+      allow create: if signedIn() && request.resource.data.profileId == request.auth.uid
+                    && docId == request.auth.uid + '_' + request.resource.data.flashcardId;
+      // التطبيق يجرّب update أولاً ثم ينشئ المستند عند not-found، لذا نسمح
+      // بـ update على مستند غير موجود يخص المستخدم (يفشل بـ not-found لا بـ permission-denied).
+      allow update: if signedIn() && (
+        resource == null
+          ? docIdBelongsToUser(docId)
+          : (resource.data.profileId == request.auth.uid
+             && request.resource.data.profileId == request.auth.uid)
+      );
+    }
+
+    match /pp_data/{docId} {
+      allow read, delete: if signedIn() && resource.data.profileId == request.auth.uid;
+      allow create: if signedIn() && request.resource.data.profileId == request.auth.uid
+                    && docId == request.auth.uid + '_' + request.resource.data.packId;
+      allow update: if signedIn() && (
+        resource == null
+          ? docIdBelongsToUser(docId)
+          : (resource.data.profileId == request.auth.uid
+             && request.resource.data.profileId == request.auth.uid)
+      );
+    }
+
+    // ───── الجلسات المخصّصة (تُنشأ من دالة createCustomSession) ─────
+    match /custom_sessions/{sessionId} {
+      allow read, delete: if signedIn() && resource.data.profileId == request.auth.uid;
+      allow update: if signedIn() && resource.data.profileId == request.auth.uid
+                    && request.resource.data.profileId == request.auth.uid;
+
+      match /flashcard_ids/{docId} {
+        allow read, write: if signedIn() &&
+          get(/databases/$(database)/documents/custom_sessions/$(sessionId)).data.profileId == request.auth.uid;
+      }
+    }
+
+    // ───── البلاغات ─────
+    match /flashcard_reports/{flashcardId} {
+      allow read: if signedIn();
+      allow create: if signedIn();
+      allow update: if signedIn() &&
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['reportsCount']);
+      allow delete: if isAdmin();
+
+      match /user_reports/{userId} {
+        allow read: if isAdmin() || isOwner(userId);
+        allow create, update: if isOwner(userId);
+        allow delete: if isAdmin() || isOwner(userId);
+      }
+    }
+
+    // المشتريات تُكتب من الخادم فقط
+    match /purchases/{uid} {
+      allow read: if isOwner(uid);
+      allow write: if false;
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

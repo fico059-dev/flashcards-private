@@ -62,8 +62,8 @@ AnkiParseResult parseAnkiTxt(String content) {
 
   if (notes.isEmpty) {
     throw const AnkiImportException(
-      "No cards were found in this file. Export from Anki with "
-      "\"Notes in Plain Text (.txt)\" and try again.",
+      "لم يُعثر على بطاقات في هذا الملف. صدّر من Anki بخيار "
+      "\"Notes in Plain Text (.txt)\" وحاول مرة أخرى.",
     );
   }
 

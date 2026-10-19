@@ -157,3 +157,8 @@ app.*.symbols
 /android/app/profile
 /android/app/release
 
+
+# Node
+node_modules/
+functions/.env
+scripts/*.json.key

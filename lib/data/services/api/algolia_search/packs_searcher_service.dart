@@ -3,12 +3,12 @@ import 'package:flashcards/data/remote/algolia_service.dart';
 import 'package:flashcards/utils/result.dart';
 
 class PacksSearcherService {
-  final SearchClient _searchClient;
+  final AlgoliaService _algolia;
   final String _packsIndex;
   final List<String> _packsFacets;
 
   PacksSearcherService({required AlgoliaService algoliaService})
-    : _searchClient = algoliaService.client,
+    : _algolia = algoliaService,
       _packsIndex = algoliaService.packsIndex,
       _packsFacets = algoliaService.packsFacets;
 
@@ -28,7 +28,7 @@ class PacksSearcherService {
         page: page,
       );
 
-      final response = await _searchClient.searchIndex(request: request);
+      final response = await _algolia.client.searchIndex(request: request);
 
       return Result.ok(response);
     } on Exception catch (error) {

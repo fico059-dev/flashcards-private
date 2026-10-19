@@ -2,6 +2,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flashcards/bloc/custom_session/custom_session_getter/custom_session_getter_bloc.dart';
 import 'package:flashcards/bloc/custom_session/custom_session_getter/custom_session_getter_event.dart';
 import 'package:flashcards/config/router/router.dart';
+import 'package:flashcards/data/remote/algolia_service.dart';
 import 'package:flashcards/data/repositories/flashcards/custom_session_repository.dart';
 import 'package:flashcards/ui/pages/main_tab_pages/main_tab_routes.dart';
 import 'package:flutter/cupertino.dart';
@@ -64,10 +65,11 @@ class _MainTabPageState extends State<MainTabPage> with AutoRouteAware {
     if (router.isRouteActive(VerbalPacksRoute.name) ||
         router.isRouteActive(QuantPacksRoute.name)) {
       appBarActions = [
-        IconButton(
-          onPressed: () => context.router.push(const PackSearchRoute()),
-          icon: const Icon(Icons.search),
-        ),
+        if (kSearchEnabled)
+          IconButton(
+            onPressed: () => context.router.push(const PackSearchRoute()),
+            icon: const Icon(Icons.search),
+          ),
       ];
     } else if (router.isRouteActive(PreviousSessionsRoute.name) ||
         router.isRouteActive(CustomSessionResultRoute.name)) {
