@@ -57,6 +57,9 @@ class FlashcardBloc extends Bloc<FlashcardEvent, FlashcardState> {
 
   @override
   Future<void> close() {
+    // Once the last ratings are saved, share the session's count right away
+    // so another device opened next continues from here.
+    unawaited(_saver.settle().then((_) => _sessionProgress.flush()));
     _saver.dispose();
     _upcomingImages.close();
     return super.close();
@@ -459,6 +462,9 @@ class FlashcardBloc extends Bloc<FlashcardEvent, FlashcardState> {
         var key = pack.id;
         var newShare = _newCardsPercentage;
         final daily = _dailyTarget;
+        // What the user's other devices studied today, so every device
+        // continues the same session.
+        await _sessionProgress.refresh();
         // A target chosen for this pack comes first.
         final own = await _sessionProgress.packTarget(_uid, pack.id);
         if (own != null) {

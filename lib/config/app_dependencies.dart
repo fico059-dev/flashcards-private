@@ -36,6 +36,7 @@ import 'package:flashcards/data/services/api/flashcards/pp_service.dart';
 import 'package:flashcards/data/services/api/flashcards/report_service.dart';
 import 'package:flashcards/data/services/api/users/profile_service.dart';
 import 'package:flashcards/data/services/api/users/user_roles_service.dart';
+import 'package:flashcards/data/services/local/session_progress_store.dart';
 import 'package:flashcards/data/services/local/local_storage_service.dart';
 import 'package:flashcards/domain/models/flashcards/admin_pack/admin_pack.dart';
 import 'package:flashcards/domain/models/flashcards/pack/pack.dart';
@@ -65,6 +66,7 @@ class AppDependencies {
   late final StudyLogStore _studyLogStore;
   late final StudyRewards _studyRewards;
   late final DailyTargetService _dailyTarget;
+  late final SessionProgressStore _sessionProgress;
 
   late final NotificationService _notificationService;
 
@@ -119,6 +121,7 @@ class AppDependencies {
       logStore: _studyLogStore,
       auth: _authService,
     );
+    _sessionProgress = SessionProgressStore(logStore: _studyLogStore);
 
     step('theme');
     _themeCubit = ThemeCubit(storageService: _localStorageService);
@@ -148,6 +151,7 @@ class AppDependencies {
       Provider.value(value: _studyLogStore),
       Provider.value(value: _studyRewards),
       Provider.value(value: _dailyTarget),
+      Provider.value(value: _sessionProgress),
       Provider(create: (context) => ProfileService(dbContext: _dbContext)),
       Provider(
         create: (context) =>

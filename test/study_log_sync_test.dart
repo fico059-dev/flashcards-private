@@ -1,4 +1,5 @@
 import 'package:fake_async/fake_async.dart';
+import 'package:flashcards/data/services/local/session_progress_store.dart';
 import 'package:flashcards/data/services/local/study_log_store.dart';
 import 'package:flashcards/domain/models/progress/study_log.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -13,8 +14,7 @@ class _MemoryPrefs implements SharedPreferencesAsync {
   Future<String?> getString(String key) async => values[key];
 
   @override
-  Future<void> setString(String key, String value) async =>
-      values[key] = value;
+  Future<void> setString(String key, String value) async => values[key] = value;
 
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
@@ -148,5 +148,80 @@ void main() {
     expect(question.achieved, 8);
     expect(question.max, 10);
     expect(merged.osce['s1']!.missedChecks['Triggers'], 2);
+  });
+
+  test('a session continues on another device of the same account', () async {
+    final remote = _FakeRemote();
+    final phone = device(remote);
+    final web = device(remote);
+    var now = day;
+    final phoneSession = SessionProgressStore(logStore: phone, now: () => now);
+    final webSession = SessionProgressStore(logStore: web, now: () => now);
+
+    for (var i = 0; i < 6; i++) {
+      await phoneSession.add('u1', 'neo');
+    }
+    await phoneSession.flush();
+
+    // The website opens the same pack: it continues at 6.
+    await webSession.refresh();
+    expect(await webSession.doneToday('u1', 'neo'), 6);
+    await webSession.add('u1', 'neo');
+    await webSession.flush();
+
+    await phoneSession.refresh();
+    expect(await phoneSession.doneToday('u1', 'neo'), 7);
+    expect(await phoneSession.doneToday('u1', 'onc'), 0);
+
+    // A pack's own target follows the latest choice on any device.
+    await phoneSession.setPackTarget('u1', 'neo', 30);
+    await webSession.refresh();
+    expect(await webSession.packTarget('u1', 'neo'), 30);
+    now = now.add(const Duration(minutes: 1));
+    await webSession.setPackTarget('u1', 'neo', null);
+    await phoneSession.refresh();
+    expect(await phoneSession.packTarget('u1', 'neo'), isNull);
+
+    // A new day starts a new session everywhere.
+    now = day.add(const Duration(days: 1));
+    expect(await phoneSession.doneToday('u1', 'neo'), 0);
+  });
+
+  test('the first day target worked out for the goal is used everywhere', () {
+    const goal = StudyGoal(targetCards: 200);
+    final signature = goalSignature(goal);
+    final later = day.add(const Duration(hours: 2));
+    final phone = const StudyLog(goal: goal).fixDayTarget(day, 70, signature);
+    final web = const StudyLog(goal: goal).fixDayTarget(later, 64, signature);
+    final merged = StudyLog.merge([web, phone]);
+    expect(merged.dayTarget(later, signature), 70);
+    // Once known, a device keeps the shared number.
+    expect(
+      merged.fixDayTarget(later, 50, signature).dayTarget(day, signature),
+      70,
+    );
+
+    // A changed goal is worked out again.
+    const newGoal = StudyGoal(targetCards: 300);
+    final newSignature = goalSignature(newGoal);
+    expect(merged.dayTarget(day, newSignature), isNull);
+    final changed = StudyLog(
+      goal: newGoal,
+    ).fixDayTarget(later, 90, newSignature);
+    expect(
+      StudyLog.merge([
+        phone,
+        changed,
+      ], goal: newGoal).dayTarget(day, newSignature),
+      90,
+    );
+
+    // Saved and read back.
+    final restored = StudyLog.decode(
+      merged.addSessionCard(day, 'goal').setPackTarget('neo', 25, day).encode(),
+    );
+    expect(restored.dayTarget(day, signature), 70);
+    expect(restored.sessionDone(day, 'goal'), 1);
+    expect(restored.packTarget('neo'), 25);
   });
 }

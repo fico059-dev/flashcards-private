@@ -12,6 +12,7 @@ import 'package:flashcards/data/repositories/users/auth_repository.dart';
 import 'package:flashcards/data/repositories/flashcards/flashcard_repository.dart';
 import 'package:flashcards/data/repositories/users/profile_repository.dart';
 import 'package:flashcards/data/services/local/local_storage_service.dart';
+import 'package:flashcards/data/services/local/session_progress_store.dart';
 import 'package:flashcards/data/services/local/daily_target.dart';
 import 'package:flashcards/domain/models/flashcards/pack/pack.dart';
 import 'package:flashcards/ui/constants/styles.dart';
@@ -54,6 +55,7 @@ class FlashcardPage extends StatelessWidget {
         ppRepo: context.read<PpRepository>(),
         localStorageService: context.read<LocalStorageService>(),
         dailyTarget: context.read<DailyTargetService>(),
+        sessionProgress: context.read<SessionProgressStore>(),
       ),
       child: _FlashcardView(testType: testType, pack: pack),
     );

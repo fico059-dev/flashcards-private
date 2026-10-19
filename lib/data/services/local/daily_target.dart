@@ -86,8 +86,10 @@ class DailyStatus {
 }
 
 /// Works out the day's card target. With an exam goal it is what the goal
-/// needs per day; otherwise the student's cards per session. The target is
-/// fixed for the day when first worked out, so studying doesn't move it.
+/// needs per day; otherwise the student's cards per session. The goal's
+/// target is fixed for the day when first worked out and shared with the
+/// user's other devices, so studying doesn't move it and every device shows
+/// the same number. Cards studied count from all devices.
 class DailyTargetService {
   final StudyLogStore _logStore;
   final AuthService _auth;
@@ -131,8 +133,18 @@ class DailyTargetService {
   Future<({int target, bool fromGoal})> todayTarget(int cardsPerSession) async {
     final now = _now();
     final today = dayKey(now);
-    final log = await _logStore.load();
-    final fromGoal = goalCardsPerDay(log, now);
+    final log = await _logStore.loadCombined();
+    final signature = goalSignature(log.goal);
+    var fromGoal = log.dayTarget(now, signature);
+    if (fromGoal == null) {
+      fromGoal = goalCardsPerDay(log, now);
+      final fixed = fromGoal;
+      if (fixed != null) {
+        await _logStore.update(
+          (log) => log.fixDayTarget(now, fixed, signature),
+        );
+      }
+    }
     final target = fromGoal ?? cardsPerSession;
     final targets = await _readTargets();
     final key = _key;
@@ -154,8 +166,12 @@ class DailyTargetService {
 
   /// Whether studying [packIds] counts towards the exam goal's daily target.
   Future<bool> isGoalPack(Iterable<String> packIds) async {
-    final log = await _logStore.load();
-    if (goalCardsPerDay(log, _now()) == null) return false;
+    final log = await _logStore.loadCombined();
+    final now = _now();
+    if (log.dayTarget(now, goalSignature(log.goal)) == null &&
+        goalCardsPerDay(log, now) == null) {
+      return false;
+    }
     return packIds.any(log.goal.includesPack);
   }
 
@@ -163,7 +179,7 @@ class DailyTargetService {
   Future<DailyStatus> status(int cardsPerSession) async {
     final now = _now();
     final today = await todayTarget(cardsPerSession);
-    final log = await _logStore.load();
+    final log = await _logStore.loadCombined();
     final yesterday = now.subtract(const Duration(days: 1));
     final targets = await _readTargets();
     // Not opened yesterday: yesterday's target was likely the same.

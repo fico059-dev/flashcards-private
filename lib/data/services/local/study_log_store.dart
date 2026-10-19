@@ -25,8 +25,9 @@ abstract class StudyLogRemote {
 class StudyLogStore {
   static const _deviceIdKey = 'study_log_device_id';
 
-  /// Reviews are uploaded together a little while after the last one.
-  static const uploadDelay = Duration(seconds: 20);
+  /// Reviews are uploaded together a little while after the last one, soon
+  /// enough for another device opened next to see them.
+  static const uploadDelay = Duration(seconds: 5);
 
   /// The online copy is read again after this long.
   static const _remoteCacheDuration = Duration(minutes: 2);
@@ -67,14 +68,22 @@ class StudyLogStore {
 
   /// This device's history added to what the user's other devices saved
   /// online. Falls back to this device only when offline.
-  Future<StudyLog> loadCombined() async {
+  ///
+  /// With [fresh] the online copy is read again now (waiting at most
+  /// [timeout]), e.g. when a session starts, to continue where another
+  /// device stopped.
+  Future<StudyLog> loadCombined({
+    bool fresh = false,
+    Duration timeout = const Duration(seconds: 10),
+  }) async {
     // Send recent reviews first, so the online copy is complete.
     if (_uploadTimer?.isActive ?? false) await uploadNow();
     final local = await load();
     final uid = _uid;
     if (_remote == null || uid == null) return local;
 
-    final remote = await _fetchRemote(uid);
+    if (fresh) _remoteCache = null;
+    final remote = await _fetchRemote(uid, timeout);
     if (remote == null) return local;
 
     final deviceId = await _getDeviceId();
@@ -157,6 +166,7 @@ class StudyLogStore {
 
   Future<({Map<String, String> devices, String? goal})?> _fetchRemote(
     String uid,
+    Duration timeout,
   ) async {
     final cache = _remoteCache;
     if (cache != null &&
@@ -165,9 +175,7 @@ class StudyLogStore {
       return cache.$3;
     }
     try {
-      final remote = await _remote!.fetch().timeout(
-        const Duration(seconds: 10),
-      );
+      final remote = await _remote!.fetch().timeout(timeout);
       _remoteCache = (DateTime.now(), uid, remote);
       return remote;
     } on Object {

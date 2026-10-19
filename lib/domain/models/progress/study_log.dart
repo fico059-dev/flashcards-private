@@ -258,6 +258,18 @@ class StudyLog {
   /// XP earned for goal milestones.
   final int bonusXp;
 
+  /// Cards of the day's session target studied on this device, by day and
+  /// pack (or "goal"). The counts of all devices add up.
+  final Map<String, Map<String, int>> sessions;
+
+  /// The session target chosen for a pack (0: the default) and when it was
+  /// chosen. The latest choice of any device counts.
+  final Map<String, (int, int)> packTargets;
+
+  /// The day's goal target, fixed when first worked out so every device
+  /// studies the same number: day -> (target, when, goal signature).
+  final Map<String, (int, int, int)> dayTargets;
+
   const StudyLog({
     this.days = const {},
     this.studiedSnapshots = const {},
@@ -266,6 +278,9 @@ class StudyLog {
     this.goalProgress,
     this.archivedXp = 0,
     this.bonusXp = 0,
+    this.sessions = const {},
+    this.packTargets = const {},
+    this.dayTargets = const {},
   });
 
   StudyLog copyWith({
@@ -276,6 +291,9 @@ class StudyLog {
     GoalProgress? Function()? goalProgress,
     int? archivedXp,
     int? bonusXp,
+    Map<String, Map<String, int>>? sessions,
+    Map<String, (int, int)>? packTargets,
+    Map<String, (int, int, int)>? dayTargets,
   }) => StudyLog(
     days: days ?? this.days,
     studiedSnapshots: studiedSnapshots ?? this.studiedSnapshots,
@@ -284,7 +302,62 @@ class StudyLog {
     goalProgress: goalProgress == null ? this.goalProgress : goalProgress(),
     archivedXp: archivedXp ?? this.archivedXp,
     bonusXp: bonusXp ?? this.bonusXp,
+    sessions: sessions ?? this.sessions,
+    packTargets: packTargets ?? this.packTargets,
+    dayTargets: dayTargets ?? this.dayTargets,
   );
+
+  /// Days of session counts and day targets kept.
+  static const _sessionDays = 3;
+
+  Map<String, T> _recent<T>(Map<String, T> map, DateTime now) {
+    final oldest = dayKey(now.subtract(const Duration(days: _sessionDays)));
+    return Map.fromEntries(
+      map.entries.where((entry) => entry.key.compareTo(oldest) >= 0),
+    );
+  }
+
+  /// Cards of today's session target studied in [key] (a pack or "goal").
+  int sessionDone(DateTime now, String key) => sessions[dayKey(now)]?[key] ?? 0;
+
+  /// Counts one more card of today's session target in [key].
+  StudyLog addSessionCard(DateTime now, String key) {
+    final day = dayKey(now);
+    final today = {...?sessions[day]};
+    today[key] = (today[key] ?? 0) + 1;
+    return copyWith(sessions: _recent({...sessions, day: today}, now));
+  }
+
+  /// The session target chosen for [packId], or null for the default.
+  int? packTarget(String packId) {
+    final target = packTargets[packId]?.$1 ?? 0;
+    return target > 0 ? target : null;
+  }
+
+  /// Chooses [packId]'s session target; null goes back to the default.
+  StudyLog setPackTarget(String packId, int? target, DateTime now) => copyWith(
+    packTargets: {
+      ...packTargets,
+      packId: (target ?? 0, now.millisecondsSinceEpoch),
+    },
+  );
+
+  /// Today's goal target if it was already worked out for this goal.
+  int? dayTarget(DateTime now, int goalSignature) {
+    final fixed = dayTargets[dayKey(now)];
+    return fixed != null && fixed.$3 == goalSignature ? fixed.$1 : null;
+  }
+
+  /// Fixes today's goal target, unless it already is for this goal.
+  StudyLog fixDayTarget(DateTime now, int target, int goalSignature) {
+    if (dayTarget(now, goalSignature) != null) return this;
+    return copyWith(
+      dayTargets: _recent({
+        ...dayTargets,
+        dayKey(now): (target, now.millisecondsSinceEpoch, goalSignature),
+      }, now),
+    );
+  }
 
   /// Experience points from everything studied: cards, OSCEs and goal
   /// milestones.
@@ -425,7 +498,34 @@ class StudyLog {
     final days = <String, DayActivity>{};
     final studied = <String, int>{};
     final osce = <String, OsceStationLog>{};
+    final sessions = <String, Map<String, int>>{};
+    final packTargets = <String, (int, int)>{};
+    final dayTargets = <String, (int, int, int)>{};
+    final signature = goalSignature(goal ?? logs.first.goal);
     for (final log in logs) {
+      log.sessions.forEach((day, counts) {
+        final merged = sessions[day] ??= {};
+        counts.forEach((key, value) {
+          merged[key] = (merged[key] ?? 0) + value;
+        });
+      });
+      log.packTargets.forEach((packId, value) {
+        final current = packTargets[packId];
+        if (current == null || value.$2 > current.$2) {
+          packTargets[packId] = value;
+        }
+      });
+      // The first target worked out for the current goal counts.
+      log.dayTargets.forEach((day, value) {
+        final current = dayTargets[day];
+        final matches = value.$3 == signature;
+        final currentMatches = current?.$3 == signature;
+        if (current == null ||
+            (matches && !currentMatches) ||
+            (matches == currentMatches && value.$2 < current.$2)) {
+          dayTargets[day] = value;
+        }
+      });
       log.days.forEach((key, value) {
         final current = days[key] ?? const DayActivity();
         days[key] = DayActivity(
@@ -474,6 +574,9 @@ class StudyLog {
       goalProgress: logs.first.goalProgress,
       archivedXp: logs.fold(0, (sum, log) => sum + log.archivedXp),
       bonusXp: logs.fold(0, (sum, log) => sum + log.bonusXp),
+      sessions: sessions,
+      packTargets: packTargets,
+      dayTargets: dayTargets,
     );
   }
 
@@ -494,6 +597,15 @@ class StudyLog {
     if (goalProgress != null) 'goalProgress': goalProgress!.toJson(),
     if (archivedXp > 0) 'xpArchived': archivedXp,
     if (bonusXp > 0) 'xpBonus': bonusXp,
+    if (sessions.isNotEmpty) 'sessions': sessions,
+    if (packTargets.isNotEmpty)
+      'packTargets': packTargets.map(
+        (key, value) => MapEntry(key, [value.$1, value.$2]),
+      ),
+    if (dayTargets.isNotEmpty)
+      'dayTargets': dayTargets.map(
+        (key, value) => MapEntry(key, [value.$1, value.$2, value.$3]),
+      ),
   };
 
   factory StudyLog.decode(String? source) {
@@ -524,6 +636,27 @@ class StudyLog {
             : null,
         archivedXp: (json['xpArchived'] as num?)?.toInt() ?? 0,
         bonusXp: (json['xpBonus'] as num?)?.toInt() ?? 0,
+        sessions: (json['sessions'] as Map<String, dynamic>? ?? {}).map(
+          (day, counts) => MapEntry(
+            day,
+            (counts as Map<String, dynamic>).map(
+              (key, value) => MapEntry(key, (value as num).toInt()),
+            ),
+          ),
+        ),
+        packTargets: (json['packTargets'] as Map<String, dynamic>? ?? {}).map(
+          (key, value) => MapEntry(key, (
+            ((value as List<dynamic>)[0] as num).toInt(),
+            (value[1] as num).toInt(),
+          )),
+        ),
+        dayTargets: (json['dayTargets'] as Map<String, dynamic>? ?? {}).map(
+          (key, value) => MapEntry(key, (
+            ((value as List<dynamic>)[0] as num).toInt(),
+            (value[1] as num).toInt(),
+            (value[2] as num).toInt(),
+          )),
+        ),
       );
     } on Object {
       // A damaged log shouldn't break the app, start over.
@@ -558,4 +691,13 @@ int dayXp(DayActivity day) {
   return day.newCards * newCardXp +
       others * reviewXp +
       day.forgotten * forgottenXp;
+}
+
+/// A number that changes when the goal changes, the same on every device.
+int goalSignature(StudyGoal goal) {
+  var hash = 17;
+  for (final unit in jsonEncode(goal.toJson()).codeUnits) {
+    hash = (hash * 31 + unit) & 0x3fffffff;
+  }
+  return hash;
 }
