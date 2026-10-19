@@ -4,6 +4,7 @@ import 'package:flashcards/config/router/router.dart';
 import 'package:flashcards/domain/models/progress/osce_progress.dart';
 import 'package:flashcards/ui/dialogs/progress/study_goal_sheet.dart';
 import 'package:flashcards/ui/theme/theme_extensions.dart';
+import 'package:flashcards/ui/widgets/progress/osce_arms.dart';
 import 'package:flashcards/ui/widgets/progress/progress_charts.dart';
 import 'package:flashcards/ui/widgets/progress/progress_widgets.dart';
 import 'package:flutter/material.dart';
@@ -84,6 +85,7 @@ class OsceProgressView extends StatelessWidget {
             ],
           ),
         ),
+        OsceGymCard(stats: stats),
         StatGrid(
           tiles: [
             StatTileData(
