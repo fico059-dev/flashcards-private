@@ -1,5 +1,7 @@
+import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:archive/archive.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flashcards/data/mappers/uint8list_converter.dart';
@@ -84,12 +86,26 @@ class CloudFunctionService {
 
   /// Every card the user may search (premium and limited packs filtered
   /// on the server).
-  Future<List<Map<String, dynamic>>> listSearchableFlashcards() async {
-    final data = await _call('listSearchableFlashcards');
-    return [
-      for (final item in data['flashcards'] as List? ?? const [])
-        Map<String, dynamic>.from(item as Map),
-    ];
+  /// The cards the user may search, gzipped. Null when the [version] the
+  /// device already has is still current.
+  Future<({String version, String gzip})?> listSearchableFlashcards({
+    String? version,
+  }) async {
+    final data = await _call('listSearchableFlashcards', {
+      'compressed': true,
+      'version': ?version,
+    });
+    if (data['unchanged'] == true) return null;
+    final gzip = data['gzip'];
+    if (gzip is String) {
+      return (version: data['version'] as String? ?? '', gzip: gzip);
+    }
+    // A server not updated yet sends the plain list.
+    final plain = jsonEncode(data['flashcards'] as List? ?? const []);
+    return (
+      version: '',
+      gzip: base64Encode(GZipEncoder().encodeBytes(utf8.encode(plain))),
+    );
   }
 
   /// Saves this device's study history (and the goal when it changed).

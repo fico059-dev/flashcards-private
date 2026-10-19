@@ -42,7 +42,7 @@ class OsceChecklistReview extends StatelessWidget {
                   ),
                   const SizedBox(height: 16),
                   for (var i = 0; i < osce.questions.length; i++)
-                    _QuestionChecklist(
+                    OsceQuestionChecklist(
                       questionIndex: i,
                       question: osce.questions[i],
                       showNumber: osce.questions.length > 1,
@@ -98,12 +98,14 @@ class OsceChecklistReview extends StatelessWidget {
   }
 }
 
-class _QuestionChecklist extends StatelessWidget {
+/// One question's checklist, ticked by the student.
+class OsceQuestionChecklist extends StatelessWidget {
   final int questionIndex;
   final Question question;
   final bool showNumber;
 
-  const _QuestionChecklist({
+  const OsceQuestionChecklist({
+    super.key,
     required this.questionIndex,
     required this.question,
     required this.showNumber,

@@ -1,39 +1,97 @@
+import 'dart:convert';
+
+import 'package:archive/archive.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flashcards/data/remote/cloud_function_service.dart';
 import 'package:flashcards/domain/models/algolia/algolia_flashcard/algolia_flashcard.dart';
 import 'package:flashcards/utils/result.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+/// The searchable cards and the version they belong to.
+typedef SearchCards = ({String version, List<AlgoliaFlashcard> cards});
 
 /// Loads the flashcards that flashcard search runs over. Search used to go
 /// through Algolia, whose app no longer exists, so flashcards are read from
 /// Firestore and searched on the device.
+///
+/// The list comes compressed and is kept on the device, so search works
+/// straight away next time and is only downloaded again when cards change.
 class FlashcardsSearcherService {
   final CloudFunctionService _functions;
+  SharedPreferencesAsync? _prefsInstance;
+
+  /// Larger lists aren't kept on the device (browser storage is small).
+  static const _maxSavedLength = 2000000;
+
+  SharedPreferencesAsync get _prefs =>
+      _prefsInstance ??= SharedPreferencesAsync();
 
   FlashcardsSearcherService({required CloudFunctionService functions})
     : _functions = functions;
 
+  String? get _key {
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    return uid == null ? null : 'search_cards_$uid';
+  }
+
   /// Cards the user may search. The server leaves out premium cards without
-  /// a subscription and packs limited to other users.
-  Future<Result<List<AlgoliaFlashcard>>> getAllFlashcards() async {
+  /// a subscription and packs limited to other users. Ok(null) when
+  /// [version] is still current.
+  Future<Result<SearchCards?>> getAllFlashcards({String? version}) async {
     try {
-      final cards = await _functions.listSearchableFlashcards();
-      cards.sort(
-        (a, b) => (a['question'] as String? ?? '').compareTo(
-          b['question'] as String? ?? '',
-        ),
+      final download = await _functions.listSearchableFlashcards(
+        version: version,
       );
-      return Result.ok([
-        for (final data in cards)
-          AlgoliaFlashcard(
-            objectID: data['id'] as String,
-            question: data['question'] as String? ?? '',
-            answer: data['answer'] as String? ?? '',
-            isPaid: data['isPaid'] as bool? ?? false,
-            tags: List<String>.from(data['tags'] as List? ?? const []),
-            packId: data['packId'] as String? ?? '',
-          ),
-      ]);
+      if (download == null) return Result.ok(null);
+      final cards = decodeSearchCards(download.gzip);
+      final key = _key;
+      if (key != null && download.gzip.length < _maxSavedLength) {
+        try {
+          await _prefs.setString(key, '${download.version}\n${download.gzip}');
+        } catch (_) {
+          // Downloaded again next time.
+        }
+      }
+      return Result.ok((version: download.version, cards: cards));
     } on Exception catch (error) {
       return Result.error(error);
     }
   }
+
+  /// The cards kept on this device from last time, if any.
+  Future<SearchCards?> readSaved() async {
+    final key = _key;
+    if (key == null) return null;
+    try {
+      final saved = await _prefs.getString(key);
+      if (saved == null) return null;
+      final split = saved.indexOf('\n');
+      if (split <= 0) return null;
+      return (
+        version: saved.substring(0, split),
+        cards: decodeSearchCards(saved.substring(split + 1)),
+      );
+    } catch (_) {
+      return null;
+    }
+  }
+}
+
+/// Unpacks the gzipped (base64) card list sent by the server, sorted by
+/// question.
+List<AlgoliaFlashcard> decodeSearchCards(String gzipBase64) {
+  final json = utf8.decode(GZipDecoder().decodeBytes(base64Decode(gzipBase64)));
+  final cards = [
+    for (final data in jsonDecode(json) as List<dynamic>)
+      AlgoliaFlashcard(
+        objectID: data['id'] as String,
+        question: data['question'] as String? ?? '',
+        answer: data['answer'] as String? ?? '',
+        isPaid: data['isPaid'] as bool? ?? false,
+        tags: List<String>.from(data['tags'] as List? ?? const []),
+        packId: data['packId'] as String? ?? '',
+      ),
+  ];
+  cards.sort((a, b) => a.question.compareTo(b.question));
+  return cards;
 }

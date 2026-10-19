@@ -8,15 +8,66 @@ import 'package:flashcards/utils/result.dart';
 class FlashcardsSearcherRepository {
   final FlashcardsSearcherService _flashcardsSearcherService;
 
-  /// Flashcards are kept for a while, since there can be many of them and
-  /// every keystroke runs a search.
-  static const _cacheDuration = Duration(minutes: 10);
+  /// After this long the server is asked whether cards changed (in the
+  /// background; the cards already here are searched meanwhile).
+  static const _checkAfter = Duration(minutes: 10);
   List<LocalSearchItem<AlgoliaFlashcard>>? _items;
-  DateTime? _loadedAt;
+  String? _version;
+  DateTime? _checkedAt;
+  Future<Result<void>>? _refreshing;
 
   FlashcardsSearcherRepository({
     required FlashcardsSearcherService flashcardsSearcherService,
   }) : _flashcardsSearcherService = flashcardsSearcherService;
+
+  void _use(SearchCards cards) {
+    _version = cards.version;
+    _items = cards.cards
+        .map(
+          (card) => LocalSearchItem(
+            item: card,
+            text: '${card.question}\n${card.answer}',
+            tagIds: card.tags,
+          ),
+        )
+        .toList();
+  }
+
+  /// Asks the server for the cards, downloading them only when changed.
+  Future<Result<void>> _refresh() => _refreshing ??= () async {
+    try {
+      final result = await _flashcardsSearcherService.getAllFlashcards(
+        version: _items == null ? null : _version,
+      );
+      switch (result) {
+        case Error<SearchCards?>(:final error):
+          return Result<void>.error(error);
+        case Ok<SearchCards?>(:final value):
+          if (value != null) _use(value);
+          _checkedAt = DateTime.now();
+          return Result<void>.ok(null);
+      }
+    } finally {
+      _refreshing = null;
+    }
+  }();
+
+  /// Gets the cards ready before the first search: the copy kept on the
+  /// device straight away, then the latest from the server.
+  Future<Result<void>> preload() async {
+    if (_items == null) {
+      final saved = await _flashcardsSearcherService.readSaved();
+      if (saved != null && _items == null) _use(saved);
+    }
+    final checkedAt = _checkedAt;
+    final fresh =
+        checkedAt != null && DateTime.now().difference(checkedAt) < _checkAfter;
+    if (fresh) return Result.ok(null);
+    final refresh = _refresh();
+    // With cards to search already, don't wait for the server.
+    if (_items != null) return Result.ok(null);
+    return refresh;
+  }
 
   /// Searches flashcards by question, answer and tags.
   Future<Result<SearchResultWithTags<AlgoliaFlashcard>>> searchFlashcards({
@@ -27,26 +78,12 @@ class FlashcardsSearcherRepository {
     /// Only cards of these packs, when given.
     Set<String>? packIds,
   }) async {
-    final isStale =
-        _loadedAt == null ||
-        DateTime.now().difference(_loadedAt!) > _cacheDuration;
-    if (_items == null || isStale) {
-      final result = await _flashcardsSearcherService.getAllFlashcards();
-      switch (result) {
-        case Error<List<AlgoliaFlashcard>>(:final error):
-          return Result.error(error);
-        case Ok<List<AlgoliaFlashcard>>(:final value):
-          _items = value
-              .map(
-                (card) => LocalSearchItem(
-                  item: card,
-                  text: '${card.question}\n${card.answer}',
-                  tagIds: card.tags,
-                ),
-              )
-              .toList();
-          _loadedAt = DateTime.now();
-      }
+    final ready = await preload();
+    if (_items == null) {
+      return switch (ready) {
+        Error<void>(:final error) => Result.error(error),
+        Ok<void>() => Result.error(Exception('No flashcards to search.')),
+      };
     }
 
     final items = packIds == null

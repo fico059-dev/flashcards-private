@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:flashcards/bloc/osces/osce/osce_state.dart';
 import 'package:flashcards/domain/models/osce/simple_osce/simple_osce.dart';
 
 sealed class OsceEvent extends Equatable {
@@ -42,5 +43,15 @@ class OsceCurrentQuestionRevealed extends OsceEvent {}
 class PreviousQuestionRequested extends OsceEvent {}
 
 class OsceTutorialSeenChecked extends OsceEvent {}
+
+/// Switches between Learning and Exam mode.
+class OsceModeChanged extends OsceEvent {
+  final OsceMode mode;
+
+  OsceModeChanged(this.mode);
+
+  @override
+  List<Object?> get props => [mode];
+}
 
 class OsceTutorialFinished extends OsceEvent {}

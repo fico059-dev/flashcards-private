@@ -3,6 +3,8 @@ import {CallableRequest, HttpsError} from "firebase-functions/v2/https";
 import {FieldValue, getFirestore} from "firebase-admin/firestore";
 import {checkAuthAndThrow, checkIfAdminAndThrow} from "../utils/utils";
 import {hasCards} from "../utils/claimsUtils";
+import {createHash} from "crypto";
+import {gzipSync} from "zlib";
 
 /*
  * A pack can be limited to some users:
@@ -151,13 +153,66 @@ export async function getPackAccessHandler(request: CallableRequest) {
   }
 }
 
+type SearchCard = {
+  id: string;
+  question: string;
+  answer: string;
+  isPaid: boolean;
+  tags: string[];
+  packId: string;
+};
+
+/** Cards and packs are read again after this long (ms). */
+const searchCacheMs = 3 * 60 * 1000;
+let searchCache: {
+  at: number;
+  packs: {id: string; data: FirebaseFirestore.DocumentData}[];
+  cards: SearchCard[];
+} | undefined;
+
 /**
- * Every flashcard the caller may search: premium cards only with a
- * subscription, limited packs only for their users. Flashcards can no
- * longer be listed directly from the app (security rules), so search uses
- * this.
- * @param {CallableRequest} request No data needed.
- * @return {Promise<object>} The cards' search fields.
+ * Every pack and card, kept for a few minutes so searches by many users
+ * (and repeated searches) don't read all the cards each time.
+ * @return {Promise<object>} Packs and cards.
+ */
+async function searchData() {
+  if (searchCache && Date.now() - searchCache.at < searchCacheMs) {
+    return searchCache;
+  }
+  const db = getFirestore();
+  const [packs, cards] = await Promise.all([
+    db.collection("packs").get(),
+    db.collection("flashcards")
+      .select("question", "answer", "isPaid", "tags", "packId")
+      .get(),
+  ]);
+  searchCache = {
+    at: Date.now(),
+    packs: packs.docs.map((d) => ({id: d.id, data: d.data()})),
+    cards: cards.docs.map((doc) => {
+      const data = doc.data();
+      return {
+        id: doc.id,
+        question: data.question ?? "",
+        answer: data.answer ?? "",
+        isPaid: data.isPaid === true,
+        tags: Array.isArray(data.tags) ? data.tags : [],
+        packId: data.packId ?? "",
+      };
+    }),
+  };
+  return searchCache;
+}
+
+/**
+ * The flashcards the caller may search: premium cards only with a
+ * subscription, limited packs only for their users.
+ *
+ * With `compressed: true` the list comes gzipped (base64) with a `version`;
+ * when the caller sends the `version` it already has and nothing changed,
+ * only `{unchanged: true}` is sent back.
+ * @param {CallableRequest} request Optional compressed and version.
+ * @return {Promise<object>} The cards.
  */
 export async function listSearchableFlashcardsHandler(
   request: CallableRequest,
@@ -168,34 +223,26 @@ export async function listSearchableFlashcardsHandler(
     const roles = Array.isArray(token.roles) ? token.roles : [];
     const isAdmin = roles.includes("admin");
     const paidAllowed = isAdmin || hasCards(token as any);
-    const db = getFirestore();
 
-    const packs = await db.collection("packs").get();
+    const data = await searchData();
     const hidden = new Set<string>();
-    for (const pack of packs.docs) {
-      if (!(await canUsePack(pack.id, pack.data(), token))) {
+    for (const pack of data.packs) {
+      if (!(await canUsePack(pack.id, pack.data, token))) {
         hidden.add(pack.id);
       }
     }
+    const result = data.cards.filter((card) =>
+      !hidden.has(card.packId) && (paidAllowed || !card.isPaid));
 
-    const cards = await db.collection("flashcards")
-      .select("question", "answer", "isPaid", "tags", "packId")
-      .get();
-    const result = [];
-    for (const doc of cards.docs) {
-      const data = doc.data();
-      if (hidden.has(data.packId)) continue;
-      if (data.isPaid === true && !paidAllowed) continue;
-      result.push({
-        id: doc.id,
-        question: data.question ?? "",
-        answer: data.answer ?? "",
-        isPaid: data.isPaid === true,
-        tags: Array.isArray(data.tags) ? data.tags : [],
-        packId: data.packId ?? "",
-      });
-    }
-    return {flashcards: result};
+    if (request.data?.compressed !== true) return {flashcards: result};
+
+    const json = JSON.stringify(result);
+    const version = createHash("sha1").update(json).digest("hex");
+    if (request.data?.version === version) return {unchanged: true, version};
+    return {
+      version,
+      gzip: gzipSync(Buffer.from(json, "utf8"), {level: 9}).toString("base64"),
+    };
   } catch (error: any) {
     if (error instanceof HttpsError) throw error;
     logger.error("listSearchableFlashcards failed", {error});

@@ -6,6 +6,7 @@ import 'package:flashcards/bloc/osces/osce_getter/osce_getter_event.dart';
 import 'package:flashcards/bloc/pack/packs_getter/packs_getter_bloc.dart';
 import 'package:flashcards/bloc/pack/packs_getter/packs_getter_event.dart';
 import 'package:flashcards/config/router/router.dart';
+import 'package:flashcards/data/repositories/algolia_search/flashcards_searcher_repository.dart';
 import 'package:flashcards/data/repositories/flashcards/custom_session_repository.dart';
 import 'package:flashcards/data/repositories/flashcards/pack_repository.dart';
 import 'package:flashcards/data/repositories/osces/osce_repository.dart';
@@ -50,6 +51,21 @@ class _MainTabPageState extends State<MainTabPage> with AutoRouteAware {
   TabsRouter? _tabsRouter;
   AutoRouteObserver? _observer;
   List<Widget> appBarActions = [];
+
+  @override
+  void initState() {
+    super.initState();
+    // Gets flashcard search ready in the background once the first screen
+    // has loaded, so the first search doesn't wait for the download.
+    Future.delayed(const Duration(seconds: 3), () {
+      if (!mounted) return;
+      try {
+        context.read<FlashcardsSearcherRepository>().preload();
+      } on ProviderNotFoundException {
+        // Not available (tests).
+      }
+    });
+  }
 
   @override
   void didChangeDependencies() {
@@ -104,7 +120,8 @@ class _MainTabPageState extends State<MainTabPage> with AutoRouteAware {
           icon: const Icon(CupertinoIcons.question_circle),
         ),
         IconButton(
-          onPressed: () => context.router.push(const PackSearchRoute()),
+          tooltip: 'Search flashcards',
+          onPressed: () => context.router.push(StudySearchRoute()),
           icon: const Icon(Icons.search),
         ),
       ];
@@ -126,7 +143,8 @@ class _MainTabPageState extends State<MainTabPage> with AutoRouteAware {
           icon: const Icon(CupertinoIcons.question_circle),
         ),
         IconButton(
-          onPressed: () => context.router.push(const PackSearchRoute()),
+          tooltip: 'Search flashcards',
+          onPressed: () => context.router.push(StudySearchRoute()),
           icon: const Icon(Icons.search),
         ),
       ];

@@ -10,6 +10,7 @@ import 'package:flashcards/ui/theme/theme_extensions.dart';
 import 'package:flashcards/ui/widgets/core/error_screen.dart';
 import 'package:flashcards/ui/widgets/osce/osce_bottom_action_buttons.dart';
 import 'package:flashcards/ui/widgets/osce/osce_showcase_widget.dart';
+import 'package:flashcards/ui/widgets/osce/osce_mode_switch.dart';
 import 'package:flashcards/ui/widgets/osce/osce_timer.dart';
 import 'package:flashcards/ui/widgets/osce/osce_tutorial_seen_listener.dart';
 import 'package:flashcards/ui/widgets/osce/question_context.dart';
@@ -156,12 +157,16 @@ class _LoadedContent extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                const OsceModeSwitch(),
+                const SizedBox(height: 12),
                 OsceTimer(),
                 SizedBox(height: 20),
 
                 QuestionContext(),
 
                 SizedBox(height: 20),
+                const OsceLearningAnswer(),
+                const SizedBox(height: 20),
               ],
             ),
           ),

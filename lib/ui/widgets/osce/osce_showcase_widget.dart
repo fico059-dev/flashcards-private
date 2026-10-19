@@ -3,6 +3,7 @@ import 'package:flashcards/bloc/osces/osce/osce_event.dart';
 import 'package:flashcards/domain/models/osce/osce.dart';
 import 'package:flashcards/domain/models/osce/question/question.dart';
 import 'package:flashcards/ui/widgets/core/images/image_preview.dart';
+import 'package:flashcards/ui/widgets/osce/osce_mode_switch.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -24,6 +25,8 @@ class OsceShowcaseWidget extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                const OsceModeSwitch(showHint: true),
+                const SizedBox(height: 20),
                 Text(
                   osce.name,
                   style: Theme.of(context).textTheme.headlineSmall?.copyWith(

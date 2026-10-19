@@ -12,6 +12,7 @@ import 'package:flashcards/ui/widgets/flashcard/flashcard_test/main_card/widgets
 import 'package:flashcards/ui/widgets/flashcard/flashcard_test/rating_buttons/rating_segments.dart';
 import 'package:flashcards/ui/widgets/flashcard/flashcard_test/rating_buttons/score_segmented_button.dart';
 import 'package:flashcards/ui/widgets/osce/osce_checklist_review.dart';
+import 'package:flashcards/ui/widgets/osce/osce_mode_switch.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -137,5 +138,58 @@ void main() {
     await tester.tap(find.text('Back to questions'));
     await tester.pump();
     expect((bloc.state as OsceLoaded).reviewingChecklist, isFalse);
+  });
+
+  testWidgets('Learning mode shows the answer after each question', (
+    tester,
+  ) async {
+    final bloc = OsceBloc(
+      osceRepo: _FakeOsceRepository(),
+      localStorageService: _FakeLocalStorage(),
+    )..emit(OsceLoaded(osce: _osce));
+
+    await tester.pumpWidget(
+      BlocProvider.value(
+        value: bloc,
+        child: _app(
+          const Column(
+            children: [
+              OsceModeSwitch(),
+              Expanded(
+                child: SingleChildScrollView(child: OsceLearningAnswer()),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+    // Exam mode: no answer while answering.
+    expect(find.text('Show answer'), findsNothing);
+
+    await tester.tap(find.text('Learning'));
+    await tester.pumpAndSettle();
+    expect((bloc.state as OsceLoaded).mode, OsceMode.learning);
+    expect(find.text('Asks about onset'), findsNothing);
+
+    await tester.tap(find.text('Show answer'));
+    await tester.pumpAndSettle();
+    expect(find.text('Asks about onset'), findsOneWidget);
+    await tester.tap(find.text('Asks about onset'));
+    await tester.pumpAndSettle();
+    expect(
+      (bloc.state as OsceLoaded).osce.questions[0].checks[1].isChecked,
+      isTrue,
+    );
+
+    // The next question's answer starts hidden again.
+    bloc.add(NextQuestionRequested());
+    await tester.pumpAndSettle();
+    expect(find.text('Show answer'), findsOneWidget);
+    expect(find.text('Checks pulse'), findsNothing);
+
+    // Back to Exam mode hides the answers.
+    await tester.tap(find.text('Exam'));
+    await tester.pumpAndSettle();
+    expect(find.text('Show answer'), findsNothing);
   });
 }
