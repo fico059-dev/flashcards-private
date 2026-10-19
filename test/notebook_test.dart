@@ -8,6 +8,7 @@ import 'package:flashcards/domain/models/flashcards/highlight/highlight.dart';
 import 'package:flashcards/ui/theme/themes.dart';
 import 'package:flashcards/ui/widgets/notebook/highlightable_text.dart';
 import 'package:flashcards/ui/widgets/notebook/highlights_list.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
@@ -195,9 +196,49 @@ void main() {
     expect(repo.highlights, isEmpty);
   });
 
-  testWidgets('notebook lists highlights by card and searches', (
+  testWidgets('with a mouse, selecting text offers Highlight right away', (
     tester,
   ) async {
+    final functions = FakeHighlightFunctions();
+    final repo = _repo(functions);
+    await tester.pumpWidget(
+      ChangeNotifierProvider.value(
+        value: repo,
+        child: MaterialApp(
+          theme: lightThemeData,
+          home: const Scaffold(
+            body: Center(
+              child: HighlightableText(
+                'Beta blockers or calcium channel blockers.',
+                target: _target,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    // Drag across the first words with the mouse.
+    final rect = tester.getRect(find.byType(SelectableText));
+    final gesture = await tester.startGesture(
+      rect.centerLeft + const Offset(2, 0),
+      kind: PointerDeviceKind.mouse,
+    );
+    await tester.pump();
+    await gesture.moveTo(rect.center);
+    await tester.pump();
+    await gesture.up();
+    await tester.pumpAndSettle();
+
+    expect(find.text('Highlight'), findsOneWidget);
+    await tester.tap(find.text('Highlight'));
+    await tester.pumpAndSettle();
+    expect(repo.highlights, hasLength(1));
+    expect(repo.highlights.single.text, startsWith('Beta'));
+  });
+
+  testWidgets('notebook lists highlights by card and searches', (tester) async {
     final functions = FakeHighlightFunctions();
     final repo = _repo(functions);
     for (final (card, text) in [
@@ -242,7 +283,9 @@ void main() {
   testWidgets('notebook explains how to highlight when empty', (tester) async {
     final repo = _repo(FakeHighlightFunctions());
     await tester.pumpWidget(
-      MaterialApp(home: Scaffold(body: HighlightsList(repository: repo))),
+      MaterialApp(
+        home: Scaffold(body: HighlightsList(repository: repo)),
+      ),
     );
     await tester.pumpAndSettle();
     expect(find.text('No highlights yet'), findsOneWidget);

@@ -39,7 +39,12 @@ class ReadableWidth extends StatelessWidget {
 /// Keyboard shortcuts while reviewing cards, like in Anki: Space or Enter
 /// shows the answer, 1-4 rate Again, Hard, Good, Easy. On wide screens a
 /// short reminder is shown at the bottom.
-class ReviewShortcuts extends StatelessWidget {
+///
+/// The keys are caught for the whole window while this screen is on top, so
+/// they keep working after clicking or selecting card text, using a menu or
+/// closing a dialog (which all move the keyboard focus). They are left alone
+/// while typing in a text field.
+class ReviewShortcuts extends StatefulWidget {
   final VoidCallback onShowAnswer;
   final ValueChanged<fsrs.Rating> onRate;
   final Widget child;
@@ -51,46 +56,96 @@ class ReviewShortcuts extends StatelessWidget {
     required this.child,
   });
 
-  static final _ratingKeys = [
-    (LogicalKeyboardKey.digit1, fsrs.Rating.again),
-    (LogicalKeyboardKey.numpad1, fsrs.Rating.again),
-    (LogicalKeyboardKey.digit2, fsrs.Rating.hard),
-    (LogicalKeyboardKey.numpad2, fsrs.Rating.hard),
-    (LogicalKeyboardKey.digit3, fsrs.Rating.good),
-    (LogicalKeyboardKey.numpad3, fsrs.Rating.good),
-    (LogicalKeyboardKey.digit4, fsrs.Rating.easy),
-    (LogicalKeyboardKey.numpad4, fsrs.Rating.easy),
-  ];
+  static final _ratingKeys = {
+    LogicalKeyboardKey.digit1: fsrs.Rating.again,
+    LogicalKeyboardKey.numpad1: fsrs.Rating.again,
+    LogicalKeyboardKey.digit2: fsrs.Rating.hard,
+    LogicalKeyboardKey.numpad2: fsrs.Rating.hard,
+    LogicalKeyboardKey.digit3: fsrs.Rating.good,
+    LogicalKeyboardKey.numpad3: fsrs.Rating.good,
+    LogicalKeyboardKey.digit4: fsrs.Rating.easy,
+    LogicalKeyboardKey.numpad4: fsrs.Rating.easy,
+  };
+
+  static final _showAnswerKeys = {
+    LogicalKeyboardKey.space,
+    LogicalKeyboardKey.enter,
+    LogicalKeyboardKey.numpadEnter,
+  };
+
+  @override
+  State<ReviewShortcuts> createState() => _ReviewShortcutsState();
+}
+
+class _ReviewShortcutsState extends State<ReviewShortcuts> {
+  @override
+  void initState() {
+    super.initState();
+    HardwareKeyboard.instance.addHandler(_onKey);
+  }
+
+  @override
+  void dispose() {
+    HardwareKeyboard.instance.removeHandler(_onKey);
+    super.dispose();
+  }
+
+  /// Whether the user is typing in a text field (not read-only card text).
+  static bool _typing() {
+    final focused = FocusManager.instance.primaryFocus?.context;
+    if (focused == null) return false;
+    final editable = focused.widget is EditableText
+        ? focused.widget as EditableText
+        : focused.findAncestorWidgetOfExactType<EditableText>();
+    return editable != null && !editable.readOnly;
+  }
+
+  bool _onKey(KeyEvent event) {
+    if (event is! KeyDownEvent || !mounted) return false;
+    // Not under a dialog, menu or another screen.
+    if (!(ModalRoute.of(context)?.isCurrent ?? true)) return false;
+    final keyboard = HardwareKeyboard.instance;
+    if (keyboard.isMetaPressed ||
+        keyboard.isControlPressed ||
+        keyboard.isAltPressed) {
+      return false;
+    }
+    if (_typing()) return false;
+
+    final key = event.logicalKey;
+    final rating = ReviewShortcuts._ratingKeys[key];
+    final showAnswer = ReviewShortcuts._showAnswerKeys.contains(key);
+    if (rating == null && !showAnswer) return false;
+
+    // Whatever was focused (a button, selected card text) mustn't also act
+    // on the key.
+    FocusManager.instance.primaryFocus?.unfocus();
+    FocusManager.instance.applyFocusChangesIfNeeded();
+    if (rating != null) {
+      widget.onRate(rating);
+    } else {
+      widget.onShowAnswer();
+    }
+    return true;
+  }
 
   @override
   Widget build(BuildContext context) {
-    return CallbackShortcuts(
-      bindings: {
-        const SingleActivator(LogicalKeyboardKey.space): onShowAnswer,
-        const SingleActivator(LogicalKeyboardKey.enter): onShowAnswer,
-        const SingleActivator(LogicalKeyboardKey.numpadEnter): onShowAnswer,
-        for (final (key, rating) in _ratingKeys)
-          SingleActivator(key): () => onRate(rating),
-      },
-      child: Focus(
-        autofocus: true,
-        child: Column(
-          children: [
-            Expanded(child: child),
-            if (isWideLayout(context))
-              Padding(
-                padding: const EdgeInsets.only(bottom: 10, top: 4),
-                child: Text(
-                  'Keyboard: Space shows the answer · 1 Again · 2 Hard · '
-                  '3 Good · 4 Easy',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
-                ),
+    return Column(
+      children: [
+        Expanded(child: widget.child),
+        if (isWideLayout(context))
+          Padding(
+            padding: const EdgeInsets.only(bottom: 10, top: 4),
+            child: Text(
+              'Keyboard: Space shows the answer · 1 Again · 2 Hard · '
+              '3 Good · 4 Easy',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
-          ],
-        ),
-      ),
+            ),
+          ),
+      ],
     );
   }
 }

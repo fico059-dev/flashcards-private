@@ -3,7 +3,9 @@ import 'package:flashcards/domain/models/flashcards/card_markup/card_markup.dart
 import 'package:flashcards/domain/models/flashcards/flashcard/flashcard.dart';
 import 'package:flashcards/domain/models/flashcards/highlight/highlight.dart';
 import 'package:flashcards/utils/firebase_error_mapper.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 /// Colour of highlighted text, readable in light and dark mode.
@@ -67,6 +69,10 @@ class HighlightableText extends StatefulWidget {
 class _HighlightableTextState extends State<HighlightableText> {
   HighlightRepository? _repo;
 
+  /// The latest selection, for the menu shown after selecting with a mouse.
+  TextSelection? _selection;
+  bool _selectedWithMouse = false;
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -104,12 +110,28 @@ class _HighlightableTextState extends State<HighlightableText> {
           widget.text,
           repo.forCard(target.flashcardId, target.side),
         );
-        return SelectableText.rich(
-          _spans(ranges),
-          style: widget.style,
-          textAlign: widget.textAlign,
-          contextMenuBuilder: (context, editableTextState) =>
-              _menu(context, editableTextState, repo, target),
+        // With a mouse or trackpad (Mac, website) the selection menu
+        // only opens on a right click, so Highlight is offered as soon as
+        // text is selected.
+        return Listener(
+          // Left button only: a right click opens the usual menu.
+          onPointerDown: (event) => _selectedWithMouse =
+              event.kind == PointerDeviceKind.mouse &&
+              event.buttons == kPrimaryMouseButton,
+          onPointerUp: (event) {
+            if (!_selectedWithMouse) return;
+            final position = event.position;
+            // The selection is updated when the button is released.
+            Future(() => _showMouseMenu(position, repo, target));
+          },
+          child: SelectableText.rich(
+            _spans(ranges),
+            style: widget.style,
+            textAlign: widget.textAlign,
+            onSelectionChanged: (selection, cause) => _selection = selection,
+            contextMenuBuilder: (context, editableTextState) =>
+                _menu(context, editableTextState, repo, target),
+          ),
         );
       },
     );
@@ -164,6 +186,117 @@ class _HighlightableTextState extends State<HighlightableText> {
     return TextSpan(children: children);
   }
 
+  void _showError(Object error) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          "Couldn't save the highlight: ${extractErrorMessage(error)}",
+        ),
+      ),
+    );
+  }
+
+  /// "Highlight" or "Remove highlight" for the selected text, if any.
+  (String, VoidCallback)? _highlightAction(
+    TextSelection selection,
+    HighlightRepository repo,
+    HighlightTarget target,
+  ) {
+    if (!selection.isValid || selection.isCollapsed) return null;
+    final text = widget.text;
+    if (selection.end > text.length) return null;
+
+    // Highlights touching the selected text.
+    final toRemove = [
+      for (final highlight in repo.forCard(target.flashcardId, target.side))
+        if (highlightRanges(text, [
+          highlight,
+        ]).any((r) => r.$1 < selection.end && r.$2 > selection.start))
+          highlight,
+    ];
+    if (toRemove.isNotEmpty) {
+      return (
+        'Remove highlight',
+        () => repo.remove(toRemove, onError: _showError),
+      );
+    }
+
+    final inside = selection.textInside(text);
+    final selected = inside.trim();
+    if (selected.isEmpty) return null;
+    final leading = inside.indexOf(selected);
+    return (
+      'Highlight',
+      () => repo.add(
+        flashcardId: target.flashcardId,
+        packId: target.packId,
+        side: target.side,
+        text: selected,
+        start: selection.start + leading,
+        question: target.question,
+        onError: _showError,
+      ),
+    );
+  }
+
+  /// After selecting text with a mouse: a small menu at the pointer.
+  Future<void> _showMouseMenu(
+    Offset position,
+    HighlightRepository repo,
+    HighlightTarget target,
+  ) async {
+    final selection = _selection;
+    if (!mounted || !_selectedWithMouse || selection == null) return;
+    final action = _highlightAction(selection, repo, target);
+    if (action == null) return;
+    _selectedWithMouse = false;
+    final overlay = Overlay.of(context).context.findRenderObject() as RenderBox;
+    final chosen = await showMenu<String>(
+      context: context,
+      position: RelativeRect.fromRect(
+        position.translate(0, 8) & const Size(1, 1),
+        Offset.zero & overlay.size,
+      ),
+      items: [
+        PopupMenuItem(
+          value: 'highlight',
+          height: 40,
+          child: Row(
+            children: [
+              Icon(
+                action.$1 == 'Highlight'
+                    ? Icons.border_color_outlined
+                    : Icons.format_color_reset_outlined,
+                size: 18,
+              ),
+              const SizedBox(width: 10),
+              Text(action.$1),
+            ],
+          ),
+        ),
+        const PopupMenuItem(
+          value: 'copy',
+          height: 40,
+          child: Row(
+            children: [
+              Icon(Icons.copy, size: 18),
+              SizedBox(width: 10),
+              Text('Copy'),
+            ],
+          ),
+        ),
+      ],
+    );
+    if (chosen == 'highlight') {
+      action.$2();
+    } else if (chosen == 'copy') {
+      await Clipboard.setData(
+        ClipboardData(text: selection.textInside(widget.text)),
+      );
+    }
+  }
+
   Widget _menu(
     BuildContext context,
     EditableTextState editableTextState,
@@ -184,62 +317,18 @@ class _HighlightableTextState extends State<HighlightableText> {
       editableTextState.hideToolbar();
     }
 
-    void showError(Object error) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(this.context).showSnackBar(
-        SnackBar(
-          content: Text(
-            "Couldn't save the highlight: ${extractErrorMessage(error)}",
-          ),
+    final action = _highlightAction(selection, repo, target);
+    if (action != null) {
+      buttons.insert(
+        0,
+        ContextMenuButtonItem(
+          label: action.$1,
+          onPressed: () {
+            action.$2();
+            closeMenu();
+          },
         ),
       );
-    }
-
-    if (selection.isValid && !selection.isCollapsed) {
-      // Highlights touching the selected text.
-      final toRemove = [
-        for (final highlight in repo.forCard(target.flashcardId, target.side))
-          if (highlightRanges(widget.text, [
-            highlight,
-          ]).any((r) => r.$1 < selection.end && r.$2 > selection.start))
-            highlight,
-      ];
-
-      if (toRemove.isNotEmpty) {
-        buttons.insert(
-          0,
-          ContextMenuButtonItem(
-            label: 'Remove highlight',
-            onPressed: () {
-              repo.remove(toRemove, onError: showError);
-              closeMenu();
-            },
-          ),
-        );
-      } else {
-        final selected = selection.textInside(value.text).trim();
-        if (selected.isNotEmpty) {
-          final leading = selection.textInside(value.text).indexOf(selected);
-          buttons.insert(
-            0,
-            ContextMenuButtonItem(
-              label: 'Highlight',
-              onPressed: () {
-                repo.add(
-                  flashcardId: target.flashcardId,
-                  packId: target.packId,
-                  side: target.side,
-                  text: selected,
-                  start: selection.start + leading,
-                  question: target.question,
-                  onError: showError,
-                );
-                closeMenu();
-              },
-            ),
-          );
-        }
-      }
     }
 
     return AdaptiveTextSelectionToolbar.buttonItems(
