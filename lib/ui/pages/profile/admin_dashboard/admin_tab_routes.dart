@@ -12,6 +12,7 @@ class AdminTabRoutes {
     AssignAdminRoute(),
     FlashcardReportsRoute(),
     FlashcardBuilderRoute(),
+    AnalyticsRoute(),
   ];
 
   static String getRouteTitle(BuildContext context, TabsRouter tabsRouter) {
@@ -28,6 +29,8 @@ class AdminTabRoutes {
         return l10n.osceBuilderPage_title;
       case FlashcardReportsRoute.name:
         return "Reported flashcards";
+      case AnalyticsRoute.name:
+        return "Analytics";
       default:
         return "";
     }

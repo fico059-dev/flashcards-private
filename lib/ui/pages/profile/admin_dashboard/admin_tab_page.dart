@@ -138,7 +138,6 @@ class _AdminTabPageState extends State<AdminTabPage> with AutoRouteAware {
             case 0:
               return FilterDrawer(filterOptions: PackFilterOptions());
             case 4:
-            case 5:
             //return AnotherCustomDrawer();
             default:
               return SizedBox.shrink(); // nema drawer-a
@@ -170,6 +169,13 @@ class _AdminTabPageState extends State<AdminTabPage> with AutoRouteAware {
                   shrinkWrap: true,
                   padding: EdgeInsets.zero,
                   children: [
+                    _DrawerItem(
+                      index: 5,
+                      onTap: () => setActiveIndex(drawerContext, 5),
+                      title: "Analytics",
+                      icon: Icons.insights_outlined,
+                      selectedIcon: Icons.insights,
+                    ),
                     _DrawerItem(
                       index: 0,
                       onTap: () => setActiveIndex(drawerContext, 0),
@@ -209,7 +215,7 @@ class _AdminTabPageState extends State<AdminTabPage> with AutoRouteAware {
                     ),
                     Divider(height: 5),
                     _DrawerItem(
-                      index: 5,
+                      index: -1,
                       onTap: () {
                         context.router.pop();
                         context.router.replaceAll([MainTabRoute()]);

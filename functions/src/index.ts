@@ -42,6 +42,7 @@ import {
   setOscePremiumHandler,
   setOsceScenarioImageHandler,
 } from "./handlers/osceFolders";
+import {getAppAnalyticsHandler} from "./handlers/analytics";
 import {devGrantHandler} from "./handlers/devGrant";
 import {deletePackEverywhereHandler} from "./handlers/deletePackEverywhere";
 import {deletePackWithCardsHandler} from "./handlers/deletePackWithCards";
@@ -51,6 +52,10 @@ export const deleteUserAndUserData = onCall(deleteUserAndUserDataHandler);
 
 // admins
 export const addAdminRole = onCall(addAdminRoleHandler);
+export const getAppAnalytics = onCall(
+  {memory: "1GiB", timeoutSeconds: 300},
+  getAppAnalyticsHandler,
+);
 
 // pack and pp_data operations
 export const deletePackProgress = onCall(deletePackProgressHandler);

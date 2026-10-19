@@ -115,6 +115,9 @@ class CloudFunctionService {
     );
   }
 
+  /// Numbers about users and study for the admin dashboard.
+  Future<Map<String, dynamic>> getAppAnalytics() => _call('getAppAnalytics');
+
   Future<Map<String, dynamic>> _call(
     String name, [
     Map<String, dynamic>? data,

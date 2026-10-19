@@ -43,6 +43,22 @@ class AdminTabRoute extends PageRouteInfo<void> {
 }
 
 /// generated route for
+/// [AnalyticsPage]
+class AnalyticsRoute extends PageRouteInfo<void> {
+  const AnalyticsRoute({List<PageRouteInfo>? children})
+    : super(AnalyticsRoute.name, initialChildren: children);
+
+  static const String name = 'AnalyticsRoute';
+
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      return const AnalyticsPage();
+    },
+  );
+}
+
+/// generated route for
 /// [AnkiImportPage]
 class AnkiImportRoute extends PageRouteInfo<AnkiImportRouteArgs> {
   AnkiImportRoute({

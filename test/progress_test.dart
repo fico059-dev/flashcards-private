@@ -45,10 +45,10 @@ CardProgressItem _item(
 );
 
 /// Ten days of studying 10 new cards a day.
-StudyLog _log({StudyGoal goal = const StudyGoal()}) {
+StudyLog _log({StudyGoal goal = const StudyGoal(), DateTime? today}) {
   var log = StudyLog(goal: goal);
   for (var day = 9; day >= 0; day--) {
-    final date = now.subtract(Duration(days: day));
+    final date = (today ?? now).subtract(Duration(days: day));
     for (var i = 0; i < 12; i++) {
       log = log.recordReview(now: date, isNew: i < 10, forgot: i == 11);
     }
@@ -337,7 +337,8 @@ class FakeProgressRepository implements ProgressRepository {
   });
 
   StudyLog get _currentLog {
-    final log = _log(goal: goal);
+    // The page measures the pace up to today.
+    final log = _log(goal: goal, today: DateTime.now());
     return log.recordOsce(
       osceId: 'o1',
       name: 'Chest pain',
