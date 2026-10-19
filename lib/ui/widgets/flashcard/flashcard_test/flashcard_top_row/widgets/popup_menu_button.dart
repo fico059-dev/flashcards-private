@@ -20,35 +20,34 @@ class PopupMenuButtonTopRow extends StatelessWidget {
     return PopupMenuButton<Menu>(
       enabled: enabled,
       icon: Icon(Icons.more_vert, color: context.colors.primaryContainer),
-      itemBuilder:
-          (context) => <PopupMenuEntry<Menu>>[
-            if (onIgnore != null)
-              PopupMenuItem(
-                onTap: () => _showIgnoreDialog(context, onIgnore!),
-                child: ListTile(
-                  leading: Icon(
-                    Icons.visibility_off,
-                    color: context.colors.primary,
-                  ),
-                  title: Text("Ignore"),
-                  titleTextStyle: TextStyle(
-                    fontWeight: FontWeight.normal,
-                    color: context.colors.primary,
-                  ),
-                ),
+      itemBuilder: (context) => <PopupMenuEntry<Menu>>[
+        if (onIgnore != null)
+          PopupMenuItem(
+            onTap: () => _showIgnoreDialog(context, onIgnore!),
+            child: ListTile(
+              leading: Icon(
+                Icons.visibility_off,
+                color: context.colors.primary,
               ),
-            PopupMenuItem(
-              onTap: onReport,
-              child: ListTile(
-                leading: Icon(Icons.flag, color: context.colors.primary),
-                title: Text("Report"),
-                titleTextStyle: TextStyle(
-                  fontWeight: FontWeight.normal,
-                  color: context.colors.primary,
-                ),
+              title: Text("Ignore"),
+              titleTextStyle: TextStyle(
+                fontWeight: FontWeight.normal,
+                color: context.colors.primary,
               ),
             ),
-          ],
+          ),
+        PopupMenuItem(
+          onTap: onReport,
+          child: ListTile(
+            leading: Icon(Icons.flag, color: context.colors.primary),
+            title: Text("Report"),
+            titleTextStyle: TextStyle(
+              fontWeight: FontWeight.normal,
+              color: context.colors.primary,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
@@ -56,24 +55,23 @@ class PopupMenuButtonTopRow extends StatelessWidget {
 void _showIgnoreDialog(BuildContext context, VoidCallback onIgnore) async {
   final confirmed = await showDialog<bool>(
     context: context,
-    builder:
-        (context) => AlertDialog(
-          title: Text("Ignore this card?"),
-          content: Text(
-            "Ignored cards won't appear in future review sessions. "
-            "You can restore them later from your settings.",
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(false),
-              child: Text("Cancel"),
-            ),
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(true),
-              child: Text("Ignore"),
-            ),
-          ],
+    builder: (context) => AlertDialog(
+      title: Text("Ignore this card?"),
+      content: Text(
+        "Ignored cards won't appear in future review sessions. "
+        "You can restore them later from your settings.",
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(false),
+          child: Text("Cancel"),
         ),
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(true),
+          child: Text("Ignore"),
+        ),
+      ],
+    ),
   );
 
   if (confirmed == true) onIgnore();

@@ -27,11 +27,8 @@ class OsceSubmitFloatingButton extends StatelessWidget {
           case SaveOsceAttemptSuccess():
             return FloatingActionButton(
               tooltip: "Previous attempts for this OSCE test.",
-              onPressed:
-                  () => showOsceAttemptsBottomSheet(
-                    context: context,
-                    osceId: osceId,
-                  ),
+              onPressed: () =>
+                  showOsceAttemptsBottomSheet(context: context, osceId: osceId),
               child: Icon(Icons.bar_chart),
             );
         }

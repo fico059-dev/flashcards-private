@@ -15,7 +15,8 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$OsceDto {
 
-@JsonKey(includeToJson: false) String? get id; String get name; String get scenario; List<dynamic> get questions; bool get isPaid;
+@JsonKey(includeToJson: false) String? get id; String get name; String get scenario; List<dynamic> get questions; bool get isPaid;/// Set by the setOsceFolder / setOsceScenarioImage functions only.
+@JsonKey(includeToJson: false) String? get folderId;@JsonKey(includeToJson: false) String? get scenarioImageUrl;
 /// Create a copy of OsceDto
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +29,16 @@ $OsceDtoCopyWith<OsceDto> get copyWith => _$OsceDtoCopyWithImpl<OsceDto>(this as
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is OsceDto&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.scenario, scenario) || other.scenario == scenario)&&const DeepCollectionEquality().equals(other.questions, questions)&&(identical(other.isPaid, isPaid) || other.isPaid == isPaid));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is OsceDto&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.scenario, scenario) || other.scenario == scenario)&&const DeepCollectionEquality().equals(other.questions, questions)&&(identical(other.isPaid, isPaid) || other.isPaid == isPaid)&&(identical(other.folderId, folderId) || other.folderId == folderId)&&(identical(other.scenarioImageUrl, scenarioImageUrl) || other.scenarioImageUrl == scenarioImageUrl));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,name,scenario,const DeepCollectionEquality().hash(questions),isPaid);
+int get hashCode => Object.hash(runtimeType,id,name,scenario,const DeepCollectionEquality().hash(questions),isPaid,folderId,scenarioImageUrl);
 
 @override
 String toString() {
-  return 'OsceDto(id: $id, name: $name, scenario: $scenario, questions: $questions, isPaid: $isPaid)';
+  return 'OsceDto(id: $id, name: $name, scenario: $scenario, questions: $questions, isPaid: $isPaid, folderId: $folderId, scenarioImageUrl: $scenarioImageUrl)';
 }
 
 
@@ -48,7 +49,7 @@ abstract mixin class $OsceDtoCopyWith<$Res>  {
   factory $OsceDtoCopyWith(OsceDto value, $Res Function(OsceDto) _then) = _$OsceDtoCopyWithImpl;
 @useResult
 $Res call({
-@JsonKey(includeToJson: false) String? id, String name, String scenario, List<dynamic> questions, bool isPaid
+@JsonKey(includeToJson: false) String? id, String name, String scenario, List<dynamic> questions, bool isPaid,@JsonKey(includeToJson: false) String? folderId,@JsonKey(includeToJson: false) String? scenarioImageUrl
 });
 
 
@@ -65,14 +66,16 @@ class _$OsceDtoCopyWithImpl<$Res>
 
 /// Create a copy of OsceDto
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = freezed,Object? name = null,Object? scenario = null,Object? questions = null,Object? isPaid = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = freezed,Object? name = null,Object? scenario = null,Object? questions = null,Object? isPaid = null,Object? folderId = freezed,Object? scenarioImageUrl = freezed,}) {
   return _then(_self.copyWith(
 id: freezed == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String?,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String,scenario: null == scenario ? _self.scenario : scenario // ignore: cast_nullable_to_non_nullable
 as String,questions: null == questions ? _self.questions : questions // ignore: cast_nullable_to_non_nullable
 as List<dynamic>,isPaid: null == isPaid ? _self.isPaid : isPaid // ignore: cast_nullable_to_non_nullable
-as bool,
+as bool,folderId: freezed == folderId ? _self.folderId : folderId // ignore: cast_nullable_to_non_nullable
+as String?,scenarioImageUrl: freezed == scenarioImageUrl ? _self.scenarioImageUrl : scenarioImageUrl // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 
@@ -157,10 +160,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function(@JsonKey(includeToJson: false)  String? id,  String name,  String scenario,  List<dynamic> questions,  bool isPaid)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function(@JsonKey(includeToJson: false)  String? id,  String name,  String scenario,  List<dynamic> questions,  bool isPaid, @JsonKey(includeToJson: false)  String? folderId, @JsonKey(includeToJson: false)  String? scenarioImageUrl)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _OsceDto() when $default != null:
-return $default(_that.id,_that.name,_that.scenario,_that.questions,_that.isPaid);case _:
+return $default(_that.id,_that.name,_that.scenario,_that.questions,_that.isPaid,_that.folderId,_that.scenarioImageUrl);case _:
   return orElse();
 
 }
@@ -178,10 +181,10 @@ return $default(_that.id,_that.name,_that.scenario,_that.questions,_that.isPaid)
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function(@JsonKey(includeToJson: false)  String? id,  String name,  String scenario,  List<dynamic> questions,  bool isPaid)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function(@JsonKey(includeToJson: false)  String? id,  String name,  String scenario,  List<dynamic> questions,  bool isPaid, @JsonKey(includeToJson: false)  String? folderId, @JsonKey(includeToJson: false)  String? scenarioImageUrl)  $default,) {final _that = this;
 switch (_that) {
 case _OsceDto():
-return $default(_that.id,_that.name,_that.scenario,_that.questions,_that.isPaid);case _:
+return $default(_that.id,_that.name,_that.scenario,_that.questions,_that.isPaid,_that.folderId,_that.scenarioImageUrl);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -198,10 +201,10 @@ return $default(_that.id,_that.name,_that.scenario,_that.questions,_that.isPaid)
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function(@JsonKey(includeToJson: false)  String? id,  String name,  String scenario,  List<dynamic> questions,  bool isPaid)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function(@JsonKey(includeToJson: false)  String? id,  String name,  String scenario,  List<dynamic> questions,  bool isPaid, @JsonKey(includeToJson: false)  String? folderId, @JsonKey(includeToJson: false)  String? scenarioImageUrl)?  $default,) {final _that = this;
 switch (_that) {
 case _OsceDto() when $default != null:
-return $default(_that.id,_that.name,_that.scenario,_that.questions,_that.isPaid);case _:
+return $default(_that.id,_that.name,_that.scenario,_that.questions,_that.isPaid,_that.folderId,_that.scenarioImageUrl);case _:
   return null;
 
 }
@@ -213,7 +216,7 @@ return $default(_that.id,_that.name,_that.scenario,_that.questions,_that.isPaid)
 @JsonSerializable()
 
 class _OsceDto implements OsceDto {
-  const _OsceDto({@JsonKey(includeToJson: false) required this.id, required this.name, required this.scenario, final  List<dynamic> questions = const <dynamic>[], this.isPaid = false}): _questions = questions;
+  const _OsceDto({@JsonKey(includeToJson: false) required this.id, required this.name, required this.scenario, final  List<dynamic> questions = const <dynamic>[], this.isPaid = false, @JsonKey(includeToJson: false) this.folderId, @JsonKey(includeToJson: false) this.scenarioImageUrl}): _questions = questions;
   factory _OsceDto.fromJson(Map<String, dynamic> json) => _$OsceDtoFromJson(json);
 
 @override@JsonKey(includeToJson: false) final  String? id;
@@ -227,6 +230,9 @@ class _OsceDto implements OsceDto {
 }
 
 @override@JsonKey() final  bool isPaid;
+/// Set by the setOsceFolder / setOsceScenarioImage functions only.
+@override@JsonKey(includeToJson: false) final  String? folderId;
+@override@JsonKey(includeToJson: false) final  String? scenarioImageUrl;
 
 /// Create a copy of OsceDto
 /// with the given fields replaced by the non-null parameter values.
@@ -241,16 +247,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _OsceDto&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.scenario, scenario) || other.scenario == scenario)&&const DeepCollectionEquality().equals(other._questions, _questions)&&(identical(other.isPaid, isPaid) || other.isPaid == isPaid));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _OsceDto&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.scenario, scenario) || other.scenario == scenario)&&const DeepCollectionEquality().equals(other._questions, _questions)&&(identical(other.isPaid, isPaid) || other.isPaid == isPaid)&&(identical(other.folderId, folderId) || other.folderId == folderId)&&(identical(other.scenarioImageUrl, scenarioImageUrl) || other.scenarioImageUrl == scenarioImageUrl));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,name,scenario,const DeepCollectionEquality().hash(_questions),isPaid);
+int get hashCode => Object.hash(runtimeType,id,name,scenario,const DeepCollectionEquality().hash(_questions),isPaid,folderId,scenarioImageUrl);
 
 @override
 String toString() {
-  return 'OsceDto(id: $id, name: $name, scenario: $scenario, questions: $questions, isPaid: $isPaid)';
+  return 'OsceDto(id: $id, name: $name, scenario: $scenario, questions: $questions, isPaid: $isPaid, folderId: $folderId, scenarioImageUrl: $scenarioImageUrl)';
 }
 
 
@@ -261,7 +267,7 @@ abstract mixin class _$OsceDtoCopyWith<$Res> implements $OsceDtoCopyWith<$Res> {
   factory _$OsceDtoCopyWith(_OsceDto value, $Res Function(_OsceDto) _then) = __$OsceDtoCopyWithImpl;
 @override @useResult
 $Res call({
-@JsonKey(includeToJson: false) String? id, String name, String scenario, List<dynamic> questions, bool isPaid
+@JsonKey(includeToJson: false) String? id, String name, String scenario, List<dynamic> questions, bool isPaid,@JsonKey(includeToJson: false) String? folderId,@JsonKey(includeToJson: false) String? scenarioImageUrl
 });
 
 
@@ -278,14 +284,16 @@ class __$OsceDtoCopyWithImpl<$Res>
 
 /// Create a copy of OsceDto
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = freezed,Object? name = null,Object? scenario = null,Object? questions = null,Object? isPaid = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = freezed,Object? name = null,Object? scenario = null,Object? questions = null,Object? isPaid = null,Object? folderId = freezed,Object? scenarioImageUrl = freezed,}) {
   return _then(_OsceDto(
 id: freezed == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String?,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String,scenario: null == scenario ? _self.scenario : scenario // ignore: cast_nullable_to_non_nullable
 as String,questions: null == questions ? _self._questions : questions // ignore: cast_nullable_to_non_nullable
 as List<dynamic>,isPaid: null == isPaid ? _self.isPaid : isPaid // ignore: cast_nullable_to_non_nullable
-as bool,
+as bool,folderId: freezed == folderId ? _self.folderId : folderId // ignore: cast_nullable_to_non_nullable
+as String?,scenarioImageUrl: freezed == scenarioImageUrl ? _self.scenarioImageUrl : scenarioImageUrl // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 

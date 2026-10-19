@@ -17,9 +17,14 @@ class FlashcardsSearcherBloc
     extends Bloc<FlashcardsSearcherEvent, FlashcardsSearcherState> {
   final FlashcardsSearcherRepository _flashcardsSearcherRepository;
 
+  /// Searches only these packs when set (e.g. the pack being studied).
+  Set<String>? _packIds;
+
   FlashcardsSearcherBloc({
     required FlashcardsSearcherRepository flashcardsSearcherRepository,
+    Set<String>? packIds,
   }) : _flashcardsSearcherRepository = flashcardsSearcherRepository,
+       _packIds = packIds,
        super(
          FlashcardsSearcherState(pagingState: PagingState(hasNextPage: false)),
        ) {
@@ -32,6 +37,7 @@ class FlashcardsSearcherBloc
       transformer: throttleDroppable(throttleDuration),
     );
     on<FlashcardsSearcherTagToggled>(_onTagToggled);
+    on<FlashcardsSearcherScopeChanged>(_onScopeChanged);
     on<FlashcardsSearcherPackAddedToState>(_onAdded);
     on<FlashcardsSearcherPackUpdatedInState>(_onUpdate);
     on<FlashcardsSearcherPackRemovedFromState>(_onRemove);
@@ -140,6 +146,7 @@ class FlashcardsSearcherBloc
       page: newKey,
       query: state.lastQuerySent,
       tags: state.selectedTagsList,
+      packIds: _packIds,
     );
     switch (result) {
       case Error<SearchResultWithTags<AlgoliaFlashcard>>(:final error):
@@ -210,6 +217,15 @@ class FlashcardsSearcherBloc
     await _sendSearchRequestAndEmit(query: state.lastQuerySent, emit: emit);
   }
 
+  void _onScopeChanged(
+    FlashcardsSearcherScopeChanged event,
+    Emitter<FlashcardsSearcherState> emit,
+  ) async {
+    _packIds = event.packIds;
+    if (!state.status.isInitial) return;
+    await _sendSearchRequestAndEmit(query: state.lastQuerySent, emit: emit);
+  }
+
   /// I use this method because onTagToggled and onRequestSent need to send
   /// search request. The only difference is that onRequestSent uses debounce and
   /// that is why I can't call that event handler inside another event handler
@@ -224,6 +240,7 @@ class FlashcardsSearcherBloc
     final result = await _flashcardsSearcherRepository.searchFlashcards(
       query: query,
       tags: state.selectedTagsList,
+      packIds: _packIds,
       page: newKey,
     );
     switch (result) {

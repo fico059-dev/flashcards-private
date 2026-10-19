@@ -15,7 +15,8 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$AlgoliaFlashcard {
 
- String get objectID; String get question; String get answer; bool get isPaid; List<String> get tags;
+ String get objectID; String get question; String get answer; bool get isPaid; List<String> get tags;/// The pack the card is in, for searching one pack.
+ String get packId;
 /// Create a copy of AlgoliaFlashcard
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +29,16 @@ $AlgoliaFlashcardCopyWith<AlgoliaFlashcard> get copyWith => _$AlgoliaFlashcardCo
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is AlgoliaFlashcard&&(identical(other.objectID, objectID) || other.objectID == objectID)&&(identical(other.question, question) || other.question == question)&&(identical(other.answer, answer) || other.answer == answer)&&(identical(other.isPaid, isPaid) || other.isPaid == isPaid)&&const DeepCollectionEquality().equals(other.tags, tags));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is AlgoliaFlashcard&&(identical(other.objectID, objectID) || other.objectID == objectID)&&(identical(other.question, question) || other.question == question)&&(identical(other.answer, answer) || other.answer == answer)&&(identical(other.isPaid, isPaid) || other.isPaid == isPaid)&&const DeepCollectionEquality().equals(other.tags, tags)&&(identical(other.packId, packId) || other.packId == packId));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,objectID,question,answer,isPaid,const DeepCollectionEquality().hash(tags));
+int get hashCode => Object.hash(runtimeType,objectID,question,answer,isPaid,const DeepCollectionEquality().hash(tags),packId);
 
 @override
 String toString() {
-  return 'AlgoliaFlashcard(objectID: $objectID, question: $question, answer: $answer, isPaid: $isPaid, tags: $tags)';
+  return 'AlgoliaFlashcard(objectID: $objectID, question: $question, answer: $answer, isPaid: $isPaid, tags: $tags, packId: $packId)';
 }
 
 
@@ -48,7 +49,7 @@ abstract mixin class $AlgoliaFlashcardCopyWith<$Res>  {
   factory $AlgoliaFlashcardCopyWith(AlgoliaFlashcard value, $Res Function(AlgoliaFlashcard) _then) = _$AlgoliaFlashcardCopyWithImpl;
 @useResult
 $Res call({
- String objectID, String question, String answer, bool isPaid, List<String> tags
+ String objectID, String question, String answer, bool isPaid, List<String> tags, String packId
 });
 
 
@@ -65,14 +66,15 @@ class _$AlgoliaFlashcardCopyWithImpl<$Res>
 
 /// Create a copy of AlgoliaFlashcard
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? objectID = null,Object? question = null,Object? answer = null,Object? isPaid = null,Object? tags = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? objectID = null,Object? question = null,Object? answer = null,Object? isPaid = null,Object? tags = null,Object? packId = null,}) {
   return _then(_self.copyWith(
 objectID: null == objectID ? _self.objectID : objectID // ignore: cast_nullable_to_non_nullable
 as String,question: null == question ? _self.question : question // ignore: cast_nullable_to_non_nullable
 as String,answer: null == answer ? _self.answer : answer // ignore: cast_nullable_to_non_nullable
 as String,isPaid: null == isPaid ? _self.isPaid : isPaid // ignore: cast_nullable_to_non_nullable
 as bool,tags: null == tags ? _self.tags : tags // ignore: cast_nullable_to_non_nullable
-as List<String>,
+as List<String>,packId: null == packId ? _self.packId : packId // ignore: cast_nullable_to_non_nullable
+as String,
   ));
 }
 
@@ -157,10 +159,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String objectID,  String question,  String answer,  bool isPaid,  List<String> tags)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String objectID,  String question,  String answer,  bool isPaid,  List<String> tags,  String packId)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _AlgoliaFlashcard() when $default != null:
-return $default(_that.objectID,_that.question,_that.answer,_that.isPaid,_that.tags);case _:
+return $default(_that.objectID,_that.question,_that.answer,_that.isPaid,_that.tags,_that.packId);case _:
   return orElse();
 
 }
@@ -178,10 +180,10 @@ return $default(_that.objectID,_that.question,_that.answer,_that.isPaid,_that.ta
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String objectID,  String question,  String answer,  bool isPaid,  List<String> tags)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String objectID,  String question,  String answer,  bool isPaid,  List<String> tags,  String packId)  $default,) {final _that = this;
 switch (_that) {
 case _AlgoliaFlashcard():
-return $default(_that.objectID,_that.question,_that.answer,_that.isPaid,_that.tags);case _:
+return $default(_that.objectID,_that.question,_that.answer,_that.isPaid,_that.tags,_that.packId);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -198,10 +200,10 @@ return $default(_that.objectID,_that.question,_that.answer,_that.isPaid,_that.ta
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String objectID,  String question,  String answer,  bool isPaid,  List<String> tags)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String objectID,  String question,  String answer,  bool isPaid,  List<String> tags,  String packId)?  $default,) {final _that = this;
 switch (_that) {
 case _AlgoliaFlashcard() when $default != null:
-return $default(_that.objectID,_that.question,_that.answer,_that.isPaid,_that.tags);case _:
+return $default(_that.objectID,_that.question,_that.answer,_that.isPaid,_that.tags,_that.packId);case _:
   return null;
 
 }
@@ -213,7 +215,7 @@ return $default(_that.objectID,_that.question,_that.answer,_that.isPaid,_that.ta
 @JsonSerializable()
 
 class _AlgoliaFlashcard implements AlgoliaFlashcard {
-  const _AlgoliaFlashcard({required this.objectID, required this.question, required this.answer, required this.isPaid, required final  List<String> tags}): _tags = tags;
+  const _AlgoliaFlashcard({required this.objectID, required this.question, required this.answer, required this.isPaid, required final  List<String> tags, this.packId = ''}): _tags = tags;
   factory _AlgoliaFlashcard.fromJson(Map<String, dynamic> json) => _$AlgoliaFlashcardFromJson(json);
 
 @override final  String objectID;
@@ -227,6 +229,8 @@ class _AlgoliaFlashcard implements AlgoliaFlashcard {
   return EqualUnmodifiableListView(_tags);
 }
 
+/// The pack the card is in, for searching one pack.
+@override@JsonKey() final  String packId;
 
 /// Create a copy of AlgoliaFlashcard
 /// with the given fields replaced by the non-null parameter values.
@@ -241,16 +245,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _AlgoliaFlashcard&&(identical(other.objectID, objectID) || other.objectID == objectID)&&(identical(other.question, question) || other.question == question)&&(identical(other.answer, answer) || other.answer == answer)&&(identical(other.isPaid, isPaid) || other.isPaid == isPaid)&&const DeepCollectionEquality().equals(other._tags, _tags));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _AlgoliaFlashcard&&(identical(other.objectID, objectID) || other.objectID == objectID)&&(identical(other.question, question) || other.question == question)&&(identical(other.answer, answer) || other.answer == answer)&&(identical(other.isPaid, isPaid) || other.isPaid == isPaid)&&const DeepCollectionEquality().equals(other._tags, _tags)&&(identical(other.packId, packId) || other.packId == packId));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,objectID,question,answer,isPaid,const DeepCollectionEquality().hash(_tags));
+int get hashCode => Object.hash(runtimeType,objectID,question,answer,isPaid,const DeepCollectionEquality().hash(_tags),packId);
 
 @override
 String toString() {
-  return 'AlgoliaFlashcard(objectID: $objectID, question: $question, answer: $answer, isPaid: $isPaid, tags: $tags)';
+  return 'AlgoliaFlashcard(objectID: $objectID, question: $question, answer: $answer, isPaid: $isPaid, tags: $tags, packId: $packId)';
 }
 
 
@@ -261,7 +265,7 @@ abstract mixin class _$AlgoliaFlashcardCopyWith<$Res> implements $AlgoliaFlashca
   factory _$AlgoliaFlashcardCopyWith(_AlgoliaFlashcard value, $Res Function(_AlgoliaFlashcard) _then) = __$AlgoliaFlashcardCopyWithImpl;
 @override @useResult
 $Res call({
- String objectID, String question, String answer, bool isPaid, List<String> tags
+ String objectID, String question, String answer, bool isPaid, List<String> tags, String packId
 });
 
 
@@ -278,14 +282,15 @@ class __$AlgoliaFlashcardCopyWithImpl<$Res>
 
 /// Create a copy of AlgoliaFlashcard
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? objectID = null,Object? question = null,Object? answer = null,Object? isPaid = null,Object? tags = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? objectID = null,Object? question = null,Object? answer = null,Object? isPaid = null,Object? tags = null,Object? packId = null,}) {
   return _then(_AlgoliaFlashcard(
 objectID: null == objectID ? _self.objectID : objectID // ignore: cast_nullable_to_non_nullable
 as String,question: null == question ? _self.question : question // ignore: cast_nullable_to_non_nullable
 as String,answer: null == answer ? _self.answer : answer // ignore: cast_nullable_to_non_nullable
 as String,isPaid: null == isPaid ? _self.isPaid : isPaid // ignore: cast_nullable_to_non_nullable
 as bool,tags: null == tags ? _self._tags : tags // ignore: cast_nullable_to_non_nullable
-as List<String>,
+as List<String>,packId: null == packId ? _self.packId : packId // ignore: cast_nullable_to_non_nullable
+as String,
   ));
 }
 

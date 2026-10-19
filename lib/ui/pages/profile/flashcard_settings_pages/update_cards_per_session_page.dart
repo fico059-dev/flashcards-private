@@ -7,6 +7,7 @@ import 'package:flashcards/domain/models/profile/profile.dart';
 import 'package:flashcards/ui/constants/styles.dart';
 import 'package:flashcards/ui/widgets/core/bloc_text_field.dart';
 import 'package:flashcards/ui/widgets/profile/profile_reader_bloc_builder.dart';
+import 'package:flashcards/ui/widgets/core/desktop_layout.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flashcards/l10n/app_localizations.dart';
@@ -18,17 +19,19 @@ class UpdateCardsPerSessionPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ProfileReaderBlocBuilder(
-      onLoadedContent:
-          (profile) => Scaffold(
-            appBar: AppBar(
-              title: Text("Cards per session"),
-              leading: IconButton(
-                onPressed: () => context.router.pop(),
-                icon: Icon(Icons.arrow_back),
-              ),
-            ),
-            body: _ProfileSettingsView(profile: profile),
+      onLoadedContent: (profile) => Scaffold(
+        appBar: AppBar(
+          title: Text("Cards per session"),
+          leading: IconButton(
+            onPressed: () => context.router.pop(),
+            icon: Icon(Icons.arrow_back),
           ),
+        ),
+        body: ReadableWidth(
+          maxWidth: 820,
+          child: _ProfileSettingsView(profile: profile),
+        ),
+      ),
     );
   }
 }
@@ -62,27 +65,28 @@ class _ProfileSettingsViewState extends State<_ProfileSettingsView> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create:
-          (context) => UpdateProfileSettingsCubit(
-            profileRepo: context.read<ProfileRepository>(),
-          ),
+      create: (context) => UpdateProfileSettingsCubit(
+        profileRepo: context.read<ProfileRepository>(),
+      ),
       child: Builder(
         builder: (context) {
           return BlocListener<
             UpdateProfileSettingsCubit,
             UpdateProfileSettingsState
           >(
-            listenWhen:
-                (previous, current) =>
-                    (current is UpdateProfileSettingsDisabled ||
-                        current is UpdateProfileSettingsSuccessful ||
-                        current is UpdateProfileSettingsError) &&
-                    current != previous,
+            listenWhen: (previous, current) =>
+                (current is UpdateProfileSettingsDisabled ||
+                    current is UpdateProfileSettingsSuccessful ||
+                    current is UpdateProfileSettingsError) &&
+                current != previous,
             listener: (context, state) {
               switch (state) {
                 case UpdateProfileSettingsDisabled():
-                  _cardsPerSessionCont.text =
-                      widget.profile.profileSettings.cardsPerSession.toString();
+                  _cardsPerSessionCont.text = widget
+                      .profile
+                      .profileSettings
+                      .cardsPerSession
+                      .toString();
                   break;
                 case UpdateProfileSettingsSuccessful():
                   ScaffoldMessenger.of(context).showSnackBar(
@@ -113,15 +117,14 @@ class _ProfileSettingsViewState extends State<_ProfileSettingsView> {
                     UpdateProfileSettingsCubit,
                     UpdateProfileSettingsState
                   >(
-                    errorSelector:
-                        (state) =>
-                            state is UpdateProfileSettingsFormInvalid
-                                ? state.errors['cardsPerSession']
-                                : null,
+                    errorSelector: (state) =>
+                        state is UpdateProfileSettingsFormInvalid
+                        ? state.errors['cardsPerSession']
+                        : null,
                     labelText: "Flashcards per session",
                     textEditingController: _cardsPerSessionCont,
-                    isEnabledState:
-                        (state) => state is! UpdateProfileSettingsDisabled,
+                    isEnabledState: (state) =>
+                        state is! UpdateProfileSettingsDisabled,
                   ),
                   Spacer(),
                   BlocBuilder<
@@ -146,10 +149,9 @@ class _ProfileSettingsViewState extends State<_ProfileSettingsView> {
                               child: SizedBox(
                                 height: 50,
                                 child: FilledButton(
-                                  onPressed:
-                                      context
-                                          .read<UpdateProfileSettingsCubit>()
-                                          .enableForm,
+                                  onPressed: context
+                                      .read<UpdateProfileSettingsCubit>()
+                                      .enableForm,
                                   child: Text(
                                     AppLocalizations.of(
                                       context,
@@ -166,10 +168,9 @@ class _ProfileSettingsViewState extends State<_ProfileSettingsView> {
                               child: SizedBox(
                                 height: 50,
                                 child: OutlinedButton(
-                                  onPressed:
-                                      context
-                                          .read<UpdateProfileSettingsCubit>()
-                                          .disableForm,
+                                  onPressed: context
+                                      .read<UpdateProfileSettingsCubit>()
+                                      .disableForm,
                                   child: Text(
                                     AppLocalizations.of(
                                       context,
@@ -186,22 +187,21 @@ class _ProfileSettingsViewState extends State<_ProfileSettingsView> {
                                 child: FilledButton(
                                   onPressed:
                                       state is! UpdateProfileSettingsLoading
-                                          ? onSave
-                                          : null,
-                                  child:
-                                      state is! UpdateProfileSettingsLoading
-                                          ? Text(
-                                            AppLocalizations.of(
-                                              context,
-                                            )!.basicText_save,
-                                          )
-                                          : SizedBox(
-                                            height: 30,
-                                            width: 30,
-                                            child: CircularProgressIndicator(
-                                              color: Colors.grey[200],
-                                            ),
+                                      ? onSave
+                                      : null,
+                                  child: state is! UpdateProfileSettingsLoading
+                                      ? Text(
+                                          AppLocalizations.of(
+                                            context,
+                                          )!.basicText_save,
+                                        )
+                                      : SizedBox(
+                                          height: 30,
+                                          width: 30,
+                                          child: CircularProgressIndicator(
+                                            color: Colors.grey[200],
                                           ),
+                                        ),
                                 ),
                               ),
                             ),

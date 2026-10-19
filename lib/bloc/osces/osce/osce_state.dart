@@ -4,6 +4,10 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'osce_state.freezed.dart';
 
+/// Learning shows each question's answers right after it; Exam only at the
+/// end.
+enum OsceMode { learning, exam }
+
 enum OsceStatus {
   initial,
   checkToggling,
@@ -48,6 +52,7 @@ sealed class OsceState with _$OsceState {
 
     /// it reads local storage to see if the osce tutorial has been seen or not
     bool? tutorialSeen,
+    @Default(OsceMode.exam) OsceMode mode,
   }) = OsceShowcase;
 
   const factory OsceState.loaded({
@@ -55,6 +60,11 @@ sealed class OsceState with _$OsceState {
     required Osce osce,
     @Default(0) int currentQuestionIndex,
     @Default({}) Map<String, bool> revealedQuestions,
+
+    /// True once the questions are done and the user is ticking the
+    /// checklist of every question to get their score.
+    @Default(false) bool reviewingChecklist,
+    @Default(OsceMode.exam) OsceMode mode,
     Exception? error,
   }) = OsceLoaded;
 

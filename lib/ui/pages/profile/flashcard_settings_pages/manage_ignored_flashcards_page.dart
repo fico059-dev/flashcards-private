@@ -13,6 +13,7 @@ import 'package:flashcards/ui/widgets/core/error_screen.dart';
 import 'package:flashcards/ui/widgets/flashcard/bookmarks/bookmarks_shimmer.dart';
 import 'package:flashcards/ui/widgets/profile/flashcard_settings/manage_ignored_cards/ignored_flashcard_card.dart';
 import 'package:flashcards/utils/firebase_error_mapper.dart';
+import 'package:flashcards/ui/widgets/core/desktop_layout.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
@@ -24,11 +25,10 @@ class ManageIgnoredFlashcardsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create:
-          (context) => IgnoredCardBloc(
-            fcpRepo: context.read<FcpRepository>(),
-            packRepo: context.read<PackRepository>(),
-          ),
+      create: (context) => IgnoredCardBloc(
+        fcpRepo: context.read<FcpRepository>(),
+        packRepo: context.read<PackRepository>(),
+      ),
       child: _IgnoredCardsView(),
     );
   }
@@ -71,60 +71,61 @@ class _IgnoredCardsView extends StatelessWidget {
         ),
         title: Text("Manage Ignored Flashcards"),
       ),
-      body: BlocBuilder<IgnoredCardBloc, IgnoredCardState>(
-        builder:
-            (context, state) => RefreshIndicator(
-              onRefresh: () => handleRefresh(context),
-              child: CustomScrollView(
-                slivers: [
-                  SliverToBoxAdapter(
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: horizontalScreenPadding,
-                      ),
-                      child: Column(
-                        children: [
-                          SizedBox(height: 7),
-                          CardFactory.info(
-                            title: Text("Unignore flashcard"),
-                            subtitle: Text("Swipe left to unignore flashcard"),
-                            closable: true,
-                          ),
-                          SizedBox(height: 15),
-                        ],
-                      ),
+      body: ReadableWidth(
+        maxWidth: 820,
+        child: BlocBuilder<IgnoredCardBloc, IgnoredCardState>(
+          builder: (context, state) => RefreshIndicator(
+            onRefresh: () => handleRefresh(context),
+            child: CustomScrollView(
+              slivers: [
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: horizontalScreenPadding,
+                    ),
+                    child: Column(
+                      children: [
+                        SizedBox(height: 7),
+                        CardFactory.info(
+                          title: Text("Unignore flashcard"),
+                          subtitle: Text("Swipe left to unignore flashcard"),
+                          closable: true,
+                        ),
+                        SizedBox(height: 15),
+                      ],
                     ),
                   ),
+                ),
 
-                  PagedSliverList(
-                    state: state.pagingState,
-                    fetchNextPage: fetchNextPage,
-                    builderDelegate: PagedChildBuilderDelegate(
-                      firstPageProgressIndicatorBuilder:
-                          (context) => BookmarksShimmer(),
-                      noItemsFoundIndicatorBuilder:
-                          (context) => _EmptyListContainer(),
-                      firstPageErrorIndicatorBuilder:
-                          (context) => ErrorScreen(
-                            errorMessage: extractErrorMessage(
-                              state.pagingState.error!,
-                            ),
-                            onReload: fetchNextPage,
-                          ),
-                      itemBuilder: (context, item, index) {
-                        final card = item as IgnoredFlashcard;
-                        return IgnoredFlashcardCard(
-                          key: ValueKey(card.flashcardId),
-                          card: card,
-                          index: index,
-                          onUndo: onUndo,
-                        );
-                      },
+                PagedSliverList(
+                  state: state.pagingState,
+                  fetchNextPage: fetchNextPage,
+                  builderDelegate: PagedChildBuilderDelegate(
+                    firstPageProgressIndicatorBuilder: (context) =>
+                        BookmarksShimmer(),
+                    noItemsFoundIndicatorBuilder: (context) =>
+                        _EmptyListContainer(),
+                    firstPageErrorIndicatorBuilder: (context) => ErrorScreen(
+                      errorMessage: extractErrorMessage(
+                        state.pagingState.error!,
+                      ),
+                      onReload: fetchNextPage,
                     ),
+                    itemBuilder: (context, item, index) {
+                      final card = item as IgnoredFlashcard;
+                      return IgnoredFlashcardCard(
+                        key: ValueKey(card.flashcardId),
+                        card: card,
+                        index: index,
+                        onUndo: onUndo,
+                      );
+                    },
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
+          ),
+        ),
       ),
     );
   }

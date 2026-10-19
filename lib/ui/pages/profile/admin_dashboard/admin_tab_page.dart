@@ -112,7 +112,6 @@ class _AdminTabPageState extends State<AdminTabPage> with AutoRouteAware {
 
         List<Widget>? appBarActions;
         switch (_tabsRouter?.activeIndex) {
-          case 4:
           case 0:
             appBarActions = [
               Builder(
@@ -139,7 +138,6 @@ class _AdminTabPageState extends State<AdminTabPage> with AutoRouteAware {
             case 0:
               return FilterDrawer(filterOptions: PackFilterOptions());
             case 4:
-            case 5:
             //return AnotherCustomDrawer();
             default:
               return SizedBox.shrink(); // nema drawer-a
@@ -172,6 +170,13 @@ class _AdminTabPageState extends State<AdminTabPage> with AutoRouteAware {
                   padding: EdgeInsets.zero,
                   children: [
                     _DrawerItem(
+                      index: 5,
+                      onTap: () => setActiveIndex(drawerContext, 5),
+                      title: "Analytics",
+                      icon: Icons.insights_outlined,
+                      selectedIcon: Icons.insights,
+                    ),
+                    _DrawerItem(
                       index: 0,
                       onTap: () => setActiveIndex(drawerContext, 0),
                       title: l10n.flashcardBuilderPage_title,
@@ -201,9 +206,16 @@ class _AdminTabPageState extends State<AdminTabPage> with AutoRouteAware {
                       icon: Icons.report_outlined,
                       selectedIcon: Icons.report,
                     ),
-                    Divider(height: 5),
                     _DrawerItem(
                       index: 4,
+                      onTap: () => setActiveIndex(drawerContext, 4),
+                      title: "All Packs (without search)",
+                      icon: Icons.folder_copy_outlined,
+                      selectedIcon: Icons.folder_copy,
+                    ),
+                    Divider(height: 5),
+                    _DrawerItem(
+                      index: -1,
                       onTap: () {
                         context.router.pop();
                         context.router.replaceAll([MainTabRoute()]);

@@ -1,3 +1,4 @@
+import 'package:flashcards/domain/models/flashcards/flashcard/flashcard.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flashcards/domain/models/flashcards/pack/pack.dart';
 import 'package:flashcards/domain/models/profile/streak/streak.dart';
@@ -67,3 +68,24 @@ class FlashcardCardsPerSessionUpdated extends FlashcardEvent {
 class FlashcardTutorialSeenChecked extends FlashcardEvent {}
 
 class FlashcardTutorialFinished extends FlashcardEvent {}
+
+/// The student set this pack's session target (null: back to the
+/// default). The session starts again with the new target.
+class FlashcardSessionTargetChanged extends FlashcardEvent {
+  final int? target;
+
+  FlashcardSessionTargetChanged(this.target);
+
+  @override
+  List<Object?> get props => [target];
+}
+
+/// An admin edited the current card while studying.
+class FlashcardEdited extends FlashcardEvent {
+  final Flashcard flashcard;
+
+  FlashcardEdited(this.flashcard);
+
+  @override
+  List<Object?> get props => [flashcard];
+}

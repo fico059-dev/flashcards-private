@@ -7,6 +7,7 @@ import 'package:flashcards/data/repositories/flashcards/custom_session_repositor
 import 'package:flashcards/data/repositories/flashcards/fcp_repository.dart';
 import 'package:flashcards/data/repositories/flashcards/pack_repository.dart';
 import 'package:flashcards/ui/widgets/custom_session/custom_session_bottom_navigation_bar.dart';
+import 'package:flashcards/ui/widgets/core/desktop_layout.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -24,7 +25,7 @@ class CustomSessionWrapperPage extends StatelessWidget
 
     return Scaffold(
       appBar: AppBar(title: Text(title)),
-      body: AutoRouter(),
+      body: ReadableWidth(maxWidth: 820, child: AutoRouter()),
       bottomNavigationBar: CustomSessionBottomNavigationBar(
         stepIndex: stepIndex,
       ),
@@ -36,21 +37,18 @@ class CustomSessionWrapperPage extends StatelessWidget
     return MultiBlocProvider(
       providers: [
         BlocProvider(
-          create:
-              (context) =>
-                  PackPickerBloc(packRepo: context.read<PackRepository>()),
+          create: (context) =>
+              PackPickerBloc(packRepo: context.read<PackRepository>()),
         ),
         BlocProvider(
-          create:
-              (context) =>
-                  PackFilterBloc(fcpRepo: context.read<FcpRepository>()),
+          create: (context) =>
+              PackFilterBloc(fcpRepo: context.read<FcpRepository>()),
         ),
         BlocProvider(create: (context) => SessionTagPickerCubit()),
         BlocProvider(
-          create:
-              (context) => SessionLimitCubit(
-                customSessionRepo: context.read<CustomSessionRepository>(),
-              ),
+          create: (context) => SessionLimitCubit(
+            customSessionRepo: context.read<CustomSessionRepository>(),
+          ),
         ),
       ],
       child: this,

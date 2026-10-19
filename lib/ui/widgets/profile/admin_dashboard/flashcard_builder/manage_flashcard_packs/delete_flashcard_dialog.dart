@@ -16,10 +16,8 @@ Future<bool?> showDeleteFlashcardDialog(
     context: context,
     builder: (context) {
       return BlocProvider(
-        create:
-            (context) => DeleteFlashcardCubit(
-              fcRepo: context.read<FlashcardRepository>(),
-            ),
+        create: (context) =>
+            DeleteFlashcardCubit(fcRepo: context.read<FlashcardRepository>()),
         child: _Content(flashcard: flashcard),
       );
     },
@@ -38,10 +36,8 @@ class _Content extends StatelessWidget {
     }
 
     return BlocListener<DeleteFlashcardCubit, DeleteFlashcardState>(
-      listenWhen:
-          (previous, current) =>
-              current is DeleteFlashcardError ||
-              current is DeleteFlashcardSuccess,
+      listenWhen: (previous, current) =>
+          current is DeleteFlashcardError || current is DeleteFlashcardSuccess,
       listener: (context, state) {
         switch (state) {
           case DeleteFlashcardError(:final error):

@@ -11,6 +11,7 @@ import 'package:flashcards/ui/widgets/verify_email/verify_email_listener.dart';
 import 'package:flashcards/ui/widgets/verify_email/verify_email_refresh_button.dart';
 import 'package:flashcards/ui/widgets/verify_email/verify_email_resend_link_button.dart';
 import 'package:flashcards/ui/widgets/verify_email/verify_email_sign_out_button.dart';
+import 'package:flashcards/ui/widgets/core/desktop_layout.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flashcards/l10n/app_localizations.dart';
@@ -60,33 +61,36 @@ class _VerifyEmailViewState extends State<_VerifyEmailView> {
         leading: null,
         actions: [VerifyEmailRefreshButton(), ThemeToggleButton()],
       ),
-      body: VerifyEmailListener(
-        child: SafeArea(
-          child: Container(
-            padding: const EdgeInsets.only(
-              left: 25,
-              right: 25,
-              top: 10,
-              bottom: 45,
-            ),
-            alignment: Alignment.center,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Column(
-                  children: [
-                    VerifyEmailIcon(),
-                    SizedBox(height: 40),
-                    VerifyEmailHeadline(),
-                    SizedBox(height: 50),
-                    VerifyEmailInfoSection(),
-                    SizedBox(height: 80),
-                    VerifyEmailActionButtons(),
-                  ],
-                ),
-                VerifyEmailSignOutButton(),
-                VerifyEmailResendLinkButton(),
-              ],
+      body: ReadableWidth(
+        maxWidth: 480,
+        child: VerifyEmailListener(
+          child: SafeArea(
+            child: Container(
+              padding: const EdgeInsets.only(
+                left: 25,
+                right: 25,
+                top: 10,
+                bottom: 45,
+              ),
+              alignment: Alignment.center,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    children: [
+                      VerifyEmailIcon(),
+                      SizedBox(height: 40),
+                      VerifyEmailHeadline(),
+                      SizedBox(height: 50),
+                      VerifyEmailInfoSection(),
+                      SizedBox(height: 80),
+                      VerifyEmailActionButtons(),
+                    ],
+                  ),
+                  VerifyEmailSignOutButton(),
+                  VerifyEmailResendLinkButton(),
+                ],
+              ),
             ),
           ),
         ),

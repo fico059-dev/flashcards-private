@@ -10,10 +10,13 @@ import 'package:flashcards/ui/theme/theme_extensions.dart';
 import 'package:flashcards/ui/widgets/core/error_screen.dart';
 import 'package:flashcards/ui/widgets/osce/osce_bottom_action_buttons.dart';
 import 'package:flashcards/ui/widgets/osce/osce_showcase_widget.dart';
+import 'package:flashcards/ui/widgets/osce/osce_mode_switch.dart';
 import 'package:flashcards/ui/widgets/osce/osce_timer.dart';
 import 'package:flashcards/ui/widgets/osce/osce_tutorial_seen_listener.dart';
 import 'package:flashcards/ui/widgets/osce/question_context.dart';
 import 'package:flashcards/utils/firebase_error_mapper.dart';
+import 'package:flashcards/ui/widgets/osce/osce_checklist_review.dart';
+import 'package:flashcards/ui/widgets/core/desktop_layout.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flashcards/l10n/app_localizations.dart';
@@ -71,51 +74,57 @@ class _OsceViewState extends State<_OsceView> {
         ),
       ),
       body: SafeArea(
-        child: OsceTutorialSeenListener(
-          child: BlocListener<OsceBloc, OsceState>(
-            listenWhen: (previous, current) =>
-                current is OsceLoaded && current.status.isError,
-            listener: (context, state) {
-              if (state is! OsceLoaded) return;
+        child: ReadableWidth(
+          child: OsceTutorialSeenListener(
+            child: BlocListener<OsceBloc, OsceState>(
+              listenWhen: (previous, current) =>
+                  current is OsceLoaded && current.status.isError,
+              listener: (context, state) {
+                if (state is! OsceLoaded) return;
 
-              switch (state.status) {
-                case OsceStatus.error:
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(extractErrorMessage(state.error!))),
-                  );
-                  break;
-                default:
-                  break;
-              }
-            },
-            child: Padding(
-              padding: EdgeInsets.only(
-                left: horizontalScreenPadding,
-                right: horizontalScreenPadding,
-                bottom: 40,
-                top: 15,
-              ),
-              child: BlocBuilder<OsceBloc, OsceState>(
-                buildWhen: (previous, current) =>
-                    previous.runtimeType != current.runtimeType,
-                builder: (context, state) {
-                  switch (state) {
-                    case OsceInitial():
-                    case OsceLoading():
-                      return Center(
-                        child: CircularProgressIndicator(color: context.colors.primary),
-                      );
-                    case OsceShowcase(:final osce):
-                      return OsceShowcaseWidget(osce: osce);
-                    case OsceError(:final error):
-                      return ErrorScreen(
-                        errorMessage: extractErrorMessage(error),
-                        onReload: _onStart,
-                      );
-                    case OsceLoaded():
-                      return _LoadedContent(state: state);
-                  }
-                },
+                switch (state.status) {
+                  case OsceStatus.error:
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(extractErrorMessage(state.error!)),
+                      ),
+                    );
+                    break;
+                  default:
+                    break;
+                }
+              },
+              child: Padding(
+                padding: EdgeInsets.only(
+                  left: horizontalScreenPadding,
+                  right: horizontalScreenPadding,
+                  bottom: 40,
+                  top: 15,
+                ),
+                child: BlocBuilder<OsceBloc, OsceState>(
+                  buildWhen: (previous, current) =>
+                      previous.runtimeType != current.runtimeType,
+                  builder: (context, state) {
+                    switch (state) {
+                      case OsceInitial():
+                      case OsceLoading():
+                        return Center(
+                          child: CircularProgressIndicator(
+                            color: context.colors.primary,
+                          ),
+                        );
+                      case OsceShowcase(:final osce):
+                        return OsceShowcaseWidget(osce: osce);
+                      case OsceError(:final error):
+                        return ErrorScreen(
+                          errorMessage: extractErrorMessage(error),
+                          onReload: _onStart,
+                        );
+                      case OsceLoaded():
+                        return _LoadedContent(state: state);
+                    }
+                  },
+                ),
               ),
             ),
           ),
@@ -132,6 +141,13 @@ class _LoadedContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final reviewing = context.select<OsceBloc, bool>(
+      (bloc) =>
+          bloc.state is OsceLoaded &&
+          (bloc.state as OsceLoaded).reviewingChecklist,
+    );
+    if (reviewing) return const OsceChecklistReview();
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisAlignment: MainAxisAlignment.start,
@@ -141,12 +157,16 @@ class _LoadedContent extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                const OsceModeSwitch(),
+                const SizedBox(height: 12),
                 OsceTimer(),
                 SizedBox(height: 20),
 
                 QuestionContext(),
 
                 SizedBox(height: 20),
+                const OsceLearningAnswer(),
+                const SizedBox(height: 20),
               ],
             ),
           ),

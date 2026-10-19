@@ -40,8 +40,9 @@ class CustomSessionRepository {
     }
 
     _cursorMap.put(pageIndex, result.value.lastDocument);
-    final list =
-        result.value.items.map((dto) => dto.toCustomSessionSummary()).toList();
+    final list = result.value.items
+        .map((dto) => dto.toCustomSessionSummary())
+        .toList();
     return Result.ok(list);
   }
 
@@ -73,6 +74,7 @@ class CustomSessionRepository {
     required PackSelectedFilter filter,
     required List<String> tags,
     required List<String> packIds,
+    String? name,
   }) async {
     final request = CreateCustomSessionRequestDto(
       profileId: _getUid(),
@@ -80,6 +82,7 @@ class CustomSessionRepository {
       tags: tags,
       packIds: packIds,
       sessionSize: sessionSize,
+      name: name,
     );
     return await _customSessionService.createCustomSession(request);
   }
@@ -104,6 +107,14 @@ class CustomSessionRepository {
     return await _customSessionService.patchCustomSession(
       sessionId: sessionId,
       dto: dto,
+    );
+  }
+
+  /// Returns the name that was saved.
+  Future<Result<String>> renameSession(String sessionId, String name) {
+    return _customSessionService.renameCustomSession(
+      sessionId: sessionId,
+      name: name,
     );
   }
 

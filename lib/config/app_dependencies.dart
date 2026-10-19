@@ -3,7 +3,6 @@ import 'package:flashcards/bloc/profile/profile_reader/profile_reader_cubit.dart
 import 'package:flashcards/bloc/theme/theme_cubit.dart';
 import 'package:flashcards/data/remote/cloud_storage_service.dart';
 import 'package:flashcards/data/remote/firestore_db_context.dart';
-import 'package:flashcards/data/remote/algolia_service.dart';
 import 'package:flashcards/data/remote/cloud_function_service.dart';
 import 'package:flashcards/data/remote/network_service.dart';
 import 'package:flashcards/data/repositories/algolia_search/flashcards_searcher_repository.dart';
@@ -37,10 +36,17 @@ import 'package:flashcards/data/services/api/flashcards/pp_service.dart';
 import 'package:flashcards/data/services/api/flashcards/report_service.dart';
 import 'package:flashcards/data/services/api/users/profile_service.dart';
 import 'package:flashcards/data/services/api/users/user_roles_service.dart';
+import 'package:flashcards/data/services/local/session_progress_store.dart';
 import 'package:flashcards/data/services/local/local_storage_service.dart';
 import 'package:flashcards/domain/models/flashcards/admin_pack/admin_pack.dart';
 import 'package:flashcards/domain/models/flashcards/pack/pack.dart';
 import 'package:flashcards/domain/models/flashcards/tag/tag.dart';
+import 'package:flashcards/data/repositories/progress/progress_repository.dart';
+import 'package:flashcards/data/services/local/study_log_store.dart';
+import 'package:flashcards/data/services/local/study_rewards.dart';
+import 'package:flashcards/data/services/local/daily_target.dart';
+import 'package:flashcards/data/repositories/notebook/highlight_repository.dart';
+import 'package:flashcards/data/repositories/osces/osce_library_repository.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 import 'package:provider/single_child_widget.dart';
@@ -57,8 +63,10 @@ class AppDependencies {
   late final CloudStorageService _storage;
   late final AuthService _authService;
   late final LocalStorageService _localStorageService;
-
-  late final AlgoliaService _algoliaService;
+  late final StudyLogStore _studyLogStore;
+  late final StudyRewards _studyRewards;
+  late final DailyTargetService _dailyTarget;
+  late final SessionProgressStore _sessionProgress;
 
   late final NotificationService _notificationService;
 
@@ -66,7 +74,10 @@ class AppDependencies {
 
   AppDependencies({required this.isDev});
 
-  Future<void> initialize() async {
+  /// [onStep] is told what is being set up, to name it if starting fails.
+  Future<void> initialize({void Function(String step)? onStep}) async {
+    void step(String name) => onStep?.call(name);
+
     // I declare caches here because some caches are used in multiple repos,
     // and i inject them to the repo directly from here
     _tagCache = DataCache<Tag>(
@@ -83,18 +94,36 @@ class AppDependencies {
     );
 
     // Database
+    step('database (Firestore)');
     _dbContext = FirestoreDbContext();
+    step('server functions');
     _functions = CloudFunctionService();
+    step('file storage (images)');
     _storage = CloudStorageService();
 
-    _algoliaService = AlgoliaService(isDev: isDev);
-
+    step('notifications');
     _notificationService = NotificationService();
     await _notificationService.init();
 
+    step('sign-in');
     _authService = AuthService();
+    step('saved settings');
     _localStorageService = LocalStorageService(authService: _authService);
+    _studyLogStore = StudyLogStore(
+      authService: _authService,
+      remote: CloudStudyLogRemote(
+        get: _functions.getStudyLog,
+        save: _functions.saveStudyLog,
+      ),
+    );
+    _studyRewards = StudyRewards(store: _studyLogStore);
+    _dailyTarget = DailyTargetService(
+      logStore: _studyLogStore,
+      auth: _authService,
+    );
+    _sessionProgress = SessionProgressStore(logStore: _studyLogStore);
 
+    step('theme');
     _themeCubit = ThemeCubit(storageService: _localStorageService);
     await _themeCubit.loadTheme();
   }
@@ -119,6 +148,10 @@ class AppDependencies {
       //Services
       Provider.value(value: _authService),
       Provider.value(value: _localStorageService),
+      Provider.value(value: _studyLogStore),
+      Provider.value(value: _studyRewards),
+      Provider.value(value: _dailyTarget),
+      Provider.value(value: _sessionProgress),
       Provider(create: (context) => ProfileService(dbContext: _dbContext)),
       Provider(
         create: (context) =>
@@ -153,12 +186,10 @@ class AppDependencies {
         ),
       ),
       Provider(
-        create: (context) =>
-            PacksSearcherService(algoliaService: _algoliaService),
+        create: (context) => PacksSearcherService(dbContext: _dbContext),
       ),
       Provider(
-        create: (context) =>
-            FlashcardsSearcherService(algoliaService: _algoliaService),
+        create: (context) => FlashcardsSearcherService(functions: _functions),
       ),
 
       // Repositories
@@ -204,6 +235,13 @@ class AppDependencies {
         ),
       ),
       Provider(
+        create: (context) => OsceLibraryRepository(
+          osceService: context.read<OsceService>(),
+          osceRepository: context.read<OsceRepository>(),
+          functions: _functions,
+        ),
+      ),
+      Provider(
         create: (context) => OscePerformanceRepository(
           oscePerfService: context.read<OscePerformanceService>(),
           dbContext: _dbContext,
@@ -217,6 +255,24 @@ class AppDependencies {
           flashcardService: context.read<FlashcardService>(),
           packService: context.read<PackService>(),
           packCache: _packsCache,
+          studyLog: _studyLogStore,
+          rewards: _studyRewards,
+        ),
+      ),
+      ChangeNotifierProvider(
+        create: (context) => HighlightRepository(
+          functions: _functions,
+          authService: context.read<AuthService>(),
+        ),
+      ),
+      Provider(
+        create: (context) => ProgressRepository(
+          fcpService: context.read<FcpService>(),
+          packService: context.read<PackService>(),
+          osceService: context.read<OsceService>(),
+          oscePerfService: context.read<OscePerformanceService>(),
+          authService: context.read<AuthService>(),
+          logStore: _studyLogStore,
         ),
       ),
       Provider(

@@ -13,10 +13,8 @@ class StreakListenerWithFcBloc extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocListener<FlashcardBloc, FlashcardState>(
-      listenWhen:
-          (previous, current) =>
-              current.newStreak != null &&
-              current.newStreak != previous.newStreak,
+      listenWhen: (previous, current) =>
+          current.newStreak != null && current.newStreak != previous.newStreak,
       listener: (context, state) {
         final newStreak = state.newStreak;
         if (newStreak == null) return;

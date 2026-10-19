@@ -19,9 +19,13 @@ void showSinglePackBottomSheet(
   bool? hasCards,
 ) {
   showModalBottomSheet(
+    isScrollControlled: true,
+    useSafeArea: true,
     showDragHandle: true,
     context: context,
-    builder: (context) => _SinglePackWidget(packId: packId, hasCards: hasCards),
+    builder: scrollableSheet(
+      (context) => _SinglePackWidget(packId: packId, hasCards: hasCards),
+    ),
   );
 }
 

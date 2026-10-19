@@ -1,6 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flashcards/ui/constants/styles.dart';
 import 'package:flashcards/ui/widgets/search/core_widgets/filter_drawer.dart';
+import 'package:flashcards/ui/widgets/core/desktop_layout.dart';
 import 'package:flutter/material.dart';
 
 class SearchPage extends StatelessWidget {
@@ -10,6 +11,9 @@ class SearchPage extends StatelessWidget {
   final Widget? itemCount;
   final bool searchBarAsTitle;
   final Widget? title;
+
+  /// Shown above the results, e.g. to choose where to search.
+  final Widget? header;
 
   // final String drawerTitle;
   // final String drawerSubtitle;
@@ -22,6 +26,7 @@ class SearchPage extends StatelessWidget {
     this.itemCount,
     this.searchBarAsTitle = true,
     this.title,
+    this.header,
     // required this.drawerTitle,
     // required this.drawerSubtitle,
   });
@@ -46,22 +51,28 @@ class SearchPage extends StatelessWidget {
           ),
         ],
       ),
-      body: Padding(
-        padding: EdgeInsets.only(
-          left: horizontalScreenPadding,
-          right: horizontalScreenPadding,
-          top: searchBarAsTitle ? 16 : 0,
-        ),
-        child: CustomScrollView(
-          slivers: [
-            if (!searchBarAsTitle) SliverToBoxAdapter(child: searchBar),
-            if (!searchBarAsTitle)
-              SliverToBoxAdapter(child: SizedBox(height: 15)),
-            if (itemCount != null) itemCount!,
-            if (itemCount != null)
-              SliverToBoxAdapter(child: SizedBox(height: 15)),
-            searchResults,
-          ],
+      body: ReadableWidth(
+        maxWidth: 820,
+        child: Padding(
+          padding: EdgeInsets.only(
+            left: horizontalScreenPadding,
+            right: horizontalScreenPadding,
+            top: searchBarAsTitle ? 16 : 0,
+          ),
+          child: CustomScrollView(
+            slivers: [
+              if (!searchBarAsTitle) SliverToBoxAdapter(child: searchBar),
+              if (!searchBarAsTitle)
+                SliverToBoxAdapter(child: SizedBox(height: 15)),
+              if (header != null) SliverToBoxAdapter(child: header),
+              if (header != null)
+                SliverToBoxAdapter(child: SizedBox(height: 12)),
+              if (itemCount != null) itemCount!,
+              if (itemCount != null)
+                SliverToBoxAdapter(child: SizedBox(height: 15)),
+              searchResults,
+            ],
+          ),
         ),
       ),
       endDrawer: FilterDrawer(filterOptions: filterOptions),

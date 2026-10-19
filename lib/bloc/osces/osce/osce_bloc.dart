@@ -24,8 +24,31 @@ class OsceBloc extends Bloc<OsceEvent, OsceState> {
     on<NextQuestionRequested>(_onNextQuestionRequested);
     on<PreviousQuestionRequested>(_onPreviousQuestionRequested);
     on<OsceCurrentQuestionRevealed>(_onQuestionRevealed);
+    on<OsceChecklistOpened>(_onChecklistOpened);
+    on<OsceChecklistClosed>(_onChecklistClosed);
     on<OsceTutorialSeenChecked>(_onTutorialChecked);
     on<OsceTutorialFinished>(_onTutorialFinished);
+    on<OsceModeChanged>(_onModeChanged);
+  }
+
+  void _onModeChanged(OsceModeChanged event, Emitter<OsceState> emit) {
+    final state = this.state;
+    switch (state) {
+      case OsceShowcase():
+        emit(state.copyWith(mode: event.mode));
+      case OsceLoaded():
+        emit(state.copyWith(mode: event.mode, error: null));
+      default:
+        return;
+    }
+    // The next OSCE starts in the same mode.
+    try {
+      _localStorageService
+          .setOsceLearningMode(event.mode == OsceMode.learning)
+          .catchError((Object _) {});
+    } catch (_) {
+      // Not remembered: the next OSCE starts in Exam mode.
+    }
   }
 
   void _onTutorialChecked(
@@ -66,11 +89,23 @@ class OsceBloc extends Bloc<OsceEvent, OsceState> {
     emit(state.copyWith(revealedQuestions: newMap));
   }
 
+  void _onChecklistOpened(OsceChecklistOpened event, Emitter<OsceState> emit) {
+    final state = this.state;
+    if (state is! OsceLoaded) return;
+    emit(state.copyWith(reviewingChecklist: true, error: null));
+  }
+
+  void _onChecklistClosed(OsceChecklistClosed event, Emitter<OsceState> emit) {
+    final state = this.state;
+    if (state is! OsceLoaded) return;
+    emit(state.copyWith(reviewingChecklist: false, error: null));
+  }
+
   void _onTestStarted(OsceTestStarted event, Emitter<OsceState> emit) {
     final state = this.state;
     if (state is! OsceShowcase) return;
 
-    emit(OsceLoaded(osce: state.osce));
+    emit(OsceLoaded(osce: state.osce, mode: state.mode));
   }
 
   void _onNextQuestionRequested(
@@ -105,7 +140,8 @@ class OsceBloc extends Bloc<OsceEvent, OsceState> {
 
     emit(state.copyWith(status: OsceStatus.checkToggling, error: null));
 
-    final question = state.osce.questions[state.currentQuestionIndex];
+    final questionIndex = event.questionIndex ?? state.currentQuestionIndex;
+    final question = state.osce.questions[questionIndex];
     final updatedChecks = List<Check>.from(question.checks);
     final originalCheck = updatedChecks[event.checkIndex];
     updatedChecks[event.checkIndex] = originalCheck.copyWith(
@@ -114,7 +150,7 @@ class OsceBloc extends Bloc<OsceEvent, OsceState> {
 
     final updatedQuestion = question.copyWith(checks: updatedChecks);
     final updatedQuestions = List<Question>.from(state.osce.questions);
-    updatedQuestions[state.currentQuestionIndex] = updatedQuestion;
+    updatedQuestions[questionIndex] = updatedQuestion;
 
     final updatedOsce = state.osce.copyWith(questions: updatedQuestions);
 
@@ -133,7 +169,15 @@ class OsceBloc extends Bloc<OsceEvent, OsceState> {
         return;
       case Ok<Osce>():
     }
-    emit(OsceShowcase(osce: osceResult.value));
+    var mode = OsceMode.exam;
+    try {
+      if (await _localStorageService.getOsceLearningMode()) {
+        mode = OsceMode.learning;
+      }
+    } catch (_) {
+      // Exam mode.
+    }
+    emit(OsceShowcase(osce: osceResult.value, mode: mode));
 
     // when everything is loaded and user is ready to start the test,
     // we check to see if he saw the tutorial

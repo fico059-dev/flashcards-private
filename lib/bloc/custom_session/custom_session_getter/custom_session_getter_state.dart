@@ -10,6 +10,7 @@ enum CustomSessionGetterStatus {
   actionError,
   resetSuccessful,
   deleteSuccessful,
+  renameSuccessful,
 }
 
 extension CustomSessionGetterStatusX on CustomSessionGetterStatus {

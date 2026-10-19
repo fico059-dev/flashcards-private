@@ -14,8 +14,13 @@ abstract class PackFilterCounts with _$PackFilterCounts {
 }
 
 extension PackFilterCountsX on PackFilterCounts {
+  /// Cards never studied (in regular study or a custom session), bookmarked
+  /// or ignored, i.e. cards without a progress record.
+  int get unseenCount => allCount - seenCount < 0 ? 0 : allCount - seenCount;
+
   int getCountForFilter(PackSelectedFilter filter) => switch (filter) {
     PackSelectedFilter.all => allCount,
+    PackSelectedFilter.unseen => unseenCount,
     PackSelectedFilter.seen => seenCount,
     PackSelectedFilter.bookmarked => bookmarkedCount,
     PackSelectedFilter.ignored => ignoredCount,

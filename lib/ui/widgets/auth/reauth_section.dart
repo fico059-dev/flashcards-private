@@ -21,9 +21,8 @@ class ReauthSection<B extends StateStreamable<S>, S> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create:
-          (context) =>
-              ReauthCubit(authRepository: context.read<AuthRepository>()),
+      create: (context) =>
+          ReauthCubit(authRepository: context.read<AuthRepository>()),
       child: _ReauthSectionView<B, S>(
         isReauthState: isReauthState,
         onRetryOriginalAction: onRetryOriginalAction,
@@ -95,6 +94,44 @@ class _ReauthSectionViewState<B extends StateStreamable<S>, S>
           BlocBuilder<B, S>(
             builder: (context, state) {
               if (widget.isReauthState(state)) {
+                final auth = context.read<AuthRepository>();
+                final social = auth.hasPassword ? null : auth.socialProviderId;
+                if (social != null) {
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      CardFactory.warning(
+                        subtitle: Text(
+                          AppLocalizations.of(
+                            context,
+                          )!.reauthSection_securityNotice,
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      Center(
+                        child: BlocBuilder<ReauthCubit, ReauthState>(
+                          builder: (context, reauthState) => FilledButton.icon(
+                            onPressed: reauthState is ReauthLoading
+                                ? null
+                                : () => context
+                                      .read<ReauthCubit>()
+                                      .reauthenticateWithProvider(),
+                            icon: Icon(
+                              social == 'apple.com'
+                                  ? Icons.apple
+                                  : Icons.account_circle,
+                            ),
+                            label: Text(
+                              social == 'apple.com'
+                                  ? 'Confirm with Apple'
+                                  : 'Confirm with Google',
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  );
+                }
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -108,13 +145,12 @@ class _ReauthSectionViewState<B extends StateStreamable<S>, S>
                     ),
                     SizedBox(height: 20),
                     BlocTextField<ReauthCubit, ReauthState>(
-                      errorSelector:
-                          (state) =>
-                              state is ReauthFormInvalid
-                                  ? state.errors["password"]
-                                  : null,
-                      labelText:
-                          AppLocalizations.of(context)!.basicText_password,
+                      errorSelector: (state) => state is ReauthFormInvalid
+                          ? state.errors["password"]
+                          : null,
+                      labelText: AppLocalizations.of(
+                        context,
+                      )!.basicText_password,
                       textEditingController: _passController,
                       obscureText: true,
                     ),
@@ -129,21 +165,20 @@ class _ReauthSectionViewState<B extends StateStreamable<S>, S>
                             width: 150,
                             child: FilledButton(
                               onPressed: !isLoading ? _onReauthenticate : null,
-                              child:
-                                  !isLoading
-                                      ? Text(
-                                        AppLocalizations.of(
-                                          context,
-                                        )!.reauthSection_button,
-                                      )
-                                      : SizedBox(
-                                        width: 23,
-                                        height: 23,
-                                        child: CircularProgressIndicator(
-                                          color: Colors.indigo,
-                                          strokeWidth: 3,
-                                        ),
+                              child: !isLoading
+                                  ? Text(
+                                      AppLocalizations.of(
+                                        context,
+                                      )!.reauthSection_button,
+                                    )
+                                  : SizedBox(
+                                      width: 23,
+                                      height: 23,
+                                      child: CircularProgressIndicator(
+                                        color: Colors.indigo,
+                                        strokeWidth: 3,
                                       ),
+                                    ),
                             ),
                           );
                         },

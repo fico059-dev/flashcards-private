@@ -1,3 +1,4 @@
+import 'package:flashcards/data/repositories/utils/pack_visibility.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flashcards/data/remote/cloud_function_service.dart';
 import 'package:flashcards/data/services/api/dto/flashcards/custom_session/flashcard_ids/flashcard_ids_dto.dart';
@@ -36,33 +37,38 @@ class PackService {
     return _packs.doc();
   }
 
+  /// A page of packs the user may see. Packs limited to other users are
+  /// skipped, and more are read so a page isn't cut short by them.
   Future<Result<PaginatedDtoResult<PackDto>>> getDocsPagination(
     DocumentSnapshot? startAfter,
     int limit, {
     bool onlyFreePacks = false,
   }) async {
     try {
+      final visibility = await PackVisibility.current();
       var query = _packs.orderBy('name').limit(limit);
       if (onlyFreePacks) {
         query = query.where('isPaid', isEqualTo: false);
       }
 
-      if (startAfter != null) {
-        query = query.startAfterDocument(startAfter);
+      final dtoList = <PackDto>[];
+      DocumentSnapshot<JsonMap>? last;
+      while (true) {
+        final cursor = last ?? startAfter;
+        final page =
+            await (cursor == null ? query : query.startAfterDocument(cursor))
+                .get();
+        for (final doc in page.docs) {
+          final dto = PackDto.fromJsonWithId(doc.data(), doc.id);
+          if (visibility.allows(dto.id!, restricted: dto.restricted)) {
+            dtoList.add(dto);
+          }
+        }
+        if (page.docs.isNotEmpty) last = page.docs.last;
+        if (page.docs.length < limit || dtoList.length >= limit) break;
       }
 
-      final snapshot = await query.get();
-      final dtoList =
-          snapshot.docs
-              .map((doc) => PackDto.fromJsonWithId(doc.data(), doc.id))
-              .toList();
-
-      return Result.ok(
-        PaginatedDtoResult(
-          items: dtoList,
-          lastDocument: getLastDocFromSnapshot(snapshot),
-        ),
-      );
+      return Result.ok(PaginatedDtoResult(items: dtoList, lastDocument: last));
     } on Exception catch (error) {
       return Result.error(error);
     }
@@ -75,6 +81,14 @@ class PackService {
         return Result.error(Exception("Pack doesn't exist"));
       }
       var dto = PackDto.fromJsonWithId(snapshot.data()!, snapshot.id);
+      if (!(await PackVisibility.current()).allows(
+        dto.id!,
+        restricted: dto.restricted,
+      )) {
+        return Result.error(
+          Exception("This pack isn't available for your account."),
+        );
+      }
       return Result.ok(dto);
     } on Exception catch (error) {
       return Result.error(error);
@@ -92,6 +106,46 @@ class PackService {
       final dto = FlashcardIdsDto.fromJson(snapshot.data()!);
 
       return Result.ok(dto);
+    } on Exception catch (error) {
+      return Result.error(error);
+    }
+  }
+
+  Future<Result<void>> setPackPremium(String packId, bool isPaid) async {
+    try {
+      await _functions.setPackPremium(packId, isPaid);
+      return Result.ok(null);
+    } on Exception catch (error) {
+      return Result.error(error);
+    }
+  }
+
+  Future<Result<List<String>>> setPackAccess(
+    String packId,
+    List<String> emails,
+  ) async {
+    try {
+      return Result.ok(await _functions.setPackAccess(packId, emails));
+    } on Exception catch (error) {
+      return Result.error(error);
+    }
+  }
+
+  /// Shows the pack inside [parentId], or at the top level for null.
+  Future<Result<void>> setPackParent(String packId, String? parentId) async {
+    try {
+      await _packs.doc(packId).update({
+        'parentId': parentId ?? FieldValue.delete(),
+      });
+      return Result.ok(null);
+    } on Exception catch (error) {
+      return Result.error(error);
+    }
+  }
+
+  Future<Result<List<String>>> getPackAccess(String packId) async {
+    try {
+      return Result.ok(await _functions.getPackAccess(packId));
     } on Exception catch (error) {
       return Result.error(error);
     }
@@ -167,6 +221,15 @@ class PackService {
       }
 
       await batch.commit();
+      return Result.ok(null);
+    } on Exception catch (error) {
+      return Result.error(error);
+    }
+  }
+
+  Future<Result<void>> deletePackWithCards(String packId) async {
+    try {
+      await _functions.deletePackWithCards(packId);
       return Result.ok(null);
     } on Exception catch (error) {
       return Result.error(error);

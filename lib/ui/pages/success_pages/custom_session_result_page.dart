@@ -1,6 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flashcards/config/router/router.dart';
 import 'package:flashcards/domain/enums/score_status.dart';
+import 'package:flashcards/ui/widgets/rewards/study_rewards_widgets.dart';
 import 'package:flutter/material.dart';
 
 @RoutePage()
@@ -57,8 +58,8 @@ class CustomSessionResultPage extends StatelessWidget {
     return Scaffold(
       body: SafeArea(
         child: Center(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24),
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -69,7 +70,7 @@ class CustomSessionResultPage extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 24),
-                Image.asset(_getImagePath(), height: 200),
+                Image.asset(_getImagePath(), height: 160),
                 const SizedBox(height: 24),
                 Text(
                   _getTitle(),
@@ -84,7 +85,9 @@ class CustomSessionResultPage extends StatelessWidget {
                   style: Theme.of(context).textTheme.bodyLarge,
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 40),
+                const SizedBox(height: 24),
+                SessionSummaryCard.current(context),
+                const SizedBox(height: 24),
                 SizedBox(
                   width: double.infinity,
                   height: 50,

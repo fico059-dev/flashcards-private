@@ -8,6 +8,8 @@ import 'package:flashcards/data/services/anki/anki_import_models.dart';
 import 'package:flashcards/data/services/anki/anki_tags.dart';
 import 'package:flashcards/data/services/anki/anki_text_converter.dart';
 import 'package:flashcards/data/services/anki/anki_txt_parser.dart';
+import 'package:flashcards/data/utils/image_compression.dart';
+import 'package:image/image.dart' as img;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sqlite3/sqlite3.dart';
 
@@ -19,7 +21,7 @@ void main() {
           '<div>Causes of <b>AKI</b>:</div><ul><li>Pre&nbsp;renal</li>'
           '<li>Renal &amp; post</li></ul><br>K&gt;5.5',
         ),
-        'Causes of AKI:\n• Pre renal\n• Renal & post\n\nK>5.5',
+        'Causes of **AKI**:\n• Pre renal\n• Renal & post\n\nK>5.5',
       );
     });
 
@@ -84,7 +86,7 @@ void main() {
       );
       expect(result.cards, hasLength(4));
       expect(result.cards[0].question, 'Front 1');
-      expect(result.cards[0].answer, 'Back 1');
+      expect(result.cards[0].answer, 'Back **1**');
       expect(result.cards[0].tags, ['cardio', 'Step1::Renal_Physiology']);
       expect(result.cards[1].question, 'Multi line "quoted"');
       expect(result.cards[2].question, '{Aspirin} inhibits COX');
@@ -107,6 +109,44 @@ void main() {
     test('rejects empty files', () {
       expect(() => parseAnkiTxt(''), throwsA(isA<AnkiImportException>()));
     });
+  });
+
+  test('joins images top to bottom on white', () {
+    Uint8List png(int width, int height, img.Color color) {
+      final image = img.Image(width: width, height: height);
+      img.fill(image, color: color);
+      return img.encodePng(image);
+    }
+
+    final red = img.ColorRgb8(255, 0, 0);
+    final blue = img.ColorRgb8(0, 0, 255);
+    final bytes = stackImageBytes([
+      png(400, 100, red),
+      png(200, 50, blue),
+      Uint8List.fromList([1, 2, 3]), // not an image, skipped
+    ], gap: 10)!;
+
+    final joined = img.decodeJpg(bytes)!;
+    expect(joined.width, 400);
+    expect(joined.height, 160);
+    final top = joined.getPixel(200, 50);
+    expect(top.r, greaterThan(200));
+    expect(top.b, lessThan(60));
+    final bottom = joined.getPixel(200, 135);
+    expect(bottom.b, greaterThan(200));
+    // The narrower image is centred, with white beside it.
+    final side = joined.getPixel(20, 135);
+    expect([side.r, side.g, side.b].every((c) => c > 230), isTrue);
+  });
+
+  test('very wide or tall images are scaled down', () {
+    final image = img.Image(width: 3000, height: 2000);
+    final bytes = img.encodePng(image);
+    final joined = img.decodeJpg(
+      stackImageBytes([bytes, bytes, bytes, bytes, bytes])!,
+    )!;
+    expect(joined.width, lessThanOrEqualTo(1200));
+    expect(joined.height, lessThanOrEqualTo(6000));
   });
 
   test('ankiTagsToTags keeps the last level and ignores system tags', () {
@@ -133,16 +173,28 @@ void main() {
           ['{{c1::Furosemide}} is a {{c2::loop}} diuretic', ''],
           ['<img src="missing.png">', 'Answer'],
           ['', ''],
+          ['Spot diagnosis <img src="50%_rash.jpg">', 'Measles'],
+          ['Encoded <img src="my%20scan.png">', 'Yes'],
         ],
-        media: {'0': 'ecg.png'},
-        files: {'0': image},
+        media: {'0': 'ecg.png', '1': '50%_rash.jpg', '2': 'my scan.png'},
+        files: {
+          '0': image,
+          '1': Uint8List.fromList([5]),
+          '2': Uint8List.fromList([6]),
+        },
       );
 
       final result = parseAnkiPackage(apkg, tempDir.path);
 
-      expect(result.cards, hasLength(3));
+      expect(result.cards, hasLength(5));
       expect(result.cards[0].question, 'What is this?');
-      expect(result.cards[0].questionImage?.bytes, image);
+      expect(
+        File(result.cards[0].questionImage!.path).readAsBytesSync(),
+        image,
+      );
+      // A literal % in a file name isn't URL encoding and must not crash.
+      expect(File(result.cards[3].questionImage!.path).readAsBytesSync(), [5]);
+      expect(File(result.cards[4].questionImage!.path).readAsBytesSync(), [6]);
       expect(result.cards[1].question, '{Furosemide} is a loop diuretic');
       expect(result.cards[1].answer, 'Furosemide is a loop diuretic');
       expect(result.cards[2].question, 'Furosemide is a {loop} diuretic');
@@ -150,14 +202,44 @@ void main() {
       expect(result.missingImages, 1);
     });
 
+    test('keeps every image of a side, in order', () {
+      final apkg = _buildApkg(
+        tempDir,
+        notes: [
+          [
+            'Compare <img src="a.png"><img src="b.png"> and <img src="c.png">',
+            'Answer <img src="missing.png"><img src="a.png">',
+          ],
+        ],
+        media: {'0': 'a.png', '1': 'b.png', '2': 'c.png'},
+        files: {
+          '0': Uint8List.fromList([1]),
+          '1': Uint8List.fromList([2]),
+          '2': Uint8List.fromList([3]),
+        },
+      );
+
+      final result = parseAnkiPackage(apkg, tempDir.path);
+      final card = result.cards.single;
+      expect(card.questionImage!.count, 3);
+      expect(
+        card.questionImage!.paths.map((p) => File(p).readAsBytesSync().first),
+        [1, 2, 3],
+      );
+      expect(card.answerImage!.count, 1);
+      expect(result.extraImagesDropped, 1);
+      expect(result.missingImages, 1);
+    });
+
     test('explains how to export when only the new format is present', () {
       final archive = Archive()
         ..addFile(ArchiveFile.bytes('collection.anki21b', [1, 2, 3]))
         ..addFile(ArchiveFile.bytes('collection.anki2', [1, 2, 3]));
-      final bytes = Uint8List.fromList(ZipEncoder().encode(archive));
+      final path = '${tempDir.path}/new.apkg';
+      File(path).writeAsBytesSync(ZipEncoder().encode(archive));
 
       expect(
-        () => parseAnkiPackage(bytes, tempDir.path),
+        () => parseAnkiPackage(path, tempDir.path),
         throwsA(
           isA<AnkiImportException>().having(
             (e) => e.message,
@@ -170,14 +252,18 @@ void main() {
 
     test('rejects files that are not zip archives', () {
       expect(
-        () => parseAnkiPackage(Uint8List.fromList([1, 2, 3]), tempDir.path),
+        () => parseAnkiPackage(
+          (File('${tempDir.path}/bad.apkg')..writeAsBytesSync([1, 2, 3])).path,
+          tempDir.path,
+        ),
         throwsA(isA<AnkiImportException>()),
       );
     });
   });
 }
 
-Uint8List _buildApkg(
+/// Writes an .apkg to [dir] and returns its path.
+String _buildApkg(
   Directory dir, {
   required List<List<String>> notes,
   required Map<String, String> media,
@@ -206,5 +292,7 @@ Uint8List _buildApkg(
   files.forEach(
     (name, bytes) => archive.addFile(ArchiveFile.bytes(name, bytes)),
   );
-  return Uint8List.fromList(ZipEncoder().encode(archive));
+  final path = '${dir.path}/deck.apkg';
+  File(path).writeAsBytesSync(ZipEncoder().encode(archive));
+  return path;
 }

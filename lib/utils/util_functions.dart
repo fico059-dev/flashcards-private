@@ -6,8 +6,8 @@ import 'package:timeago/timeago.dart' as timeago;
 import 'dart:convert';
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:universal_html/html.dart' as html;
 import 'package:flutter/material.dart';
+import 'package:flashcards/config/features.dart';
 import 'package:flashcards/data/repositories/utils/user_claims.dart';
 import 'package:flashcards/ui/pages/paywall/dev_paywall_page.dart';
 
@@ -251,26 +251,6 @@ bool shouldDeleteFlashcardSnapshot({
   return !(hasBookmark || ignored);
 }
 
-Future<void> exportCollectionToJsonWeb({
-  required String collectionPath,
-  required String filename,
-}) async {
-  final firestore = FirebaseFirestore.instance;
-  final snapshot = await firestore.collection(collectionPath).get();
-
-  final data = {for (final doc in snapshot.docs) doc.id: doc.data()};
-
-  final blob = html.Blob([jsonEncode(data)], 'application/json');
-  final url = html.Url.createObjectUrlFromBlob(blob);
-  final anchor =
-      html.AnchorElement(href: url)
-        ..setAttribute('download', filename)
-        ..click();
-  html.Url.revokeObjectUrl(url);
-
-  print('✅ Triggered download of $filename');
-}
-
 Future<void> exportCollectionToJson({
   required String collectionPath,
   required String outputFilePath,
@@ -288,41 +268,6 @@ Future<void> exportCollectionToJson({
   print('✅ Exported ${snapshot.docs.length} documents to $outputFilePath');
 }
 
-Future<void> importCollectionFromJsonWeb({
-  required String collectionPath,
-}) async {
-  final completer = Completer<String>();
-
-  final input =
-      html.FileUploadInputElement()
-        ..accept = '.json'
-        ..click();
-
-  input.onChange.listen((event) {
-    final file = input.files?.first;
-    final reader = html.FileReader();
-
-    reader.onLoadEnd.listen((e) {
-      final content = reader.result as String;
-      completer.complete(content);
-    });
-
-    reader.readAsText(file!);
-  });
-
-  final jsonString = await completer.future;
-  final Map<String, dynamic> data = jsonDecode(jsonString);
-
-  final firestore = FirebaseFirestore.instance;
-  for (final entry in data.entries) {
-    final docId = entry.key;
-    final docData = Map<String, dynamic>.from(entry.value);
-    await firestore.collection(collectionPath).doc(docId).set(docData);
-  }
-
-  print('✅ Imported ${data.length} documents to "$collectionPath"');
-}
-
 Future<bool> ensureCardsAccess(BuildContext context) async {
   var claims = await UserClaims.current();
   if (claims.hasCards) return true;
@@ -334,6 +279,10 @@ Future<bool> ensureCardsAccess(BuildContext context) async {
     if (claims.hasCards) return true;
   }
 
+  if (!Features.subscriptions) {
+    if (context.mounted) await showNotAvailableYetDialog(context);
+    return false;
+  }
   final page = Flavor.isProd ? const ProdPaywallPage() : const DevPaywallPage();
   final unlocked = await Navigator.push(
     context,
@@ -357,6 +306,10 @@ Future<bool> ensureOsceAccess(BuildContext context) async {
     if (claims.hasOsce) return true;
   }
 
+  if (!Features.subscriptions) {
+    if (context.mounted) await showNotAvailableYetDialog(context);
+    return false;
+  }
   final page = Flavor.isProd ? const ProdPaywallPage() : const DevPaywallPage();
   final unlocked = await Navigator.push(
     context,
@@ -367,4 +320,25 @@ Future<bool> ensureOsceAccess(BuildContext context) async {
     await user.getIdToken(true);
   }
   return unlocked == true;
+}
+
+/// Shown for premium content while subscriptions aren't offered.
+Future<void> showNotAvailableYetDialog(BuildContext context) {
+  return showDialog<void>(
+    context: context,
+    builder: (context) => AlertDialog(
+      icon: const Icon(Icons.lock_clock_outlined),
+      title: const Text('Coming soon'),
+      content: const Text(
+        "This content isn't available yet. Keep studying the open packs "
+        "and stations, more is on the way!",
+      ),
+      actions: [
+        FilledButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('OK'),
+        ),
+      ],
+    ),
+  );
 }

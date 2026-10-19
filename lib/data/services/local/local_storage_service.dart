@@ -134,6 +134,18 @@ class LocalStorageService {
     await _sharedPrefAsync.setBool(_getOsceTutorialKey(), seen);
   }
 
+  /// Whether OSCEs are practised in Learning mode (answers after each
+  /// question) rather than Exam mode (answers at the end).
+  Future<bool> getOsceLearningMode() async {
+    return await _sharedPrefAsync.getBool(_getOsceModeKey()) ?? false;
+  }
+
+  Future<void> setOsceLearningMode(bool learning) async {
+    await _sharedPrefAsync.setBool(_getOsceModeKey(), learning);
+  }
+
+  String _getOsceModeKey() => 'osce_learning_mode_${_getUid()}';
+
   Future<void> removeOsceTutorialSeen() async {
     await _sharedPrefAsync.remove(_getOsceTutorialKey());
   }

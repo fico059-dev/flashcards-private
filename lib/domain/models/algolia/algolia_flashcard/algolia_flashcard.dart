@@ -13,6 +13,9 @@ abstract class AlgoliaFlashcard with _$AlgoliaFlashcard {
     required String answer,
     required bool isPaid,
     required List<String> tags,
+
+    /// The pack the card is in, for searching one pack.
+    @Default('') String packId,
   }) = _AlgoliaFlashcard;
 
   factory AlgoliaFlashcard.fromJson(JsonMap json) =>

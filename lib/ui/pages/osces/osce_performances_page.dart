@@ -9,6 +9,7 @@ import 'package:flashcards/ui/constants/styles.dart';
 import 'package:flashcards/ui/widgets/core/error_screen.dart';
 import 'package:flashcards/ui/widgets/osce_performance/osce_performance_card.dart';
 import 'package:flashcards/utils/firebase_error_mapper.dart';
+import 'package:flashcards/ui/widgets/core/desktop_layout.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
@@ -20,10 +21,9 @@ class OscePerformancesPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create:
-          (context) => OscePerfGetterBloc(
-            perfRepo: context.read<OscePerformanceRepository>(),
-          ),
+      create: (context) => OscePerfGetterBloc(
+        perfRepo: context.read<OscePerformanceRepository>(),
+      ),
       child: _View(),
     );
   }
@@ -62,45 +62,47 @@ class _View extends StatelessWidget {
         ),
         title: Text("OSCE Performances"),
       ),
-      body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: horizontalScreenPadding),
-        child: BlocBuilder<OscePerfGetterBloc, OscePerfGetterState>(
-          builder: (context, state) {
-            return RefreshIndicator(
-              onRefresh: () => handleRefresh(context),
-              child: PagedListView(
-                state: state.pagingState,
-                fetchNextPage: context.read<OscePerfGetterBloc>().fetchNextPage,
-                builderDelegate: PagedChildBuilderDelegate(
-                  noItemsFoundIndicatorBuilder:
-                      (context) => _EmptyListContainer(),
-                  firstPageProgressIndicatorBuilder:
-                      (context) => OscePerformancesShimmer(),
-                  firstPageErrorIndicatorBuilder:
-                      (context) => ErrorScreen(
-                        errorMessage: extractErrorMessage(
-                          state.pagingState.error!,
-                        ),
-                        onReload:
-                            () => context.read<OscePerfGetterBloc>().add(
-                              OscePerfGetterFetched(restart: true),
-                            ),
+      body: ReadableWidth(
+        maxWidth: 820,
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: horizontalScreenPadding),
+          child: BlocBuilder<OscePerfGetterBloc, OscePerfGetterState>(
+            builder: (context, state) {
+              return RefreshIndicator(
+                onRefresh: () => handleRefresh(context),
+                child: PagedListView(
+                  state: state.pagingState,
+                  fetchNextPage: context
+                      .read<OscePerfGetterBloc>()
+                      .fetchNextPage,
+                  builderDelegate: PagedChildBuilderDelegate(
+                    noItemsFoundIndicatorBuilder: (context) =>
+                        _EmptyListContainer(),
+                    firstPageProgressIndicatorBuilder: (context) =>
+                        OscePerformancesShimmer(),
+                    firstPageErrorIndicatorBuilder: (context) => ErrorScreen(
+                      errorMessage: extractErrorMessage(
+                        state.pagingState.error!,
                       ),
-                  itemBuilder: (context, item, index) {
-                    //return OscePerformancesShimmer();
-                    final perf = item as OscePerformance;
-                    return OscePerformanceCard(
-                      performance: perf,
-                      onAttemptDeleted:
-                          () =>
-                              decreaseAttemptCountOnDeleted(perf.simpleOsce.id),
-                    );
-                  },
+                      onReload: () => context.read<OscePerfGetterBloc>().add(
+                        OscePerfGetterFetched(restart: true),
+                      ),
+                    ),
+                    itemBuilder: (context, item, index) {
+                      //return OscePerformancesShimmer();
+                      final perf = item as OscePerformance;
+                      return OscePerformanceCard(
+                        performance: perf,
+                        onAttemptDeleted: () =>
+                            decreaseAttemptCountOnDeleted(perf.simpleOsce.id),
+                      );
+                    },
+                  ),
+                  //separatorBuilder: (context, index) => SizedBox(height: 10),
                 ),
-                //separatorBuilder: (context, index) => SizedBox(height: 10),
-              ),
-            );
-          },
+              );
+            },
+          ),
         ),
       ),
     );

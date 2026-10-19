@@ -1,3 +1,4 @@
+import 'package:flashcards/ui/widgets/flashcard/card_content.dart';
 import 'dart:ui';
 import 'package:flashcards/bloc/flashcards/fc_review_getter/fc_review_getter_cubit.dart';
 import 'package:flashcards/bloc/flashcards/fc_review_getter/fc_review_getter_state.dart';
@@ -19,6 +20,7 @@ import 'package:flashcards/ui/widgets/fc_review_bottom_sheet/fc_review_shimmer.d
 import 'package:flashcards/ui/widgets/flashcard/fsrs_card_items/card_meta_chip_enhanced.dart';
 import 'package:flashcards/utils/firebase_error_mapper.dart';
 import 'package:flashcards/utils/util_functions.dart';
+import 'package:flashcards/config/features.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -290,7 +292,7 @@ Widget _buildFlashcardItem({
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
+                CardContent(
                   label,
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
                 ),
@@ -401,7 +403,11 @@ class BlockedFlashcardPreview extends StatelessWidget {
                             borderRadius: BorderRadius.circular(12),
                           ),
                         ),
-                        child: const Text("Unlock with Premium"),
+                        child: Text(
+                          Features.subscriptions
+                              ? "Unlock with Premium"
+                              : "Coming soon",
+                        ),
                       ),
                     ],
                   ),

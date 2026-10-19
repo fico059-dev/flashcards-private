@@ -48,7 +48,10 @@ class _PackSearchResultsState extends State<PackSearchResults> {
               ),
             ),
             firstPageErrorIndicatorBuilder: (context) => ErrorScreen(
-              errorMessage: "Error loading packs",
+              errorMessage: state.pagingState.error == null
+                  ? "Error loading packs"
+                  : "Error loading packs\n"
+                        "${extractErrorMessage(state.pagingState.error!)}",
               onReload: () => context.read<PackSearcherBloc>().add(
                 PackSearcherRequestSent(query: ''),
               ),

@@ -14,14 +14,12 @@ Future<bool?> showDeleteOscePerformanceDialog({
 }) async {
   return await showDialog(
     context: context,
-    builder:
-        (context) => BlocProvider(
-          create:
-              (context) => DeleteOscePerfCubit(
-                perfRepo: context.read<OscePerformanceRepository>(),
-              ),
-          child: _Content(osceId: osceId),
-        ),
+    builder: (context) => BlocProvider(
+      create: (context) => DeleteOscePerfCubit(
+        perfRepo: context.read<OscePerformanceRepository>(),
+      ),
+      child: _Content(osceId: osceId),
+    ),
   );
 }
 
@@ -41,10 +39,8 @@ class _Content extends StatelessWidget {
     return LoadingOverlayListener<DeleteOscePerfCubit, DeleteOscePerfState>(
       isLoading: (state) => state is DeleteOscePerfLoading,
       child: BlocListener<DeleteOscePerfCubit, DeleteOscePerfState>(
-        listenWhen:
-            (previous, current) =>
-                current is DeleteOscePerfSuccess ||
-                current is DeleteOscePerfError,
+        listenWhen: (previous, current) =>
+            current is DeleteOscePerfSuccess || current is DeleteOscePerfError,
         listener: (context, state) {
           switch (state) {
             case DeleteOscePerfSuccess():

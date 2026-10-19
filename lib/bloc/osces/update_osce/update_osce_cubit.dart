@@ -4,9 +4,17 @@ import 'package:flashcards/bloc/osces/update_osce/forms/question_form/question_f
 import 'package:flashcards/bloc/osces/update_osce/update_osce_state.dart';
 import 'package:flashcards/data/repositories/osces/osce_repository.dart';
 import 'package:flashcards/domain/models/core/image_data_wrapper.dart';
+import 'package:flashcards/domain/models/osce/osce_text_format.dart';
 import 'package:flashcards/domain/models/osce/question/question.dart';
 import 'package:flashcards/utils/result.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
+CheckForm _checkFormFromParsed(ParsedCheck check) => CheckForm(
+  controller: TextEditingController(text: check.text),
+  scoreController: TextEditingController(text: check.score.toString()),
+  isTitle: check.isTitle,
+);
 
 class UpdateOsceCubit extends Cubit<UpdateOsceState> {
   final OsceRepository _osceRepo;
@@ -44,10 +52,9 @@ class UpdateOsceCubit extends Cubit<UpdateOsceState> {
     }
     final questionMap = result.value;
 
-    final questionForms =
-        questionMap
-            .map((entry) => QuestionForm.fromQuestion(entry.value))
-            .toList();
+    final questionForms = questionMap
+        .map((entry) => QuestionForm.fromQuestion(entry.value))
+        .toList();
     emit(UpdateOsceLoaded(osceId: osceId, questionForms: questionForms));
   }
 
@@ -67,6 +74,70 @@ class UpdateOsceCubit extends Cubit<UpdateOsceState> {
       state.copyWith(
         status: UpdateOsceStatus.initial,
         questionForms: newForms,
+        error: null,
+      ),
+    );
+  }
+
+  /// Adds questions written as text (see [parseOsceText]). Like
+  /// [addQuestionForm], nothing is saved until Save Changes.
+  void addQuestionsFromText(List<ParsedQuestion> parsed) {
+    final state = this.state;
+    if (state is! UpdateOsceLoaded || parsed.isEmpty) return;
+
+    final newForms = List.of(state.questionForms);
+    for (final question in parsed) {
+      final form = QuestionForm.initial(
+        _osceRepo.generateQuestionId(state.osceId),
+      );
+      form.controller.text = question.text;
+      newForms.add(
+        form.copyWith(
+          checkForms: question.checks.map(_checkFormFromParsed).toList(),
+        ),
+      );
+    }
+
+    emit(
+      state.copyWith(
+        status: UpdateOsceStatus.initial,
+        questionForms: newForms,
+        error: null,
+      ),
+    );
+  }
+
+  /// Replaces a question's whole checklist with checks written as text.
+  void replaceChecks(int questionIndex, List<ParsedCheck> checks) {
+    final state = this.state;
+    if (state is! UpdateOsceLoaded) return;
+
+    final newForms = List.of(state.questionForms);
+    newForms[questionIndex] = newForms[questionIndex].copyWith(
+      checkForms: checks.map(_checkFormFromParsed).toList(),
+    );
+
+    emit(
+      state.copyWith(
+        questionForms: newForms,
+        status: UpdateOsceStatus.initial,
+        error: null,
+      ),
+    );
+  }
+
+  /// Moves a question up or down in the list.
+  void moveQuestion(int from, int to) {
+    final state = this.state;
+    if (state is! UpdateOsceLoaded) return;
+    if (to < 0 || to >= state.questionForms.length || from == to) return;
+
+    final newForms = List.of(state.questionForms);
+    newForms.insert(to, newForms.removeAt(from));
+    emit(
+      state.copyWith(
+        questionForms: newForms,
+        status: UpdateOsceStatus.initial,
         error: null,
       ),
     );
@@ -188,6 +259,7 @@ class UpdateOsceCubit extends Cubit<UpdateOsceState> {
     for (int i = 0; i < qForms.length; i++) {
       final qForm = qForms[i];
       for (int j = 0; j < qForm.checkForms.length; j++) {
+        if (qForm.checkForms[j].isTitle) continue;
         final score = int.tryParse(
           qForm.checkForms[j].scoreController.text.trim(),
         );
@@ -232,16 +304,16 @@ class UpdateOsceCubit extends Cubit<UpdateOsceState> {
         questionImageData: qForm.imageData,
       );
       futures.add(future);
+    }
 
-      // now we send requests in parallel
-      final results = await Future.wait(futures);
-      for (final result in results) {
-        switch (result) {
-          case Error(:final error):
-            emit(state.copyWith(status: UpdateOsceStatus.error, error: error));
-            return;
-          case Ok():
-        }
+    // Wait for every question, new ones included, before reporting success.
+    final results = await Future.wait(futures);
+    for (final result in results) {
+      switch (result) {
+        case Error(:final error):
+          emit(state.copyWith(status: UpdateOsceStatus.error, error: error));
+          return;
+        case Ok():
       }
     }
 

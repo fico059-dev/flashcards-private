@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:flashcards/bloc/osces/osce/osce_state.dart';
 import 'package:flashcards/domain/models/osce/simple_osce/simple_osce.dart';
 
 sealed class OsceEvent extends Equatable {
@@ -20,11 +21,20 @@ class OsceTestStarted extends OsceEvent {}
 class ToggleCheck extends OsceEvent {
   final int checkIndex;
 
-  ToggleCheck({required this.checkIndex});
+  /// The question the check belongs to, the current question if null.
+  final int? questionIndex;
+
+  ToggleCheck({required this.checkIndex, this.questionIndex});
 
   @override
-  List<Object?> get props => [checkIndex];
+  List<Object?> get props => [checkIndex, questionIndex];
 }
+
+/// The questions are done (or time ran out): show every checklist.
+class OsceChecklistOpened extends OsceEvent {}
+
+/// Go back from the checklist to the questions.
+class OsceChecklistClosed extends OsceEvent {}
 
 class NextQuestionRequested extends OsceEvent {}
 
@@ -33,5 +43,15 @@ class OsceCurrentQuestionRevealed extends OsceEvent {}
 class PreviousQuestionRequested extends OsceEvent {}
 
 class OsceTutorialSeenChecked extends OsceEvent {}
+
+/// Switches between Learning and Exam mode.
+class OsceModeChanged extends OsceEvent {
+  final OsceMode mode;
+
+  OsceModeChanged(this.mode);
+
+  @override
+  List<Object?> get props => [mode];
+}
 
 class OsceTutorialFinished extends OsceEvent {}

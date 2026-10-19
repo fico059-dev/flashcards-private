@@ -4,9 +4,11 @@ import 'package:flashcards/bloc/flashcards/session_test/session_test_event.dart'
 import 'package:flashcards/bloc/flashcards/session_test/session_test_state.dart';
 import 'package:flashcards/config/router/router.dart';
 import 'package:flashcards/domain/models/flashcards/flashcard/flashcard.dart';
+import 'package:flashcards/ui/widgets/flashcard/flashcard_test/flashcard_top_row/widgets/admin_edit_card_button.dart';
 import 'package:flashcards/ui/widgets/flashcard/flashcard_test/flashcard_top_row/widgets/bookmark_button.dart';
 import 'package:flashcards/ui/widgets/flashcard/flashcard_test/flashcard_top_row/widgets/popup_menu_button.dart';
 import 'package:flashcards/ui/widgets/flashcard/flashcard_test/flashcard_top_row/widgets/question_counter.dart';
+import 'package:flashcards/ui/dialogs/flashcard/share_card_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -28,7 +30,7 @@ class TopRowWithSessionBloc extends StatelessWidget {
     return BlocSelector<
       SessionTestBloc,
       SessionTestState,
-      (int, int, bool?, Flashcard)
+      (int, int, bool?, Flashcard, String)
     >(
       selector: (state) {
         if (state is! SessionTestLoaded) {
@@ -44,6 +46,7 @@ class TopRowWithSessionBloc extends StatelessWidget {
           allCount,
           noFlashcard ? null : state.statRecord.hasBookmark,
           state.statRecord.flashcard!,
+          state.unformattedQuestion,
         );
       },
       builder: (context, tuple) {
@@ -51,6 +54,8 @@ class TopRowWithSessionBloc extends StatelessWidget {
         final allCount = tuple.$2;
         final hasBookmark = tuple.$3;
         final flashcard = tuple.$4;
+        // The card as stored, with any cloze not hidden.
+        final storedCard = flashcard.copyWith(question: tuple.$5);
 
         return Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -62,17 +67,35 @@ class TopRowWithSessionBloc extends StatelessWidget {
 
             Row(
               children: [
+                AdminEditCardButton(
+                  flashcard: hasBookmark == null ? null : storedCard,
+                  onEdited: (card) => context.read<SessionTestBloc>().add(
+                    SessionTestCardEdited(card),
+                  ),
+                ),
+                IconButton(
+                  tooltip: 'Search cards',
+                  icon: const Icon(Icons.search),
+                  onPressed: () => context.router.push(StudySearchRoute()),
+                ),
+                IconButton(
+                  tooltip: 'Share card',
+                  icon: const Icon(Icons.share_outlined),
+                  onPressed: hasBookmark == null
+                      ? null
+                      : () => showShareCardDialog(context, flashcard),
+                ),
                 BookmarkButton(
                   isBookmarked: hasBookmark ?? false,
-                  onToggleBookmark:
-                      hasBookmark != null ? onToggleBookmark : null,
+                  onToggleBookmark: hasBookmark != null
+                      ? onToggleBookmark
+                      : null,
                 ),
 
                 PopupMenuButtonTopRow(
-                  onReport:
-                      hasBookmark != null
-                          ? () => onReport(flashcard: flashcard)
-                          : null,
+                  onReport: hasBookmark != null
+                      ? () => onReport(flashcard: flashcard)
+                      : null,
                   enabled: true,
                 ),
               ],

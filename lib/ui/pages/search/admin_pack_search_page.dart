@@ -7,6 +7,7 @@ import 'package:flashcards/ui/dialogs/profile/admin_dashboard/flashcard_builder/
 import 'package:flashcards/ui/theme/theme_extensions.dart';
 import 'package:flashcards/ui/widgets/search/search_page/pack_search_page/pack_search_bar.dart';
 import 'package:flashcards/ui/widgets/search/search_page/pack_search_page/pack_search_results.dart';
+import 'package:flashcards/ui/widgets/core/desktop_layout.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -38,25 +39,28 @@ class _AdminPackSearchPageState extends State<AdminPackSearchPage> {
       floatingActionButton: FloatingActionButton(
         tooltip: "Create new pack",
         onPressed: _openDialogAndReact,
-        child: Icon(Icons.add, color: context.colors.onPrimary,),
+        child: Icon(Icons.add, color: context.colors.onPrimary),
       ),
-      body: Padding(
-        padding: EdgeInsets.only(
-          left: horizontalScreenPadding,
-          right: horizontalScreenPadding,
-        ),
-        child: CustomScrollView(
-          slivers: [
-            SliverToBoxAdapter(child: PackSearchBar(cont: _controller)),
+      body: ReadableWidth(
+        maxWidth: 820,
+        child: Padding(
+          padding: EdgeInsets.only(
+            left: horizontalScreenPadding,
+            right: horizontalScreenPadding,
+          ),
+          child: CustomScrollView(
+            slivers: [
+              SliverToBoxAdapter(child: PackSearchBar(cont: _controller)),
 
-            SliverToBoxAdapter(child: SizedBox(height: 15)),
+              SliverToBoxAdapter(child: SizedBox(height: 15)),
 
-            PackSearchResults(
-              onTap:
-                  (packId, _) => showSinglePackAdminBottomSheet(context, packId),
-              showDefaultPremiumIcon: true,
-            ),
-          ],
+              PackSearchResults(
+                onTap: (packId, _) =>
+                    showSinglePackAdminBottomSheet(context, packId),
+                showDefaultPremiumIcon: true,
+              ),
+            ],
+          ),
         ),
       ),
     );

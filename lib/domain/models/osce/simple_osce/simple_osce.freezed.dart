@@ -15,7 +15,9 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$SimpleOsce {
 
- String get id; String get name; String get scenario; bool get isPaid;
+ String get id; String get name; String get scenario; bool get isPaid;/// Speciality folder; null when the station isn't in a folder.
+ String? get folderId;/// Image shown with the description (scenario).
+ String? get scenarioImageUrl;
 /// Create a copy of SimpleOsce
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +30,16 @@ $SimpleOsceCopyWith<SimpleOsce> get copyWith => _$SimpleOsceCopyWithImpl<SimpleO
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is SimpleOsce&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.scenario, scenario) || other.scenario == scenario)&&(identical(other.isPaid, isPaid) || other.isPaid == isPaid));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is SimpleOsce&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.scenario, scenario) || other.scenario == scenario)&&(identical(other.isPaid, isPaid) || other.isPaid == isPaid)&&(identical(other.folderId, folderId) || other.folderId == folderId)&&(identical(other.scenarioImageUrl, scenarioImageUrl) || other.scenarioImageUrl == scenarioImageUrl));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,name,scenario,isPaid);
+int get hashCode => Object.hash(runtimeType,id,name,scenario,isPaid,folderId,scenarioImageUrl);
 
 @override
 String toString() {
-  return 'SimpleOsce(id: $id, name: $name, scenario: $scenario, isPaid: $isPaid)';
+  return 'SimpleOsce(id: $id, name: $name, scenario: $scenario, isPaid: $isPaid, folderId: $folderId, scenarioImageUrl: $scenarioImageUrl)';
 }
 
 
@@ -48,7 +50,7 @@ abstract mixin class $SimpleOsceCopyWith<$Res>  {
   factory $SimpleOsceCopyWith(SimpleOsce value, $Res Function(SimpleOsce) _then) = _$SimpleOsceCopyWithImpl;
 @useResult
 $Res call({
- String id, String name, String scenario, bool isPaid
+ String id, String name, String scenario, bool isPaid, String? folderId, String? scenarioImageUrl
 });
 
 
@@ -65,13 +67,15 @@ class _$SimpleOsceCopyWithImpl<$Res>
 
 /// Create a copy of SimpleOsce
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = null,Object? scenario = null,Object? isPaid = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = null,Object? scenario = null,Object? isPaid = null,Object? folderId = freezed,Object? scenarioImageUrl = freezed,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String,scenario: null == scenario ? _self.scenario : scenario // ignore: cast_nullable_to_non_nullable
 as String,isPaid: null == isPaid ? _self.isPaid : isPaid // ignore: cast_nullable_to_non_nullable
-as bool,
+as bool,folderId: freezed == folderId ? _self.folderId : folderId // ignore: cast_nullable_to_non_nullable
+as String?,scenarioImageUrl: freezed == scenarioImageUrl ? _self.scenarioImageUrl : scenarioImageUrl // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 
@@ -156,10 +160,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String name,  String scenario,  bool isPaid)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String name,  String scenario,  bool isPaid,  String? folderId,  String? scenarioImageUrl)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _SimpleOsce() when $default != null:
-return $default(_that.id,_that.name,_that.scenario,_that.isPaid);case _:
+return $default(_that.id,_that.name,_that.scenario,_that.isPaid,_that.folderId,_that.scenarioImageUrl);case _:
   return orElse();
 
 }
@@ -177,10 +181,10 @@ return $default(_that.id,_that.name,_that.scenario,_that.isPaid);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String name,  String scenario,  bool isPaid)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String name,  String scenario,  bool isPaid,  String? folderId,  String? scenarioImageUrl)  $default,) {final _that = this;
 switch (_that) {
 case _SimpleOsce():
-return $default(_that.id,_that.name,_that.scenario,_that.isPaid);case _:
+return $default(_that.id,_that.name,_that.scenario,_that.isPaid,_that.folderId,_that.scenarioImageUrl);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -197,10 +201,10 @@ return $default(_that.id,_that.name,_that.scenario,_that.isPaid);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String name,  String scenario,  bool isPaid)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String name,  String scenario,  bool isPaid,  String? folderId,  String? scenarioImageUrl)?  $default,) {final _that = this;
 switch (_that) {
 case _SimpleOsce() when $default != null:
-return $default(_that.id,_that.name,_that.scenario,_that.isPaid);case _:
+return $default(_that.id,_that.name,_that.scenario,_that.isPaid,_that.folderId,_that.scenarioImageUrl);case _:
   return null;
 
 }
@@ -212,13 +216,17 @@ return $default(_that.id,_that.name,_that.scenario,_that.isPaid);case _:
 @JsonSerializable()
 
 class _SimpleOsce implements SimpleOsce {
-  const _SimpleOsce({required this.id, required this.name, required this.scenario, required this.isPaid});
+  const _SimpleOsce({required this.id, required this.name, required this.scenario, required this.isPaid, this.folderId, this.scenarioImageUrl});
   factory _SimpleOsce.fromJson(Map<String, dynamic> json) => _$SimpleOsceFromJson(json);
 
 @override final  String id;
 @override final  String name;
 @override final  String scenario;
 @override final  bool isPaid;
+/// Speciality folder; null when the station isn't in a folder.
+@override final  String? folderId;
+/// Image shown with the description (scenario).
+@override final  String? scenarioImageUrl;
 
 /// Create a copy of SimpleOsce
 /// with the given fields replaced by the non-null parameter values.
@@ -233,16 +241,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _SimpleOsce&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.scenario, scenario) || other.scenario == scenario)&&(identical(other.isPaid, isPaid) || other.isPaid == isPaid));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _SimpleOsce&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.scenario, scenario) || other.scenario == scenario)&&(identical(other.isPaid, isPaid) || other.isPaid == isPaid)&&(identical(other.folderId, folderId) || other.folderId == folderId)&&(identical(other.scenarioImageUrl, scenarioImageUrl) || other.scenarioImageUrl == scenarioImageUrl));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,name,scenario,isPaid);
+int get hashCode => Object.hash(runtimeType,id,name,scenario,isPaid,folderId,scenarioImageUrl);
 
 @override
 String toString() {
-  return 'SimpleOsce(id: $id, name: $name, scenario: $scenario, isPaid: $isPaid)';
+  return 'SimpleOsce(id: $id, name: $name, scenario: $scenario, isPaid: $isPaid, folderId: $folderId, scenarioImageUrl: $scenarioImageUrl)';
 }
 
 
@@ -253,7 +261,7 @@ abstract mixin class _$SimpleOsceCopyWith<$Res> implements $SimpleOsceCopyWith<$
   factory _$SimpleOsceCopyWith(_SimpleOsce value, $Res Function(_SimpleOsce) _then) = __$SimpleOsceCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String name, String scenario, bool isPaid
+ String id, String name, String scenario, bool isPaid, String? folderId, String? scenarioImageUrl
 });
 
 
@@ -270,13 +278,15 @@ class __$SimpleOsceCopyWithImpl<$Res>
 
 /// Create a copy of SimpleOsce
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = null,Object? scenario = null,Object? isPaid = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = null,Object? scenario = null,Object? isPaid = null,Object? folderId = freezed,Object? scenarioImageUrl = freezed,}) {
   return _then(_SimpleOsce(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String,scenario: null == scenario ? _self.scenario : scenario // ignore: cast_nullable_to_non_nullable
 as String,isPaid: null == isPaid ? _self.isPaid : isPaid // ignore: cast_nullable_to_non_nullable
-as bool,
+as bool,folderId: freezed == folderId ? _self.folderId : folderId // ignore: cast_nullable_to_non_nullable
+as String?,scenarioImageUrl: freezed == scenarioImageUrl ? _self.scenarioImageUrl : scenarioImageUrl // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 

@@ -37,3 +37,13 @@ class CustomSessionGetterDelete extends CustomSessionGetterEvent {
   @override
   List<Object?> get props => [sessionId];
 }
+
+class CustomSessionGetterRename extends CustomSessionGetterEvent {
+  final String sessionId;
+  final String name;
+
+  CustomSessionGetterRename({required this.sessionId, required this.name});
+
+  @override
+  List<Object?> get props => [sessionId, name];
+}

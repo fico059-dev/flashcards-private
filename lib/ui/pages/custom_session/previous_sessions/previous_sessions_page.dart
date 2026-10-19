@@ -14,6 +14,7 @@ import 'package:flashcards/ui/widgets/core/loading_overlay_listener.dart';
 import 'package:flashcards/ui/widgets/previous_sessions/previous_session_card.dart';
 import 'package:flashcards/utils/firebase_error_mapper.dart';
 import 'package:flashcards/utils/util_functions.dart';
+import 'package:flashcards/ui/dialogs/previous_session/rename_session_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
@@ -62,6 +63,16 @@ class _ViewState extends State<_View> {
     );
   }
 
+  void onSessionRename(CustomSessionSummary session) async {
+    final bloc = context.read<CustomSessionGetterBloc>();
+    final name = await showRenameSessionDialog(
+      context,
+      currentName: session.name ?? '',
+    );
+    if (name == null) return;
+    bloc.add(CustomSessionGetterRename(sessionId: session.id, name: name));
+  }
+
   void onSessionStart(CustomSessionSummary session) async {
     if (session.isPaid) {
       final ok = await ensureCardsAccess(context);
@@ -77,6 +88,7 @@ class _ViewState extends State<_View> {
       session: session,
       onSessionDelete: () => onSessionDelete(session.id),
       onSessionReset: () => onSessionReset(session.id),
+      onSessionRename: () => onSessionRename(session),
       onSessionStart: !session.isFinished
           ? () => onSessionStart(session)
           : null,
@@ -94,6 +106,7 @@ class _ViewState extends State<_View> {
         listenWhen: (previous, current) =>
             current.status.isResetSuccessful ||
             current.status.isDeleteSuccessful ||
+            current.status == CustomSessionGetterStatus.renameSuccessful ||
             current.status.isActionError,
         listener: (context, state) {
           switch (state.status) {
@@ -101,6 +114,11 @@ class _ViewState extends State<_View> {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(content: Text("Successfully deleted session")),
               );
+              break;
+            case CustomSessionGetterStatus.renameSuccessful:
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(SnackBar(content: Text("Session renamed")));
               break;
             case CustomSessionGetterStatus.resetSuccessful:
               ScaffoldMessenger.of(context).showSnackBar(
@@ -172,6 +190,8 @@ class _ViewState extends State<_View> {
                                       : null,
                                   onResetPressed: () =>
                                       onSessionReset(session.id),
+                                  onRenamePressed: () =>
+                                      onSessionRename(session),
                                   onTap: () => onSessionTap(session),
                                 );
                               },

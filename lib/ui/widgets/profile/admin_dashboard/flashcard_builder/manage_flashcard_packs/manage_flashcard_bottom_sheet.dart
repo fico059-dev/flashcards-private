@@ -1,3 +1,4 @@
+import 'package:flashcards/domain/models/flashcards/card_markup/card_markup.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:flashcards/bloc/flashcards/manage_flashcards/manage_flashcards_bloc.dart';
 import 'package:flashcards/bloc/flashcards/manage_flashcards/manage_flashcards_event.dart';
@@ -7,6 +8,7 @@ import 'package:flashcards/ui/theme/theme_extensions.dart';
 import 'package:flashcards/ui/theme/theme_extensions.dart';
 import 'package:flashcards/ui/widgets/profile/admin_dashboard/flashcard_builder/manage_flashcard_packs/delete_flashcard_dialog.dart';
 import 'package:flashcards/ui/dialogs/profile/admin_dashboard/flashcard_builder/manage_flashcards/update_flashcard_bottom_sheet.dart';
+import 'package:flashcards/ui/constants/styles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -38,9 +40,11 @@ void showManageFlashcardBottomSheet(
   }
 
   showModalBottomSheet(
+    isScrollControlled: true,
+    useSafeArea: true,
     context: context,
     showDragHandle: true,
-    builder: (context) {
+    builder: scrollableSheet((context) {
       return BlocProvider.value(
         value: bloc,
         child: Builder(
@@ -56,7 +60,7 @@ void showManageFlashcardBottomSheet(
                     color: context.colors.primary,
                   ),
                   title: Text(
-                    flashcard.question,
+                    plainCardText(flashcard.question),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -87,6 +91,6 @@ void showManageFlashcardBottomSheet(
           ),
         ),
       );
-    },
+    }),
   );
 }
