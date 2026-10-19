@@ -66,7 +66,12 @@ class _OsceGymCardState extends State<OsceGymCard> {
       icon: Icons.fitness_center,
       trailing: SegmentedButton<bool>(
         showSelectedIcon: false,
-        style: const ButtonStyle(visualDensity: VisualDensity.compact),
+        // Narrow, to fit next to the title on small phones.
+        style: const ButtonStyle(
+          visualDensity: VisualDensity.compact,
+          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: 4)),
+        ),
         segments: const [
           ButtonSegment(
             value: false,
@@ -154,9 +159,11 @@ class _OsceGymCardState extends State<OsceGymCard> {
                       ),
                     ),
                     const SizedBox(width: 4),
-                    Text(
-                      '$label (${count(level)})',
-                      style: context.text.labelMedium,
+                    Flexible(
+                      child: Text(
+                        '$label (${count(level)})',
+                        style: context.text.labelMedium,
+                      ),
                     ),
                   ],
                 ),
