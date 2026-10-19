@@ -128,7 +128,7 @@ class _OsceGymCardState extends State<OsceGymCard> {
                               ),
                             )
                           : SizedBox.square(
-                              dimension: 46,
+                              dimension: 56,
                               child: CustomPaint(
                                 painter: ArmPainter(session.level),
                               ),
@@ -177,7 +177,8 @@ class _OsceGymCardState extends State<OsceGymCard> {
 
 /// A flexed arm: thin with no biceps when skinny, a round biceps when
 /// muscular, and a big biceps with power lines when very muscular. The
-/// sleeve has the level's color.
+/// sleeve has the level's color. The hand holds a dumbbell, heavier for a
+/// stronger arm.
 class ArmPainter extends CustomPainter {
   final ArmLevel level;
 
@@ -203,8 +204,8 @@ class ArmPainter extends CustomPainter {
     final elbow = Offset(0.66 * s, 0.76 * s);
     // A skinny arm can't quite flex.
     final fist = level == ArmLevel.skinny
-        ? Offset(0.8 * s, 0.32 * s)
-        : Offset(0.66 * s, 0.24 * s);
+        ? Offset(0.7 * s, 0.34 * s)
+        : Offset(0.64 * s, 0.26 * s);
     final bicepCenter = Offset(0.4 * s, 0.76 * s - t * 0.45);
     final bicep = Rect.fromCenter(
       center: bicepCenter,
@@ -222,6 +223,9 @@ class ArmPainter extends CustomPainter {
       canvas.drawCircle(fist, t * 0.75 + extra / 2, paint);
       if (bulge > 0) canvas.drawOval(bicep.inflate(extra / 2), paint);
     }
+
+    // The dumbbell first, so the hand closes over its bar.
+    _dumbbell(canvas, fist, s);
 
     // Outline first, then the skin on top, so the parts look joined.
     limbs(Paint()..color = _outline, max(2.0, s * 0.05));
@@ -262,7 +266,7 @@ class ArmPainter extends CustomPainter {
         ..strokeWidth = max(1.2, s * 0.03)
         ..strokeCap = StrokeCap.round;
       final top = bicep.topCenter;
-      for (final (dx, angle) in [(-0.12, -2.2), (0.0, -pi / 2), (0.12, -0.9)]) {
+      for (final (dx, angle) in [(-0.17, -2.6), (-0.1, -2.1), (-0.02, -1.7)]) {
         final start = top.translate(dx * s, -0.06 * s);
         canvas.drawLine(
           start,
@@ -272,6 +276,37 @@ class ArmPainter extends CustomPainter {
       }
     }
     canvas.restore();
+  }
+
+  void _dumbbell(Canvas canvas, Offset hand, double s) {
+    final plate = switch (level) {
+      ArmLevel.skinny => 0.16,
+      ArmLevel.moderate => 0.22,
+      ArmLevel.strong => 0.28,
+    };
+    final half = 0.25 * s;
+    final bar = Paint()
+      ..color = const Color(0xFF616161)
+      ..strokeWidth = max(1.5, s * 0.045)
+      ..strokeCap = StrokeCap.round;
+    canvas.drawLine(hand.translate(-half, 0), hand.translate(half, 0), bar);
+    final plates = Paint()..color = const Color(0xFF37474F);
+    for (final side in [-1, 1]) {
+      // An inner and a smaller outer plate on each end.
+      for (final (offset, scale) in [(0.15, 1.0), (0.215, 0.72)]) {
+        canvas.drawRRect(
+          RRect.fromRectAndRadius(
+            Rect.fromCenter(
+              center: hand.translate(side * offset * s, 0),
+              width: 0.065 * s,
+              height: plate * s * scale,
+            ),
+            Radius.circular(s * 0.015),
+          ),
+          plates,
+        );
+      }
+    }
   }
 
   @override
