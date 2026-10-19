@@ -61,6 +61,22 @@ Future<void> bootstrap({required bool isDev}) {
 Future<void> _bootstrap({required bool isDev}) async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  // A part of a screen that fails to build is an empty grey area in the
+  // published app. Show what went wrong instead, so it can be reported.
+  if (kReleaseMode) {
+    ErrorWidget.builder = (details) => Material(
+      color: const Color(0xFFFFF3F3),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Text(
+          'Something went wrong here. Please send a screenshot to support.'
+          '\n\n${details.exceptionAsString()}',
+          style: const TextStyle(fontSize: 12, color: Color(0xFFB00020)),
+        ),
+      ),
+    );
+  }
+
   // On the website the browser's own menu replaces the app's selection
   // menu, which hides "Highlight" (and on iPhone Safari it doesn't appear at
   // all). Use the app's menu, like in the iPhone app.
