@@ -17,17 +17,17 @@ extension NotificationFrequencyX on NotificationFrequency {
   String get displayName {
     switch (this) {
       case NotificationFrequency.none:
-        return "Never";
+        return "أبداً";
       case NotificationFrequency.onceDaily:
-        return "Once per day";
+        return "مرة في اليوم";
       case NotificationFrequency.twiceDaily:
-        return "Twice per day";
+        return "مرتين في اليوم";
       case NotificationFrequency.threePerWeek:
-        return "Three times per week";
+        return "ثلاث مرات في الأسبوع";
       case NotificationFrequency.oncePerWeek:
-        return "Once per week";
+        return "مرة في الأسبوع";
       default:
-        return "No display name";
+        return "بدون اسم";
     }
   }
 }
@@ -119,23 +119,6 @@ class LocalStorageService {
 
   Future<void> removeFlashcardsTutorialSeen() async {
     await _sharedPrefAsync.remove(_getFlashcardsTutorialKey());
-  }
-
-  // Osce tutorial seen functions
-  String _getOsceTutorialKey() {
-    return "osce_tutorial_seen_${_getUid()}";
-  }
-
-  Future<bool> getOsceTutorialSeen() async {
-    return await _sharedPrefAsync.getBool(_getOsceTutorialKey()) ?? false;
-  }
-
-  Future<void> setOsceTutorialSeen({bool seen = true}) async {
-    await _sharedPrefAsync.setBool(_getOsceTutorialKey(), seen);
-  }
-
-  Future<void> removeOsceTutorialSeen() async {
-    await _sharedPrefAsync.remove(_getOsceTutorialKey());
   }
 
   Future<void> clearLocalStorage() async {

@@ -17,7 +17,7 @@ class FcReviewSheetUserFloatingButton extends StatelessWidget {
     }
 
     return FloatingActionButton(
-      tooltip: "Preview flashcard",
+      tooltip: "معاينة البطاقة",
       onPressed: onPreview,
       child: Icon(Icons.remove_red_eye),
     );

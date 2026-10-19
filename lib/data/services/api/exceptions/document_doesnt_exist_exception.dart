@@ -4,7 +4,7 @@ class DocumentDoesntExistException implements Exception {
 
   DocumentDoesntExistException({
     this.documentPath,
-    this.message = 'The requested document does not exist.',
+    this.message = 'المستند المطلوب غير موجود.',
   });
 
   @override

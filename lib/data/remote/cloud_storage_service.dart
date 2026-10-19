@@ -5,26 +5,6 @@ import 'package:firebase_storage/firebase_storage.dart';
 class CloudStorageService {
   final _storageRef = FirebaseStorage.instance.ref();
 
-  // Osce images
-  Reference get _oscesRef => _storageRef.child("osces");
-
-  Reference _getOsceRef(String osceId) => _oscesRef.child(osceId);
-
-  Reference _getQuestionsRef(String osceId) =>
-      _getOsceRef(osceId).child("questions");
-
-  Reference _getQuestionRef(String osceId, String questionId) =>
-      _getQuestionsRef(osceId).child(questionId);
-
-  /// It gives you the reference to the image for the specific question, the hierarchy goes like this:
-  /// /osces/{osceId}/questions/{questionId}/image.jpg
-  Reference getQuestionImageRef({
-    required String osceId,
-    required String questionId,
-  }) {
-    return _getQuestionRef(osceId, questionId).child("image.jpg");
-  }
-
   // Flashcard images, one for question, one for answer
   Reference get _flashcardsRef => _storageRef.child("flashcards");
 

@@ -32,7 +32,7 @@ class _TagInputState extends State<TagInput> {
 
     if (tag.id.length > _maxTagLength) {
       setState(() {
-        _errorText = 'Tag too long (max $_maxTagLength characters)';
+        _errorText = 'الوسم طويل (الحد الأقصى $_maxTagLength حرفاً)';
       });
       return;
     }
@@ -97,7 +97,7 @@ class _TagInputState extends State<TagInput> {
                       color: Colors.grey,
                       size: 22,
                     ),
-                    labelText: 'Enter tags (optional)',
+                    labelText: 'أدخل الوسوم (اختياري)',
                     border: const OutlineInputBorder(),
                     errorText: _errorText,
                   ),

@@ -8,7 +8,6 @@ enum AdminTab { addFlashcards, assignAdmin }
 class AdminTabRoutes {
   static final routes = const [
     AdminPackSearchRoute(),
-    OsceBuilderRoute(),
     AssignAdminRoute(),
     FlashcardReportsRoute(),
     FlashcardBuilderRoute(),
@@ -24,10 +23,8 @@ class AdminTabRoutes {
       case AdminPackSearchRoute.name:
       case FlashcardBuilderRoute.name:
         return l10n.flashcardBuilderPage_title;
-      case OsceBuilderRoute.name:
-        return l10n.osceBuilderPage_title;
       case FlashcardReportsRoute.name:
-        return "Reported flashcards";
+        return "البطاقات المبلّغ عنها";
       default:
         return "";
     }

@@ -19,25 +19,25 @@ class CustomSessionResultPage extends StatelessWidget {
   String _getTitle() {
     switch (scoreStatus) {
       case ScoreStatus.low:
-        return "Session Complete";
+        return "اكتملت الجلسة";
       case ScoreStatus.okay:
-        return "Session Complete 🎉";
+        return "اكتملت الجلسة 🎉";
       case ScoreStatus.max:
-        return "Perfect Score! 🌟";
+        return "علامة كاملة! 🌟";
     }
   }
 
   String _getMessage() {
     switch (scoreStatus) {
       case ScoreStatus.low:
-        return "Good effort! You’ve finished your custom session.\n"
-            "Don’t worry if the score isn’t high this time — every try helps you learn and improve.";
+        return "جهد جيد! أنهيت جلستك المخصّصة.\n"
+            "لا تشيل هم إذا كانت النتيجة مو عالية هالمرة — كل محاولة تفيدك.";
       case ScoreStatus.okay:
-        return "Nice work! You stayed focused and made progress.\n"
-            "Keep practicing and you’ll get even better next time.";
+        return "عمل ممتاز! ركّزت وتقدّمت.\n"
+            "استمر في التدرّب وبتتحسن أكثر.";
       case ScoreStatus.max:
-        return "Congratulations! You answered everything correctly in this custom session.\n"
-            "Awesome focus and great job!";
+        return "مبروك! أجبت على كل الأسئلة صح في هذه الجلسة.\n"
+            "تركيز رائع، أحسنت!";
     }
   }
 
@@ -92,7 +92,7 @@ class CustomSessionResultPage extends StatelessWidget {
                     onPressed: () {
                       context.router.pop();
                     },
-                    child: const Text("Back to home"),
+                    child: const Text("العودة للرئيسية"),
                   ),
                 ),
               ],

@@ -22,23 +22,23 @@ class _View extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Text("Reset progress for pack $packName?"),
+      title: Text("تصفير تقدّمك في حزمة $packName؟"),
       content: Text(
-        "This will erase all of your data related to this pack, "
-        "losing all of your previous progress with flashcards from this pack.\n\n"
-        "This action can't be undone, do you still want to proceed?",
+        "سيتم مسح كل بياناتك المتعلقة بهذه الحزمة، "
+        "وستفقد تقدّمك السابق في بطاقاتها.\n\n"
+        "ما يمكن التراجع عن هذا الإجراء، تبي تكمل؟",
       ),
       actions: [
         TextButton(
           onPressed: () => context.router.pop(),
-          child: Text("Cancel"),
+          child: Text("إلغاء"),
         ),
         TextButton(
           onPressed: () {
             onDelete.call();
             context.router.pop();
           },
-          child: Text("Reset Progress", style: TextStyle(color: context.colors.error)),
+          child: Text("تصفير التقدّم", style: TextStyle(color: context.colors.error)),
         ),
       ],
     );

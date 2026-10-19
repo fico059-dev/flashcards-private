@@ -34,12 +34,12 @@ class ProfileRepository {
     }
 
     final profile = Profile(
-      name: "Unknown",
-      surname: "User",
-      username: "Unknown User",
+      name: "مستخدم",
+      surname: "جديد",
+      username: "مستخدم جديد",
       email: user.email ?? "unknown email",
       phoneNumber: "1111111",
-      educationLevel: EducationLevel.consultant,
+      educationLevel: EducationLevel.other,
       streak: Streak(count: 1, lastStreakDate: DateTime.now()),
       profileSettings: ProfileSettings(),
     );

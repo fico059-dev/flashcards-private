@@ -16,6 +16,6 @@ _CustomSessionPatchDto _$CustomSessionPatchDtoFromJson(
 Map<String, dynamic> _$CustomSessionPatchDtoToJson(
   _CustomSessionPatchDto instance,
 ) => <String, dynamic>{
-  if (instance.correctCount case final value?) 'correctCount': value,
-  if (instance.currentIndex case final value?) 'currentIndex': value,
+  'correctCount': ?instance.correctCount,
+  'currentIndex': ?instance.currentIndex,
 };

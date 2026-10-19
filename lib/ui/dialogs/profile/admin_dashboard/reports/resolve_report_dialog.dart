@@ -37,7 +37,7 @@ class _Dialog extends StatelessWidget {
 
     return LoadingOverlayListener<ResolveReportCubit, ResolveReportState>(
       isLoading: (state) => state is ResolveReportLoading,
-      loadingText: "Resolving flashcard report...",
+      loadingText: "جارٍ إغلاق البلاغ...",
       child: BlocListener<ResolveReportCubit, ResolveReportState>(
         listenWhen:
             (previous, current) =>
@@ -52,7 +52,7 @@ class _Dialog extends StatelessWidget {
               context.router.pop(false);
             case ResolveReportSuccess():
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text("Successfully resolved report")),
+                SnackBar(content: Text("تم إغلاق البلاغ")),
               );
               context.router.pop(true);
             case ResolveReportLoading():
@@ -62,22 +62,22 @@ class _Dialog extends StatelessWidget {
         },
         child: AlertDialog(
           icon: const Icon(Icons.task_alt),
-          title: const Text("Are you sure you want to resolve this report?"),
+          title: const Text("متأكد إنك تبي تغلق هذا البلاغ؟"),
           content: const Text(
-            "This will remove all reports associated with this flashcard. "
-            "This action cannot be undone.\n\n"
-            "⚠️ Before resolving, please make sure to update the flashcard "
-            "if it contains incorrect information, or delete it completely "
-            "if it is poorly made. \n\n"
-            "Resolving should only be done once you are "
-            "100% confident that the flashcard is accurate.",
+            "سيتم حذف كل البلاغات المرتبطة بهذه البطاقة. "
+            "ما يمكن التراجع عن هذا الإجراء.\n\n"
+            "⚠️ قبل الإغلاق تأكد من تعديل البطاقة "
+            "إذا كانت فيها معلومة خاطئة، أو احذفها نهائياً "
+            "إذا كانت ضعيفة الصياغة. \n\n"
+            "لا تغلق البلاغ إلا إذا كنت "
+            "متأكداً 100% من صحة البطاقة.",
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: const Text("Cancel"),
+              child: const Text("إلغاء"),
             ),
-            TextButton(onPressed: onResolve, child: const Text("Resolve")),
+            TextButton(onPressed: onResolve, child: const Text("إغلاق البلاغ")),
           ],
         ),
       ),

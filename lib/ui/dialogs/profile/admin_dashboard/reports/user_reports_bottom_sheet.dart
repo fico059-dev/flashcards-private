@@ -94,7 +94,7 @@ class _BottomSheetContent extends StatelessWidget {
                           ),
                           child: Center(
                             child: Text(
-                              "Congrats 😊, no reports found for this flashcard!",
+                              "ما فيه بلاغات على هذه البطاقة 😊",
                               style: TextTheme.of(context).headlineSmall,
                             ),
                           ),
@@ -149,7 +149,7 @@ class _Header extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Text(
-              "Flashcard Reports",
+              "بلاغات البطاقة",
               style: TextTheme.of(
                 context,
               ).titleLarge?.merge(TextStyle(fontWeight: FontWeight.w600)),
@@ -159,7 +159,7 @@ class _Header extends StatelessWidget {
               spacing: 5,
               children: [
                 Tooltip(
-                  message: "Preview this flashcard",
+                  message: "معاينة البطاقة",
                   child: IconButton(
                     onPressed: onPreview,
                     icon: Icon(

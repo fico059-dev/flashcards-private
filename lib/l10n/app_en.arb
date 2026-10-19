@@ -1,16 +1,7 @@
 {
   "@@locale": "en",
-
-  "medicalStudent": "Medical Student",
-  "intern": "Intern",
-  "juniorResident": "Junior Resident",
-  "seniorResident": "Senior Resident",
-  "fellow": "Fellow",
-  "consultant": "Consultant",
-
   "homePage_title": "Home",
-
-  "registerPage_header": "Start your learning journey today!",
+  "registerPage_header": "Start preparing for Qudurat today!",
   "basicText_name": "Name",
   "basicText_surname": "Surname",
   "basicText_email": "Email",
@@ -43,7 +34,7 @@
       }
     }
   },
-  "loginPage_welcomeBack": "Welcome back to FlashPedz, we've missed you",
+  "loginPage_welcomeBack": "Welcome back to Taqdir, we've missed you",
   "loginPage_welcomeBackMember": "Welcome back {displayName}!",
   "@loginPage_welcomeBackMember": {
     "placeholders": {
@@ -53,14 +44,10 @@
       }
     }
   },
-
   "forgotPasswordPage_emailSent": "Verification email sent. Please check your inbox",
   "forgotPasswordPage_enterEmail": "Please enter the email address associated with your account.",
-
   "verifyEmailPage_success": "Successfully sent email verification!",
-
   "personalInformationPage_personalInformation": "Personal Information",
-
   "privacySecurityPage_title": "Privacy & Security",
   "privacySecurityPage_changeEmail": "Change Email",
   "privacySecurityPage_verified": "Verified",
@@ -72,7 +59,6 @@
   "privacySecurityPage_deleteAccountSubtitle": "Permanently remove your account",
   "privacySecurityPage_pendingVerification": "Pending verification",
   "privacySecurityPage_changeEmailText": "To change your email, complete the process on the Change Email page. Verifying it elsewhere may cause issues. If you’ve changed your mind, you can safely ignore this.",
-
   "profilePage_errorMessage": "{errorMessage}",
   "@profilePage_errorMessage": {
     "placeholders": {
@@ -82,48 +68,37 @@
       }
     }
   },
-
-  "deleteAccountSuccessfulPage_message":  "We're sad to see you go. Your account and all associated data have been successfully deleted.",
+  "deleteAccountSuccessfulPage_message": "We're sad to see you go. Your account and all associated data have been successfully deleted.",
   "deleteAccountSuccessfulPage_button": "Go to Login",
-
   "authErrorContainer_verifyEmailSuccess": "Success! Now lets verify your email address",
-
   "reauthSection_securityNotice": "For security reasons, please verify your identity.",
   "reauthSection_passwordLabel": "Password",
   "reauthSection_button": "Reauthenticate",
   "reauthSection_success": "Reauthentication successful. Your previous action will now be completed.",
   "reauthSection_info": "You may be asked to verify your identity.",
-
   "loadingProfileData_message": "Loading your profile...",
   "profileReaderBlocBuilder_neverLoaded": "Profile was never loaded.",
   "readProfileErrorScreen_errorMessage": "There was an error trying to load your profile.",
-
   "personalInfoContent_updateSuccessMessage": "Successfully updated your personal information!",
-
   "profileData_accountSettings": "Account Settings",
   "profileData_personalInformation": "Personal Information",
   "profileData_privacySecurity": "Privacy & Security",
   "profileData_billingDetails": "Billing Details",
-  "profileData_flashcards": "Flashcards",
-  "profileData_flashcardSettings": "Flashcard Settings",
-  "profileData_bookmarkedFlashcards": "Bookmarked flashcards",
+  "profileData_flashcards": "Questions",
+  "profileData_flashcardSettings": "Study Settings",
+  "profileData_bookmarkedFlashcards": "Bookmarked cards",
   "profileData_privacyPolicy": "Privacy Policy",
-
   "verifyEmailActionButtons_changeEmail": "Change Email",
-
   "verifyEmailHeadline_sendingVerificationLink": "Sending verification link...",
   "verifyEmailHeadline_refreshingApplicationState": "Refreshing application state...",
   "verifyEmailHeadline_errorSendingVerificationLink": "Error sending verification link, please try again later",
   "verifyEmailHeadline_verifyYourEmailAddress": "Verify your email address",
-
   "verifyEmailInfoSection_emailSentMessage1": "Thank you for registering! A verification email has been sent to your inbox.",
   "verifyEmailInfoSection_emailSentMessage2": "Please check your email and click on the verification link to activate your account.",
   "verifyEmailInfoSection_twoEmailsDetectedMessage": "We've sent verification links to both email addresses. \n The first link you click will determine which email is saved to your profile.",
-
   "verifyEmailResendLinkButton_successMessage": "Successfully sent email verification!",
   "verifyEmailResendLinkButton_resendLinkButtonText": "Resend Link",
   "verifyEmailResendLinkButton_waitButtonText": "Wait...",
-
   "error_requiresRecentLogin": "For security reasons, please reauthenticate to perform this action.",
   "error_invalidEmail": "Invalid email format.",
   "error_userDisabled": "User with that email is disabled.",
@@ -138,22 +113,15 @@
   "error_authFailed": "Authentication failed. Please try again.",
   "error_unexpected": "An unexpected error occurred. Please try again.",
   "error_passwordRequirement": "Password does not meet security requirements.",
-
   "error_passwordNonAlphanumeric": "Password must contain a non-alphanumeric character.",
   "error_passwordEightCharacters": "Password must contain at least 8 characters.",
   "error_passwordUpperCase": "Password must contain an upper case character.",
   "error_passwordNumeric": "Password must contain a numeric character.",
-
   "error_loadingBookmarks": "Error loading bookmarks, try again",
-  "error_loadingOscePacks": "Error trying to load the OSCE packs \uD83D\uDE14",
-  "error_loadingOsceResults": "Error trying to load the results \uD83D\uDE14",
-  "error_loadingPacks": "Error trying to load the packs \uD83D\uDE14",
-
+  "error_loadingPacks": "Error trying to load the packs 😔",
   "flashcardMainCard_packFinished": "Good job!",
-
   "flashcardMainButton_reveal": "Reveal",
   "flashcardMainButton_skip": "Skip",
-
   "flashcardPageDialog_packFinishedForNow": "You are finished, for now",
   "flashcardPageDialog_packEnded": "Congratulations! There are no flashcards from {subTextForDialog} that are due now, but you can come back later.\n\nKeep up the good work.",
   "@flashcardPageDialog_packEnded": {
@@ -169,7 +137,6 @@
   "flashcardPageDialog_sessionEnded": "Congratulations! You completed this study session.",
   "flashcardPageDialog_closeSession": "You can close this session, or you can continue learning.",
   "flashcardPageDialog_continueLearning": "Continue learning",
-
   "flashcardPageDialog_endThisSession": "End this session?",
   "flashcardPageDialog_updateCardsPerSession": "You’ve reviewed {cardDifference} more cards than your target of {userCardsPerSession} cards per session.\n\nWould you like to update your session target to {newCardsPerSession} cards per session?\n\nYou can always change this in settings.",
   "@flashcardPageDialog_updateCardsPerSession": {
@@ -190,7 +157,6 @@
   },
   "flashcardPageDialog_keepCurrent": "Keep current",
   "flashcardPageDialog_updateTarget": "Update target",
-
   "flashcardRatingButtons_easyLabel": "Easy",
   "flashcardRatingButtons_easyTooltip": "I knew it instantly and confidently.",
   "flashcardRatingButtons_goodLabel": "Good",
@@ -199,7 +165,6 @@
   "flashcardRatingButtons_hardTooltip": "I barely remembered this.",
   "flashcardRatingButtons_againLabel": "Again",
   "flashcardRatingButtons_againTooltip": "I forgot this or got it wrong.",
-
   "flashcardTimerContainer": "Time: {time}",
   "@flashcardTimerContainer": {
     "placeholders": {
@@ -209,12 +174,10 @@
       }
     }
   },
-
   "flashcardPage_packTitle": "Pack",
   "flashcardPage_packSubtext": "pack",
   "flashcardPage_bookmarksTitle": "Bookmarks",
   "flashcardPage_bookmarksSubtext": "bookmarks",
-
   "reviewBookmarkPage_review": "Review Bookmarked Flashcards",
   "reviewBookmarkPage_noBookmarks": "Looks like you didn't bookmark any flashcards yet.",
   "reviewBookmarkPage_numberOfBookmarks": "Number of bookmarks: {number}",
@@ -228,43 +191,12 @@
   },
   "reviewBookmarkPage_remove": "Remove bookmark",
   "reviewBookmarkPage_swipe": "Swipe left to remove bookmark",
-
-  "osceListPage_title": "OSCEs",
-  "osceListPage_fetching": "Fetching OSCE scenarios...",
-  "osceListPage_noPacks": "Whoops, looks like there are no OSCE packs available",
-
-  "oscePage_title": "OSCE",
-  "oscePage_previous": "Previous",
-  "oscePage_next": "Next",
-  "oscePage_submit": "Submit",
-
-  "osceResultPage_title": "OSCE results",
-  "osceResultPage_fetching": "Fetching OSCE results...",
-
-  "osceSubmitPage_title": "OSCE Result",
-  "osceSubmitPage_success": "You successfully completed the OSCE!",
-  "osceSubmitPage_osceName": "OSCE Name: {name}",
-  "@osceSubmitPage_osceName": {
-    "placeholders": {
-      "name": {
-        "type": "String",
-        "example": "Lychantropy"
-      }
-    }
-  },
-  "osceSubmitPage_unmarked": "Unmarked checks:",
-  "osceSubmitPage_download": "Download PDF",
-  "osceSubmitPage_back": "Back to main menu",
-
   "splashPageText": "Preparing your experience...",
-
   "packsPage_title": "Packs",
   "packsPage_fetching": "Fetching flashcard packs...",
   "packsPage_noPacks": "Whoops, looks like there are no packs available",
-
-  "updateEmailSuccessfulPage_text": "\uD83C\uDF89 All set! Your email address has been updated.\\nMake sure to use the new one next time you sign in.",
+  "updateEmailSuccessfulPage_text": "🎉 All set! Your email address has been updated.\\nMake sure to use the new one next time you sign in.",
   "updateEmailSuccessfulPage_button": "Go to login",
-
   "changeEmailDuringVerificationPage_text": "Successfully sent new email verification at {email}",
   "@changeEmailDuringVerificationPage_text": {
     "placeholders": {
@@ -274,44 +206,36 @@
       }
     }
   },
-
   "changeEmailPage_leaveWithoutVerifying": "Leave without verifying email?",
   "changeEmailPage_text": "To change your email, you must complete the verification while staying on this page.\\n\\nVerifying your email from another page may cause the app to behave unexpectedly.\\n\\nIf you’ve changed your mind, you can safely leave this page.",
   "changeEmailPage_stay": "Stay on this page",
   "changeEmailPage_leaveAnyway": "Leave anyway",
-
   "deleteProfilePage_deleteAccount": "Delete Account",
   "deleteProfilePage_areYouSure": "Are you sure you want to permanently delete your account? \n\n This action cannot be undone and all your data will be lost.",
-
   "updatePasswordPage_title": "Update Password",
   "updatePasswordPage_update": "Update",
   "updatePasswordPage_success": "Successfully updated password",
   "updatePasswordPage_password": "Password",
   "updatePasswordPage_repeatPassword": "Repeat password",
-
   "profileData_bookmarks": "Bookmarks",
   "profileData_chooseEngage": "Choose how you'd like to engage with your bookmarked cards.",
   "profileData_review": "Review flashcards",
   "profileData_startTest": "Test yourself",
-  "profileData_osces": "OSCES",
-  "profileData_osceResults": "OSCE Results",
-
   "assignAdminPage_title": "Assign Admin Roles",
-
-  "flashcardBuilderPage_title": "Flashcard Builder",
-
-  "osceBuilderPage_title": "OSCE Builder",
-
+  "flashcardBuilderPage_title": "Content Builder",
   "reportFlashcardPage_success": "Flashcard reported successfully",
   "reportFlashcardPage_report": "Report Flashcard",
   "reportFlashcardPage_whyReporting": "Why are you reporting this flashcard",
   "reportFlashcardPage_submitReport": "Submit Report",
   "reportFlashcardPage_additionalDetails": "Additional details (optional)",
   "reportFlashcardPage_explain": "Explain your report here",
-
   "reportReason_inappropriateContent": "Inappropriate content",
   "reportReason_incorrectInformation": "Incorrect information",
   "reportReason_poorTranslation": "Poor translation",
   "reportReason_duplicateFlashcard": "Duplicate flashcard",
-  "reportReason_other": "Other"
+  "reportReason_other": "Other",
+  "highSchoolStudent": "High School Student",
+  "graduate": "Graduate",
+  "universityStudent": "University Student",
+  "otherLevel": "Other"
 }

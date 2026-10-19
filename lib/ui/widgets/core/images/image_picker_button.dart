@@ -34,7 +34,7 @@ class ImagePickerButton extends StatelessWidget {
     return IconButton(
       onPressed: () =>
           _showImageSheet(context, label, imageData, onImageChanged, onError),
-      tooltip: "Add $label image",
+      tooltip: "إضافة صورة $label",
       icon: !imageData.imageDataExists
           ? const Icon(Icons.image_outlined)
           : Icon(Icons.image, color: context.customColors.success),
@@ -71,8 +71,8 @@ void _showImageSheet(
                 final bytes = result.files.first.bytes!;
                 if (bytes.lengthInBytes > maxSizeInBytes) {
                   throw Exception(
-                    "Maximum size of an uploaded image "
-                    "is ${maxSizeInBytes / (1024 * 1024)}MB",
+                    "الحد الأقصى لحجم الصورة "
+                    "هو ${maxSizeInBytes / (1024 * 1024)} ميغابايت",
                   );
                 }
 
@@ -87,8 +87,8 @@ void _showImageSheet(
                 final path = result.files.single.path!;
                 if (await File(path).length() > maxSizeInBytes) {
                   throw Exception(
-                    "Maximum size of an uploaded image "
-                    "is ${maxSizeInBytes / (1024 * 1024)}MB",
+                    "الحد الأقصى لحجم الصورة "
+                    "هو ${maxSizeInBytes / (1024 * 1024)} ميغابايت",
                   );
                 }
 
@@ -145,7 +145,7 @@ void _showImageSheet(
           // print(imageData.imageDataExists);
           if (!imageData.imageDataExists) {
             // print("no image selected");
-            imageContainer = const Text("No image selected");
+            imageContainer = const Text("لم يتم اختيار صورة");
           } else if (imageData.pickedImage != null) {
             // print("there is a picked image");
             if (imageData.pickedImage!.file != null) {
@@ -176,7 +176,7 @@ void _showImageSheet(
                 Column(
                   children: [
                     Text(
-                      "$label Image",
+                      "صورة $label",
                       style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -198,7 +198,7 @@ void _showImageSheet(
                               onPressed: imageData.imageDataExists
                                   ? onDelete
                                   : null,
-                              label: const Text("Delete image"),
+                              label: const Text("حذف الصورة"),
                               icon: Icon(
                                 Icons.delete,
                                 color: imageData.imageDataExists
@@ -218,8 +218,8 @@ void _showImageSheet(
                               onPressed: onAdd,
                               label: Text(
                                 !imageData.imageDataExists
-                                    ? "Add image"
-                                    : "Replace image",
+                                    ? "إضافة صورة"
+                                    : "استبدال الصورة",
                               ),
                               icon: const Icon(Icons.add_photo_alternate),
                             ),
@@ -327,7 +327,7 @@ void _showImageSheet(
 //               Column(
 //                 children: [
 //                   Text(
-//                     "$label Image",
+//                     "صورة $label",
 //                     style: const TextStyle(
 //                       fontSize: 18,
 //                       fontWeight: FontWeight.bold,
@@ -340,7 +340,7 @@ void _showImageSheet(
 //                     builder: (context, state) {
 //                       switch (state) {
 //                         case ImagePickerEmtpy():
-//                           return const Text("No image selected");
+//                           return const Text("لم يتم اختيار صورة");
 //                         case ImagePickerLoading():
 //                           return CircularProgressIndicator(
 //                             color: Colors.indigo,
@@ -376,7 +376,7 @@ void _showImageSheet(
 //                               state is ImagePickerEmtpy;
 //                           return Expanded(
 //                             child: OutlinedButton.icon(
-//                               label: Text("Delete image"),
+//                               label: Text("حذف الصورة"),
 //                               onPressed: !disabled ? onDelete : null,
 //                               icon: Icon(Icons.delete, color: Colors.red),
 //                             ),
@@ -396,7 +396,7 @@ void _showImageSheet(
 //                             child: FilledButton.icon(
 //                               onPressed: !disabled ? onAdd : null,
 //                               label: Text(
-//                                 isAdded ? "Replace Image" : "Add image",
+//                                 isAdded ? "Replace Image" : "إضافة صورة",
 //                               ),
 //                               icon: Icon(Icons.add_photo_alternate),
 //                             ),
@@ -425,7 +425,7 @@ void _showImageSheet(
 //   @override
 //   Widget build(BuildContext context) {
 //     if (imageFile == null && imageBytes == null) {
-//       return const Text("No image selected");
+//       return const Text("لم يتم اختيار صورة");
 //     }
 //
 //     final imageWidget =

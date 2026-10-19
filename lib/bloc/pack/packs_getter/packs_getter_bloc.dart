@@ -3,6 +3,7 @@ import 'package:flashcards/bloc/pack/packs_getter/packs_getter_state.dart';
 import 'package:flashcards/bloc/utils/utils.dart';
 import 'package:flashcards/data/repositories/flashcards/pack_repository.dart';
 import 'package:flashcards/data/repositories/utils/user_claims.dart';
+import 'package:flashcards/domain/enums/pack_section.dart';
 import 'package:flashcards/domain/models/flashcards/pack/pack.dart';
 import 'package:flashcards/utils/result.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -10,10 +11,13 @@ import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 
 class PacksGetterBloc extends Bloc<PacksGetterEvent, PacksGetterState> {
   final PackRepository _packRepository;
+  final PackSection section;
   final int _pageSize = 10;
 
-  PacksGetterBloc({required PackRepository packRepository})
-    : _packRepository = packRepository,
+  PacksGetterBloc({
+    required PackRepository packRepository,
+    required this.section,
+  }) : _packRepository = packRepository,
       super(PacksGetterState(pagingState: PagingState(hasNextPage: false))) {
     on<PacksGetterPageFetched>(
       _onPageFetched,
@@ -45,7 +49,7 @@ class PacksGetterBloc extends Bloc<PacksGetterEvent, PacksGetterState> {
     if (pagingState.isLoading) {
       event.completer?.completeError(
         Exception(
-          "Still loading more content. Please try refreshing again shortly.",
+          "جارٍ تحميل المزيد. حاول التحديث بعد قليل.",
         ),
       );
       return;
@@ -63,6 +67,7 @@ class PacksGetterBloc extends Bloc<PacksGetterEvent, PacksGetterState> {
     final result = await _packRepository.refreshPacksAndFetchFirstPage(
       pageSize: _pageSize,
       firstPageIndex: newKey,
+      section: section,
     );
 
     switch (result) {
@@ -99,7 +104,10 @@ class PacksGetterBloc extends Bloc<PacksGetterEvent, PacksGetterState> {
     List<Pack>? newItems;
     while (true) {
       final newKey = getNewKey(keys);
-      newItems = _packRepository.getPackPageFromCache(newKey);
+      newItems = _packRepository.getPackPageFromCache(
+        newKey,
+        section: section,
+      );
       if (newItems == null) break;
 
       pages = [...?pages, newItems];
@@ -142,6 +150,7 @@ class PacksGetterBloc extends Bloc<PacksGetterEvent, PacksGetterState> {
     var result = await _packRepository.getPackPage(
       pageIndex: newKey,
       pageSize: _pageSize,
+      section: section,
     );
     switch (result) {
       case Error<List<Pack>>(:final error):

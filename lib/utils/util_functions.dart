@@ -9,9 +9,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:universal_html/html.dart' as html;
 import 'package:flutter/material.dart';
 import 'package:flashcards/data/repositories/utils/user_claims.dart';
-import 'package:flashcards/ui/pages/paywall/dev_paywall_page.dart';
 
-import '../main_common.dart';
 import '../ui/pages/paywall/prod_paywall_page.dart';
 
 T? valueIfChanged<T>(T original, T updated) {
@@ -27,7 +25,7 @@ List<T>? listIfChanged<T>(List<T> original, List<T> updated) {
       : null;
 }
 
-String formatSmartDate(DateTime dateTime, {String locale = 'en'}) {
+String formatSmartDate(DateTime dateTime, {String locale = 'ar'}) {
   final now = DateTime.now();
   final difference = now.difference(dateTime);
 
@@ -37,11 +35,11 @@ String formatSmartDate(DateTime dateTime, {String locale = 'en'}) {
       locale: locale,
     ); // 3 hours ago, 1 minute ago, a moment ago...
   } else if (difference.inDays == 1) {
-    return 'Yesterday at ${DateFormat('h:mm a').format(dateTime)}';
+    return 'أمس ${DateFormat('h:mm a').format(dateTime)}';
   } else if (difference.inDays < 30) {
     return timeago.format(dateTime, locale: locale); // 21 days ago
   } else {
-    return DateFormat("MMM d, yyyy").format(dateTime); // May 24, 2025
+    return DateFormat("d MMM yyyy").format(dateTime); // May 24, 2025
   }
 }
 
@@ -334,7 +332,7 @@ Future<bool> ensureCardsAccess(BuildContext context) async {
     if (claims.hasCards) return true;
   }
 
-  final page = Flavor.isProd ? const ProdPaywallPage() : const DevPaywallPage();
+  const page = ProdPaywallPage();
   final unlocked = await Navigator.push(
     context,
     MaterialPageRoute(builder: (_) => page),
@@ -346,25 +344,3 @@ Future<bool> ensureCardsAccess(BuildContext context) async {
   return unlocked == true;
 }
 
-Future<bool> ensureOsceAccess(BuildContext context) async {
-  var claims = await UserClaims.current();
-  if (claims.hasOsce) return true;
-
-  final user = FirebaseAuth.instance.currentUser;
-  if (user != null) {
-    await user.getIdToken(true);
-    claims = await UserClaims.current();
-    if (claims.hasOsce) return true;
-  }
-
-  final page = Flavor.isProd ? const ProdPaywallPage() : const DevPaywallPage();
-  final unlocked = await Navigator.push(
-    context,
-    MaterialPageRoute(builder: (_) => page),
-  );
-
-  if (user != null) {
-    await user.getIdToken(true);
-  }
-  return unlocked == true;
-}

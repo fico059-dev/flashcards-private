@@ -15,9 +15,7 @@ import 'package:flashcards/data/repositories/flashcards/pack_repository.dart';
 import 'package:flashcards/data/repositories/flashcards/pp_repository.dart';
 import 'package:flashcards/data/repositories/flashcards/report_repository.dart';
 import 'package:flashcards/data/repositories/flashcards/tag_repository.dart';
-import 'package:flashcards/data/repositories/osces/osce_performance_repository.dart';
 import 'package:flashcards/data/repositories/users/auth_repository.dart';
-import 'package:flashcards/data/repositories/osces/osce_repository.dart';
 import 'package:flashcards/data/repositories/users/profile_repository.dart';
 import 'package:flashcards/data/repositories/users/user_roles_repository.dart';
 import 'package:flashcards/data/repositories/utils/cache/data_cache/data_cache.dart';
@@ -27,8 +25,6 @@ import 'package:flashcards/data/services/api/flashcards/custom_session_service.d
 import 'package:flashcards/data/services/api/algolia_search/packs_searcher_service.dart';
 import 'package:flashcards/data/services/api/flashcards/tag_service.dart';
 import 'package:flashcards/data/services/api/notifications/notification_service.dart';
-import 'package:flashcards/data/services/api/osce/osce_performance_service.dart';
-import 'package:flashcards/data/services/api/osce/osce_service.dart';
 import 'package:flashcards/data/services/api/users/auth_service.dart';
 import 'package:flashcards/data/services/api/flashcards/fcp_service.dart';
 import 'package:flashcards/data/services/api/flashcards/flashcard_service.dart';
@@ -134,14 +130,7 @@ class AppDependencies {
       ),
       Provider(
         create: (context) =>
-            OsceService(dbContext: _dbContext, storage: _storage),
-      ),
-      Provider(
-        create: (context) =>
             PpService(dbContext: _dbContext, functions: _functions),
-      ),
-      Provider(
-        create: (context) => OscePerformanceService(dbContext: _dbContext),
       ),
       Provider(create: (context) => ReportService(dbContext: _dbContext)),
       Provider(create: (context) => UserRolesService(functions: _functions)),
@@ -195,19 +184,6 @@ class AppDependencies {
           adminPacksCache: _adminPacksCache,
           tagCache: _tagCache,
           packCache: _packsCache,
-        ),
-      ),
-      Provider(
-        create: (context) => OsceRepository(
-          osceService: context.read<OsceService>(),
-          oscePerfService: context.read<OscePerformanceService>(),
-        ),
-      ),
-      Provider(
-        create: (context) => OscePerformanceRepository(
-          oscePerfService: context.read<OscePerformanceService>(),
-          dbContext: _dbContext,
-          authService: context.read<AuthService>(),
         ),
       ),
       Provider(

@@ -83,9 +83,9 @@ class _FilterOptions extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListView(
       children: const [
-        ListTile(title: Text("Tag: Beginner")),
-        ListTile(title: Text("Tag: Intermediate")),
-        ListTile(title: Text("Language: English")),
+        ListTile(title: Text("وسم: مبتدئ")),
+        ListTile(title: Text("وسم: متوسط")),
+        ListTile(title: Text("اللغة: العربية")),
       ],
     );
   }

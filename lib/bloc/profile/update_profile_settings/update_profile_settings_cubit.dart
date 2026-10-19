@@ -64,7 +64,7 @@ class UpdateProfileSettingsCubit extends Cubit<UpdateProfileSettingsState> {
     final Map<String, String> errors = {};
     final parsedValue = int.tryParse(cardsPerSession);
     if (parsedValue == null) {
-      putErrorIfExists(errors, 'cardsPerSession', "Please enter a number");
+      putErrorIfExists(errors, 'cardsPerSession', "أدخل رقماً");
       return _ValidationResult(errors: errors, parsedValue: parsedValue);
     }
 

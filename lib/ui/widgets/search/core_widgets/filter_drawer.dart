@@ -19,7 +19,7 @@ class FilterDrawer extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'Filters',
+                    'الفلاتر',
                     style: Theme.of(context).textTheme.titleLarge?.merge(
                       TextStyle(color: context.colors.onPrimaryContainer, fontWeight: FontWeight.bold),
                     ),

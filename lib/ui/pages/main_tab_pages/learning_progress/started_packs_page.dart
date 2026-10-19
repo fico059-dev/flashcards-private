@@ -60,7 +60,7 @@ class _StartedPacksViewState extends State<_StartedPacksView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Started Packs"),
+        title: Text("الحزم التي بدأتها"),
         leading: IconButton(
           onPressed: () => context.router.pop(),
           icon: Icon(Icons.arrow_back),
@@ -78,7 +78,7 @@ class _StartedPacksViewState extends State<_StartedPacksView> {
               context.loaderOverlay.show(
                 widgetBuilder: (progress) => LoadingOverlayWithText(
                   textString:
-                      "Resetting data for pack. This might take a while",
+                      "جارٍ تصفير بيانات الحزمة. قد يأخذ وقتاً",
                 ),
               );
             } else {
@@ -94,7 +94,7 @@ class _StartedPacksViewState extends State<_StartedPacksView> {
 
             if (state.status.isResetSuccessful) {
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text("Successfully reset pack progress")),
+                SnackBar(content: Text("تم تصفير تقدّم الحزمة")),
               );
             }
           },
@@ -139,7 +139,7 @@ class _EmptyListContainer extends StatelessWidget {
           Image.asset("assets/images/parrot_sad.png", height: 200),
           const SizedBox(height: 10),
           Text(
-            "No packs opened — start exploring some cards!",
+            "ما فتحت أي حزمة — ابدأ بتصفّح البطاقات!",
             style: Theme.of(context).textTheme.headlineSmall,
             textAlign: TextAlign.center,
           ),

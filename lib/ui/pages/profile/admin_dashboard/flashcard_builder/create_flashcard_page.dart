@@ -114,7 +114,7 @@ class _ViewState extends State<_View> {
                     text: TextSpan(
                       style: TextStyle(color: context.colors.onInverseSurface),
                       children: [
-                        TextSpan(text: "Successfully added flashcard to pack."),
+                        TextSpan(text: "تمت إضافة البطاقة للحزمة."),
                         TextSpan(
                           text: widget.pack.packName,
                           style: const TextStyle(fontStyle: FontStyle.italic),
@@ -140,7 +140,7 @@ class _ViewState extends State<_View> {
         },
         child: Scaffold(
           appBar: AppBar(
-            title: Text("Create Flashcard"),
+            title: Text("إنشاء بطاقة"),
             leading: IconButton(
               onPressed: () => context.router.pop(),
               icon: Icon(Icons.arrow_back),
@@ -163,13 +163,13 @@ class _ViewState extends State<_View> {
                 spacing: 10,
                 children: [
                   CardFactory.info(
-                    title: Text("Cloze deletion"),
+                    title: Text("فراغ (Cloze)"),
                     subtitle: Text(
-                      'Select text then click "cloze deletion" in order to make it a cloze.',
+                      'حدد النص ثم اضغط "فراغ (Cloze)" لتحويله إلى فراغ.',
                     ),
                     closable: true,
                   ),
-                  Text("Currently adding to pack"),
+                  Text("تضيف حالياً إلى الحزمة"),
                   Text(
                     widget.pack.packName,
                     style: TextStyle(fontWeight: FontWeight.bold),
@@ -177,12 +177,12 @@ class _ViewState extends State<_View> {
                   SizedBox(),
                   Row(
                     children: [
-                      Text("Question Image: "),
+                      Text("صورة السؤال: "),
                       BlocBuilder<CreateFlashcardCubit, CreateFlashcardState>(
                         builder: (context, state) {
                           return ImagePickerButton(
                             onError: _onImageError,
-                            label: "Question",
+                            label: "السؤال",
                             imageData: state.questionImageData,
                             onImageChanged:
                                 (pickedImage) => context
@@ -209,19 +209,19 @@ class _ViewState extends State<_View> {
                             state.status.isFromInvalid
                                 ? state.formErrors['question']
                                 : null,
-                    labelText: "Question",
+                    labelText: "السؤال",
                   ),
 
                   SizedBox(),
 
                   Row(
                     children: [
-                      Text("Answer Image: "),
+                      Text("صورة الإجابة: "),
                       BlocBuilder<CreateFlashcardCubit, CreateFlashcardState>(
                         builder: (context, state) {
                           return ImagePickerButton(
                             onError: _onImageError,
-                            label: "Answer",
+                            label: "الإجابة (الشرح)",
                             imageData: state.answerImageData,
                             onImageChanged:
                                 (pickedImage) => context
@@ -241,7 +241,7 @@ class _ViewState extends State<_View> {
                             state.status.isFromInvalid
                                 ? state.formErrors['answer']
                                 : null,
-                    labelText: "Answer",
+                    labelText: "الإجابة (الشرح)",
                   ),
 
                   SizedBox(height: 10),
@@ -270,13 +270,13 @@ class _ViewState extends State<_View> {
                       Expanded(
                         child: OutlinedButton(
                           onPressed: () => _onSubmit('secondary'),
-                          child: Text("Add and Return"),
+                          child: Text("إضافة والرجوع"),
                         ),
                       ),
                       Expanded(
                         child: FilledButton(
                           onPressed: () => _onSubmit('main'),
-                          child: Text("Add Flashcard"),
+                          child: Text("إضافة بطاقة"),
                         ),
                       ),
                     ],

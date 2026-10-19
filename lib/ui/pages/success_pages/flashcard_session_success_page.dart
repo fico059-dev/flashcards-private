@@ -30,7 +30,7 @@ class FlashcardSessionSuccessPage extends StatelessWidget {
 
               // Glavni naslov
               Text(
-                "Session complete!",
+                "اكتملت الجلسة!",
                 style: theme.headlineLarge?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
@@ -40,8 +40,8 @@ class FlashcardSessionSuccessPage extends StatelessWidget {
 
               // Friendly poruka
               Text(
-                "Nice work, you’ve gone through your cards for today.\n"
-                "Take a break or keep learning — it’s up to you!",
+                "أحسنت، راجعت بطاقاتك لليوم.\n"
+                "خذ استراحة أو كمّل مذاكرة — القرار لك!",
                 style: theme.titleMedium,
                 textAlign: TextAlign.center,
               ),
@@ -56,7 +56,7 @@ class FlashcardSessionSuccessPage extends StatelessWidget {
                       onPressed: () {
                         context.router.replaceAll([const HomeRoute()]);
                       },
-                      child: const Text("Back to Home"),
+                      child: const Text("العودة للرئيسية"),
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -68,7 +68,7 @@ class FlashcardSessionSuccessPage extends StatelessWidget {
                         context.router.pop();
                         fcBloc.add(FlashcardSessionExtended());
                       },
-                      child: const Text("Continue learning"),
+                      child: const Text("أكمل المذاكرة"),
                     ),
                   ),
                 ],

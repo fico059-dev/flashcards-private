@@ -6,7 +6,7 @@
     <application
         android:name="${applicationName}"
         android:icon="@mipmap/launcher_icon"
-        android:label="Flashpedz">
+        android:label="تقدر">
 
         // required for notifications
         <receiver android:exported="false" android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationReceiver" />

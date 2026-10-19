@@ -35,7 +35,7 @@ void showPackOptionsBottomSheet(BuildContext context, AdminPack pack) {
                 ListTile(
                   leading: Icon(Icons.folder),
                   title: Text(pack.packName),
-                  subtitle: Text("Flashcards: ${pack.flashcardsCount}"),
+                  subtitle: Text("عدد البطاقات: ${pack.flashcardsCount}"),
                 ),
 
                 Divider(),
@@ -46,7 +46,7 @@ void showPackOptionsBottomSheet(BuildContext context, AdminPack pack) {
                     Icons.add_circle_outline,
                     color: context.colors.primary,
                   ),
-                  title: Text("Add Flashcards"),
+                  title: Text("إضافة بطاقات"),
                 ),
                 ListTile(
                   onTap: () => navigateTo(AnkiImportRoute(pack: pack)),
@@ -54,14 +54,14 @@ void showPackOptionsBottomSheet(BuildContext context, AdminPack pack) {
                     Icons.upload_file,
                     color: context.colors.primary,
                   ),
-                  title: Text("Import from Anki"),
-                  subtitle: Text("Add a whole .apkg or .txt deck at once"),
+                  title: Text("استيراد من Anki"),
+                  subtitle: Text("أضف حزمة كاملة بملف .apkg أو .txt"),
                 ),
                 ListTile(
                   onTap:
                       () => navigateTo(ManagePackFlashcardsRoute(pack: pack)),
                   leading: Icon(Icons.edit_note, color: context.colors.primaryContainer),
-                  title: Text("Edit/Delete Flashcards"),
+                  title: Text("تعديل/حذف البطاقات"),
                 ),
                 ListTile(
                   onTap: () {
@@ -72,7 +72,7 @@ void showPackOptionsBottomSheet(BuildContext context, AdminPack pack) {
                     Icons.drive_file_rename_outline,
                     color: context.colors.primaryContainer,
                   ),
-                  title: Text("Rename Pack"),
+                  title: Text("إعادة تسمية الحزمة"),
                 ),
                 ListTile(
                   onTap: () async {
@@ -84,8 +84,8 @@ void showPackOptionsBottomSheet(BuildContext context, AdminPack pack) {
                     cubit.close();
                   },
                   leading: Icon(Icons.delete_forever, color: context.colors.error),
-                  title: Text("Delete Pack"),
-                  subtitle: Text("You can only delete pack if it's empty"),
+                  title: Text("حذف الحزمة"),
+                  subtitle: Text("يمكن حذف الحزمة فقط إذا كانت فارغة"),
                   subtitleTextStyle: TextStyle(color: context.colors.primaryContainer),
                 ),
               ],

@@ -12,19 +12,19 @@ class NotificationService {
   final _random = Random();
 
   final titles = [
-    "Time to review your flashcards!",
-    "Boost your memory today 📚",
-    "Quick review session awaits!",
-    "Keep your streak alive!",
-    "Come and solve flashcards",
+    "حان وقت مراجعة بطاقاتك!",
+    "قوّ ذاكرتك اليوم 📚",
+    "جلسة مراجعة سريعة بانتظارك!",
+    "حافظ على سلسلة أيامك!",
+    "تعال حل بطاقاتك",
   ];
 
   final bodies = [
-    "Just 5 minutes to stay on track.",
-    "Your due cards are ready!",
-    "Stay sharp — review now.",
-    "Consistency is the key to progress!",
-    "You have due cards that need reviewing",
+    "5 دقائق فقط وتبقى على المسار.",
+    "بطاقاتك المستحقة جاهزة!",
+    "حافظ على مستواك — راجع الحين.",
+    "الاستمرارية مفتاح التقدّم!",
+    "عندك بطاقات مستحقة تحتاج مراجعة",
   ];
 
   String getRandomTitle() => titles[_random.nextInt(titles.length)];
@@ -104,8 +104,8 @@ class NotificationService {
       const details = NotificationDetails(
         android: AndroidNotificationDetails(
           'reminder_channel',
-          'Reminders',
-          channelDescription: 'Daily flashcard reminders',
+          'التذكيرات',
+          channelDescription: 'تذكيرات البطاقات اليومية',
           importance: Importance.max,
           priority: Priority.high,
         ),
@@ -235,7 +235,7 @@ class NotificationService {
   Future<void> showSimpleNotification(String title, String body) async {
     const androidDetails = AndroidNotificationDetails(
       'default_channel_id',
-      'Default',
+      'افتراضي',
       importance: Importance.max,
       priority: Priority.high,
     );

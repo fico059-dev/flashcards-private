@@ -14,6 +14,6 @@ class BatchCounter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Text("Batch $currentBatch, Q $currentFlashcard/$allFlashcards");
+    return Text("الدفعة $currentBatch، سؤال $currentFlashcard/$allFlashcards");
   }
 }

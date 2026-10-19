@@ -29,7 +29,7 @@ class PermissionDeniedPage extends StatelessWidget {
                   ),
                   SizedBox(height: 30),
                   Text(
-                    "Će uđeš malo mac",
+                    "ما عندك صلاحية لفتح هذه الصفحة",
                     style: TextTheme.of(context).headlineSmall,
                   ),
                 ],
@@ -40,7 +40,7 @@ class PermissionDeniedPage extends StatelessWidget {
                 context.router.pop();
                 context.router.replaceAll([MainTabRoute()]);
               },
-              child: Text("Back to home page"),
+              child: Text("العودة للرئيسية"),
             ),
           ],
         ),

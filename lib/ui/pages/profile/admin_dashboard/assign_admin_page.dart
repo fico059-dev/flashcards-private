@@ -80,7 +80,7 @@ class _PageViewState extends State<_PageView> {
         switch (state) {
           case ManageUserRolesSuccess():
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text("Successfully assigned admin role")),
+              SnackBar(content: Text("تم تعيين المشرف")),
             );
             _emailCont.clear();
             context.read<AdminListCubit>().loadAdmins();
@@ -116,7 +116,7 @@ class _PageViewState extends State<_PageView> {
               const SizedBox(height: 25),
               Center(
                 child: BlocButton<ManageUserRolesCubit, ManageUserRolesState>.small(
-                textString: "Assign Admin",
+                textString: "تعيين مشرف",
                 onPressed: (context) => onAssignAdmin(),
                   isLoadingState: (state) => state is ManageUserRolesLoading,
                   width: 150,
@@ -155,13 +155,13 @@ class _AdminList extends StatelessWidget {
                 Expanded(
                   child: Text(
                     state is AdminListLoaded
-                        ? "Current admins (${state.admins.length})"
-                        : "Current admins",
+                        ? "المشرفون الحاليون (${state.admins.length})"
+                        : "المشرفون الحاليون",
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
                 ),
                 IconButton(
-                  tooltip: "Refresh",
+                  tooltip: "تحديث",
                   icon: const Icon(Icons.refresh),
                   onPressed:
                       state is AdminListLoading
@@ -179,7 +179,7 @@ class _AdminList extends StatelessWidget {
               AdminListError(:final error) => Padding(
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 child: Text(
-                  "Couldn't load admins: ${extractErrorMessage(error)}",
+                  "تعذّر تحميل المشرفين: ${extractErrorMessage(error)}",
                   style: TextStyle(color: context.colors.error),
                 ),
               ),
@@ -221,22 +221,22 @@ class _AdminTile extends StatelessWidget {
       context: context,
       builder:
           (dialogContext) => AlertDialog(
-            title: const Text("Remove admin?"),
+            title: const Text("إزالة المشرف؟"),
             content: Text(
-              "$name will lose access to the admin dashboard. "
-              "You can add them again at any time.",
+              "سيفقد $name الوصول للوحة الإدارة. "
+              "تقدر تضيفه من جديد في أي وقت.",
             ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(dialogContext).pop(false),
-                child: const Text("Cancel"),
+                child: const Text("إلغاء"),
               ),
               TextButton(
                 onPressed: () => Navigator.of(dialogContext).pop(true),
                 style: TextButton.styleFrom(
                   foregroundColor: dialogContext.colors.error,
                 ),
-                child: const Text("Remove"),
+                child: const Text("إزالة"),
               ),
             ],
           ),
@@ -249,7 +249,7 @@ class _AdminTile extends StatelessWidget {
       SnackBar(
         content: Text(
           error == null
-              ? "$name is no longer an admin"
+              ? "لم يعد $name مشرفاً"
               : extractErrorMessage(error),
         ),
       ),
@@ -266,7 +266,7 @@ class _AdminTile extends StatelessWidget {
 
     Widget? trailing;
     if (isMe) {
-      trailing = const Chip(label: Text("You"));
+      trailing = const Chip(label: Text("أنت"));
     } else if (isRemoving) {
       trailing = const SizedBox(
         width: 24,
@@ -275,7 +275,7 @@ class _AdminTile extends StatelessWidget {
       );
     } else {
       trailing = IconButton(
-        tooltip: "Remove admin",
+        tooltip: "إزالة المشرف",
         icon: Icon(Icons.person_remove, color: context.colors.error),
         onPressed: removeEnabled ? () => _confirmAndRemove(context) : null,
       );

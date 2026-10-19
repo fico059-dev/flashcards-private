@@ -44,7 +44,7 @@ class FcReviewSheetHeader extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Text(
-                  "Flashcard Review",
+                  "مراجعة البطاقة",
                   style: TextTheme.of(
                     context,
                   ).titleLarge?.merge(TextStyle(fontWeight: FontWeight.w600)),
@@ -75,7 +75,7 @@ class FcReviewSheetHeader extends StatelessWidget {
                       spacing: 5,
                       children: [
                         Tooltip(
-                          message: "Report this flashcard",
+                          message: "الإبلاغ عن هذه البطاقة",
                           child: IconButton(
                             onPressed: enabled
                                 ? () => onReport(
@@ -94,8 +94,8 @@ class FcReviewSheetHeader extends StatelessWidget {
                         ),
                         Tooltip(
                           message: isBookmarked
-                              ? "Remove bookmark"
-                              : "Bookmark this flashcard",
+                              ? "إزالة من المحفوظة"
+                              : "حفظ هذه البطاقة",
                           child: IconButton(
                             onPressed: enabled ? onToggleBookmark : () {},
                             icon: Icon(

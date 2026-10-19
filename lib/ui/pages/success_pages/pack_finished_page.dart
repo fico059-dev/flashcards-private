@@ -32,8 +32,8 @@ class PackFinishedPage extends StatelessWidget {
               // Glavni naslov
               Text(
                 testType == TestType.regular
-                    ? "Pack completed!"
-                    : "Test complete!",
+                    ? "اكتملت الحزمة!"
+                    : "اكتمل الاختبار!",
                 style: theme.headlineLarge?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
@@ -44,10 +44,10 @@ class PackFinishedPage extends StatelessWidget {
               // Friendly poruka
               Text(
                 testType == TestType.regular
-                    ? "Congrats! You’ve gone through all cards in this pack for now.\n"
-                        "Come back later or explore other packs!"
-                    : "Great job! You’ve finished all your bookmarked cards for this session.\n"
-                        "Time to take a break or review them again later!",
+                    ? "مبروك! راجعت كل بطاقات هذه الحزمة الحين.\n"
+                        "ارجع لاحقاً أو جرّب حزماً أخرى!"
+                    : "أحسنت! أنهيت كل بطاقاتك المحفوظة لهذه الجلسة.\n"
+                        "خذ استراحة أو راجعها لاحقاً!",
                 style: theme.titleMedium,
                 textAlign: TextAlign.center,
               ),
@@ -60,7 +60,7 @@ class PackFinishedPage extends StatelessWidget {
                 child: FilledButton(
                   onPressed:
                       () => context.router.replaceAll([const HomeRoute()]),
-                  child: const Text("Back to Home"),
+                  child: const Text("العودة للرئيسية"),
                 ),
               ),
             ],

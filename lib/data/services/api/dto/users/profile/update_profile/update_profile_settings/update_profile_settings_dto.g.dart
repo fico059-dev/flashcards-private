@@ -14,6 +14,4 @@ _UpdateProfileSettingsDto _$UpdateProfileSettingsDtoFromJson(
 
 Map<String, dynamic> _$UpdateProfileSettingsDtoToJson(
   _UpdateProfileSettingsDto instance,
-) => <String, dynamic>{
-  if (instance.cardsPerSession case final value?) 'cardsPerSession': value,
-};
+) => <String, dynamic>{'cardsPerSession': ?instance.cardsPerSession};

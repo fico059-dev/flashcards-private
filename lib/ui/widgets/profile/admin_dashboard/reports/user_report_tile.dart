@@ -55,7 +55,7 @@ class UserReportTile extends StatelessWidget {
 
             // // User ID
             Text(
-              "User: ${report.userId}",
+              "المستخدم: ${report.userId}",
               style: TextStyle(fontSize: 12, color: context.colors.outline),
             ),
           ],

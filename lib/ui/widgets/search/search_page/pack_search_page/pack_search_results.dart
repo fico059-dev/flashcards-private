@@ -44,11 +44,11 @@ class _PackSearchResultsState extends State<PackSearchResults> {
             noItemsFoundIndicatorBuilder: (context) => Center(
               child: Text(
                 textAlign: TextAlign.center,
-                "No items found, try changing your search parameters",
+                "ما لقينا نتائج، جرّب تغيير البحث",
               ),
             ),
             firstPageErrorIndicatorBuilder: (context) => ErrorScreen(
-              errorMessage: "Error loading packs",
+              errorMessage: "تعذّر تحميل الحزم",
               onReload: () => context.read<PackSearcherBloc>().add(
                 PackSearcherRequestSent(query: ''),
               ),

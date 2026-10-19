@@ -11,7 +11,7 @@ class PrivacyPolicyPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Privacy Policy'),
+        title: const Text('سياسة الخصوصية'),
         leading: IconButton(
           onPressed: () => context.router.pop(),
           icon: Icon(Icons.arrow_back),
@@ -27,53 +27,53 @@ class PrivacyPolicyPage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SizedBox(height: 8),
-            Text('Last updated: May 12, 2025'),
+            Text('آخر تحديث: 2025'),
             SizedBox(height: 34),
 
-            _SectionTitle('1. Information We Collect'),
+            _SectionTitle('1. المعلومات التي نجمعها'),
             Text(
-              'We may collect the following types of data:\n'
-              '- Personal information (e.g., name, email address)\n'
-              '- Usage data (e.g., app interactions, feature usage)\n'
-              '- Device and technical information (e.g., device type, operating system)',
+              'قد نجمع الأنواع التالية من البيانات:\n'
+              '- معلومات شخصية (مثل الاسم والبريد الإلكتروني)\n'
+              '- بيانات الاستخدام (مثل التفاعل مع التطبيق والميزات)\n'
+              '- معلومات الجهاز والتقنية (مثل نوع الجهاز ونظام التشغيل)',
             ),
             SizedBox(height: 34),
 
-            _SectionTitle('2. How We Use Your Information'),
+            _SectionTitle('2. كيف نستخدم معلوماتك'),
             Text(
-              'Collected information may be used to:\n'
-              '- Provide and maintain app functionality\n'
-              '- Improve the user experience\n'
-              '- Communicate with users (e.g., notifications, support)',
+              'قد تُستخدم المعلومات المجموعة من أجل:\n'
+              '- تقديم وظائف التطبيق وصيانتها\n'
+              '- تحسين تجربة المستخدم\n'
+              '- التواصل مع المستخدمين (مثل التنبيهات والدعم)',
             ),
             SizedBox(height: 34),
 
-            _SectionTitle('3. Data Sharing'),
+            _SectionTitle('3. مشاركة البيانات'),
             Text(
-              'We do not sell your personal data. Information may be shared with:\n'
-              '- Third-party service providers (e.g., for analytics or authentication)\n'
-              '- Legal authorities, if required by law',
+              'لا نبيع بياناتك الشخصية. قد تُشارَك المعلومات مع:\n'
+              '- مزوّدي خدمات خارجيين (مثل التحليلات والمصادقة)\n'
+              '- الجهات القانونية إذا اشترط النظام ذلك',
             ),
             SizedBox(height: 34),
 
-            _SectionTitle('4. Data Security'),
+            _SectionTitle('4. أمان البيانات'),
             Text(
-              'We take reasonable measures to protect your data. However, no system is 100% secure.',
+              'نتخذ إجراءات معقولة لحماية بياناتك، لكن لا يوجد نظام آمن بنسبة 100%.',
             ),
             SizedBox(height: 34),
 
-            _SectionTitle('5. Your Rights'),
+            _SectionTitle('5. حقوقك'),
             Text(
-              'You have the right to:\n'
-              '- Access the data we hold about you\n'
-              '- Request deletion or correction of your data\n'
-              '- Withdraw consent where applicable',
+              'لك الحق في:\n'
+              '- الاطلاع على البيانات التي نحتفظ بها عنك\n'
+              '- طلب حذف بياناتك أو تصحيحها\n'
+              '- سحب الموافقة حيثما ينطبق',
             ),
             SizedBox(height: 34),
 
-            _SectionTitle('6. Contact Us'),
+            _SectionTitle('6. تواصل معنا'),
             Text(
-              'If you have questions about this policy, you can contact us at:\n'
+              'إذا عندك أسئلة عن هذه السياسة تقدر تتواصل معنا على:\n'
               'support@yourapp.com',
             ),
             SizedBox(height: 24),

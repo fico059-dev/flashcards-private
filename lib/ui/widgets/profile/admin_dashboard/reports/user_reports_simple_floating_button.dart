@@ -20,10 +20,10 @@ class UserReportsSimpleFloatingButton extends StatelessWidget {
     }
 
     return FloatingActionButton.extended(
-      label: Text("Resolve report"),
+      label: Text("إغلاق البلاغ"),
       icon: Icon(Icons.task_alt),
       onPressed: onResolveReport,
-      tooltip: "Resolve report",
+      tooltip: "إغلاق البلاغ",
     );
   }
 }

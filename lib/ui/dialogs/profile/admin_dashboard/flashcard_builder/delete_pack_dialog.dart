@@ -38,7 +38,7 @@ Future<bool?> showDeletePackDialog(
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text(
-                      'Successfully deleted pack "${pack.packName}"',
+                      'تم حذف الحزمة "${pack.packName}"',
                     ),
                   ),
                 );
@@ -47,8 +47,8 @@ Future<bool?> showDeletePackDialog(
             }
           },
           child: AlertDialog(
-            title: Text('Delete "${pack.packName}" pack?'),
-            content: Text("You can only delete a pack if it's empty"),
+            title: Text('حذف حزمة "${pack.packName}"؟'),
+            content: Text("يمكن حذف الحزمة فقط إذا كانت فارغة"),
             actions: [
               BlocBuilder<DeletePackCubit, DeletePackState>(
                 builder: (context, state) {
@@ -57,12 +57,12 @@ Future<bool?> showDeletePackDialog(
                         state is DeletePackLoading
                             ? null
                             : () => context.router.pop(),
-                    child: Text("Cancel"),
+                    child: Text("إلغاء"),
                   );
                 },
               ),
               BlocButtonText<DeletePackCubit, DeletePackState>(
-                textString: "Delete pack",
+                textString: "حذف الحزمة",
                 onPressed: () => cubit.deletePackIfEmpty(pack.packId),
                 isLoadingState: (state) => state is DeletePackLoading,
               ),

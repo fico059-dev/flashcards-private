@@ -1,6 +1,5 @@
-const kAndroidProductIds = <String>{
-  'cards_monthly',
-  'cards_yearly',
-  'both_monthly',
-  'both_yearly',
-};
+/// معرّفات منتجات الاشتراك في App Store / Google Play.
+const kPremiumMonthlyId = 'taqdir_premium_monthly';
+const kPremiumYearlyId = 'taqdir_premium_yearly';
+
+const kProductIds = <String>{kPremiumMonthlyId, kPremiumYearlyId};

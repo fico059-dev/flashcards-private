@@ -21,7 +21,7 @@ class UpdateCardsPerSessionPage extends StatelessWidget {
       onLoadedContent:
           (profile) => Scaffold(
             appBar: AppBar(
-              title: Text("Cards per session"),
+              title: Text("بطاقات الجلسة"),
               leading: IconButton(
                 onPressed: () => context.router.pop(),
                 icon: Icon(Icons.arrow_back),
@@ -86,7 +86,7 @@ class _ProfileSettingsViewState extends State<_ProfileSettingsView> {
                   break;
                 case UpdateProfileSettingsSuccessful():
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text("Successfully updated settings")),
+                    SnackBar(content: Text("تم تحديث الإعدادات")),
                   );
                   context.read<ProfileReaderCubit>().readProfile();
                   break;
@@ -118,7 +118,7 @@ class _ProfileSettingsViewState extends State<_ProfileSettingsView> {
                             state is UpdateProfileSettingsFormInvalid
                                 ? state.errors['cardsPerSession']
                                 : null,
-                    labelText: "Flashcards per session",
+                    labelText: "عدد البطاقات في الجلسة",
                     textEditingController: _cardsPerSessionCont,
                     isEnabledState:
                         (state) => state is! UpdateProfileSettingsDisabled,

@@ -52,7 +52,7 @@ void showPrevSessionsOptionsBottomSheet({
                         child: Icon(Icons.folder),
                       ),
                       title: Text(
-                        "Custom Session",
+                        "جلسة مخصّصة",
                         style: TextStyle(fontWeight: FontWeight.bold),
                       ),
                       subtitle: Column(
@@ -68,10 +68,10 @@ void showPrevSessionsOptionsBottomSheet({
                               ),
                               const SizedBox(width: 6),
                               if (session.isFinished)
-                                Text('Progress: Finished')
+                                Text('التقدّم: مكتملة')
                               else
                                 Text(
-                                  'Progress: ${(session.currentIndex + 1)}/${session.cardCount}',
+                                  'التقدّم: ${(session.currentIndex + 1)}/${session.cardCount}',
                                 ),
                             ],
                           ),
@@ -84,7 +84,7 @@ void showPrevSessionsOptionsBottomSheet({
                               ),
                               const SizedBox(width: 6),
                               Text(
-                                'Created: ${formatSmartDate(session.createdAt)}',
+                                'أُنشئت: ${formatSmartDate(session.createdAt)}',
                               ),
                             ],
                           ),
@@ -102,7 +102,7 @@ void showPrevSessionsOptionsBottomSheet({
                             : context.colors.outline,
                       ),
                       title: Text(
-                        "Start session test",
+                        "ابدأ الجلسة",
                         style: TextStyle(
                           color: onSessionStart != null
                               ? context.colors.onSurface
@@ -121,7 +121,7 @@ void showPrevSessionsOptionsBottomSheet({
                         Icons.refresh,
                         color: context.colors.primary,
                       ),
-                      title: Text("Reset session progress"),
+                      title: Text("تصفير تقدّم الجلسة"),
                       onTap: onSessionReset,
                     ),
                     ListTile(
@@ -129,7 +129,7 @@ void showPrevSessionsOptionsBottomSheet({
                         Icons.delete_forever,
                         color: context.colors.error,
                       ),
-                      title: Text("Delete session"),
+                      title: Text("حذف الجلسة"),
                       onTap: onSessionDelete,
                     ),
                   ],

@@ -35,7 +35,7 @@ class _CustomSearchBarState extends State<CustomSearchBar> {
       onSubmitted: widget.onSubmit,
       textInputAction: TextInputAction.search,
       decoration: InputDecoration(
-        hintText: 'Search flashcards...',
+        hintText: 'ابحث في البطاقات...',
         prefixIcon: const Icon(Icons.search),
         suffixIcon:
             _controller.text.isNotEmpty

@@ -42,12 +42,12 @@ class PackSelectionPage extends StatelessWidget {
             slivers: [
               SliverToBoxAdapter(
                 child: CardFactory.info(
-                  title: Text("How it works?"),
+                  title: Text("كيف تعمل؟"),
                   isThreeLine: true,
                   subtitle: Text(
-                    "Choose one or more flashcard packs you want to include in"
-                    " your session. These packs will define the content"
-                    " you'll be reviewing or testing yourself on.",
+                    "اختر حزمة أو أكثر تبي تضمّها في"
+                    " جلستك. هذه الحزم تحدد المحتوى"
+                    " اللي بتراجعه أو تختبر نفسك فيه.",
                   ),
                 ),
               ),

@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$UpdateProfileDto {
 
- String? get name; String? get surname; String? get username; String? get email; String? get phoneNumber; EducationLevel? get educationLevel; UpdateProfileSettingsDto? get profileSettings;@DocumentReferenceListConverter() List<DocumentReference<Object?>> get osces; Streak? get streak;
+ String? get name; String? get surname; String? get username; String? get email; String? get phoneNumber; EducationLevel? get educationLevel; UpdateProfileSettingsDto? get profileSettings; Streak? get streak;
 /// Create a copy of UpdateProfileDto
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +28,16 @@ $UpdateProfileDtoCopyWith<UpdateProfileDto> get copyWith => _$UpdateProfileDtoCo
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is UpdateProfileDto&&(identical(other.name, name) || other.name == name)&&(identical(other.surname, surname) || other.surname == surname)&&(identical(other.username, username) || other.username == username)&&(identical(other.email, email) || other.email == email)&&(identical(other.phoneNumber, phoneNumber) || other.phoneNumber == phoneNumber)&&(identical(other.educationLevel, educationLevel) || other.educationLevel == educationLevel)&&(identical(other.profileSettings, profileSettings) || other.profileSettings == profileSettings)&&const DeepCollectionEquality().equals(other.osces, osces)&&(identical(other.streak, streak) || other.streak == streak));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is UpdateProfileDto&&(identical(other.name, name) || other.name == name)&&(identical(other.surname, surname) || other.surname == surname)&&(identical(other.username, username) || other.username == username)&&(identical(other.email, email) || other.email == email)&&(identical(other.phoneNumber, phoneNumber) || other.phoneNumber == phoneNumber)&&(identical(other.educationLevel, educationLevel) || other.educationLevel == educationLevel)&&(identical(other.profileSettings, profileSettings) || other.profileSettings == profileSettings)&&(identical(other.streak, streak) || other.streak == streak));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,name,surname,username,email,phoneNumber,educationLevel,profileSettings,const DeepCollectionEquality().hash(osces),streak);
+int get hashCode => Object.hash(runtimeType,name,surname,username,email,phoneNumber,educationLevel,profileSettings,streak);
 
 @override
 String toString() {
-  return 'UpdateProfileDto(name: $name, surname: $surname, username: $username, email: $email, phoneNumber: $phoneNumber, educationLevel: $educationLevel, profileSettings: $profileSettings, osces: $osces, streak: $streak)';
+  return 'UpdateProfileDto(name: $name, surname: $surname, username: $username, email: $email, phoneNumber: $phoneNumber, educationLevel: $educationLevel, profileSettings: $profileSettings, streak: $streak)';
 }
 
 
@@ -48,7 +48,7 @@ abstract mixin class $UpdateProfileDtoCopyWith<$Res>  {
   factory $UpdateProfileDtoCopyWith(UpdateProfileDto value, $Res Function(UpdateProfileDto) _then) = _$UpdateProfileDtoCopyWithImpl;
 @useResult
 $Res call({
- String? name, String? surname, String? username, String? email, String? phoneNumber, EducationLevel? educationLevel, UpdateProfileSettingsDto? profileSettings,@DocumentReferenceListConverter() List<DocumentReference<Object?>> osces, Streak? streak
+ String? name, String? surname, String? username, String? email, String? phoneNumber, EducationLevel? educationLevel, UpdateProfileSettingsDto? profileSettings, Streak? streak
 });
 
 
@@ -65,7 +65,7 @@ class _$UpdateProfileDtoCopyWithImpl<$Res>
 
 /// Create a copy of UpdateProfileDto
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? name = freezed,Object? surname = freezed,Object? username = freezed,Object? email = freezed,Object? phoneNumber = freezed,Object? educationLevel = freezed,Object? profileSettings = freezed,Object? osces = null,Object? streak = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? name = freezed,Object? surname = freezed,Object? username = freezed,Object? email = freezed,Object? phoneNumber = freezed,Object? educationLevel = freezed,Object? profileSettings = freezed,Object? streak = freezed,}) {
   return _then(_self.copyWith(
 name: freezed == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String?,surname: freezed == surname ? _self.surname : surname // ignore: cast_nullable_to_non_nullable
@@ -74,8 +74,7 @@ as String?,email: freezed == email ? _self.email : email // ignore: cast_nullabl
 as String?,phoneNumber: freezed == phoneNumber ? _self.phoneNumber : phoneNumber // ignore: cast_nullable_to_non_nullable
 as String?,educationLevel: freezed == educationLevel ? _self.educationLevel : educationLevel // ignore: cast_nullable_to_non_nullable
 as EducationLevel?,profileSettings: freezed == profileSettings ? _self.profileSettings : profileSettings // ignore: cast_nullable_to_non_nullable
-as UpdateProfileSettingsDto?,osces: null == osces ? _self.osces : osces // ignore: cast_nullable_to_non_nullable
-as List<DocumentReference<Object?>>,streak: freezed == streak ? _self.streak : streak // ignore: cast_nullable_to_non_nullable
+as UpdateProfileSettingsDto?,streak: freezed == streak ? _self.streak : streak // ignore: cast_nullable_to_non_nullable
 as Streak?,
   ));
 }
@@ -185,10 +184,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String? name,  String? surname,  String? username,  String? email,  String? phoneNumber,  EducationLevel? educationLevel,  UpdateProfileSettingsDto? profileSettings, @DocumentReferenceListConverter()  List<DocumentReference<Object?>> osces,  Streak? streak)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String? name,  String? surname,  String? username,  String? email,  String? phoneNumber,  EducationLevel? educationLevel,  UpdateProfileSettingsDto? profileSettings,  Streak? streak)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _UpdateProfileDto() when $default != null:
-return $default(_that.name,_that.surname,_that.username,_that.email,_that.phoneNumber,_that.educationLevel,_that.profileSettings,_that.osces,_that.streak);case _:
+return $default(_that.name,_that.surname,_that.username,_that.email,_that.phoneNumber,_that.educationLevel,_that.profileSettings,_that.streak);case _:
   return orElse();
 
 }
@@ -206,10 +205,10 @@ return $default(_that.name,_that.surname,_that.username,_that.email,_that.phoneN
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String? name,  String? surname,  String? username,  String? email,  String? phoneNumber,  EducationLevel? educationLevel,  UpdateProfileSettingsDto? profileSettings, @DocumentReferenceListConverter()  List<DocumentReference<Object?>> osces,  Streak? streak)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String? name,  String? surname,  String? username,  String? email,  String? phoneNumber,  EducationLevel? educationLevel,  UpdateProfileSettingsDto? profileSettings,  Streak? streak)  $default,) {final _that = this;
 switch (_that) {
 case _UpdateProfileDto():
-return $default(_that.name,_that.surname,_that.username,_that.email,_that.phoneNumber,_that.educationLevel,_that.profileSettings,_that.osces,_that.streak);case _:
+return $default(_that.name,_that.surname,_that.username,_that.email,_that.phoneNumber,_that.educationLevel,_that.profileSettings,_that.streak);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -226,10 +225,10 @@ return $default(_that.name,_that.surname,_that.username,_that.email,_that.phoneN
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String? name,  String? surname,  String? username,  String? email,  String? phoneNumber,  EducationLevel? educationLevel,  UpdateProfileSettingsDto? profileSettings, @DocumentReferenceListConverter()  List<DocumentReference<Object?>> osces,  Streak? streak)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String? name,  String? surname,  String? username,  String? email,  String? phoneNumber,  EducationLevel? educationLevel,  UpdateProfileSettingsDto? profileSettings,  Streak? streak)?  $default,) {final _that = this;
 switch (_that) {
 case _UpdateProfileDto() when $default != null:
-return $default(_that.name,_that.surname,_that.username,_that.email,_that.phoneNumber,_that.educationLevel,_that.profileSettings,_that.osces,_that.streak);case _:
+return $default(_that.name,_that.surname,_that.username,_that.email,_that.phoneNumber,_that.educationLevel,_that.profileSettings,_that.streak);case _:
   return null;
 
 }
@@ -241,7 +240,7 @@ return $default(_that.name,_that.surname,_that.username,_that.email,_that.phoneN
 
 @JsonSerializable(includeIfNull: false, explicitToJson: true)
 class _UpdateProfileDto implements UpdateProfileDto {
-  const _UpdateProfileDto({this.name, this.surname, this.username, this.email, this.phoneNumber, this.educationLevel, this.profileSettings, @DocumentReferenceListConverter() final  List<DocumentReference<Object?>> osces = const [], this.streak}): _osces = osces;
+  const _UpdateProfileDto({this.name, this.surname, this.username, this.email, this.phoneNumber, this.educationLevel, this.profileSettings, this.streak});
   factory _UpdateProfileDto.fromJson(Map<String, dynamic> json) => _$UpdateProfileDtoFromJson(json);
 
 @override final  String? name;
@@ -251,13 +250,6 @@ class _UpdateProfileDto implements UpdateProfileDto {
 @override final  String? phoneNumber;
 @override final  EducationLevel? educationLevel;
 @override final  UpdateProfileSettingsDto? profileSettings;
- final  List<DocumentReference<Object?>> _osces;
-@override@JsonKey()@DocumentReferenceListConverter() List<DocumentReference<Object?>> get osces {
-  if (_osces is EqualUnmodifiableListView) return _osces;
-  // ignore: implicit_dynamic_type
-  return EqualUnmodifiableListView(_osces);
-}
-
 @override final  Streak? streak;
 
 /// Create a copy of UpdateProfileDto
@@ -273,16 +265,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _UpdateProfileDto&&(identical(other.name, name) || other.name == name)&&(identical(other.surname, surname) || other.surname == surname)&&(identical(other.username, username) || other.username == username)&&(identical(other.email, email) || other.email == email)&&(identical(other.phoneNumber, phoneNumber) || other.phoneNumber == phoneNumber)&&(identical(other.educationLevel, educationLevel) || other.educationLevel == educationLevel)&&(identical(other.profileSettings, profileSettings) || other.profileSettings == profileSettings)&&const DeepCollectionEquality().equals(other._osces, _osces)&&(identical(other.streak, streak) || other.streak == streak));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _UpdateProfileDto&&(identical(other.name, name) || other.name == name)&&(identical(other.surname, surname) || other.surname == surname)&&(identical(other.username, username) || other.username == username)&&(identical(other.email, email) || other.email == email)&&(identical(other.phoneNumber, phoneNumber) || other.phoneNumber == phoneNumber)&&(identical(other.educationLevel, educationLevel) || other.educationLevel == educationLevel)&&(identical(other.profileSettings, profileSettings) || other.profileSettings == profileSettings)&&(identical(other.streak, streak) || other.streak == streak));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,name,surname,username,email,phoneNumber,educationLevel,profileSettings,const DeepCollectionEquality().hash(_osces),streak);
+int get hashCode => Object.hash(runtimeType,name,surname,username,email,phoneNumber,educationLevel,profileSettings,streak);
 
 @override
 String toString() {
-  return 'UpdateProfileDto(name: $name, surname: $surname, username: $username, email: $email, phoneNumber: $phoneNumber, educationLevel: $educationLevel, profileSettings: $profileSettings, osces: $osces, streak: $streak)';
+  return 'UpdateProfileDto(name: $name, surname: $surname, username: $username, email: $email, phoneNumber: $phoneNumber, educationLevel: $educationLevel, profileSettings: $profileSettings, streak: $streak)';
 }
 
 
@@ -293,7 +285,7 @@ abstract mixin class _$UpdateProfileDtoCopyWith<$Res> implements $UpdateProfileD
   factory _$UpdateProfileDtoCopyWith(_UpdateProfileDto value, $Res Function(_UpdateProfileDto) _then) = __$UpdateProfileDtoCopyWithImpl;
 @override @useResult
 $Res call({
- String? name, String? surname, String? username, String? email, String? phoneNumber, EducationLevel? educationLevel, UpdateProfileSettingsDto? profileSettings,@DocumentReferenceListConverter() List<DocumentReference<Object?>> osces, Streak? streak
+ String? name, String? surname, String? username, String? email, String? phoneNumber, EducationLevel? educationLevel, UpdateProfileSettingsDto? profileSettings, Streak? streak
 });
 
 
@@ -310,7 +302,7 @@ class __$UpdateProfileDtoCopyWithImpl<$Res>
 
 /// Create a copy of UpdateProfileDto
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? name = freezed,Object? surname = freezed,Object? username = freezed,Object? email = freezed,Object? phoneNumber = freezed,Object? educationLevel = freezed,Object? profileSettings = freezed,Object? osces = null,Object? streak = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? name = freezed,Object? surname = freezed,Object? username = freezed,Object? email = freezed,Object? phoneNumber = freezed,Object? educationLevel = freezed,Object? profileSettings = freezed,Object? streak = freezed,}) {
   return _then(_UpdateProfileDto(
 name: freezed == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String?,surname: freezed == surname ? _self.surname : surname // ignore: cast_nullable_to_non_nullable
@@ -319,8 +311,7 @@ as String?,email: freezed == email ? _self.email : email // ignore: cast_nullabl
 as String?,phoneNumber: freezed == phoneNumber ? _self.phoneNumber : phoneNumber // ignore: cast_nullable_to_non_nullable
 as String?,educationLevel: freezed == educationLevel ? _self.educationLevel : educationLevel // ignore: cast_nullable_to_non_nullable
 as EducationLevel?,profileSettings: freezed == profileSettings ? _self.profileSettings : profileSettings // ignore: cast_nullable_to_non_nullable
-as UpdateProfileSettingsDto?,osces: null == osces ? _self._osces : osces // ignore: cast_nullable_to_non_nullable
-as List<DocumentReference<Object?>>,streak: freezed == streak ? _self.streak : streak // ignore: cast_nullable_to_non_nullable
+as UpdateProfileSettingsDto?,streak: freezed == streak ? _self.streak : streak // ignore: cast_nullable_to_non_nullable
 as Streak?,
   ));
 }

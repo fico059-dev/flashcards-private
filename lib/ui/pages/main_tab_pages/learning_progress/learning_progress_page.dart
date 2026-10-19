@@ -16,14 +16,14 @@ class LearningProgressPage extends StatelessWidget {
         child: Column(
           children: [
             ProfileMenuWidget(
-              title: "Started packs",
-              subtitle: "Reset progress for each pack here",
+              title: "الحزم التي بدأتها",
+              subtitle: "صفّر تقدّمك لكل حزمة من هنا",
               icon: Icons.folder_open,
               onPress: () => context.router.push(const StartedPacksRoute()),
             ),
             ProfileMenuWidget(
-              title: "Flashcards Progress",
-              subtitle: "Browse flashcards and view your progress",
+              title: "تقدّم البطاقات",
+              subtitle: "تصفّح البطاقات وتابع تقدّمك",
               icon: Icons.question_answer_outlined,
               onPress: () => context.router.push(const FlashcardsSearcherRoute()),
             ),

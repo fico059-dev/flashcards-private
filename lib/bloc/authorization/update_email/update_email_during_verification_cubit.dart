@@ -73,7 +73,7 @@ class UpdateEmailDuringVerificationCubit extends Cubit<UpdateEmailState> {
           emit(
             UpdateEmailError(
               error: Exception(
-                "Looks like you haven't verified your new email yet.",
+                "يبدو إنك ما وثّقت بريدك الجديد بعد.",
               ),
             ),
           );

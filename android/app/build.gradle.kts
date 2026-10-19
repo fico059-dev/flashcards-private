@@ -30,16 +30,16 @@ android {
             dimension = "env"
             applicationIdSuffix = ".dev"
             versionNameSuffix = "-dev"
-            resValue("string", "app_name", "FlashPedz Dev")
+            resValue("string", "app_name", "تقدر Dev")
         }
         create("prod") {
             dimension = "env"
-            resValue("string", "app_name", "FlashPedz")
+            resValue("string", "app_name", "تقدر")
         }
     }
 
     defaultConfig {
-        applicationId = "com.stz.flashcards"
+        applicationId = "sa.taqdir.app"
         minSdk = flutter.minSdkVersion
         //minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion

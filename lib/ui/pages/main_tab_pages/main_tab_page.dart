@@ -1,14 +1,8 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flashcards/bloc/custom_session/custom_session_getter/custom_session_getter_bloc.dart';
 import 'package:flashcards/bloc/custom_session/custom_session_getter/custom_session_getter_event.dart';
-import 'package:flashcards/bloc/osces/osce_getter/osce_getter_bloc.dart';
-import 'package:flashcards/bloc/osces/osce_getter/osce_getter_event.dart';
-import 'package:flashcards/bloc/pack/packs_getter/packs_getter_bloc.dart';
-import 'package:flashcards/bloc/pack/packs_getter/packs_getter_event.dart';
 import 'package:flashcards/config/router/router.dart';
 import 'package:flashcards/data/repositories/flashcards/custom_session_repository.dart';
-import 'package:flashcards/data/repositories/flashcards/pack_repository.dart';
-import 'package:flashcards/data/repositories/osces/osce_repository.dart';
 import 'package:flashcards/ui/pages/main_tab_pages/main_tab_routes.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -25,14 +19,6 @@ class MainTabPage extends StatefulWidget implements AutoRouteWrapper {
   Widget wrappedRoute(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider(
-          create: (context) =>
-              PacksGetterBloc(packRepository: context.read<PackRepository>()),
-        ),
-        BlocProvider(
-          create: (context) =>
-              OsceGetterBloc(osceRepo: context.read<OsceRepository>()),
-        ),
         BlocProvider(
           create: (context) => CustomSessionGetterBloc(
             sessionRepo: context.read<CustomSessionRepository>(),
@@ -64,72 +50,34 @@ class _MainTabPageState extends State<MainTabPage> with AutoRouteAware {
   void didPopNext() {
     super.didPopNext();
 
-    if (_tabsRouter!.isRouteActive(PacksRoute.name)) {
-      context.read<PacksGetterBloc>().add(PacksGetterCacheRead());
-      return;
-    }
-
-    if (_tabsRouter!.isRouteActive(OsceListRoute.name)) {
-      context.read<OsceGetterBloc>().add(OsceGetterCacheRead());
-    }
-
     if (_tabsRouter!.isRouteActive(PreviousSessionsRoute.name)) {
       context.read<CustomSessionGetterBloc>().add(
         CustomSessionGetterStateReset(),
       );
     }
 
-    // print("[DEBUG] calling assign from pop");
     _assignAppBarActions();
   }
 
   void _assignAppBarActions() {
-    if (_tabsRouter!.isRouteActive(OsceListRoute.name)) {
-      print("[DEBUG] osce list active");
-
+    final router = _tabsRouter!;
+    if (router.isRouteActive(VerbalPacksRoute.name) ||
+        router.isRouteActive(QuantPacksRoute.name)) {
       appBarActions = [
-        IconButton(
-          onPressed: () => context.router.push(OsceTutorialRoute()),
-          icon: const Icon(CupertinoIcons.question_circle),
-        ),
-      ];
-    } else if (_tabsRouter!.isRouteActive(PacksRoute.name)) {
-      print("[DEBUG] packs active");
-
-      appBarActions = [
-        IconButton(
-          onPressed: () => context.router.push(FlashcardsTutorialRoute()),
-          icon: const Icon(CupertinoIcons.question_circle),
-        ),
         IconButton(
           onPressed: () => context.router.push(const PackSearchRoute()),
           icon: const Icon(Icons.search),
         ),
       ];
-    } else if (_tabsRouter!.isRouteActive(PreviousSessionsRoute.name) ||
-        _tabsRouter!.isRouteActive(CustomSessionResultRoute.name)) {
-      print("[DEBUG] previous sessions active");
-
+    } else if (router.isRouteActive(PreviousSessionsRoute.name) ||
+        router.isRouteActive(CustomSessionResultRoute.name)) {
       appBarActions = [
         IconButton(
           onPressed: () => context.router.push(CustomSessionWrapperRoute()),
           icon: const Icon(CupertinoIcons.add),
         ),
       ];
-    } else if (_tabsRouter!.isRouteActive(PacksTabRoute.name)) {
-      print("[DEBUG] packs tab active");
-      appBarActions = [
-        IconButton(
-          onPressed: () => context.router.push(FlashcardsTutorialRoute()),
-          icon: const Icon(CupertinoIcons.question_circle),
-        ),
-        IconButton(
-          onPressed: () => context.router.push(const PackSearchRoute()),
-          icon: const Icon(Icons.search),
-        ),
-      ];
     } else {
-      print("[DEBUG] no actions tabs active");
       appBarActions = [];
     }
   }
@@ -147,7 +95,6 @@ class _MainTabPageState extends State<MainTabPage> with AutoRouteAware {
         _tabsRouter ??= tabsRouter;
 
         final title = MainTabRoutes.getRouteTitle(context, tabsRouter);
-        print("[DEBUG] calling assign...");
         _assignAppBarActions();
 
         return AppBar(
@@ -172,22 +119,27 @@ class _MainTabPageState extends State<MainTabPage> with AutoRouteAware {
             NavigationDestination(
               selectedIcon: Icon(Icons.home),
               icon: Icon(Icons.home_outlined),
-              label: "Home",
+              label: "الرئيسية",
             ),
             NavigationDestination(
-              selectedIcon: Icon(Icons.list_alt),
-              icon: Icon(Icons.list_alt_outlined),
-              label: "OSCE",
+              selectedIcon: Icon(Icons.menu_book),
+              icon: Icon(Icons.menu_book_outlined),
+              label: "لفظي",
             ),
             NavigationDestination(
-              selectedIcon: Icon(Icons.style),
-              icon: Icon(Icons.style_outlined),
-              label: "Cards",
+              selectedIcon: Icon(Icons.calculate),
+              icon: Icon(Icons.calculate_outlined),
+              label: "كمي",
+            ),
+            NavigationDestination(
+              selectedIcon: Icon(Icons.tune),
+              icon: Icon(Icons.tune_outlined),
+              label: "جلساتي",
             ),
             NavigationDestination(
               selectedIcon: Icon(Icons.insights),
               icon: Icon(Icons.insights_outlined),
-              label: "Progress",
+              label: "تقدّمي",
             ),
           ],
         );

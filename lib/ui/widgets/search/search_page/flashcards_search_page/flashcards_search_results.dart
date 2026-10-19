@@ -53,7 +53,7 @@ class _FlashcardsSearchResultsState extends State<FlashcardsSearchResults> {
                 (context) => Center(
                   child: Text(
                     textAlign: TextAlign.center,
-                    "No items found, try changing your search parameters",
+                    "ما لقينا نتائج، جرّب تغيير البحث",
                   ),
                 ),
             firstPageErrorIndicatorBuilder:

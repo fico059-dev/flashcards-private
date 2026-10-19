@@ -153,7 +153,7 @@
 //                                   foregroundColor: Colors.indigo,
 //                                   backgroundColor: Colors.white,
 //                                 ),
-//                                 child: Text("Cancel"),
+//                                 child: Text("إلغاء"),
 //                               ),
 //                               OutlinedButton(
 //                                 onPressed:

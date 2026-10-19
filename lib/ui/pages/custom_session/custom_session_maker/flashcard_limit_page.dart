@@ -70,8 +70,8 @@ class _FlashcardLimitPageState extends State<FlashcardLimitPage> {
       isLoading: (state) =>
           state is SessionLimitLoaded && state.status.isLoading,
       loadingText:
-          "Creating session. This might take a while depending on "
-          "the size of the session",
+          "جارٍ إنشاء الجلسة. قد يأخذ وقتاً حسب "
+          "حجم الجلسة",
       child: BlocListener<SessionLimitCubit, SessionLimitState>(
         listenWhen: (previous, current) =>
             current is SessionLimitLoaded && current.status.isSuccess ||
@@ -86,7 +86,7 @@ class _FlashcardLimitPageState extends State<FlashcardLimitPage> {
               return;
             case SessionLimitStatus.success:
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text("Successfully created new session")),
+                SnackBar(content: Text("تم إنشاء الجلسة")),
               );
               context.router.parent()?.pop();
               return;
@@ -161,10 +161,10 @@ class _LoadedContent extends StatelessWidget {
     }
 
     final countText = isEstimatePrecise
-        ? "$flashcardsCount flashcards are available. How many "
-              "would you like to include in your session?"
-        : "We estimate that $flashcardsCount flashcards are available,"
-              " How many would you like to include in your session?";
+        ? "المتاح $flashcardsCount بطاقة. كم بطاقة "
+              "تبي في جلستك؟"
+        : "نقدّر أن المتاح $flashcardsCount بطاقة،"
+              " كم بطاقة تبي في جلستك؟";
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -174,10 +174,10 @@ class _LoadedContent extends StatelessWidget {
         if (!isEstimatePrecise)
           CardFactory.warning(
             isThreeLine: true,
-            title: Text("You’ve selected only a subset of tags."),
+            title: Text("اخترت جزءاً من الوسوم فقط."),
             subtitle: Text(
-              "Since only some tags are selected, the actual number of matching"
-              " flashcards might be lower than estimated.",
+              "بما أنك اخترت بعض الوسوم فقط، فعدد البطاقات المطابقة الفعلي"
+              " قد يكون أقل من المقدَّر.",
             ),
           ),
 
@@ -186,11 +186,11 @@ class _LoadedContent extends StatelessWidget {
               state is SessionLimitLoaded && state.status.isFormInvalid
               ? state.formErrors['flashcardsCount']
               : null,
-          labelText: "Number of flashcards for session",
+          labelText: "عدد بطاقات الجلسة",
           textEditingController: countCont,
         ),
 
-        _buildSectionTitle('Selected Packs'),
+        _buildSectionTitle('الحزم المختارة'),
         Wrap(
           spacing: 3,
           runSpacing: 3,
@@ -199,7 +199,7 @@ class _LoadedContent extends StatelessWidget {
               .toList(),
         ),
         SizedBox(),
-        _buildSectionTitle('Pack Filter'),
+        _buildSectionTitle('فلتر الحزم'),
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 4),
           child: Text(
@@ -208,10 +208,10 @@ class _LoadedContent extends StatelessWidget {
           ),
         ),
         SizedBox(),
-        _buildSectionTitle('Selected Tags'),
+        _buildSectionTitle('الوسوم المختارة'),
         selectedTags.isEmpty
             ? Text(
-                'No tags selected',
+                'لم تختر وسوماً',
                 style: Theme.of(context).textTheme.bodyMedium,
               )
             : Wrap(
@@ -226,7 +226,7 @@ class _LoadedContent extends StatelessWidget {
         Center(
           child: BlocButton<SessionLimitCubit, SessionLimitState>(
             showSpinner: false,
-            textString: "Create custom session",
+            textString: "إنشاء الجلسة",
             onPressed: (context) => onSubmit(),
             isLoadingState: (state) =>
                 state is SessionLimitLoaded && state.status.isLoading,

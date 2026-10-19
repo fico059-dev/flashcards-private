@@ -77,7 +77,7 @@ class _ViewState extends State<_View> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Custom session test"),
+        title: Text("الجلسة المخصّصة"),
         leading: IconButton(
           onPressed: () => context.router.pop(),
           icon: Icon(Icons.arrow_back),
@@ -230,12 +230,12 @@ Future<void> _showSessionFinishedDialog({
     barrierDismissible: false, // Prevent closing by tapping outside
     builder: (context) {
       return AlertDialog(
-        title: const Text('Session Complete 🎉'),
+        title: const Text('اكتملت الجلسة 🎉'),
         content: Text(
-          'Congratulations! You have successfully finished this custom session.'
-          '\n\nWell done for staying focused and making progress.'
-          ' Keep up the great work!'
-          '\n\nYour score is $correctCount/$allCount',
+          'مبروك! أنهيت هذه الجلسة المخصّصة.'
+          '\n\nأحسنت على تركيزك وتقدّمك.'
+          ' استمر!'
+          '\n\nنتيجتك $correctCount/$allCount',
         ),
         actions: [
           TextButton(
@@ -243,7 +243,7 @@ Future<void> _showSessionFinishedDialog({
               context.router.pop();
               context.router.replaceAll([HomeRoute()]);
             },
-            child: const Text('Back to Home'),
+            child: const Text('العودة للرئيسية'),
           ),
         ],
       );

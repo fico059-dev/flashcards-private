@@ -91,7 +91,7 @@ class _UserReportsFloatingButtonState extends State<UserReportsFloatingButton>
       animation: _controller,
       builder: (context, child) {
         return SpeedDial(
-          tooltip: "Open more options",
+          tooltip: "المزيد من الخيارات",
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
@@ -108,7 +108,7 @@ class _UserReportsFloatingButtonState extends State<UserReportsFloatingButton>
               ),
               backgroundColor: surfaceColor,
               child: Icon(Icons.task_alt, color: onSurfaceColor),
-              label: "Resolve report",
+              label: "إغلاق البلاغ",
               labelBackgroundColor: surfaceColor,
               labelStyle: TextStyle(color: onSurfaceColor),
               onTap: _onResolveReport,
@@ -119,7 +119,7 @@ class _UserReportsFloatingButtonState extends State<UserReportsFloatingButton>
               ),
               backgroundColor: surfaceColor,
               child: Icon(Icons.edit, color: onSurfaceColor),
-              label: "Edit flashcard",
+              label: "تعديل البطاقة",
               labelBackgroundColor: surfaceColor,
               labelStyle: TextStyle(color: onSurfaceColor),
               onTap: _onUpdate,
@@ -130,7 +130,7 @@ class _UserReportsFloatingButtonState extends State<UserReportsFloatingButton>
               ),
               backgroundColor: context.colors.errorContainer,
               child: Icon(Icons.delete, color: context.colors.onErrorContainer),
-              label: "Delete flashcard",
+              label: "حذف البطاقة",
               labelBackgroundColor: context.colors.errorContainer,
               labelStyle: TextStyle(color: context.colors.onErrorContainer),
               onTap: _onDelete,

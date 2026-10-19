@@ -43,7 +43,7 @@ class IgnoredFlashcardCard extends StatelessWidget {
             ],
           ),
           action: SnackBarAction(
-            label: "Undo",
+            label: "تراجع",
             onPressed: () => onUndo(card: card, index: index),
           ),
           duration: const Duration(seconds: 5),

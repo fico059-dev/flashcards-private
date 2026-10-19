@@ -1,6 +1,4 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:flashcards/bloc/osces/admin_osce_getter/admin_osce_getter_bloc.dart';
-import 'package:flashcards/bloc/osces/admin_osce_getter/admin_osce_getter_event.dart';
 import 'package:flashcards/bloc/pack/admin_packs_getter/admin_packs_getter_bloc.dart';
 import 'package:flashcards/bloc/pack/admin_packs_getter/admin_packs_getter_event.dart';
 import 'package:flashcards/bloc/pack/pack_searcher/pack_searcher_bloc.dart';
@@ -9,7 +7,6 @@ import 'package:flashcards/bloc/profile/profile_reader/profile_reader_state.dart
 import 'package:flashcards/config/router/router.dart';
 import 'package:flashcards/data/repositories/algolia_search/packs_searcher_repository.dart';
 import 'package:flashcards/data/repositories/flashcards/pack_repository.dart';
-import 'package:flashcards/data/repositories/osces/osce_repository.dart';
 import 'package:flashcards/ui/pages/profile/admin_dashboard/admin_tab_routes.dart';
 import 'package:flashcards/ui/theme/theme_extensions.dart';
 import 'package:flashcards/ui/widgets/search/core_widgets/filter_drawer.dart';
@@ -32,11 +29,6 @@ class AdminTabPage extends StatefulWidget implements AutoRouteWrapper {
               (context) => AdminPacksGetterBloc(
                 packRepo: context.read<PackRepository>(),
               ),
-        ),
-        BlocProvider(
-          create:
-              (context) =>
-                  AdminOsceGetterBloc(osceRepo: context.read<OsceRepository>()),
         ),
 
         // Search blocs
@@ -77,9 +69,6 @@ class _AdminTabPageState extends State<AdminTabPage> with AutoRouteAware {
       context.read<AdminPacksGetterBloc>().add(AdminPacksGetterCacheRead());
       return;
     }
-    if (_tabsRouter!.isRouteActive(OsceBuilderRoute.name)) {
-      context.read<AdminOsceGetterBloc>().add(AdminOsceGetterCacheRead());
-    }
   }
 
   @override
@@ -112,7 +101,7 @@ class _AdminTabPageState extends State<AdminTabPage> with AutoRouteAware {
 
         List<Widget>? appBarActions;
         switch (_tabsRouter?.activeIndex) {
-          case 4:
+          case 3:
           case 0:
             appBarActions = [
               Builder(
@@ -138,9 +127,6 @@ class _AdminTabPageState extends State<AdminTabPage> with AutoRouteAware {
           switch (tabsRouter.activeIndex) {
             case 0:
               return FilterDrawer(filterOptions: PackFilterOptions());
-            case 4:
-            case 5:
-            //return AnotherCustomDrawer();
             default:
               return SizedBox.shrink(); // nema drawer-a
           }
@@ -180,35 +166,28 @@ class _AdminTabPageState extends State<AdminTabPage> with AutoRouteAware {
                     ),
 
                     _DrawerItem(
-                      onTap: () => setActiveIndex(drawerContext, 1),
                       index: 1,
-                      title: l10n.osceBuilderPage_title,
-                      icon: Icons.list_alt_outlined,
-                      selectedIcon: Icons.list_alt,
-                    ),
-                    _DrawerItem(
-                      index: 2,
-                      onTap: () => setActiveIndex(drawerContext, 2),
+                      onTap: () => setActiveIndex(drawerContext, 1),
                       title: l10n.assignAdminPage_title,
                       icon: Icons.admin_panel_settings_outlined,
                       selectedIcon: Icons.admin_panel_settings,
                     ),
                     _DrawerItem(
-                      index: 3,
-                      onTap: () => setActiveIndex(drawerContext, 3),
-                      title: "Reported Flashcards",
+                      index: 2,
+                      onTap: () => setActiveIndex(drawerContext, 2),
+                      title: "البطاقات المبلّغ عنها",
                       //l10n.assignAdminPage_title,
                       icon: Icons.report_outlined,
                       selectedIcon: Icons.report,
                     ),
                     Divider(height: 5),
                     _DrawerItem(
-                      index: 4,
+                      index: 3,
                       onTap: () {
                         context.router.pop();
                         context.router.replaceAll([MainTabRoute()]);
                       },
-                      title: "Exit Admin Dashboard",
+                      title: "الخروج من لوحة الإدارة",
                       icon: Icons.arrow_back,
                     ),
                   ],
@@ -220,10 +199,6 @@ class _AdminTabPageState extends State<AdminTabPage> with AutoRouteAware {
       ),
     );
   }
-}
-
-Widget? _buildEndDrawerForTab(int index) {
-  print(index);
 }
 
 class _DrawerItem extends StatelessWidget {

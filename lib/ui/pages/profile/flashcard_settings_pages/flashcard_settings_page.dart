@@ -12,7 +12,7 @@ class FlashcardSettingsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Flashcard Settings"),
+        title: Text("إعدادات المذاكرة"),
         leading: IconButton(
           onPressed: () => context.router.pop(),
           icon: Icon(Icons.arrow_back),
@@ -24,13 +24,13 @@ class FlashcardSettingsPage extends StatelessWidget {
         child: Column(
           children: [
             ProfileMenuWidget(
-              title: "Update Cards Per Session",
+              title: "عدد البطاقات في الجلسة",
               icon: Icons.flag,
               onPress:
                   () => context.router.push(const UpdateCardsPerSessionRoute()),
             ),
             ProfileMenuWidget(
-              title: "Manage Ignored Flashcards",
+              title: "إدارة البطاقات المتجاهَلة",
               icon: Icons.visibility_off,
               onPress:
                   () =>

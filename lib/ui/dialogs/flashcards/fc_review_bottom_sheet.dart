@@ -232,7 +232,7 @@ class _FlashcardInfoContent extends StatelessWidget {
         _InfoItem(
           icon: Icons.folder_open,
           text:
-              '${review.packName} with ${review.packFlashcardsCount} flashcards',
+              '${review.packName} ‏- ${review.packFlashcardsCount} بطاقة',
         ),
         const SizedBox(height: 15),
 
@@ -332,23 +332,23 @@ class BlockedFlashcardPreview extends StatelessWidget {
               _buildPlaceholderCard(
                 context,
                 Icons.help_outline,
-                "Question preview...",
+                "معاينة السؤال...",
               ),
               _buildPlaceholderCard(
                 context,
                 Icons.lightbulb_outline,
-                "Answer preview...",
+                "معاينة الإجابة...",
               ),
               Wrap(
                 spacing: 8,
                 runSpacing: 8,
                 children: List.generate(
                   3,
-                  (i) => TagChip(label: "Premium Tag"),
+                  (i) => TagChip(label: "وسم مميّز"),
                 ),
               ),
               const SizedBox(height: 15),
-              _InfoItem(icon: Icons.folder_open, text: "Premium pack"),
+              _InfoItem(icon: Icons.folder_open, text: "حزمة مميّزة"),
               const SizedBox(height: 15),
               Wrap(
                 spacing: 8,
@@ -356,7 +356,7 @@ class BlockedFlashcardPreview extends StatelessWidget {
                 children: List.generate(
                   3,
                   (i) => Chip(
-                    label: const Text("Meta info"),
+                    label: const Text("معلومات إضافية"),
                     backgroundColor: context.colors.onSurfaceVariant,
                   ),
                 ),
@@ -385,7 +385,7 @@ class BlockedFlashcardPreview extends StatelessWidget {
                       ),
                       const SizedBox(height: 16),
                       Text(
-                        "This flashcard is premium",
+                        "هذه البطاقة مميّزة",
                         style: Theme.of(context).textTheme.titleMedium
                             ?.copyWith(color: context.colors.surface),
                       ),
@@ -401,7 +401,7 @@ class BlockedFlashcardPreview extends StatelessWidget {
                             borderRadius: BorderRadius.circular(12),
                           ),
                         ),
-                        child: const Text("Unlock with Premium"),
+                        child: const Text("افتحها بالاشتراك المميّز"),
                       ),
                     ],
                   ),

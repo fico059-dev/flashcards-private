@@ -33,7 +33,7 @@ class FilterDrawerCustom extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  Text("Filter by tag"),
+                  Text("تصفية بالوسم"),
                   IconButton(icon: const Icon(Icons.close), onPressed: onClose),
                 ],
               ),

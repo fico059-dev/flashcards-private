@@ -30,7 +30,7 @@ class PopupMenuButtonTopRow extends StatelessWidget {
                     Icons.visibility_off,
                     color: context.colors.primary,
                   ),
-                  title: Text("Ignore"),
+                  title: Text("تجاهل"),
                   titleTextStyle: TextStyle(
                     fontWeight: FontWeight.normal,
                     color: context.colors.primary,
@@ -41,7 +41,7 @@ class PopupMenuButtonTopRow extends StatelessWidget {
               onTap: onReport,
               child: ListTile(
                 leading: Icon(Icons.flag, color: context.colors.primary),
-                title: Text("Report"),
+                title: Text("إبلاغ"),
                 titleTextStyle: TextStyle(
                   fontWeight: FontWeight.normal,
                   color: context.colors.primary,
@@ -58,19 +58,19 @@ void _showIgnoreDialog(BuildContext context, VoidCallback onIgnore) async {
     context: context,
     builder:
         (context) => AlertDialog(
-          title: Text("Ignore this card?"),
+          title: Text("تجاهل هذه البطاقة؟"),
           content: Text(
-            "Ignored cards won't appear in future review sessions. "
-            "You can restore them later from your settings.",
+            "البطاقات المتجاهَلة ما تظهر في جلسات المراجعة القادمة. "
+            "تقدر تسترجعها لاحقاً من الإعدادات.",
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(false),
-              child: Text("Cancel"),
+              child: Text("إلغاء"),
             ),
             TextButton(
               onPressed: () => Navigator.of(context).pop(true),
-              child: Text("Ignore"),
+              child: Text("تجاهل"),
             ),
           ],
         ),

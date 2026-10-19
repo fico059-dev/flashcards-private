@@ -40,9 +40,14 @@ class PackService {
     DocumentSnapshot? startAfter,
     int limit, {
     bool onlyFreePacks = false,
+    String? section,
   }) async {
     try {
-      var query = _packs.orderBy('name').limit(limit);
+      Query<JsonMap> query = _packs;
+      if (section != null) {
+        query = query.where('section', isEqualTo: section);
+      }
+      query = query.orderBy('name').limit(limit);
       if (onlyFreePacks) {
         query = query.where('isPaid', isEqualTo: false);
       }

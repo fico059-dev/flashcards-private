@@ -94,7 +94,7 @@ class _ViewState extends State<_View> {
                 case SinglePackGetterError(:final error):
                   return Center(
                     child: Text(
-                      "Error loading pack: ${extractErrorMessage(error)}",
+                      "تعذّر تحميل الحزمة: ${extractErrorMessage(error)}",
                     ),
                   );
                 case SinglePackGetterLoaded(:final pack):
@@ -103,7 +103,7 @@ class _ViewState extends State<_View> {
                       ListTile(
                         leading: Icon(Icons.folder),
                         title: Text(pack.name),
-                        subtitle: Text("Flashcards: ${pack.flashcardsCount}"),
+                        subtitle: Text("عدد البطاقات: ${pack.flashcardsCount}"),
                         trailing: SubsStatusIcon(
                           isPaid: pack.isPaid,
                           hasAccess: widget.hasCards,
@@ -120,7 +120,7 @@ class _ViewState extends State<_View> {
                               Icons.schedule,
                               color: context.colors.secondary,
                             ),
-                            title: Text('Due: ${pack.dueCount}'),
+                            title: Text('مستحقة: ${pack.dueCount}'),
                           ),
                         if (pack.learningCount != -1)
                           ListTile(
@@ -128,7 +128,7 @@ class _ViewState extends State<_View> {
                               Icons.auto_stories,
                               color: context.colors.tertiary,
                             ),
-                            title: Text('Learning: ${pack.learningCount}'),
+                            title: Text('قيد التعلّم: ${pack.learningCount}'),
                           ),
                         if (pack.newCount != -1)
                           ListTile(
@@ -136,7 +136,7 @@ class _ViewState extends State<_View> {
                               Icons.fiber_new,
                               color: context.customColors.success,
                             ),
-                            title: Text('New: ${pack.newCount}'),
+                            title: Text('جديدة: ${pack.newCount}'),
                           ),
 
                         if (pack.dueCount != -1 ||
@@ -150,7 +150,7 @@ class _ViewState extends State<_View> {
                           Icons.play_arrow,
                           color: context.colors.primary,
                         ),
-                        title: Text("Start test"),
+                        title: Text("ابدأ الاختبار"),
                         onTap: () => _onStartTest(pack),
                       ),
                     ],

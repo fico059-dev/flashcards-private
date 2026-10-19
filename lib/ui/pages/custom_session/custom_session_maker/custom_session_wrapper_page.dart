@@ -70,10 +70,10 @@ int getStepIndex(String currentName) {
 
 String getTitle(int stepIndex) {
   return switch (stepIndex) {
-    0 => 'Select Packs',
-    1 => 'Choose Filters',
-    2 => 'Pick Tags',
-    3 => 'Summary',
+    0 => 'اختر الحزم',
+    1 => 'اختر الفلتر',
+    2 => 'اختر الوسوم',
+    3 => 'الملخّص',
     _ => '',
   };
 }

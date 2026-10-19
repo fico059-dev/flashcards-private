@@ -32,7 +32,7 @@ class StartedPacksBloc extends Bloc<StartedPacksEvent, StartedPacksState> {
     if (pagingState.isLoading || state.status.isResettingProgress) {
       event.completer?.completeError(
         Exception(
-          "Still loading more content. Please try refreshing again shortly.",
+          "جارٍ تحميل المزيد. حاول التحديث بعد قليل.",
         ),
       );
       return;

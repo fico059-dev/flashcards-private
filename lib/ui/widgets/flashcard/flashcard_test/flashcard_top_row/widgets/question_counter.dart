@@ -12,6 +12,6 @@ class QuestionCounter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Text("Q $currentFlashcard/$allFlashcards");
+    return Text("سؤال $currentFlashcard/$allFlashcards");
   }
 }

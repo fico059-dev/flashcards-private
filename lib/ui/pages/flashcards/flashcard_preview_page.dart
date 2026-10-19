@@ -59,7 +59,7 @@ class _FlashcardPreviewPageState extends State<FlashcardPreviewPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Preview Flashcard"),
+        title: Text("معاينة البطاقة"),
         leading: IconButton(
           onPressed: () => context.router.pop(),
           icon: Icon(Icons.arrow_back),
@@ -103,7 +103,7 @@ class _FlashcardPreviewPageState extends State<FlashcardPreviewPage> {
                         child: FilledButton(
                           onPressed: toggleAnswer,
                           child: Text(
-                            _isAnswerShown ? "Hide Answer" : "Reveal",
+                            _isAnswerShown ? "إخفاء الإجابة" : "إظهار الإجابة",
                           ),
                         ),
                       ),

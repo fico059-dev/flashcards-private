@@ -91,7 +91,7 @@ class _ChangeEmailViewState extends State<_ChangeEmailView> {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(
-                  "Successfully sent new email verification at $email",
+                  "تم إرسال رسالة توثيق جديدة إلى $email",
                 ),
               ),
             );
@@ -180,7 +180,7 @@ class _ChangeEmailAdditionalContent extends StatelessWidget {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text(
-              "Looks like you are not authenticated, try logging out and then log in again",
+              "يبدو إنك غير مسجّل الدخول، سجّل خروج ثم ادخل من جديد",
             ),
           ),
         );
@@ -200,7 +200,7 @@ class _ChangeEmailAdditionalContent extends StatelessWidget {
                       : onRefresh,
               child:
                   state is! UpdateEmailRefreshing
-                      ? Text("I've verified my email")
+                      ? Text("وثّقت بريدي")
                       : SizedBox(
                         width: 20,
                         height: 20,

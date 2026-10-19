@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:flashcards/domain/models/flashcards/flashcard/flashcard.dart';
-import 'package:flashcards/domain/models/osce/osce.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -42,85 +41,6 @@ class PdfExportService {
                   ],
                 ),
               ),
-            ],
-      ),
-    );
-
-    return pdf.save();
-  }
-
-  Future<Uint8List> generateOscePdf(Osce osce) async {
-    final pdf = pw.Document();
-
-    pdf.addPage(
-      pw.MultiPage(
-        build:
-            (context) => [
-              pw.Text(
-                "OSCE: ${osce.name}",
-                style: pw.TextStyle(
-                  font: _defaultFont,
-                  fontSize: 22,
-                  fontWeight: pw.FontWeight.bold,
-                ),
-              ),
-              pw.SizedBox(height: 8),
-              pw.Text(
-                "Scenario:",
-                style: pw.TextStyle(
-                  font: _defaultFont,
-                  fontSize: 16,
-                  fontWeight: pw.FontWeight.bold,
-                ),
-              ),
-              pw.Text(
-                osce.scenario,
-                style: pw.TextStyle(font: _defaultFont, fontSize: 14),
-              ),
-              pw.SizedBox(height: 16),
-              ...osce.questions.asMap().entries.map((entry) {
-                final index = entry.key + 1;
-                final question = entry.value;
-
-                return pw.Column(
-                  crossAxisAlignment: pw.CrossAxisAlignment.start,
-                  children: [
-                    pw.Text(
-                      "Question $index:",
-                      style: pw.TextStyle(
-                        font: _defaultFont,
-                        fontSize: 16,
-                        fontWeight: pw.FontWeight.bold,
-                      ),
-                    ),
-                    pw.Text(
-                      question.text,
-                      style: pw.TextStyle(font: _defaultFont, fontSize: 14),
-                    ),
-                    pw.SizedBox(height: 8),
-                    ...question.checks.map((check) {
-                      return check.isTitle
-                          ? pw.Text(
-                            check.text,
-                            style: pw.TextStyle(
-                              font: _defaultFont,
-                              fontSize: 14,
-                              fontWeight: pw.FontWeight.bold,
-                            ),
-                          )
-                          : pw.Bullet(
-                            text: check.text,
-                            style: pw.TextStyle(
-                              font: _defaultFont,
-                              fontSize: 13,
-                            ),
-                          );
-                    }),
-                    pw.SizedBox(height: 12),
-                    pw.Divider(),
-                  ],
-                );
-              }),
             ],
       ),
     );

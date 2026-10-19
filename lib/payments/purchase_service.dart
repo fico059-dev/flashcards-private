@@ -5,6 +5,8 @@ import 'package:cloud_functions/cloud_functions.dart';
 import 'package:in_app_purchase_android/in_app_purchase_android.dart';
 
 class PurchaseService {
+  static const successMessage = 'Success';
+
   final InAppPurchase _iap = InAppPurchase.instance;
   late StreamSubscription<List<PurchaseDetails>> _sub;
   final _controller = StreamController<String>.broadcast();
@@ -18,7 +20,7 @@ class PurchaseService {
   Future<void> init(Set<String> productIds) async {
     _isAvailable = await _iap.isAvailable();
     if (!_isAvailable) {
-      _controller.add('Store not available');
+      _controller.add('المتجر غير متاح');
       return;
     }
 
@@ -45,7 +47,7 @@ class PurchaseService {
 
   Future<void> buy(ProductDetails product) async {
     if (!_isAvailable) {
-      _controller.add('Store not available');
+      _controller.add('المتجر غير متاح');
       return;
     }
     final param = PurchaseParam(productDetails: product);
@@ -54,7 +56,7 @@ class PurchaseService {
 
   Future<void> restore() async {
     if (!_isAvailable) {
-      _controller.add('Store not available');
+      _controller.add('المتجر غير متاح');
       return;
     }
     await _iap.restorePurchases();
@@ -64,29 +66,29 @@ class PurchaseService {
     for (final p in purchases) {
       switch (p.status) {
         case PurchaseStatus.pending:
-          _controller.add('Processing...');
+          _controller.add('جارٍ المعالجة...');
           break;
 
         case PurchaseStatus.purchased:
         case PurchaseStatus.restored:
-          _controller.add('Verifying...');
+          _controller.add('جارٍ التحقق...');
           try {
             await _verifyOnServer(p);
             await _complete(p);
             await FirebaseAuth.instance.currentUser?.getIdToken(true);
-            _controller.add('Success');
+            _controller.add(successMessage);
           } catch (e) {
-            _controller.add('Verification failed: $e');
+            _controller.add('فشل التحقق: $e');
           }
           break;
 
         case PurchaseStatus.error:
-          _controller.add('Failed: ${p.error}');
+          _controller.add('فشلت العملية: ${p.error}');
           await _complete(p);
           break;
 
         case PurchaseStatus.canceled:
-          _controller.add('Canceled');
+          _controller.add('أُلغيت العملية');
           await _complete(p);
           break;
       }

@@ -34,24 +34,6 @@ class FirestoreDbContext {
     String customSessionId,
   ) => customSessions.doc(customSessionId).collection("flashcard_ids");
 
-  // Osce
-  CollectionReference<JsonMap> getOscePerformanceCollection(String uid) =>
-      users.doc(uid).collection('osce_performance');
-
-  Query<JsonMap> get oscePerformanceGroup =>
-      _db.collectionGroup("osce_performance");
-
-  CollectionReference<JsonMap> getOsceAttemptsCollection({
-    required String osceId,
-    required String uid,
-  }) =>
-      getOscePerformanceCollection(uid).doc(osceId).collection("osce_attempts");
-
-  CollectionReference<JsonMap> get osces => _db.collection("osces");
-
-  CollectionReference<JsonMap> getQuestionsCollection(String osceId) =>
-      osces.doc(osceId).collection("questions");
-
   CollectionReference<JsonMap> get users => _db.collection('users');
 
   WriteBatch createBatch() => _db.batch();

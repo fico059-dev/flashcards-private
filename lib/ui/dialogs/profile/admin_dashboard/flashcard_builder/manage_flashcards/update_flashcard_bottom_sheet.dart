@@ -103,7 +103,7 @@ class _UpdateFormState extends State<_UpdateForm> {
             case UpdateFlashcardStatus.successful:
               context.router.pop(true);
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text("Successfully updated the flashcard")),
+                SnackBar(content: Text("تم تحديث البطاقة")),
               );
               break;
             case UpdateFlashcardStatus.error:
@@ -115,7 +115,7 @@ class _UpdateFormState extends State<_UpdateForm> {
             case UpdateFlashcardStatus.tagInputError:
               ScaffoldMessenger.of(
                 context,
-              ).showSnackBar(SnackBar(content: Text("Max 10 tags")));
+              ).showSnackBar(SnackBar(content: Text("الحد الأقصى 10 وسوم")));
               break;
             default:
           }
@@ -135,7 +135,7 @@ class _UpdateFormState extends State<_UpdateForm> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        "Change Flashcard",
+                        "تعديل البطاقة",
                         style: TextTheme.of(context).titleLarge?.merge(
                           TextStyle(fontWeight: FontWeight.w600),
                         ),
@@ -158,7 +158,7 @@ class _UpdateFormState extends State<_UpdateForm> {
                               children: [
                                 Row(
                                   children: [
-                                    Text("Question Image: "),
+                                    Text("صورة السؤال: "),
                                     BlocBuilder<
                                       UpdateFlashcardCubit,
                                       UpdateFlashcardState
@@ -166,7 +166,7 @@ class _UpdateFormState extends State<_UpdateForm> {
                                       builder: (context, state) {
                                         return ImagePickerButton(
                                           onError: _onImageError,
-                                          label: "Question",
+                                          label: "السؤال",
                                           imageData: state.questionImageData,
                                           onImageChanged:
                                               (pickedImage) => context
@@ -197,7 +197,7 @@ class _UpdateFormState extends State<_UpdateForm> {
                                           state.status.isFormInvalid
                                               ? state.formErrors['question']
                                               : null,
-                                  labelText: 'Question',
+                                  labelText: 'السؤال',
                                   textEditingController: _questionCont,
                                 ),
 
@@ -205,7 +205,7 @@ class _UpdateFormState extends State<_UpdateForm> {
 
                                 Row(
                                   children: [
-                                    Text("Answer Image: "),
+                                    Text("صورة الإجابة: "),
                                     BlocBuilder<
                                       UpdateFlashcardCubit,
                                       UpdateFlashcardState
@@ -213,7 +213,7 @@ class _UpdateFormState extends State<_UpdateForm> {
                                       builder: (context, state) {
                                         return ImagePickerButton(
                                           onError: _onImageError,
-                                          label: "Answer",
+                                          label: "الإجابة (الشرح)",
                                           imageData: state.answerImageData,
                                           onImageChanged:
                                               (pickedImage) => context
@@ -237,7 +237,7 @@ class _UpdateFormState extends State<_UpdateForm> {
                                           state.status.isFormInvalid
                                               ? state.formErrors['answer']
                                               : null,
-                                  labelText: 'Answer',
+                                  labelText: 'الإجابة (الشرح)',
                                   textEditingController: _answerCont,
                                 ),
                                 SizedBox(),
@@ -274,7 +274,7 @@ class _UpdateFormState extends State<_UpdateForm> {
                                   UpdateFlashcardCubit,
                                   UpdateFlashcardState
                                 >(
-                                  textString: 'Update',
+                                  textString: 'تحديث',
                                   onPressed: (blocContext) {
                                     blocContext
                                         .read<UpdateFlashcardCubit>()

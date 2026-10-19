@@ -129,7 +129,7 @@ class _TutorialPageTemplateState extends State<TutorialPageTemplate> {
                     onPressed: _currentPage > 0
                         ? () => _goToPage(_currentPage - 1)
                         : null,
-                    child: const Text("Previous"),
+                    child: const Text("السابق"),
                   ),
                   // Next
                   FilledButton(
@@ -141,8 +141,8 @@ class _TutorialPageTemplateState extends State<TutorialPageTemplate> {
                           },
                     child: Text(
                       _currentPage == widget.slides.length - 1
-                          ? "Finish"
-                          : "Next",
+                          ? "إنهاء"
+                          : "التالي",
                     ),
                   ),
                 ],

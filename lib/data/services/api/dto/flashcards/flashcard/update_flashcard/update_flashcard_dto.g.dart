@@ -15,7 +15,7 @@ _UpdateFlashcardDto _$UpdateFlashcardDtoFromJson(Map<String, dynamic> json) =>
 
 Map<String, dynamic> _$UpdateFlashcardDtoToJson(_UpdateFlashcardDto instance) =>
     <String, dynamic>{
-      if (instance.question case final value?) 'question': value,
-      if (instance.answer case final value?) 'answer': value,
-      if (instance.tags case final value?) 'tags': value,
+      'question': ?instance.question,
+      'answer': ?instance.answer,
+      'tags': ?instance.tags,
     };

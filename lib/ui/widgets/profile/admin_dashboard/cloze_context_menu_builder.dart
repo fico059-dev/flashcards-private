@@ -35,7 +35,7 @@ ContextMenuButtonItem buildAddClozeItem(TextEditingController controller) {
       }
       ContextMenuController.removeAny();
     },
-    label: "Cloze deletion",
+    label: "فراغ (Cloze)",
   );
 }
 
@@ -66,7 +66,7 @@ ContextMenuButtonItem buildRemoveClozeItem(TextEditingController controller) {
         ContextMenuController.removeAny();
       }
     },
-    label: "Remove cloze",
+    label: "إزالة الفراغ",
   );
 }
 

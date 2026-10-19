@@ -37,13 +37,13 @@ class SubsStatusBadge extends StatelessWidget {
     Color labelColor;
 
     if (!isPaid) {
-      labelText = 'Free';
+      labelText = 'مجاني';
       labelColor = Colors.green[600]!;
     } else if (hasCards == true) {
-      labelText = 'Paid';
+      labelText = 'مدفوع';
       labelColor = Colors.blue;
     } else {
-      labelText = 'Paid';
+      labelText = 'مدفوع';
       labelColor = Colors.orange[700]!;
     }
 

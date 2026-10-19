@@ -9,161 +9,152 @@ class AppLocalizationsAr extends AppLocalizations {
   AppLocalizationsAr([String locale = 'ar']) : super(locale);
 
   @override
-  String get medicalStudent => 'Medical Student';
+  String get highSchoolStudent => 'طالب ثانوي';
 
   @override
-  String get intern => 'Intern';
+  String get graduate => 'خريج';
 
   @override
-  String get juniorResident => 'Junior Resident';
+  String get universityStudent => 'طالب جامعي';
 
   @override
-  String get seniorResident => 'Senior Resident';
+  String get otherLevel => 'أخرى';
 
   @override
-  String get fellow => 'Fellow';
+  String get homePage_title => 'الرئيسية';
 
   @override
-  String get consultant => 'Consultant';
+  String get registerPage_header => 'ابدأ استعدادك للقدرات اليوم!';
 
   @override
-  String get homePage_title => 'Home';
+  String get basicText_name => 'الاسم الأول';
 
   @override
-  String get registerPage_header => 'Start your learning journey today!';
+  String get basicText_surname => 'اسم العائلة';
 
   @override
-  String get basicText_name => 'Name';
+  String get basicText_email => 'البريد الإلكتروني';
 
   @override
-  String get basicText_surname => 'Surname';
+  String get basicText_phoneNumber => 'رقم الجوال';
 
   @override
-  String get basicText_email => 'Email';
+  String get basicText_educationLevel => 'المستوى الدراسي';
 
   @override
-  String get basicText_phoneNumber => 'Phone Number';
+  String get basicText_password => 'كلمة المرور';
 
   @override
-  String get basicText_educationLevel => 'Education Level';
+  String get basicText_repeatPassword => 'أعد كتابة كلمة المرور';
 
   @override
-  String get basicText_password => 'Password';
+  String get basicText_register => 'إنشاء حساب';
 
   @override
-  String get basicText_repeatPassword => 'Repeat password';
+  String get basicText_alreadyAMember => 'عندك حساب؟';
 
   @override
-  String get basicText_register => 'Register';
+  String get basicText_signInNow => 'تسجيل الدخول';
 
   @override
-  String get basicText_alreadyAMember => 'Already a member?';
+  String get basicText_forgotPassword => 'نسيت كلمة المرور';
 
   @override
-  String get basicText_signInNow => 'Sign In Now';
+  String get basicText_notAMember => 'ما عندك حساب؟';
 
   @override
-  String get basicText_forgotPassword => 'Forgot password';
+  String get basicText_sendEmail => 'إرسال البريد';
 
   @override
-  String get basicText_notAMember => 'Not a Member?';
+  String get basicText_update => 'تحديث';
 
   @override
-  String get basicText_sendEmail => 'Send Email';
+  String get basicText_tryAgain => 'حاول مرة أخرى';
 
   @override
-  String get basicText_update => 'Update';
+  String get basicText_profile => 'الملف الشخصي';
 
   @override
-  String get basicText_tryAgain => 'Try again';
+  String get basicText_edit => 'تعديل';
 
   @override
-  String get basicText_profile => 'Profile';
+  String get basicText_cancel => 'إلغاء';
 
   @override
-  String get basicText_edit => 'Edit';
+  String get basicText_save => 'حفظ';
 
   @override
-  String get basicText_cancel => 'Cancel';
+  String get basicText_other => 'أخرى';
 
   @override
-  String get basicText_save => 'Save';
+  String get basicText_logout => 'تسجيل الخروج';
 
   @override
-  String get basicText_other => 'Other';
+  String get basicText_signOut => 'تسجيل الخروج';
 
   @override
-  String get basicText_logout => 'Logout';
-
-  @override
-  String get basicText_signOut => 'Sign Out';
-
-  @override
-  String get basicText_goToLogin => 'Go to Login';
+  String get basicText_goToLogin => 'الذهاب لتسجيل الدخول';
 
   @override
   String registerPage_successfulRegister(String displayName) {
-    return 'Congrats $displayName you\'ve successfully registered!';
+    return 'مبروك $displayName، تم إنشاء حسابك بنجاح!';
   }
 
   @override
-  String get loginPage_welcomeBack =>
-      'Welcome back to FlashPedz, we\'ve missed you';
+  String get loginPage_welcomeBack => 'أهلاً بعودتك إلى تقدر، اشتقنا لك';
 
   @override
   String loginPage_welcomeBackMember(String displayName) {
-    return 'Welcome back $displayName!';
+    return 'أهلاً بعودتك $displayName!';
   }
 
   @override
   String get forgotPasswordPage_emailSent =>
-      'Verification email sent. Please check your inbox';
+      'تم إرسال رسالة التحقق. تفقّد بريدك الوارد';
 
   @override
   String get forgotPasswordPage_enterEmail =>
-      'Please enter the email address associated with your account.';
+      'أدخل البريد الإلكتروني المرتبط بحسابك.';
 
   @override
-  String get verifyEmailPage_success => 'Successfully sent email verification!';
+  String get verifyEmailPage_success => 'تم إرسال رسالة توثيق البريد بنجاح!';
 
   @override
-  String get personalInformationPage_personalInformation =>
-      'Personal Information';
+  String get personalInformationPage_personalInformation => 'المعلومات الشخصية';
 
   @override
-  String get privacySecurityPage_title => 'Privacy & Security';
+  String get privacySecurityPage_title => 'الخصوصية والأمان';
 
   @override
-  String get privacySecurityPage_changeEmail => 'Change Email';
+  String get privacySecurityPage_changeEmail => 'تغيير البريد الإلكتروني';
 
   @override
-  String get privacySecurityPage_verified => 'Verified';
+  String get privacySecurityPage_verified => 'موثّق';
 
   @override
-  String get privacySecurityPage_changePassword => 'Change Password';
+  String get privacySecurityPage_changePassword => 'تغيير كلمة المرور';
 
   @override
   String get privacySecurityPage_hiddenPassword => '••••••••';
 
   @override
-  String get privacySecurityPage_changePhone => 'Change Phone Number';
+  String get privacySecurityPage_changePhone => 'تغيير رقم الجوال';
 
   @override
-  String get privacySecurityPage_notVerified => 'Not Verified';
+  String get privacySecurityPage_notVerified => 'غير موثّق';
 
   @override
-  String get privacySecurityPage_deleteAccount => 'Delete your account';
+  String get privacySecurityPage_deleteAccount => 'حذف حسابك';
 
   @override
-  String get privacySecurityPage_deleteAccountSubtitle =>
-      'Permanently remove your account';
+  String get privacySecurityPage_deleteAccountSubtitle => 'حذف حسابك نهائياً';
 
   @override
-  String get privacySecurityPage_pendingVerification => 'Pending verification';
+  String get privacySecurityPage_pendingVerification => 'بانتظار التوثيق';
 
   @override
   String get privacySecurityPage_changeEmailText =>
-      'To change your email, complete the process on the Change Email page. Verifying it elsewhere may cause issues. If you’ve changed your mind, you can safely ignore this.';
+      'لتغيير بريدك أكمل العملية من صفحة تغيير البريد. توثيقه من مكان آخر قد يسبب مشاكل. إذا غيّرت رأيك فتجاهل هذا الأمر بأمان.';
 
   @override
   String profilePage_errorMessage(String errorMessage) {
@@ -172,227 +163,217 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get deleteAccountSuccessfulPage_message =>
-      'We\'re sad to see you go. Your account and all associated data have been successfully deleted.';
+      'حزنّا لمغادرتك. تم حذف حسابك وجميع بياناتك بنجاح.';
 
   @override
-  String get deleteAccountSuccessfulPage_button => 'Go to Login';
+  String get deleteAccountSuccessfulPage_button => 'الذهاب لتسجيل الدخول';
 
   @override
   String get authErrorContainer_verifyEmailSuccess =>
-      'Success! Now lets verify your email address';
+      'تم! الآن لنوثّق بريدك الإلكتروني';
 
   @override
   String get reauthSection_securityNotice =>
-      'For security reasons, please verify your identity.';
+      'لأسباب أمنية، أكّد هويتك من فضلك.';
 
   @override
-  String get reauthSection_passwordLabel => 'Password';
+  String get reauthSection_passwordLabel => 'كلمة المرور';
 
   @override
-  String get reauthSection_button => 'Reauthenticate';
+  String get reauthSection_button => 'إعادة التحقق';
 
   @override
   String get reauthSection_success =>
-      'Reauthentication successful. Your previous action will now be completed.';
+      'تم التحقق بنجاح. سيتم إكمال العملية السابقة الآن.';
 
   @override
-  String get reauthSection_info => 'You may be asked to verify your identity.';
+  String get reauthSection_info => 'قد يُطلب منك تأكيد هويتك.';
 
   @override
-  String get loadingProfileData_message => 'Loading your profile...';
+  String get loadingProfileData_message => 'جارٍ تحميل ملفك الشخصي...';
 
   @override
   String get profileReaderBlocBuilder_neverLoaded =>
-      'Profile was never loaded.';
+      'لم يتم تحميل الملف الشخصي.';
 
   @override
   String get readProfileErrorScreen_errorMessage =>
-      'There was an error trying to load your profile.';
+      'حدث خطأ أثناء تحميل ملفك الشخصي.';
 
   @override
   String get personalInfoContent_updateSuccessMessage =>
-      'Successfully updated your personal information!';
+      'تم تحديث معلوماتك الشخصية بنجاح!';
 
   @override
-  String get profileData_accountSettings => 'Account Settings';
+  String get profileData_accountSettings => 'إعدادات الحساب';
 
   @override
-  String get profileData_personalInformation => 'Personal Information';
+  String get profileData_personalInformation => 'المعلومات الشخصية';
 
   @override
-  String get profileData_privacySecurity => 'Privacy & Security';
+  String get profileData_privacySecurity => 'الخصوصية والأمان';
 
   @override
-  String get profileData_billingDetails => 'Billing Details';
+  String get profileData_billingDetails => 'تفاصيل الاشتراك';
 
   @override
-  String get profileData_flashcards => 'Flashcards';
+  String get profileData_flashcards => 'الأسئلة';
 
   @override
-  String get profileData_flashcardSettings => 'Flashcard Settings';
+  String get profileData_flashcardSettings => 'إعدادات المذاكرة';
 
   @override
-  String get profileData_bookmarkedFlashcards => 'Bookmarked flashcards';
+  String get profileData_bookmarkedFlashcards => 'البطاقات المحفوظة';
 
   @override
-  String get profileData_privacyPolicy => 'Privacy Policy';
+  String get profileData_privacyPolicy => 'سياسة الخصوصية';
 
   @override
-  String get verifyEmailActionButtons_changeEmail => 'Change Email';
+  String get verifyEmailActionButtons_changeEmail => 'تغيير البريد';
 
   @override
   String get verifyEmailHeadline_sendingVerificationLink =>
-      'Sending verification link...';
+      'جارٍ إرسال رابط التوثيق...';
 
   @override
   String get verifyEmailHeadline_refreshingApplicationState =>
-      'Refreshing application state...';
+      'جارٍ تحديث حالة التطبيق...';
 
   @override
   String get verifyEmailHeadline_errorSendingVerificationLink =>
-      'Error sending verification link, please try again later';
+      'تعذّر إرسال رابط التوثيق، حاول لاحقاً';
 
   @override
   String get verifyEmailHeadline_verifyYourEmailAddress =>
-      'Verify your email address';
+      'وثّق بريدك الإلكتروني';
 
   @override
   String get verifyEmailInfoSection_emailSentMessage1 =>
-      'Thank you for registering! A verification email has been sent to your inbox.';
+      'شكراً لتسجيلك! أرسلنا رسالة توثيق إلى بريدك.';
 
   @override
   String get verifyEmailInfoSection_emailSentMessage2 =>
-      'Please check your email and click on the verification link to activate your account.';
+      'افتح بريدك واضغط على رابط التوثيق لتفعيل حسابك.';
 
   @override
   String get verifyEmailInfoSection_twoEmailsDetectedMessage =>
-      'We\'ve sent verification links to both email addresses. \n The first link you click will determine which email is saved to your profile.';
+      'أرسلنا روابط توثيق للبريدين.\nأول رابط تضغط عليه يحدد البريد المحفوظ في ملفك.';
 
   @override
   String get verifyEmailResendLinkButton_successMessage =>
-      'Successfully sent email verification!';
+      'تم إرسال رسالة التوثيق بنجاح!';
 
   @override
-  String get verifyEmailResendLinkButton_resendLinkButtonText => 'Resend Link';
+  String get verifyEmailResendLinkButton_resendLinkButtonText =>
+      'إعادة إرسال الرابط';
 
   @override
-  String get verifyEmailResendLinkButton_waitButtonText => 'Wait...';
+  String get verifyEmailResendLinkButton_waitButtonText => 'انتظر...';
 
   @override
   String get error_requiresRecentLogin =>
-      'For security reasons, please reauthenticate to perform this action.';
+      'لأسباب أمنية، أعد تسجيل الدخول لإكمال هذا الإجراء.';
 
   @override
-  String get error_invalidEmail => 'Invalid email format.';
+  String get error_invalidEmail => 'صيغة البريد الإلكتروني غير صحيحة.';
 
   @override
-  String get error_userDisabled => 'User with that email is disabled.';
+  String get error_userDisabled => 'هذا الحساب معطّل.';
 
   @override
-  String get error_userNotFound => 'No account found with that email.';
+  String get error_userNotFound => 'لا يوجد حساب بهذا البريد.';
 
   @override
-  String get error_wrongPassword => 'Incorrect password. Try again.';
+  String get error_wrongPassword => 'كلمة المرور غير صحيحة. حاول مرة أخرى.';
 
   @override
-  String get error_tooManyRequests =>
-      'You\'ve send too many requests, try again later';
+  String get error_tooManyRequests => 'أرسلت طلبات كثيرة، حاول لاحقاً';
 
   @override
-  String get error_tokenExpired => 'Session expired, please log in again.';
+  String get error_tokenExpired => 'انتهت الجلسة، سجّل الدخول من جديد.';
 
   @override
-  String get error_networkIssue =>
-      'There is a problem with the network, please check your internet connection';
+  String get error_networkIssue => 'مشكلة في الشبكة، تحقق من اتصالك بالإنترنت';
 
   @override
-  String get error_invalidCredential => 'Invalid credentials, please try again';
+  String get error_invalidCredential =>
+      'بيانات الدخول غير صحيحة، حاول مرة أخرى';
 
   @override
   String get error_operationNotAllowed =>
-      'There is a problem with firebase auth, please contact the developer';
+      'مشكلة في إعدادات المصادقة، تواصل مع المطوّر';
 
   @override
   String get error_emailAlreadyInUse =>
-      'That email is already in use, try another one.';
+      'هذا البريد مستخدم مسبقاً، جرّب بريداً آخر.';
 
   @override
-  String get error_authFailed => 'Authentication failed. Please try again.';
+  String get error_authFailed => 'فشل تسجيل الدخول. حاول مرة أخرى.';
 
   @override
-  String get error_unexpected =>
-      'An unexpected error occurred. Please try again.';
+  String get error_unexpected => 'حدث خطأ غير متوقع. حاول مرة أخرى.';
 
   @override
-  String get error_passwordRequirement =>
-      'Password does not meet security requirements.';
+  String get error_passwordRequirement => 'كلمة المرور لا تحقق شروط الأمان.';
 
   @override
   String get error_passwordNonAlphanumeric =>
-      'Password must contain a non-alphanumeric character.';
+      'يجب أن تحتوي كلمة المرور على رمز خاص.';
 
   @override
   String get error_passwordEightCharacters =>
-      'Password must contain at least 8 characters.';
+      'يجب أن تحتوي كلمة المرور على 8 خانات على الأقل.';
 
   @override
   String get error_passwordUpperCase =>
-      'Password must contain an upper case character.';
+      'يجب أن تحتوي كلمة المرور على حرف إنجليزي كبير.';
 
   @override
-  String get error_passwordNumeric =>
-      'Password must contain a numeric character.';
+  String get error_passwordNumeric => 'يجب أن تحتوي كلمة المرور على رقم.';
 
   @override
-  String get error_loadingBookmarks => 'Error loading bookmarks, try again';
+  String get error_loadingBookmarks =>
+      'تعذّر تحميل البطاقات المحفوظة، حاول مرة أخرى';
 
   @override
-  String get error_loadingOscePacks => 'Error trying to load the OSCE packs 😔';
+  String get error_loadingPacks => 'تعذّر تحميل الحزم 😔';
 
   @override
-  String get error_loadingOsceResults => 'Error trying to load the results 😔';
+  String get flashcardMainCard_packFinished => 'أحسنت!';
 
   @override
-  String get error_loadingPacks => 'Error trying to load the packs 😔';
+  String get flashcardMainButton_reveal => 'إظهار الإجابة';
 
   @override
-  String get flashcardMainCard_packFinished => 'Good job!';
+  String get flashcardMainButton_skip => 'تخطّي';
 
   @override
-  String get flashcardMainButton_reveal => 'Reveal';
-
-  @override
-  String get flashcardMainButton_skip => 'Skip';
-
-  @override
-  String get flashcardPageDialog_packFinishedForNow =>
-      'You are finished, for now';
+  String get flashcardPageDialog_packFinishedForNow => 'خلصت، الحين';
 
   @override
   String flashcardPageDialog_packEnded(String subTextForDialog) {
-    return 'Congratulations! There are no flashcards from $subTextForDialog that are due now, but you can come back later.\n\nKeep up the good work.';
+    return 'مبروك! ما فيه بطاقات مستحقة من $subTextForDialog الحين، ارجع لاحقاً.\n\nاستمر على هذا المستوى.';
   }
 
   @override
-  String get flashcardPageDialog_backHome => 'Back to home page';
+  String get flashcardPageDialog_backHome => 'العودة للرئيسية';
 
   @override
   String get flashcardPageDialog_sessionFinishedForNow =>
-      'This study session is finished, for now';
+      'انتهت جلسة المذاكرة، الحين';
 
   @override
-  String get flashcardPageDialog_sessionEnded =>
-      'Congratulations! You completed this study session.';
+  String get flashcardPageDialog_sessionEnded => 'مبروك! أنهيت هذه الجلسة.';
 
   @override
   String get flashcardPageDialog_closeSession =>
-      'You can close this session, or you can continue learning.';
+      'تقدر تقفل الجلسة أو تكمل المذاكرة.';
 
   @override
-  String get flashcardPageDialog_continueLearning => 'Continue learning';
+  String get flashcardPageDialog_continueLearning => 'أكمل المذاكرة';
 
   @override
-  String get flashcardPageDialog_endThisSession => 'End this session?';
+  String get flashcardPageDialog_endThisSession => 'إنهاء هذه الجلسة؟';
 
   @override
   String flashcardPageDialog_updateCardsPerSession(
@@ -400,246 +381,184 @@ class AppLocalizationsAr extends AppLocalizations {
     int userCardsPerSession,
     int newCardsPerSession,
   ) {
-    return 'You’ve reviewed $cardDifference more cards than your target of $userCardsPerSession cards per session.\n\nWould you like to update your session target to $newCardsPerSession cards per session?\n\nYou can always change this in settings.';
+    return 'راجعت $cardDifference بطاقة أكثر من هدفك وهو $userCardsPerSession بطاقة في الجلسة.\n\nتبي تحدّث هدفك إلى $newCardsPerSession بطاقة في الجلسة؟\n\nتقدر تغيّره دائماً من الإعدادات.';
   }
 
   @override
-  String get flashcardPageDialog_keepCurrent => 'Keep current';
+  String get flashcardPageDialog_keepCurrent => 'إبقاء الحالي';
 
   @override
-  String get flashcardPageDialog_updateTarget => 'Update target';
+  String get flashcardPageDialog_updateTarget => 'تحديث الهدف';
 
   @override
-  String get flashcardRatingButtons_easyLabel => 'Easy';
+  String get flashcardRatingButtons_easyLabel => 'سهل';
 
   @override
-  String get flashcardRatingButtons_easyTooltip =>
-      'I knew it instantly and confidently.';
+  String get flashcardRatingButtons_easyTooltip => 'عرفتها فوراً وبثقة.';
 
   @override
-  String get flashcardRatingButtons_goodLabel => 'Good';
+  String get flashcardRatingButtons_goodLabel => 'جيد';
 
   @override
   String get flashcardRatingButtons_goodTooltip =>
-      'I remembered it, but I had to think for a moment.';
+      'تذكرتها لكن احتجت أفكر شوي.';
 
   @override
-  String get flashcardRatingButtons_hardLabel => 'Hard';
+  String get flashcardRatingButtons_hardLabel => 'صعب';
 
   @override
-  String get flashcardRatingButtons_hardTooltip => 'I barely remembered this.';
+  String get flashcardRatingButtons_hardTooltip => 'بالكاد تذكرتها.';
 
   @override
-  String get flashcardRatingButtons_againLabel => 'Again';
+  String get flashcardRatingButtons_againLabel => 'أعد';
 
   @override
-  String get flashcardRatingButtons_againTooltip =>
-      'I forgot this or got it wrong.';
+  String get flashcardRatingButtons_againTooltip => 'نسيتها أو أجبت خطأ.';
 
   @override
   String flashcardTimerContainer(String time) {
-    return 'Time: $time';
+    return 'الوقت: $time';
   }
 
   @override
-  String get flashcardPage_packTitle => 'Pack';
+  String get flashcardPage_packTitle => 'الحزمة';
 
   @override
-  String get flashcardPage_packSubtext => 'pack';
+  String get flashcardPage_packSubtext => 'الحزمة';
 
   @override
-  String get flashcardPage_bookmarksTitle => 'Bookmarks';
+  String get flashcardPage_bookmarksTitle => 'المحفوظة';
 
   @override
-  String get flashcardPage_bookmarksSubtext => 'bookmarks';
+  String get flashcardPage_bookmarksSubtext => 'المحفوظة';
 
   @override
-  String get reviewBookmarkPage_review => 'Review Bookmarked Flashcards';
+  String get reviewBookmarkPage_review => 'مراجعة البطاقات المحفوظة';
 
   @override
-  String get reviewBookmarkPage_noBookmarks =>
-      'Looks like you didn\'t bookmark any flashcards yet.';
+  String get reviewBookmarkPage_noBookmarks => 'ما حفظت أي بطاقة للحين.';
 
   @override
   String reviewBookmarkPage_numberOfBookmarks(int number) {
-    return 'Number of bookmarks: $number';
+    return 'عدد البطاقات المحفوظة: $number';
   }
 
   @override
-  String get reviewBookmarkPage_remove => 'Remove bookmark';
+  String get reviewBookmarkPage_remove => 'إزالة من المحفوظة';
 
   @override
-  String get reviewBookmarkPage_swipe => 'Swipe left to remove bookmark';
+  String get reviewBookmarkPage_swipe => 'اسحب لليسار لإزالة البطاقة';
 
   @override
-  String get osceListPage_title => 'OSCEs';
+  String get splashPageText => 'جارٍ تجهيز تجربتك...';
 
   @override
-  String get osceListPage_fetching => 'Fetching OSCE scenarios...';
+  String get packsPage_title => 'الحزم';
 
   @override
-  String get osceListPage_noPacks =>
-      'Whoops, looks like there are no OSCE packs available';
+  String get packsPage_fetching => 'جارٍ جلب الحزم...';
 
   @override
-  String get oscePage_title => 'OSCE';
-
-  @override
-  String get oscePage_previous => 'Previous';
-
-  @override
-  String get oscePage_next => 'Next';
-
-  @override
-  String get oscePage_submit => 'Submit';
-
-  @override
-  String get osceResultPage_title => 'OSCE results';
-
-  @override
-  String get osceResultPage_fetching => 'Fetching OSCE results...';
-
-  @override
-  String get osceSubmitPage_title => 'OSCE Result';
-
-  @override
-  String get osceSubmitPage_success => 'You successfully completed the OSCE!';
-
-  @override
-  String osceSubmitPage_osceName(String name) {
-    return 'OSCE Name: $name';
-  }
-
-  @override
-  String get osceSubmitPage_unmarked => 'Unmarked checks:';
-
-  @override
-  String get osceSubmitPage_download => 'Download PDF';
-
-  @override
-  String get osceSubmitPage_back => 'Back to main menu';
-
-  @override
-  String get splashPageText => 'Preparing your experience...';
-
-  @override
-  String get packsPage_title => 'Packs';
-
-  @override
-  String get packsPage_fetching => 'Fetching flashcard packs...';
-
-  @override
-  String get packsPage_noPacks =>
-      'Whoops, looks like there are no packs available';
+  String get packsPage_noPacks => 'ما فيه حزم متاحة حالياً';
 
   @override
   String get updateEmailSuccessfulPage_text =>
-      '🎉 All set! Your email address has been updated.\\nMake sure to use the new one next time you sign in.';
+      '🎉 تم! تم تحديث بريدك الإلكتروني.\nاستخدم البريد الجديد عند تسجيل الدخول.';
 
   @override
-  String get updateEmailSuccessfulPage_button => 'Go to login';
+  String get updateEmailSuccessfulPage_button => 'الذهاب لتسجيل الدخول';
 
   @override
   String changeEmailDuringVerificationPage_text(String email) {
-    return 'Successfully sent new email verification at $email';
+    return 'تم إرسال رسالة توثيق جديدة إلى $email';
   }
 
   @override
   String get changeEmailPage_leaveWithoutVerifying =>
-      'Leave without verifying email?';
+      'تغادر بدون توثيق البريد؟';
 
   @override
   String get changeEmailPage_text =>
-      'To change your email, you must complete the verification while staying on this page.\\n\\nVerifying your email from another page may cause the app to behave unexpectedly.\\n\\nIf you’ve changed your mind, you can safely leave this page.';
+      'لتغيير بريدك لازم تكمل التوثيق وأنت في هذه الصفحة.\n\nتوثيق البريد من صفحة أخرى قد يسبب سلوكاً غير متوقع.\n\nإذا غيّرت رأيك تقدر تغادر بأمان.';
 
   @override
-  String get changeEmailPage_stay => 'Stay on this page';
+  String get changeEmailPage_stay => 'البقاء في الصفحة';
 
   @override
-  String get changeEmailPage_leaveAnyway => 'Leave anyway';
+  String get changeEmailPage_leaveAnyway => 'المغادرة';
 
   @override
-  String get deleteProfilePage_deleteAccount => 'Delete Account';
+  String get deleteProfilePage_deleteAccount => 'حذف الحساب';
 
   @override
   String get deleteProfilePage_areYouSure =>
-      'Are you sure you want to permanently delete your account? \n\n This action cannot be undone and all your data will be lost.';
+      'متأكد إنك تبي تحذف حسابك نهائياً؟\n\nما يمكن التراجع عن هذا الإجراء وستفقد كل بياناتك.';
 
   @override
-  String get updatePasswordPage_title => 'Update Password';
+  String get updatePasswordPage_title => 'تحديث كلمة المرور';
 
   @override
-  String get updatePasswordPage_update => 'Update';
+  String get updatePasswordPage_update => 'تحديث';
 
   @override
-  String get updatePasswordPage_success => 'Successfully updated password';
+  String get updatePasswordPage_success => 'تم تحديث كلمة المرور بنجاح';
 
   @override
-  String get updatePasswordPage_password => 'Password';
+  String get updatePasswordPage_password => 'كلمة المرور';
 
   @override
-  String get updatePasswordPage_repeatPassword => 'Repeat password';
+  String get updatePasswordPage_repeatPassword => 'أعد كتابة كلمة المرور';
 
   @override
-  String get profileData_bookmarks => 'Bookmarks';
+  String get profileData_bookmarks => 'المحفوظة';
 
   @override
   String get profileData_chooseEngage =>
-      'Choose how you\'d like to engage with your bookmarked cards.';
+      'اختر كيف تحب تتعامل مع بطاقاتك المحفوظة.';
 
   @override
-  String get profileData_review => 'Review flashcards';
+  String get profileData_review => 'مراجعة البطاقات';
 
   @override
-  String get profileData_startTest => 'Test yourself';
+  String get profileData_startTest => 'اختبر نفسك';
 
   @override
-  String get profileData_osces => 'OSCES';
+  String get assignAdminPage_title => 'تعيين المشرفين';
 
   @override
-  String get profileData_osceResults => 'OSCE Results';
+  String get flashcardBuilderPage_title => 'إدارة المحتوى';
 
   @override
-  String get assignAdminPage_title => 'Assign Admin Roles';
+  String get reportFlashcardPage_success => 'تم الإبلاغ عن البطاقة بنجاح';
 
   @override
-  String get flashcardBuilderPage_title => 'Flashcard Builder';
-
-  @override
-  String get osceBuilderPage_title => 'OSCE Builder';
-
-  @override
-  String get reportFlashcardPage_success => 'Flashcard reported successfully';
-
-  @override
-  String get reportFlashcardPage_report => 'Report Flashcard';
+  String get reportFlashcardPage_report => 'الإبلاغ عن بطاقة';
 
   @override
   String get reportFlashcardPage_whyReporting =>
-      'Why are you reporting this flashcard';
+      'ما سبب الإبلاغ عن هذه البطاقة؟';
 
   @override
-  String get reportFlashcardPage_submitReport => 'Submit Report';
+  String get reportFlashcardPage_submitReport => 'إرسال البلاغ';
 
   @override
-  String get reportFlashcardPage_additionalDetails =>
-      'Additional details (optional)';
+  String get reportFlashcardPage_additionalDetails => 'تفاصيل إضافية (اختياري)';
 
   @override
-  String get reportFlashcardPage_explain => 'Explain your report here';
+  String get reportFlashcardPage_explain => 'اشرح بلاغك هنا';
 
   @override
-  String get reportReason_inappropriateContent => 'Inappropriate content';
+  String get reportReason_inappropriateContent => 'محتوى غير لائق';
 
   @override
-  String get reportReason_incorrectInformation => 'Incorrect information';
+  String get reportReason_incorrectInformation => 'معلومة خاطئة';
 
   @override
-  String get reportReason_poorTranslation => 'Poor translation';
+  String get reportReason_poorTranslation => 'صياغة ضعيفة';
 
   @override
-  String get reportReason_duplicateFlashcard => 'Duplicate flashcard';
+  String get reportReason_duplicateFlashcard => 'بطاقة مكررة';
 
   @override
-  String get reportReason_other => 'Other';
+  String get reportReason_other => 'أخرى';
 }

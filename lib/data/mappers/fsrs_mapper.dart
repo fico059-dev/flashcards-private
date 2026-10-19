@@ -67,39 +67,39 @@ extension FsrsCardX on Card {
       return [
         CardInfoItem(
           icon: mat.Icons.info_outline,
-          label: "You haven't interacted with this card yet",
+          label: "ما تعاملت مع هذه البطاقة بعد",
           value: "",
           tooltip:
-              "You haven't reviewed this card yet. It will appear in your next study session.",
+              "ما راجعت هذه البطاقة بعد، وستظهر لك في جلسة المذاكرة القادمة.",
         ),
       ];
     }
 
     return [
       CardInfoItem(
-        label: "Next Review",
+        label: "المراجعة القادمة",
         value: DateFormat("MMM d, HH:mm (y)").format(due),
         tooltip:
-            "The scheduled date when you should review this flashcard again.",
+            "الموعد المجدول لمراجعة هذه البطاقة من جديد.",
         icon: mat.Icons.calendar_today,
       ),
       CardInfoItem(
-        label: "Last Reviewed",
+        label: "آخر مراجعة",
         value: formatSmartDate(lastReview),
-        tooltip: "The most recent date you reviewed this flashcard.",
+        tooltip: "آخر مرة راجعت فيها هذه البطاقة.",
         icon: mat.Icons.history,
       ),
       CardInfoItem(
-        label: "Repetitions",
+        label: "عدد التكرارات",
         value: "$reps",
-        tooltip: "How many times you’ve reviewed this flashcard in total.",
+        tooltip: "كم مرة راجعت هذه البطاقة إجمالاً.",
         icon: mat.Icons.repeat,
       ),
       CardInfoItem(
-        label: "Lapses",
+        label: "مرات النسيان",
         value: "$lapses",
         tooltip:
-            "How many times you've forgotten this card and had to re-learn it.",
+            "كم مرة نسيت هذه البطاقة واحتجت تعيد تعلمها.",
         icon: mat.Icons.warning,
       ),
     ];

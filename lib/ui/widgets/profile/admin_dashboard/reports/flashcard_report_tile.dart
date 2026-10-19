@@ -98,7 +98,7 @@ class FlashcardReportTile extends StatelessWidget {
               const SizedBox(height: 8),
 
               Text(
-                "First report: $dateFormatted",
+                "أول بلاغ: $dateFormatted",
                 style: TextStyle(fontSize: 12, color: context.colors.outline),
               ),
 

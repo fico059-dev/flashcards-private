@@ -69,7 +69,7 @@ class _IgnoredCardsView extends StatelessWidget {
           onPressed: () => context.router.pop(),
           icon: Icon(Icons.arrow_back),
         ),
-        title: Text("Manage Ignored Flashcards"),
+        title: Text("إدارة البطاقات المتجاهَلة"),
       ),
       body: BlocBuilder<IgnoredCardBloc, IgnoredCardState>(
         builder:
@@ -86,8 +86,8 @@ class _IgnoredCardsView extends StatelessWidget {
                         children: [
                           SizedBox(height: 7),
                           CardFactory.info(
-                            title: Text("Unignore flashcard"),
-                            subtitle: Text("Swipe left to unignore flashcard"),
+                            title: Text("إلغاء التجاهل"),
+                            subtitle: Text("اسحب لليسار لإلغاء تجاهل البطاقة"),
                             closable: true,
                           ),
                           SizedBox(height: 15),
@@ -172,13 +172,13 @@ class _ContentState extends State<_Content> {
             child: Column(
               children: [
                 Text(
-                  "Number of ignored flashcards: ${widget.ignoredCards.length}",
+                  "عدد البطاقات المتجاهَلة: ${widget.ignoredCards.length}",
                   textAlign: TextAlign.center,
                 ),
                 SizedBox(height: 7),
                 CardFactory.info(
-                  title: Text("Unignore flashcard"),
-                  subtitle: Text("Swipe left to unignore flashcard"),
+                  title: Text("إلغاء التجاهل"),
+                  subtitle: Text("اسحب لليسار لإلغاء تجاهل البطاقة"),
                   closable: true,
                 ),
                 SizedBox(height: 15),
@@ -219,7 +219,7 @@ class _EmptyListContainer extends StatelessWidget {
           Image.asset("assets/images/happy_parrot.png", height: 200),
           const SizedBox(height: 10),
           Text(
-            "No ignored cards so far — nice!",
+            "ما فيه بطاقات متجاهَلة — ممتاز!",
             style: Theme.of(context).textTheme.headlineSmall,
             textAlign: TextAlign.center,
           ),

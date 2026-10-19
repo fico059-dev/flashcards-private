@@ -70,7 +70,7 @@ class _DeleteProfileViewState extends State<_DeleteProfileView> {
       ),
       body: LoadingOverlayListener<DeleteUserCubit, DeleteUserState>(
         isLoading: (state) => state is DeleteUserLoading,
-        loadingText: "Deleting all your data, be patient",
+        loadingText: "جارٍ حذف كل بياناتك، انتظر شوي",
         child: BlocListener<DeleteUserCubit, DeleteUserState>(
           listener: (context, state) {
             switch (state) {
@@ -112,24 +112,24 @@ class _DeleteProfileViewState extends State<_DeleteProfileView> {
                       ),
                       const SizedBox(height: 20),
                       CardFactory.info(
-                        title: Text("Subscriptions are not deleted"),
+                        title: Text("الاشتراكات لا تُحذف"),
                         isThreeLine: true,
                         subtitle: Text(
-                          "Deleting your account will remove all your data "
-                          "(profile, progress, and custom sessions). \n\nHowever, "
-                          "any active subscription linked to your email will remain. "
-                          "If you create a new account using the same email address "
-                          "your subscriptions "
-                          "will still be valid and automatically applied.",
+                          "حذف حسابك سيمسح كل بياناتك "
+                          "(الملف الشخصي والتقدّم والجلسات المخصّصة). \n\nلكن "
+                          "أي اشتراك فعّال مرتبط ببريدك سيبقى. "
+                          "إذا أنشأت حساباً جديداً بنفس البريد "
+                          "فإن اشتراكك "
+                          "سيظل صالحاً ويُطبّق تلقائياً.",
                         ),
                       ),
                       const SizedBox(height: 40),
-                      Text("Please enter your password for security reasons"),
+                      Text("أدخل كلمة المرور لأسباب أمنية"),
                       const SizedBox(height: 10),
                       BlocTextField<DeleteUserCubit, DeleteUserState>(
                         errorSelector: (state) => null,
                         obscureText: true,
-                        labelText: "Password",
+                        labelText: "كلمة المرور",
                         textEditingController: _passCont,
                       ),
                     ],

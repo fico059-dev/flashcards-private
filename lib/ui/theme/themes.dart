@@ -4,20 +4,47 @@ import 'package:flutter/material.dart';
 
 import 'color_extensions/color_pallet.dart';
 
+const Color taqdirGold = Color(0xFFC9A227);
+const Color taqdirGoldDark = Color(0xFF8A6D0F);
+
 final ColorScheme lightScheme = ColorScheme.fromSeed(
-  seedColor: Colors.indigo,
+  seedColor: taqdirGold,
   brightness: Brightness.light,
-  dynamicSchemeVariant: DynamicSchemeVariant.fidelity,
+).copyWith(
+  primary: const Color(0xFF9C7A0C),
+  onPrimary: Colors.white,
+  primaryContainer: const Color(0xFFF6E7B0),
+  onPrimaryContainer: const Color(0xFF3A2C04),
+  secondary: taqdirGold,
+  onSecondary: Colors.white,
+  surface: Colors.white,
+  surfaceTint: Colors.transparent,
+  surfaceContainer: const Color(0xFFFBF6E4),
+  surfaceContainerHigh: const Color(0xFFF6EFD2),
+  outline: const Color(0xFFD9C27A),
 );
 
 final darkScheme = ColorScheme.fromSeed(
-  seedColor: Colors.indigo,
+  seedColor: taqdirGold,
   brightness: Brightness.dark,
-  dynamicSchemeVariant: DynamicSchemeVariant.fidelity,
+).copyWith(
+  primary: const Color(0xFFE3C766),
+  onPrimary: const Color(0xFF3A2C04),
+  primaryContainer: const Color(0xFF5B4508),
+  onPrimaryContainer: const Color(0xFFF6E7B0),
+  secondary: taqdirGold,
 );
 
 final lightThemeData = ThemeData(
   colorScheme: lightScheme,
+  fontFamily: 'Tajawal',
+  scaffoldBackgroundColor: Colors.white,
+  appBarTheme: const AppBarTheme(
+    backgroundColor: Colors.white,
+    surfaceTintColor: Colors.transparent,
+    foregroundColor: Color(0xFF3A2C04),
+  ),
+  navigationBarTheme: navigationBarTheme(lightScheme),
   inputDecorationTheme: inputDecorationTheme(lightScheme),
   bottomSheetTheme: bottomSheetThemeData(lightScheme),
   cardTheme: cardThemeData(lightScheme),
@@ -31,6 +58,8 @@ final lightThemeData = ThemeData(
 
 final darkThemeData = ThemeData(
   colorScheme: darkScheme,
+  fontFamily: 'Tajawal',
+  navigationBarTheme: navigationBarTheme(darkScheme),
   inputDecorationTheme: inputDecorationTheme(darkScheme),
   bottomSheetTheme: bottomSheetThemeData(darkScheme),
   cardTheme: cardThemeData(darkScheme),

@@ -28,12 +28,12 @@ class ThemeToggleButton extends StatelessWidget {
   String _labelForMode(ThemeMode mode) {
     switch (mode) {
       case ThemeMode.light:
-        return 'Light';
+        return 'فاتح';
       case ThemeMode.dark:
-        return 'Dark';
+        return 'داكن';
       case ThemeMode.system:
       default:
-        return 'System';
+        return 'النظام';
     }
   }
 
@@ -47,7 +47,7 @@ class ThemeToggleButton extends StatelessWidget {
 
         if (asFab) {
           return FloatingActionButton.small(
-            tooltip: !kDebugMode ? 'Theme: $label' : null,
+            tooltip: !kDebugMode ? 'المظهر: $label' : null,
             onPressed: () => context.read<ThemeCubit>().switchTheme(),
             backgroundColor: color,
             child: Icon(icon),
@@ -62,7 +62,7 @@ class ThemeToggleButton extends StatelessWidget {
         }
 
         return Tooltip(
-          message: 'Theme: $label',
+          message: 'المظهر: $label',
           child: IconButton(
             icon: Icon(icon, color: color),
             onPressed: () => context.read<ThemeCubit>().toggleTheme(),

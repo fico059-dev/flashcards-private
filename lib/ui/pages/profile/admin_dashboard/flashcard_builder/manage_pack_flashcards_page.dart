@@ -58,7 +58,7 @@ class _View extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Manage pack flashcards"),
+        title: Text("إدارة بطاقات الحزمة"),
         leading: IconButton(
           onPressed: () => context.router.pop(),
           icon: Icon(Icons.arrow_back),
@@ -69,7 +69,7 @@ class _View extends StatelessWidget {
           switch (state.status) {
             case ManageFlashcardsLoadedStatus.deleteSuccessful:
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text("Successfully deleted flashcard")),
+                SnackBar(content: Text("تم حذف البطاقة")),
               );
               context.read<ManageFlashcardsBloc>().add(
                 ManageFlashcardCacheRead(packId: pack.packId),
@@ -99,10 +99,10 @@ class _View extends StatelessWidget {
                     ),
                     sliver: SliverToBoxAdapter(
                       child: CardFactory.info(
-                        title: Text("Swipe to Edit & Delete Flashcards"),
+                        title: Text("اسحب للتعديل أو الحذف"),
                         subtitle: Text(
-                          "Swipe left to edit or delete flashcard from this pack,"
-                          " or long press to show all options.",
+                          "اسحب لليسار لتعديل أو حذف بطاقة من هذه الحزمة،"
+                          " أو اضغط مطولاً لعرض كل الخيارات.",
                         ),
                       ),
                     ),
@@ -173,7 +173,7 @@ class _EmptyListContainer extends StatelessWidget {
         spacing: 20,
         children: [
           Text(
-            'There are no flashcards in "${pack.packName}" pack',
+            'ما فيه بطاقات في حزمة "${pack.packName}"',
             style: TextTheme.of(context).headlineSmall,
           ),
           FilledButton(
@@ -181,7 +181,7 @@ class _EmptyListContainer extends StatelessWidget {
               context.router.pop();
               context.router.push(CreateFlashcardRoute(pack: pack));
             },
-            child: Text("Add Flashcards"),
+            child: Text("إضافة بطاقات"),
           ),
         ],
       ),

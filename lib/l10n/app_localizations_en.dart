@@ -9,28 +9,22 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
-  String get medicalStudent => 'Medical Student';
+  String get highSchoolStudent => 'High School Student';
 
   @override
-  String get intern => 'Intern';
+  String get graduate => 'Graduate';
 
   @override
-  String get juniorResident => 'Junior Resident';
+  String get universityStudent => 'University Student';
 
   @override
-  String get seniorResident => 'Senior Resident';
-
-  @override
-  String get fellow => 'Fellow';
-
-  @override
-  String get consultant => 'Consultant';
+  String get otherLevel => 'Other';
 
   @override
   String get homePage_title => 'Home';
 
   @override
-  String get registerPage_header => 'Start your learning journey today!';
+  String get registerPage_header => 'Start preparing for Qudurat today!';
 
   @override
   String get basicText_name => 'Name';
@@ -108,7 +102,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get loginPage_welcomeBack =>
-      'Welcome back to FlashPedz, we\'ve missed you';
+      'Welcome back to Taqdir, we\'ve missed you';
 
   @override
   String loginPage_welcomeBackMember(String displayName) {
@@ -226,13 +220,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get profileData_billingDetails => 'Billing Details';
 
   @override
-  String get profileData_flashcards => 'Flashcards';
+  String get profileData_flashcards => 'Questions';
 
   @override
-  String get profileData_flashcardSettings => 'Flashcard Settings';
+  String get profileData_flashcardSettings => 'Study Settings';
 
   @override
-  String get profileData_bookmarkedFlashcards => 'Bookmarked flashcards';
+  String get profileData_bookmarkedFlashcards => 'Bookmarked cards';
 
   @override
   String get profileData_privacyPolicy => 'Privacy Policy';
@@ -345,12 +339,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get error_loadingBookmarks => 'Error loading bookmarks, try again';
-
-  @override
-  String get error_loadingOscePacks => 'Error trying to load the OSCE packs 😔';
-
-  @override
-  String get error_loadingOsceResults => 'Error trying to load the results 😔';
 
   @override
   String get error_loadingPacks => 'Error trying to load the packs 😔';
@@ -472,54 +460,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reviewBookmarkPage_swipe => 'Swipe left to remove bookmark';
 
   @override
-  String get osceListPage_title => 'OSCEs';
-
-  @override
-  String get osceListPage_fetching => 'Fetching OSCE scenarios...';
-
-  @override
-  String get osceListPage_noPacks =>
-      'Whoops, looks like there are no OSCE packs available';
-
-  @override
-  String get oscePage_title => 'OSCE';
-
-  @override
-  String get oscePage_previous => 'Previous';
-
-  @override
-  String get oscePage_next => 'Next';
-
-  @override
-  String get oscePage_submit => 'Submit';
-
-  @override
-  String get osceResultPage_title => 'OSCE results';
-
-  @override
-  String get osceResultPage_fetching => 'Fetching OSCE results...';
-
-  @override
-  String get osceSubmitPage_title => 'OSCE Result';
-
-  @override
-  String get osceSubmitPage_success => 'You successfully completed the OSCE!';
-
-  @override
-  String osceSubmitPage_osceName(String name) {
-    return 'OSCE Name: $name';
-  }
-
-  @override
-  String get osceSubmitPage_unmarked => 'Unmarked checks:';
-
-  @override
-  String get osceSubmitPage_download => 'Download PDF';
-
-  @override
-  String get osceSubmitPage_back => 'Back to main menu';
-
-  @override
   String get splashPageText => 'Preparing your experience...';
 
   @override
@@ -594,19 +534,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get profileData_startTest => 'Test yourself';
 
   @override
-  String get profileData_osces => 'OSCES';
-
-  @override
-  String get profileData_osceResults => 'OSCE Results';
-
-  @override
   String get assignAdminPage_title => 'Assign Admin Roles';
 
   @override
-  String get flashcardBuilderPage_title => 'Flashcard Builder';
-
-  @override
-  String get osceBuilderPage_title => 'OSCE Builder';
+  String get flashcardBuilderPage_title => 'Content Builder';
 
   @override
   String get reportFlashcardPage_success => 'Flashcard reported successfully';

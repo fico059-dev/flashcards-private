@@ -175,7 +175,7 @@ class FlashcardsSearcherBloc
     if (!state.status.isInitial) {
       event.completer?.completeError(
         Exception(
-          "Still loading more content. Please try refreshing again shortly.",
+          "جارٍ تحميل المزيد. حاول التحديث بعد قليل.",
         ),
       );
       return;

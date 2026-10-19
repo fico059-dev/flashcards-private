@@ -12,7 +12,11 @@ class CreatePackCubit extends Cubit<CreatePackState> {
     : _packRepo = packRepo,
       super(CreatePackInitial());
 
-  Future<void> createPack(String packName, {bool isPaid = false}) async {
+  Future<void> createPack(
+    String packName, {
+    bool isPaid = false,
+    String section = 'verbal',
+  }) async {
     final errors = _validateForm(packName);
     if (errors.isNotEmpty) {
       emit(CreatePackFormInvalid(errors: errors));
@@ -21,7 +25,11 @@ class CreatePackCubit extends Cubit<CreatePackState> {
 
     emit(CreatePackLoading());
 
-    final createResult = await _packRepo.createPack(packName, isPaid: isPaid);
+    final createResult = await _packRepo.createPack(
+      packName,
+      isPaid: isPaid,
+      section: section,
+    );
     switch (createResult) {
       case Error<SimplePack>(:final error):
         emit(CreatePackError(error: error));

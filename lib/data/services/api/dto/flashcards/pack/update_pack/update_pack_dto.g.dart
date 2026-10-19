@@ -18,8 +18,8 @@ _UpdatePackDto _$UpdatePackDtoFromJson(Map<String, dynamic> json) =>
 
 Map<String, dynamic> _$UpdatePackDtoToJson(_UpdatePackDto instance) =>
     <String, dynamic>{
-      if (instance.name case final value?) 'name': value,
-      if (instance.flashcardsCount case final value?) 'flashcardsCount': value,
-      if (instance.tagCounts case final value?) 'tagCounts': value,
-      if (instance.tags case final value?) 'tags': value,
+      'name': ?instance.name,
+      'flashcardsCount': ?instance.flashcardsCount,
+      'tagCounts': ?instance.tagCounts,
+      'tags': ?instance.tags,
     };

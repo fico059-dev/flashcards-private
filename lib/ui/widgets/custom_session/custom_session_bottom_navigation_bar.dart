@@ -114,11 +114,11 @@ class CustomSessionBottomNavigationBar extends StatelessWidget {
                 children: [
                   OutlinedButton(
                     onPressed: stepIndex > 0 ? popChildRoute : null,
-                    child: Text("Previous"),
+                    child: Text("السابق"),
                   ),
                   FilledButton(
                     onPressed: nextEnabled ? pushNextPage : null,
-                    child: Text("Next"),
+                    child: Text("التالي"),
                   ),
                 ],
               ),

@@ -160,7 +160,7 @@ class _MessageContainer extends StatelessWidget {
             //     message =
             //         AppLocalizations.of(context)!.error_requiresRecentLogin;
             //     break;
-            //   case "Invalid email format.":
+            //   case "صيغة البريد الإلكتروني غير صحيحة.":
             //     message = AppLocalizations.of(context)!.error_invalidEmail;
             //     break;
             //   case "User with that email is disabled.":

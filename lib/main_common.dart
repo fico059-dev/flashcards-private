@@ -4,8 +4,10 @@ import 'package:flashcards/bloc/theme/theme_cubit.dart';
 import 'package:flashcards/config/orientation_helper.dart';
 import 'package:flashcards/ui/widgets/core/theme_toggle_button.dart';
 import 'package:flutter/foundation.dart';
+import 'package:intl/date_symbol_data_local.dart';
+import 'package:intl/intl.dart';
+import 'package:timeago/timeago.dart' as timeago;
 import 'package:flutter/material.dart';
-import 'dart:io' show Platform;
 
 import 'package:flashcards/bloc/authorization/auth/auth_bloc.dart';
 import 'package:flashcards/bloc/profile/profile_reader/profile_reader_cubit.dart';
@@ -29,8 +31,7 @@ import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 import 'package:flutter_timezone/flutter_timezone.dart';
 
-import 'config/firebase_options_dev.dart' as dev;
-import 'config/firebase_options_prod.dart' as prod;
+import 'firebase_options.dart';
 
 enum AppFlavor { dev, prod }
 
@@ -45,20 +46,16 @@ class Flavor {
 Future<void> bootstrap({required bool isDev}) async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // ANDROID: google-services.json po flavoru rešava sve -> nije potrebno options.
-  // iOS/web/desktop: koristimo options.
-  if (Platform.isAndroid) {
-    if (Firebase.apps.isEmpty) {
-      await Firebase.initializeApp();
-    }
-  } else {
-    final opts = isDev
-        ? dev.DefaultFirebaseOptions.currentPlatform
-        : prod.DefaultFirebaseOptions.currentPlatform;
-    if (Firebase.apps.isEmpty) {
-      await Firebase.initializeApp(options: opts);
-    }
+  if (Firebase.apps.isEmpty) {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
   }
+
+  // تاريخ ووقت بالعربية
+  Intl.defaultLocale = 'ar';
+  await initializeDateFormatting('ar');
+  timeago.setLocaleMessages('ar', timeago.ArMessages());
 
   // app orientation
   //await setAppOrientation();
@@ -145,7 +142,7 @@ class _MyAppState extends State<_MyApp> {
             return MaterialApp.router(
               scaffoldMessengerKey: rootScaffoldMessengerKey,
               debugShowCheckedModeBanner: false,
-              title: 'FlashPedz',
+              title: 'تقدر',
               routerConfig: _appRouter.config(
                 navigatorObservers: () => [AutoRouteObserver()],
               ),
@@ -153,7 +150,7 @@ class _MyAppState extends State<_MyApp> {
               darkTheme: darkThemeData,
               themeMode: themeMode,
               supportedLocales: AppLocalizations.supportedLocales,
-              locale: const Locale('en'),
+              locale: const Locale('ar'),
               localizationsDelegates: AppLocalizations.localizationsDelegates,
 
               builder: (context, child) {

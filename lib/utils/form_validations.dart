@@ -1,52 +1,52 @@
 import 'dart:math';
 
 String? validateString(String string, {bool enableEmpty = false}) {
-  if (string.isEmpty && !enableEmpty) return "This field is required";
+  if (string.isEmpty && !enableEmpty) return "هذا الحقل مطلوب";
   if (string.isNotEmpty && string.length < 3)
-    return "Please provide more information";
+    return "فضلاً أضف معلومات أكثر";
   return null;
 }
 
 String? validateEmail(String email) {
   RegExp emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
 
-  if (email.isEmpty) return "Email is required";
-  if (email.length < 5 || email.length > 254) return "Invalid email format";
-  if (!emailRegex.hasMatch(email)) return "Invalid email format";
+  if (email.isEmpty) return "البريد الإلكتروني مطلوب";
+  if (email.length < 5 || email.length > 254) return "صيغة البريد الإلكتروني غير صحيحة";
+  if (!emailRegex.hasMatch(email)) return "صيغة البريد الإلكتروني غير صحيحة";
   return null;
 }
 
 String? validatePassword(String password) {
   // Firebase will handle password strength
-  if (password.isEmpty) return "Password is required";
+  if (password.isEmpty) return "كلمة المرور مطلوبة";
   return null;
 }
 
 String? validateRepeatPassword(String password, String repeatPassword) {
-  if (password != repeatPassword) return "Passwords don't match";
+  if (password != repeatPassword) return "كلمتا المرور غير متطابقتين";
   return null;
 }
 
 String? validateName(String name) {
   RegExp namePattern = RegExp(r'^[A-Za-z]+$');
 
-  if (name.isEmpty) return "Name is required";
+  if (name.isEmpty) return "الاسم مطلوب";
   if (name.length < 2 || name.length > 50) {
-    return "Name must be be between 2 and 50 characters";
+    return "الاسم يجب أن يكون بين 2 و50 حرفاً";
   }
-  if (!namePattern.hasMatch(name)) return "Name can only contain letters";
+  if (!namePattern.hasMatch(name)) return "الاسم يجب أن يحتوي حروفاً فقط";
   return null;
 }
 
 String? validateSurname(String surname) {
   RegExp surnamePattern = RegExp(r'^[A-Za-z]+$');
 
-  if (surname.isEmpty) return "Surname is required";
+  if (surname.isEmpty) return "اسم العائلة مطلوب";
   if (surname.length < 2 || surname.length > 50) {
-    return "Surname must be be between 2 and 50 characters";
+    return "اسم العائلة يجب أن يكون بين 2 و50 حرفاً";
   }
   if (!surnamePattern.hasMatch(surname)) {
-    return "Surname can only contain letters";
+    return "اسم العائلة يجب أن يحتوي حروفاً فقط";
   }
   return null;
 }
@@ -55,11 +55,11 @@ String? validateSurname(String surname) {
 String? validatePhoneNumber(String phone) {
   RegExp phoneRegex = RegExp(r'^[+]*[(]{0,1}[0-9]{1,4}[)]{0,1}[-\s\./0-9]*$');
 
-  if (phone.isEmpty) return "Phone is required";
+  if (phone.isEmpty) return "رقم الجوال مطلوب";
   if (phone.length < 7 || phone.length > 15) {
-    return "Phone length must be between 7 and 15 characters";
+    return "رقم الجوال بين 7 و15 خانة";
   }
-  if (!phoneRegex.hasMatch(phone)) return "Invalid phone number format";
+  if (!phoneRegex.hasMatch(phone)) return "صيغة رقم الجوال غير صحيحة";
   return null;
 }
 
@@ -69,17 +69,17 @@ void putErrorIfExists(Map<String, String> map, String key, String? value) {
 
 String? validateCardsPerSession(int cardsPerSession) {
   if (cardsPerSession < 5 || cardsPerSession > 100) {
-    return "You must enter a number between 5 and 100";
+    return "أدخل رقماً بين 5 و100";
   }
   return null;
 }
 
 String? validateNumber(String number, int minValue, int maxValue) {
   final numberParsed = int.tryParse(number);
-  if (numberParsed == null) return "Please enter a number";
+  if (numberParsed == null) return "أدخل رقماً";
 
   if (numberParsed < minValue || numberParsed > maxValue) {
-    return "Value must be between $minValue and $maxValue";
+    return "القيمة يجب أن تكون بين $minValue و$maxValue";
   }
 
   return null;
@@ -92,12 +92,12 @@ String? validateClampedNumber(
   int clampValue,
 ) {
   final numberParsed = int.tryParse(number);
-  if (numberParsed == null) return "Please enter a number";
+  if (numberParsed == null) return "أدخل رقماً";
 
   final effectiveMax = maxValue.clamp(minValue, clampValue);
 
   if (numberParsed < minValue || numberParsed > effectiveMax) {
-    return "Value must be between $minValue and $effectiveMax";
+    return "القيمة يجب أن تكون بين $minValue و$effectiveMax";
   }
 
   return null;

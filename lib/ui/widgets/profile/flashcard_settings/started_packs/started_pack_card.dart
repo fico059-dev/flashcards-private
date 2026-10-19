@@ -44,7 +44,7 @@ class StartedPackCard extends StatelessWidget {
               contentPadding: EdgeInsets.symmetric(horizontal: 0),
               leading: Icon(Icons.lock_open, color: context.colors.onSurfaceVariant),
               title: Text(
-                "First opened: ${formatSmartDate(packProgress.firstOpenedAt)}",
+                "أول فتح: ${formatSmartDate(packProgress.firstOpenedAt)}",
               ),
               titleTextStyle: TextTheme.of(context).bodyMedium?.merge(
                 TextStyle(
@@ -56,7 +56,7 @@ class StartedPackCard extends StatelessWidget {
               contentPadding: EdgeInsets.symmetric(horizontal: 0),
               leading: Icon(Icons.update, color: context.colors.onSurfaceVariant),
               title: Text(
-                "Last opened: ${formatSmartDate(packProgress.lastOpenedAt)}",
+                "آخر فتح: ${formatSmartDate(packProgress.lastOpenedAt)}",
               ),
               titleTextStyle: TextTheme.of(context).bodyMedium?.merge(
                 TextStyle(
@@ -74,7 +74,7 @@ class StartedPackCard extends StatelessWidget {
                   ),
               icon: Icon(Icons.refresh, color: context.colors.error),
               label: Text(
-                "Reset Progress",
+                "تصفير التقدّم",
                 style: TextStyle(color: context.colors.error),
               ),
             ),
@@ -82,7 +82,7 @@ class StartedPackCard extends StatelessWidget {
             //   onPressed: onDelete,
             //   icon: Icon(Icons.refresh, color: Colors.red[700]),
             //   label: Text(
-            //     "Reset Progress",
+            //     "تصفير التقدّم",
             //     style: TextStyle(color: Colors.red[700]),
             //   ),
             // ),

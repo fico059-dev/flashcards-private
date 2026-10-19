@@ -1,5 +1,5 @@
 name: flashcards
-description: "Flutter flashcards"
+description: "تقدر - بطاقات تعليمية لاختبار القدرات"
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
@@ -115,7 +115,17 @@ flutter:
     - assets/lottie/
     - assets/images/
     - assets/images/flashcards_tutorial/
-    - assets/images/osce_tutorial/
+
+  fonts:
+    - family: Tajawal
+      fonts:
+        - asset: assets/fonts/Tajawal-Regular.ttf
+        - asset: assets/fonts/Tajawal-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Tajawal-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/Tajawal-ExtraBold.ttf
+          weight: 800
 
   # To add assets to your application, add an assets section, like this:
   # assets:
@@ -147,3 +157,7 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+
+dependency_overrides:
+  # image 4.11+ يحتاج archive أحدث مما تسمح به حزم أخرى (pdf, flutter_local_notifications)
+  image: 4.5.4

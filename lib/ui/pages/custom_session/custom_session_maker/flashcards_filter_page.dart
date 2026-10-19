@@ -91,10 +91,10 @@ class _LoadedContent extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         CardFactory.info(
-          title: Text("Select filter"),
+          title: Text("اختر الفلتر"),
           subtitle: Text(
-            "Decide which type of cards you want to focus on "
-            "within the selected packs.",
+            "حدد نوع البطاقات اللي تبي تركّز عليها "
+            "داخل الحزم المختارة.",
           ),
         ),
 
@@ -104,12 +104,12 @@ class _LoadedContent extends StatelessWidget {
           spacing: 20,
           children: [
             ChoiceChip(
-              label: Text("All cards $allCount"),
+              label: Text("كل البطاقات $allCount"),
               selected: selected == PackSelectedFilter.all,
               onSelected: (_) => selectOption(PackSelectedFilter.all),
             ),
             ChoiceChip(
-              label: Text("Seen cards ${state.packFilterCounts.seenCount}"),
+              label: Text("اللي شفتها ${state.packFilterCounts.seenCount}"),
               selected: selected == PackSelectedFilter.seen,
               onSelected:
                   seenCount > 0
@@ -118,7 +118,7 @@ class _LoadedContent extends StatelessWidget {
             ),
             ChoiceChip(
               label: Text(
-                "Bookmarked ${state.packFilterCounts.bookmarkedCount}",
+                "المحفوظة ${state.packFilterCounts.bookmarkedCount}",
               ),
               selected: selected == PackSelectedFilter.bookmarked,
               onSelected:
@@ -127,7 +127,7 @@ class _LoadedContent extends StatelessWidget {
                       : null,
             ),
             ChoiceChip(
-              label: Text("Ignored ${state.packFilterCounts.ignoredCount}"),
+              label: Text("المتجاهَلة ${state.packFilterCounts.ignoredCount}"),
               selected: selected == PackSelectedFilter.ignored,
               onSelected:
                   ignoredCount > 0
@@ -144,33 +144,33 @@ class _LoadedContent extends StatelessWidget {
             children: [
               TextSpan(text: "• "),
               TextSpan(
-                text: "All Cards",
+                text: "كل البطاقات",
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
               TextSpan(
-                text: " – Includes every card from the selected packs.\n",
+                text: " – كل بطاقات الحزم المختارة.\n",
               ),
 
               TextSpan(text: "• "),
               TextSpan(
-                text: "Seen",
+                text: "المُشاهَدة",
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
-              TextSpan(text: " – Only cards you've already encountered.\n"),
+              TextSpan(text: " – البطاقات اللي مرّت عليك سابقاً فقط.\n"),
 
               TextSpan(text: "• "),
               TextSpan(
-                text: "Bookmarked",
+                text: "المحفوظة",
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
-              TextSpan(text: " – Cards you've marked as important.\n"),
+              TextSpan(text: " – البطاقات اللي علّمتها مهمة.\n"),
 
               TextSpan(text: "• "),
               TextSpan(
-                text: "Ignored",
+                text: "المتجاهَلة",
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
-              TextSpan(text: " – Cards you've previously marked to avoid."),
+              TextSpan(text: " – البطاقات اللي طلبت تجاهلها سابقاً."),
             ],
           ),
         ),

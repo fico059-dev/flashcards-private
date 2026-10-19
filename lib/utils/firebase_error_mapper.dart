@@ -16,24 +16,24 @@ class FirebaseErrorData {
 
 String extractErrorMessage(Object error) {
   if (error is FirebaseFunctionsException) {
-    return error.message ?? 'Unknown Firebase Functions error';
+    return error.message ?? 'خطأ غير معروف في خدمات السيرفر';
   }
 
   if (error is FirebaseException) {
     // FirebaseAuth, FirebaseFirestore, etc. all extend FirebaseException
-    return error.message ?? 'Unknown Firebase error';
+    return error.message ?? 'خطأ غير معروف في Firebase';
   }
 
   if (error is PlatformException) {
     // Sometimes seen in Auth or native calls
-    return error.message ?? 'Unknown platform error';
+    return error.message ?? 'خطأ غير معروف في المنصة';
   }
 
   if (error is Exception) {
     return error.toString().replaceFirst("Exception: ", "");
   }
 
-  return 'Unknown error: $error';
+  return 'خطأ غير معروف: $error';
 }
 
 bool doesErrorRequireReauth(dynamic error) {
@@ -92,7 +92,7 @@ FirebaseErrorData mapFirebaseError({
         return FirebaseErrorData(message: locale!.error_authFailed);
       }
 
-      if (error.message!.contains("Password must contain")) {
+      if (error.message!.contains("كلمة المرور يجب أن تحتوي")) {
         return FirebaseErrorData(
           message: _extractFirstPasswordRequirement(
             message: error.message!,
@@ -100,7 +100,7 @@ FirebaseErrorData mapFirebaseError({
           ),
         );
       } else if (error.message!.contains("INVALID_NEW_EMAIL")) {
-        return FirebaseErrorData(message: "Invalid email format.");
+        return FirebaseErrorData(message: "صيغة البريد الإلكتروني غير صحيحة.");
       }
 
       return FirebaseErrorData(message: locale!.error_authFailed);
@@ -157,7 +157,7 @@ String _extractFirstPasswordRequirement({
 // message =
 // AppLocalizations.of(context)!.error_requiresRecentLogin;
 // break;
-// case "Invalid email format.":
+// case "صيغة البريد الإلكتروني غير صحيحة.":
 // message = AppLocalizations.of(context)!.error_invalidEmail;
 // break;
 // case "User with that email is disabled.":

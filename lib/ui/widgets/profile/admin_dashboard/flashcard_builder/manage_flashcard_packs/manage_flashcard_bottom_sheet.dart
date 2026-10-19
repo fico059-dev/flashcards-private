@@ -69,7 +69,7 @@ void showManageFlashcardBottomSheet(
                     Icons.edit,
                     color: context.colors.primaryContainer,
                   ),
-                  title: Text("Edit Flashcard"),
+                  title: Text("تعديل البطاقة"),
                 ),
                 ListTile(
                   onTap: onDelete,
@@ -78,7 +78,7 @@ void showManageFlashcardBottomSheet(
                     color: context.colors.error,
                   ),
                   title: Text(
-                    "Delete Flashcard",
+                    "حذف البطاقة",
                     style: TextStyle(color: context.colors.error),
                   ),
                 ),

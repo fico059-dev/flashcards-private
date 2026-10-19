@@ -18,8 +18,6 @@ import 'package:flashcards/domain/models/flashcards/custom_session_summary/custo
 import 'package:flashcards/domain/models/flashcards/flashcard/flashcard.dart';
 import 'package:flashcards/domain/models/flashcards/pack/pack.dart';
 import 'package:flashcards/domain/models/flashcards/tag/tag.dart';
-import 'package:flashcards/domain/models/osce/osce.dart';
-import 'package:flashcards/domain/models/osce/simple_osce/simple_osce.dart';
 import 'package:flashcards/ui/dialogs/change_email_during_verification_page.dart';
 import 'package:flashcards/ui/dialogs/profile/privacy_security/change_email_page.dart';
 import 'package:flashcards/ui/dialogs/profile/privacy_security/delete_profile_page.dart';
@@ -42,12 +40,7 @@ import 'package:flashcards/ui/pages/main_tab_pages/home_page.dart';
 import 'package:flashcards/ui/pages/main_tab_pages/learning_progress/learning_progress_page.dart';
 import 'package:flashcards/ui/pages/main_tab_pages/learning_progress/started_packs_page.dart';
 import 'package:flashcards/ui/pages/main_tab_pages/main_tab_page.dart';
-import 'package:flashcards/ui/pages/main_tab_pages/osce_list_page.dart';
-import 'package:flashcards/ui/pages/main_tab_pages/packs_tab_page/packs_tab_page.dart';
-import 'package:flashcards/ui/pages/osces/osce_page.dart';
-import 'package:flashcards/ui/pages/osces/osce_performances_page.dart';
-import 'package:flashcards/ui/pages/osces/osce_submit_page.dart';
-import 'package:flashcards/ui/pages/main_tab_pages/packs_tab_page/packs_page.dart';
+import 'package:flashcards/ui/pages/main_tab_pages/packs_tab_page/section_packs_page.dart';
 import 'package:flashcards/ui/pages/paywall/prod_paywall_page.dart';
 import 'package:flashcards/ui/pages/permission_denied_page.dart';
 import 'package:flashcards/ui/pages/custom_session/previous_sessions/previous_sessions_page.dart';
@@ -57,8 +50,6 @@ import 'package:flashcards/ui/pages/profile/admin_dashboard/flashcard_builder/an
 import 'package:flashcards/ui/pages/profile/admin_dashboard/flashcard_builder/create_flashcard_page.dart';
 import 'package:flashcards/ui/pages/profile/admin_dashboard/flashcard_builder/flashcard_builder_page.dart';
 import 'package:flashcards/ui/pages/profile/admin_dashboard/flashcard_builder/manage_pack_flashcards_page.dart';
-import 'package:flashcards/ui/pages/profile/admin_dashboard/osce_builder/osce_builder_page.dart';
-import 'package:flashcards/ui/pages/profile/admin_dashboard/question_builder/create_question_page.dart';
 import 'package:flashcards/ui/pages/profile/admin_dashboard/reports/flashcard_reports_page.dart';
 import 'package:flashcards/ui/pages/profile/flashcard_settings_pages/manage_ignored_flashcards_page.dart';
 import 'package:flashcards/ui/pages/profile/flashcard_settings_pages/update_cards_per_session_page.dart';
@@ -78,7 +69,6 @@ import 'package:flashcards/ui/pages/success_pages/flashcard_session_success_page
 import 'package:flashcards/ui/pages/success_pages/pack_finished_page.dart';
 import 'package:flashcards/ui/pages/success_pages/update_email_successful_page.dart';
 import 'package:flashcards/ui/pages/tutorials/flashcards_tutorial_page.dart';
-import 'package:flashcards/ui/pages/tutorials/osce_tutorial_page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -117,11 +107,9 @@ class AppRouter extends RootStackRouter {
           page: MainTabRoute.page,
           children: [
             AutoRoute(page: HomeRoute.page, guards: [authGuard]),
-            AutoRoute(page: OsceListRoute.page, guards: [authGuard]),
-            AutoRoute(page: PacksTabRoute.page, children: [
-              AutoRoute(page: PacksRoute.page, guards: [authGuard]),
-              AutoRoute(page: PreviousSessionsRoute.page, guards: [authGuard]),
-            ]),
+            AutoRoute(page: VerbalPacksRoute.page, guards: [authGuard]),
+            AutoRoute(page: QuantPacksRoute.page, guards: [authGuard]),
+            AutoRoute(page: PreviousSessionsRoute.page, guards: [authGuard]),
             AutoRoute(page: LearningProgressRoute.page, guards: [authGuard]),
           ],
         ),
@@ -146,10 +134,6 @@ class AppRouter extends RootStackRouter {
               guards: [authGuard, adminGuard],
             ),
             AutoRoute(
-              page: OsceBuilderRoute.page,
-              guards: [authGuard, adminGuard],
-            ),
-            AutoRoute(
               page: FlashcardReportsRoute.page,
               guards: [authGuard, adminGuard],
             ),
@@ -171,10 +155,6 @@ class AppRouter extends RootStackRouter {
         ),
         AutoRoute(
           page: AnkiImportRoute.page,
-          guards: [authGuard, adminGuard],
-        ),
-        AutoRoute(
-          page: QuestionEditorRoute.page,
           guards: [authGuard, adminGuard],
         ),
 
@@ -275,12 +255,6 @@ class AppRouter extends RootStackRouter {
           guards: [authGuard, profileLoadedGuard],
         ),
 
-        // Osce pages
-        AutoRoute(page: OsceListRoute.page, guards: [authGuard]),
-        AutoRoute(page: OsceRoute.page, guards: [authGuard]),
-        AutoRoute(page: OsceSubmitRoute.page, guards: [authGuard]),
-        AutoRoute(page: OscePerformancesRoute.page, guards: [authGuard]),
-
         // Update dialogs
         CustomRoute(
           page: DeleteProfileRoute.page,
@@ -305,7 +279,6 @@ class AppRouter extends RootStackRouter {
 
     // Tutorial pages
     AutoRoute(page: FlashcardsTutorialRoute.page, guards: [authGuard]),
-    AutoRoute(page: OsceTutorialRoute.page, guards: [authGuard]),
 
     // Success pages
     AutoRoute(page: DeleteAccountSuccessfulRoute.page, guards: [guestGuard]),

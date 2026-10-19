@@ -52,7 +52,7 @@ class _Content extends StatelessWidget {
             break;
           case DeleteFlashcardSuccess():
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text("Successfully deleted flashcard.")),
+              SnackBar(content: Text("تم حذف البطاقة.")),
             );
             context.router.pop(true);
             break;
@@ -62,10 +62,10 @@ class _Content extends StatelessWidget {
         }
       },
       child: AlertDialog(
-        title: Text("Delete this flashcard?"),
+        title: Text("حذف هذه البطاقة؟"),
         content: Text(
-          "Deleting this flashcard will also remove all user data associated with it.\n"
-          "This may take a few moments to complete.",
+          "حذف هذه البطاقة سيحذف أيضاً كل بيانات المستخدمين المرتبطة بها.\n"
+          "قد يأخذ ذلك بعض الوقت.",
         ),
         actions: [
           BlocBuilder<DeleteFlashcardCubit, DeleteFlashcardState>(
@@ -73,14 +73,14 @@ class _Content extends StatelessWidget {
               final isLoading = state is DeleteFlashcardLoading;
               return TextButton(
                 onPressed: isLoading ? null : () => context.router.pop(),
-                child: Text("Cancel"),
+                child: Text("إلغاء"),
               );
             },
           ),
           BlocButtonText<DeleteFlashcardCubit, DeleteFlashcardState>(
             isLoadingState: (state) => state is DeleteFlashcardLoading,
             onPressed: onDelete,
-            textString: "Delete",
+            textString: "حذف",
           ),
         ],
       ),

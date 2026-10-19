@@ -1,11 +1,11 @@
 {
-    "name": "flashcards",
-    "short_name": "flashcards",
+    "name": "تقدر",
+    "short_name": "تقدر",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#hexcode",
-    "theme_color": "#hexcode",
-    "description": "Flutter flashcards",
+    "background_color": "#FFFFFF",
+    "theme_color": "#FFFFFF",
+    "description": "تقدر - بطاقات تعليمية لاختبار القدرات",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

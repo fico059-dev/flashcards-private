@@ -15,6 +15,7 @@ abstract class PackDto with _$PackDto {
     @Default({}) Map<String, int> tagCounts,
     @Default([]) List<String> tags,
     @Default(false) bool isPaid,
+    @Default('verbal') String section,
   }) = _PackDto;
 
   factory PackDto.fromJson(JsonMap json) => _$PackDtoFromJson(json);
@@ -22,13 +23,18 @@ abstract class PackDto with _$PackDto {
   factory PackDto.fromJsonWithId(JsonMap json, String id) =>
       PackDto.fromJson(json).copyWith(id: id);
 
-  factory PackDto.fromPackName(String packName, {bool isPaid = false}) =>
+  factory PackDto.fromPackName(
+    String packName, {
+    bool isPaid = false,
+    String section = 'verbal',
+  }) =>
       PackDto(
         id: '',
         name: packName,
         tags: [],
         flashcardsCount: 0,
         isPaid: isPaid,
+        section: section,
       );
 }
 
@@ -44,11 +50,13 @@ extension PackDtoX on PackDto {
     learningCount: learningCount,
     tagCounts: tagCounts,
     isPaid: isPaid ?? false,
+    section: section,
   );
 
   AdminPack toAdminPackDomain() => AdminPack(
     packId: id!,
     isPaid: isPaid,
+    section: section,
     packName: name,
     flashcardsCount: flashcardsCount,
     tagCounts: tagCounts,

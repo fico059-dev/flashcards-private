@@ -68,8 +68,8 @@ class StreakWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Tooltip(
       message:
-          "Complete at least 10 flashcards in a day to increase your "
-          "streak. Keep going every day to keep the fire alive!",
+          "أكمل 10 بطاقات على الأقل في اليوم لزيادة "
+          "سلسلة أيامك. واظب كل يوم عشان تبقى الشعلة مشتعلة!",
       preferBelow: false,
       decoration: BoxDecoration(
         color: Colors.grey[800],

@@ -67,7 +67,7 @@ class _ContentState extends State<_Content> {
         children: [
           CustomDragHandle(),
           Text(
-            "Notification Settings",
+            "إعدادات التنبيهات",
             style: TextTheme.of(
               context,
             ).titleLarge?.copyWith(fontWeight: FontWeight.bold),
@@ -89,8 +89,8 @@ class _ContentState extends State<_Content> {
                   return Column(
                     children: [
                       Text(
-                        "Select frequency that you want us to remind you "
-                        "to come and solve flashcards",
+                        "اختر كل كم تبينا نذكّرك "
+                        "عشان تحل بطاقاتك",
                       ),
 
                       const SizedBox(height: 15),

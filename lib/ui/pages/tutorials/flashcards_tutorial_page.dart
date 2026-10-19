@@ -11,61 +11,61 @@ class FlashcardsTutorialPage extends StatelessWidget {
   final List<TutorialSlide> _slides = const [
     TutorialSlide(
       icon: Icons.style,
-      title: "Learning with Flashcards",
+      title: "المذاكرة بالبطاقات",
       description:
-          "Flashcards use spaced repetition to calculate the optimal time "
-          "for review. Each pack shows how many cards are due, so you always "
-          "know what to study next.",
+          "البطاقات تعتمد التكرار المتباعد لحساب أفضل وقت "
+          "للمراجعة. كل حزمة تعرض عدد البطاقات المستحقة، فتعرف دائماً "
+          "وش تذاكر بعده.",
     ),
     TutorialSlide(
       icon: Icons.layers,
-      title: "Starting a Test Session",
+      title: "بدء جلسة اختبار",
       description:
-          "Tap the pack you want to study.\n"
-          "Each session mixes 80% review cards with 20% new ones. "
-          "This ensures you strengthen old knowledge while gradually "
-          "adding new material.",
+          "اضغط على الحزمة اللي تبي تذاكرها.\n"
+          "كل جلسة تجمع 80% بطاقات مراجعة و20% بطاقات جديدة. "
+          "وهذا يثبّت معلوماتك القديمة وفي نفس الوقت "
+          "يضيف مادة جديدة تدريجياً.",
     ),
     TutorialSlide(
       assetPath: "assets/images/flashcards_tutorial/question_demo.jpg",
-      title: "Question First",
+      title: "السؤال أولاً",
       description:
-          "Each card begins with a question. Take a moment to recall the answer "
-          "— silently or out loud.",
+          "كل بطاقة تبدأ بسؤال. خذ لحظة لتتذكر الإجابة "
+          "— في ذهنك أو بصوت عالٍ.",
     ),
     TutorialSlide(
       assetPath: "assets/images/flashcards_tutorial/answer_demo.jpg",
-      title: "Reveal the Answer",
-      description: "Tap Reveal to check the correct answer. ",
+      title: "أظهر الإجابة",
+      description: "اضغط «إظهار الإجابة» لتشوف الإجابة الصحيحة مع الشرح. ",
     ),
     TutorialSlide(
       assetPath: "assets/images/flashcards_tutorial/actions_demo.jpg",
-      title: "Rate Your Recall",
+      title: "قيّم تذكّرك",
       description:
-          "After seeing the answer, rate how well you remembered. "
-          "Be honest — your choice determines when this card will reappear. \n\n"
-          "Tip — you can hold down the rating button to see what it means.",
+          "بعد ما تشوف الإجابة، قيّم قد إيش تذكّرتها. "
+          "كن صريحاً — اختيارك يحدد متى تظهر لك البطاقة من جديد. \n\n"
+          "نصيحة — اضغط مطولاً على زر التقييم لتعرف معناه.",
     ),
     TutorialSlide(
       assetPath: "assets/images/parrot_chest.png",
-      title: "Optimized Scheduling",
+      title: "جدولة ذكية",
       description:
-          "Your responses are processed by the FSRS algorithm, which calculates "
-          "the optimal review time for each card. This way, you see information "
-          "again exactly when you’re most likely to forget it.",
+          "إجاباتك تُعالَج بخوارزمية FSRS التي تحسب "
+          "أفضل وقت لمراجعة كل بطاقة. وبهذا تشوف المعلومة "
+          "من جديد في الوقت اللي أنت فيه أقرب لنسيانها.",
     ),
     TutorialSlide(
       assetPath: "assets/images/parrot_fire.png",
-      title: "Completing a Session",
+      title: "إنهاء الجلسة",
       description:
-          "Each session includes a fixed number of cards (adjustable in settings). "
-          "Once all cards are reviewed, the session ends, and you are ready for "
-          "the next optimal review.",
+          "كل جلسة فيها عدد ثابت من البطاقات (تقدر تغيّره من الإعدادات). "
+          "إذا خلصت كل البطاقات تنتهي الجلسة، وتكون جاهز "
+          "للمراجعة التالية.",
     ),
     TutorialSlide(
       assetPath: "assets/images/parrot_weights.png",
-      title: "Let’s Do This!",
-      description: "Great! Time to put your knowledge into action.",
+      title: "يلا نبدأ!",
+      description: "ممتاز! حان وقت تطبيق معلوماتك.",
     ),
   ];
 

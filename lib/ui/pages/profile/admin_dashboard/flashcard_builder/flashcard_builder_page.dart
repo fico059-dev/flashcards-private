@@ -95,14 +95,14 @@ class _ViewState extends State<_View> with AutoRouteAware {
                       spacing: 15,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text("Select the pack you want to edit."),
+                        Text("اختر الحزمة اللي تبي تعدّلها."),
                         CardFactory.info(
                           isThreeLine: true,
-                          title: Text("Features of this page"),
+                          title: Text("ميزات هذه الصفحة"),
                           subtitle: Text(
-                            "You can create new packs, insert flashcards into pack,"
-                            " manage flashcards inside a pack, meaning you can update and"
-                            " delete flashcards inside a pack,",
+                            "تقدر تنشئ حزماً جديدة وتضيف بطاقات للحزمة،"
+                            " وتدير البطاقات داخلها، أي تعدّلها"
+                            " أو تحذفها،",
                           ),
                         ),
                         SizedBox(),
@@ -155,14 +155,14 @@ class _PacksView extends StatelessWidget {
         spacing: 15,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text("Select the pack you want to edit."),
+          Text("اختر الحزمة اللي تبي تعدّلها."),
           CardFactory.info(
             isThreeLine: true,
-            title: Text("Features of this page"),
+            title: Text("ميزات هذه الصفحة"),
             subtitle: Text(
-              "You can create new packs, insert flashcards into pack,"
-              " manage flashcards inside a pack, meaning you can update and"
-              " delete flashcards inside a pack,",
+              "تقدر تنشئ حزماً جديدة وتضيف بطاقات للحزمة،"
+              " وتدير البطاقات داخلها، أي تعدّلها"
+              " أو تحذفها،",
             ),
           ),
           SizedBox(),

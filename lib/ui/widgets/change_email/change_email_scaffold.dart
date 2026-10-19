@@ -32,7 +32,7 @@ class ChangeEmailScaffold extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text("Update Email"),
+        title: Text("تحديث البريد الإلكتروني"),
         leading: IconButton(
           onPressed: () => context.router.maybePop(),
           icon: Icon(Icons.close),
@@ -50,7 +50,7 @@ class ChangeEmailScaffold extends StatelessWidget {
             children: [
               SizedBox(height: 7),
               Text(
-                "A verification link will be sent to your new email address. Once you verify it, your email will be updated automatically.",
+                "سيتم إرسال رابط توثيق لبريدك الجديد. بعد توثيقه يتحدّث بريدك تلقائياً.",
               ),
               SizedBox(height: 40),
               BlocTextField<
@@ -63,7 +63,7 @@ class ChangeEmailScaffold extends StatelessWidget {
                         state is UpdateEmailFormInvalid
                             ? state.errors["email"]
                             : null,
-                labelText: "New Email",
+                labelText: "البريد الجديد",
                 textEditingController: emailController,
               ),
               SizedBox(height: 20),

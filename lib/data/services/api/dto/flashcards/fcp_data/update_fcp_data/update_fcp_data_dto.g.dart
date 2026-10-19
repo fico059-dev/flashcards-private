@@ -22,12 +22,10 @@ _UpdateFcpDataDto _$UpdateFcpDataDtoFromJson(Map<String, dynamic> json) =>
 
 Map<String, dynamic> _$UpdateFcpDataDtoToJson(_UpdateFcpDataDto instance) =>
     <String, dynamic>{
-      if (instance.profileId case final value?) 'profileId': value,
-      if (instance.flashcardId case final value?) 'flashcardId': value,
-      if (instance.hasBookmark case final value?) 'hasBookmark': value,
-      if (instance.ignored case final value?) 'ignored': value,
-      if (instance.updateFlashcardSnapshotDto?.toJson() case final value?)
-        'flashcardSnapshot': value,
-      if (FsrsCardX.toJsonStatic(instance.fsrsCard) case final value?)
-        'fsrs_card': value,
+      'profileId': ?instance.profileId,
+      'flashcardId': ?instance.flashcardId,
+      'hasBookmark': ?instance.hasBookmark,
+      'ignored': ?instance.ignored,
+      'flashcardSnapshot': ?instance.updateFlashcardSnapshotDto?.toJson(),
+      'fsrs_card': ?FsrsCardX.toJsonStatic(instance.fsrsCard),
     };

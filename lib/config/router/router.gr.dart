@@ -1053,197 +1053,6 @@ class ManagePackFlashcardsRouteArgs {
 }
 
 /// generated route for
-/// [OsceBuilderPage]
-class OsceBuilderRoute extends PageRouteInfo<void> {
-  const OsceBuilderRoute({List<PageRouteInfo>? children})
-    : super(OsceBuilderRoute.name, initialChildren: children);
-
-  static const String name = 'OsceBuilderRoute';
-
-  static PageInfo page = PageInfo(
-    name,
-    builder: (data) {
-      return const OsceBuilderPage();
-    },
-  );
-}
-
-/// generated route for
-/// [OsceListPage]
-class OsceListRoute extends PageRouteInfo<void> {
-  const OsceListRoute({List<PageRouteInfo>? children})
-    : super(OsceListRoute.name, initialChildren: children);
-
-  static const String name = 'OsceListRoute';
-
-  static PageInfo page = PageInfo(
-    name,
-    builder: (data) {
-      return const OsceListPage();
-    },
-  );
-}
-
-/// generated route for
-/// [OscePage]
-class OsceRoute extends PageRouteInfo<OsceRouteArgs> {
-  OsceRoute({
-    Key? key,
-    required SimpleOsce simpleOsce,
-    List<PageRouteInfo>? children,
-  }) : super(
-         OsceRoute.name,
-         args: OsceRouteArgs(key: key, simpleOsce: simpleOsce),
-         initialChildren: children,
-       );
-
-  static const String name = 'OsceRoute';
-
-  static PageInfo page = PageInfo(
-    name,
-    builder: (data) {
-      final args = data.argsAs<OsceRouteArgs>();
-      return OscePage(key: args.key, simpleOsce: args.simpleOsce);
-    },
-  );
-}
-
-class OsceRouteArgs {
-  const OsceRouteArgs({this.key, required this.simpleOsce});
-
-  final Key? key;
-
-  final SimpleOsce simpleOsce;
-
-  @override
-  String toString() {
-    return 'OsceRouteArgs{key: $key, simpleOsce: $simpleOsce}';
-  }
-
-  @override
-  bool operator ==(Object other) {
-    if (identical(this, other)) return true;
-    if (other is! OsceRouteArgs) return false;
-    return key == other.key && simpleOsce == other.simpleOsce;
-  }
-
-  @override
-  int get hashCode => key.hashCode ^ simpleOsce.hashCode;
-}
-
-/// generated route for
-/// [OscePerformancesPage]
-class OscePerformancesRoute extends PageRouteInfo<void> {
-  const OscePerformancesRoute({List<PageRouteInfo>? children})
-    : super(OscePerformancesRoute.name, initialChildren: children);
-
-  static const String name = 'OscePerformancesRoute';
-
-  static PageInfo page = PageInfo(
-    name,
-    builder: (data) {
-      return const OscePerformancesPage();
-    },
-  );
-}
-
-/// generated route for
-/// [OsceSubmitPage]
-class OsceSubmitRoute extends PageRouteInfo<OsceSubmitRouteArgs> {
-  OsceSubmitRoute({
-    Key? key,
-    required Osce submittedOsce,
-    List<PageRouteInfo>? children,
-  }) : super(
-         OsceSubmitRoute.name,
-         args: OsceSubmitRouteArgs(key: key, submittedOsce: submittedOsce),
-         initialChildren: children,
-       );
-
-  static const String name = 'OsceSubmitRoute';
-
-  static PageInfo page = PageInfo(
-    name,
-    builder: (data) {
-      final args = data.argsAs<OsceSubmitRouteArgs>();
-      return OsceSubmitPage(key: args.key, submittedOsce: args.submittedOsce);
-    },
-  );
-}
-
-class OsceSubmitRouteArgs {
-  const OsceSubmitRouteArgs({this.key, required this.submittedOsce});
-
-  final Key? key;
-
-  final Osce submittedOsce;
-
-  @override
-  String toString() {
-    return 'OsceSubmitRouteArgs{key: $key, submittedOsce: $submittedOsce}';
-  }
-
-  @override
-  bool operator ==(Object other) {
-    if (identical(this, other)) return true;
-    if (other is! OsceSubmitRouteArgs) return false;
-    return key == other.key && submittedOsce == other.submittedOsce;
-  }
-
-  @override
-  int get hashCode => key.hashCode ^ submittedOsce.hashCode;
-}
-
-/// generated route for
-/// [OsceTutorialPage]
-class OsceTutorialRoute extends PageRouteInfo<OsceTutorialRouteArgs> {
-  OsceTutorialRoute({
-    Key? key,
-    VoidCallback? onFinish,
-    List<PageRouteInfo>? children,
-  }) : super(
-         OsceTutorialRoute.name,
-         args: OsceTutorialRouteArgs(key: key, onFinish: onFinish),
-         initialChildren: children,
-       );
-
-  static const String name = 'OsceTutorialRoute';
-
-  static PageInfo page = PageInfo(
-    name,
-    builder: (data) {
-      final args = data.argsAs<OsceTutorialRouteArgs>(
-        orElse: () => const OsceTutorialRouteArgs(),
-      );
-      return OsceTutorialPage(key: args.key, onFinish: args.onFinish);
-    },
-  );
-}
-
-class OsceTutorialRouteArgs {
-  const OsceTutorialRouteArgs({this.key, this.onFinish});
-
-  final Key? key;
-
-  final VoidCallback? onFinish;
-
-  @override
-  String toString() {
-    return 'OsceTutorialRouteArgs{key: $key, onFinish: $onFinish}';
-  }
-
-  @override
-  bool operator ==(Object other) {
-    if (identical(this, other)) return true;
-    if (other is! OsceTutorialRouteArgs) return false;
-    return key == other.key && onFinish == other.onFinish;
-  }
-
-  @override
-  int get hashCode => key.hashCode ^ onFinish.hashCode;
-}
-
-/// generated route for
 /// [PackFinishedPage]
 class PackFinishedRoute extends PageRouteInfo<PackFinishedRouteArgs> {
   PackFinishedRoute({
@@ -1318,38 +1127,6 @@ class PackSelectionRoute extends PageRouteInfo<void> {
     name,
     builder: (data) {
       return const PackSelectionPage();
-    },
-  );
-}
-
-/// generated route for
-/// [PacksPage]
-class PacksRoute extends PageRouteInfo<void> {
-  const PacksRoute({List<PageRouteInfo>? children})
-    : super(PacksRoute.name, initialChildren: children);
-
-  static const String name = 'PacksRoute';
-
-  static PageInfo page = PageInfo(
-    name,
-    builder: (data) {
-      return const PacksPage();
-    },
-  );
-}
-
-/// generated route for
-/// [PacksTabPage]
-class PacksTabRoute extends PageRouteInfo<void> {
-  const PacksTabRoute({List<PageRouteInfo>? children})
-    : super(PacksTabRoute.name, initialChildren: children);
-
-  static const String name = 'PacksTabRoute';
-
-  static PageInfo page = PageInfo(
-    name,
-    builder: (data) {
-      return const PacksTabPage();
     },
   );
 }
@@ -1467,50 +1244,19 @@ class ProfileRoute extends PageRouteInfo<void> {
 }
 
 /// generated route for
-/// [QuestionEditorPage]
-class QuestionEditorRoute extends PageRouteInfo<QuestionEditorRouteArgs> {
-  QuestionEditorRoute({
-    Key? key,
-    required String osceId,
-    List<PageRouteInfo>? children,
-  }) : super(
-         QuestionEditorRoute.name,
-         args: QuestionEditorRouteArgs(key: key, osceId: osceId),
-         initialChildren: children,
-       );
+/// [QuantPacksPage]
+class QuantPacksRoute extends PageRouteInfo<void> {
+  const QuantPacksRoute({List<PageRouteInfo>? children})
+    : super(QuantPacksRoute.name, initialChildren: children);
 
-  static const String name = 'QuestionEditorRoute';
+  static const String name = 'QuantPacksRoute';
 
   static PageInfo page = PageInfo(
     name,
     builder: (data) {
-      final args = data.argsAs<QuestionEditorRouteArgs>();
-      return QuestionEditorPage(key: args.key, osceId: args.osceId);
+      return const QuantPacksPage();
     },
   );
-}
-
-class QuestionEditorRouteArgs {
-  const QuestionEditorRouteArgs({this.key, required this.osceId});
-
-  final Key? key;
-
-  final String osceId;
-
-  @override
-  String toString() {
-    return 'QuestionEditorRouteArgs{key: $key, osceId: $osceId}';
-  }
-
-  @override
-  bool operator ==(Object other) {
-    if (identical(this, other)) return true;
-    if (other is! QuestionEditorRouteArgs) return false;
-    return key == other.key && osceId == other.osceId;
-  }
-
-  @override
-  int get hashCode => key.hashCode ^ osceId.hashCode;
 }
 
 /// generated route for
@@ -1725,6 +1471,22 @@ class UpdatePasswordRoute extends PageRouteInfo<void> {
     name,
     builder: (data) {
       return const UpdatePasswordPage();
+    },
+  );
+}
+
+/// generated route for
+/// [VerbalPacksPage]
+class VerbalPacksRoute extends PageRouteInfo<void> {
+  const VerbalPacksRoute({List<PageRouteInfo>? children})
+    : super(VerbalPacksRoute.name, initialChildren: children);
+
+  static const String name = 'VerbalPacksRoute';
+
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      return const VerbalPacksPage();
     },
   );
 }

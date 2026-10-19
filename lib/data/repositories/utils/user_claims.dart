@@ -1,37 +1,30 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flashcards/utils/typedefs.dart';
 
+/// صلاحيات المستخدم المخزّنة في الـ custom claims بتوكن Firebase.
+///
+/// - `roles`: مثل `admin`.
+/// - `entitlements`: قائمة الاشتراكات الدائمة (مثل `premium`).
+/// - `premiumExp`: وقت انتهاء الاشتراك المؤقت (ثوانٍ أو مللي ثانية).
 class UserClaims {
   final List<String> roles;
   final List<String> entitlements;
-  final int cardsExpMs; // packsExp || cardsExp
-  final int osceExpMs; // osceExp
-  final int allExpMs; // bothExp || allExp
+  final int premiumExpMs;
 
   const UserClaims({
     required this.roles,
     required this.entitlements,
-    required this.cardsExpMs,
-    required this.osceExpMs,
-    required this.allExpMs,
+    required this.premiumExpMs,
   });
 
   bool get isAdmin => roles.contains('admin');
 
   int get _nowMs => DateTime.now().millisecondsSinceEpoch;
 
+  /// هل يحق للمستخدم الوصول للحزم المدفوعة؟
   bool get hasCards {
-    if (entitlements.contains('both') || entitlements.contains('packs')) {
-      return true;
-    }
-    return (allExpMs > _nowMs) || (cardsExpMs > _nowMs);
-  }
-
-  bool get hasOsce {
-    if (entitlements.contains('both') || entitlements.contains('osce')) {
-      return true;
-    }
-    return (allExpMs > _nowMs) || (osceExpMs > _nowMs);
+    if (entitlements.contains('premium')) return true;
+    return premiumExpMs > _nowMs;
   }
 
   static int _toMs(dynamic v) {
@@ -54,53 +47,17 @@ class UserClaims {
   }
 
   factory UserClaims.fromMap(JsonMap? map) {
-    final roles = _asStrList(map?['roles']);
-    final ents = _asStrList(map?['entitlements']);
-
-    final packsOrCardsMs = [
-      _toMs(map?['packsExp']),
-      _toMs(map?['cardsExp']),
-    ].reduce((a, b) => a > b ? a : b);
-
-    final bothOrAllMs = [
-      _toMs(map?['bothExp']),
-      _toMs(map?['allExp']),
-    ].reduce((a, b) => a > b ? a : b);
-
-    final osceMs = _toMs(map?['osceExp']);
-
-    final claims = UserClaims(
-      roles: roles,
-      entitlements: ents,
-      cardsExpMs: packsOrCardsMs,
-      osceExpMs: osceMs,
-      allExpMs: bothOrAllMs,
+    return UserClaims(
+      roles: _asStrList(map?['roles']),
+      entitlements: _asStrList(map?['entitlements']),
+      premiumExpMs: _toMs(map?['premiumExp']),
     );
-
-    final now = DateTime.now().millisecondsSinceEpoch;
-
-    print(
-      '[Claims] ents=$ents packs/cards=$packsOrCardsMs both/all=$bothOrAllMs osce=$osceMs',
-    );
-    print(
-      "Packs valid: ${(claims.allExpMs > now) || (claims.cardsExpMs > now)}",
-    );
-    print("Osce valid: ${(claims.allExpMs > now) || (claims.osceExpMs > now)}");
-    print("Has cards: ${claims.hasCards}, hasOsce: ${claims.hasOsce}");
-
-    return claims;
   }
 
   static Future<UserClaims> current() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) {
-      return const UserClaims(
-        roles: [],
-        entitlements: [],
-        cardsExpMs: 0,
-        osceExpMs: 0,
-        allExpMs: 0,
-      );
+      return const UserClaims(roles: [], entitlements: [], premiumExpMs: 0);
     }
     final token = await user.getIdTokenResult(true);
     final map =

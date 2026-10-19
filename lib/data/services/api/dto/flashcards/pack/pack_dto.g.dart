@@ -19,6 +19,7 @@ _PackDto _$PackDtoFromJson(Map<String, dynamic> json) => _PackDto(
       (json['tags'] as List<dynamic>?)?.map((e) => e as String).toList() ??
       const [],
   isPaid: json['isPaid'] as bool? ?? false,
+  section: json['section'] as String? ?? 'verbal',
 );
 
 Map<String, dynamic> _$PackDtoToJson(_PackDto instance) => <String, dynamic>{
@@ -27,4 +28,5 @@ Map<String, dynamic> _$PackDtoToJson(_PackDto instance) => <String, dynamic>{
   'tagCounts': instance.tagCounts,
   'tags': instance.tags,
   'isPaid': instance.isPaid,
+  'section': instance.section,
 };

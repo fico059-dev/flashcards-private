@@ -27,7 +27,7 @@ class NetworkService {
               SizedBox(width: 12),
               Expanded(
                 child: Text(
-                  'PLEASE CONNECT TO THE INTERNET',
+                  'فضلاً اتصل بالإنترنت',
                   style: TextStyle(color: Colors.white, fontSize: 14),
                 ),
               ),

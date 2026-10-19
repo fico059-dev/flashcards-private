@@ -10,6 +10,7 @@ abstract class AdminPack with _$AdminPack {
     required String packName,
     required int flashcardsCount,
     required bool isPaid,
+    @Default('verbal') String section,
     @Default({}) Map<String, int> tagCounts,
   }) = _AdminPack;
 }

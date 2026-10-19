@@ -49,7 +49,7 @@ class _RegisterViewState extends State<_RegisterView> {
 
   // used for displaying localized name of the enum value in dropdown
   late final TextEditingController _educationLevelController;
-  late EducationLevel educationLevel = EducationLevel.intern;
+  late EducationLevel educationLevel = EducationLevel.highSchoolStudent;
 
   @override
   void initState() {
@@ -186,8 +186,8 @@ class _RegisterViewState extends State<_RegisterView> {
                 state is RegisterFormInvalid ? state.errors["password"] : null,
           ),
           Text(
-            "Password must be at least 8 characters long and include uppercase,"
-            " lowercase, and special characters.",
+            "كلمة المرور 8 خانات على الأقل وتحتوي حرفاً كبيراً بالإنجليزية،"
+            " وحرفاً صغيراً، ورمزاً خاصاً.",
             style: TextTheme.of(
               context,
             ).labelMedium?.copyWith(color: context.colors.onSurfaceVariant),
@@ -263,7 +263,7 @@ class _MessageContainer extends StatelessWidget {
           case RegisterSuccess(:final displayName):
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text("✅ Congrats $displayName, you're registered!"),
+                content: Text("✅ مبروك $displayName، تم تسجيلك!"),
               ),
             );
             break;

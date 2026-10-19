@@ -99,12 +99,12 @@ class _ViewState extends State<_View> {
           switch (state.status) {
             case CustomSessionGetterStatus.deleteSuccessful:
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text("Successfully deleted session")),
+                SnackBar(content: Text("تم حذف الجلسة")),
               );
               break;
             case CustomSessionGetterStatus.resetSuccessful:
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text("Successfully reset session progress")),
+                SnackBar(content: Text("تم تصفير تقدّم الجلسة")),
               );
               break;
             case CustomSessionGetterStatus.actionError:
@@ -128,10 +128,10 @@ class _ViewState extends State<_View> {
                         slivers: [
                           SliverToBoxAdapter(
                             child: CardFactory.info(
-                              title: Text("Drag to left"),
+                              title: Text("اسحب لليسار"),
                               subtitle: Text(
-                                "Drag a custom session to the left for "
-                                "easy access to all of the options.",
+                                "اسحب الجلسة لليسار للوصول "
+                                "السريع لكل الخيارات.",
                               ),
                               closable: true,
                               isThreeLine: true,
@@ -198,12 +198,12 @@ class _EmptyListContainer extends StatelessWidget {
       child: Column(
         spacing: 15,
         children: [
-          Text("Looks like you didn't create any custom sessions yet."),
+          Text("ما أنشأت أي جلسة مخصّصة للحين."),
 
           FilledButton(
             onPressed: () =>
                 context.replaceRoute(const CustomSessionWrapperRoute()),
-            child: Text("Create new custom session"),
+            child: Text("إنشاء جلسة مخصّصة"),
           ),
         ],
       ),

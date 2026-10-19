@@ -16,7 +16,7 @@ class SubsStatusIcon extends StatelessWidget {
   /// Paid packs have 2 icons:
   /// "locked" -> if you don't have sub
   ///
-  /// "Unlocked" -> if you have a sub
+  /// "مفتوح" -> if you have a sub
   /// This flag disabled the 'unlocked' icon
   final bool disabledUnlockedIcon;
 
@@ -45,16 +45,16 @@ class SubsStatusIcon extends StatelessWidget {
       } else if (hasAccess!) {
         if (!disabledUnlockedIcon) {
           icon = Icon(Icons.diamond_outlined, size: size, color: context.customColors.info);
-          label = "Unlocked";
+          label = "مفتوح";
         }
       } else {
         icon = Icon(Icons.lock, size: size, color: context.colors.onSurfaceVariant);
-        label = "Paid";
+        label = "مدفوع";
       }
     } else {
       if (!disableFreeIcon) {
         icon = Icon(Icons.check_circle, size: size, color: context.customColors.success);
-        label = "Free";
+        label = "مجاني";
       }
     }
 

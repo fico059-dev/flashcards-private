@@ -57,7 +57,7 @@ class _ViewState extends State<_View> {
     if (!ankiImportExtensions.contains(extension) || file.bytes == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text("Choose an Anki .apkg or .txt export file."),
+          content: Text("اختر ملف Anki بصيغة .apkg أو .txt."),
         ),
       );
       return;
@@ -79,7 +79,7 @@ class _ViewState extends State<_View> {
           canPop: !isImporting,
           child: Scaffold(
             appBar: AppBar(
-              title: const Text("Import from Anki"),
+              title: const Text("استيراد من Anki"),
               automaticallyImplyLeading: !isImporting,
             ),
             body: SafeArea(
@@ -93,7 +93,7 @@ class _ViewState extends State<_View> {
                     onPickFile: _pickFile,
                   ),
                   AnkiImportReading(:final fileName) => _Loading(
-                    message: "Reading $fileName…",
+                    message: "جارٍ قراءة $fileName…",
                   ),
                   AnkiImportPreview(:final fileName, :final result) => _Preview(
                     fileName: fileName,
@@ -143,10 +143,10 @@ class _Instructions extends StatelessWidget {
           child: ListView(
             padding: const EdgeInsets.symmetric(vertical: 20),
             children: [
-              Text("Add cards to \"$packName\"", style: textTheme.titleLarge),
+              Text("إضافة بطاقات إلى \"$packName\"", style: textTheme.titleLarge),
               const SizedBox(height: 8),
               Text(
-                "Import a whole Anki deck at once instead of adding cards one by one.",
+                "استورد حزمة Anki كاملة بدل إضافة البطاقات واحدة واحدة.",
                 style: textTheme.bodyMedium,
               ),
               const SizedBox(height: 20),
@@ -157,26 +157,26 @@ class _Instructions extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     spacing: 10,
                     children: [
-                      Text("Export from Anki", style: textTheme.titleMedium),
+                      Text("التصدير من Anki", style: textTheme.titleMedium),
                       const _Step(
                         number: 1,
-                        text: "In Anki on your computer, go to File → Export.",
+                        text: "في Anki على جهازك: File ← Export.",
                       ),
                       const _Step(
                         number: 2,
                         text:
-                            "Choose \"Anki Deck Package (.apkg)\" and tick "
-                            "\"Include media\" and \"Support older Anki versions\".",
+                            "اختر \"Anki Deck Package (.apkg)\" وفعّل "
+                            "\"Include media\" و\"Support older Anki versions\".",
                       ),
                       const _Step(
                         number: 3,
                         text:
-                            "Send the file to this device (AirDrop, Files, email…) "
-                            "and choose it below.",
+                            "أرسل الملف لهذا الجهاز (AirDrop أو الملفات أو البريد…) "
+                            "واخترْه بالأسفل.",
                       ),
                       Text(
-                        "You can also export \"Notes in Plain Text (.txt)\", "
-                        "but images won't be included.",
+                        "تقدر أيضاً تصدّر \"Notes in Plain Text (.txt)\"، "
+                        "لكن الصور ما راح تُضمَّن.",
                         style: textTheme.bodySmall,
                       ),
                     ],
@@ -192,20 +192,20 @@ class _Instructions extends StatelessWidget {
                     spacing: 6,
                     children: [
                       Text(
-                        "How cards are converted",
+                        "كيف تُحوَّل البطاقات",
                         style: textTheme.titleMedium,
                       ),
-                      const Text("• Front → question, back → answer."),
+                      const Text("• الوجه الأمامي ← السؤال، الخلفي ← الإجابة."),
                       const Text(
-                        "• Cloze notes become one card per cloze (c1, c2…), "
-                        "just like in Anki.",
+                        "• ملاحظات Cloze تصبح بطاقة لكل فراغ (c1, c2…)، "
+                        "مثل Anki تماماً.",
                       ),
                       const Text(
-                        "• One image per side is kept, formatting becomes plain "
+                        "• تُحفظ صورة واحدة لكل وجه، والتنسيق يتحول لنص عادي "
                         "text.",
                       ),
                       const Text(
-                        "• Cards already in this pack (same question) are skipped.",
+                        "• البطاقات الموجودة مسبقاً في الحزمة (نفس السؤال) تُتخطّى.",
                       ),
                     ],
                   ),
@@ -219,7 +219,7 @@ class _Instructions extends StatelessWidget {
           child: FilledButton.icon(
             onPressed: onPickFile,
             icon: const Icon(Icons.upload_file),
-            label: const Text("Choose Anki file"),
+            label: const Text("اختر ملف Anki"),
             style: FilledButton.styleFrom(
               minimumSize: const Size.fromHeight(52),
             ),
@@ -323,38 +323,38 @@ class _Preview extends StatelessWidget {
                   children: [
                     _StatTile(
                       icon: Icons.style,
-                      label: "Cards to import",
+                      label: "البطاقات للاستيراد",
                       value: cards.length,
                     ),
                     if (clozeCount > 0)
                       _StatTile(
                         icon: Icons.text_fields,
-                        label: "Cloze cards",
+                        label: "بطاقات الفراغ (Cloze)",
                         value: clozeCount,
                       ),
                     if (imageCount > 0)
                       _StatTile(
                         icon: Icons.image,
-                        label: "Cards with images",
+                        label: "بطاقات فيها صور",
                         value: imageCount,
                       ),
                     if (result.skippedNotes > 0)
                       _StatTile(
                         icon: Icons.block,
-                        label: "Empty notes skipped",
+                        label: "ملاحظات فارغة تم تخطيها",
                         value: result.skippedNotes,
                       ),
                     if (result.missingImages > 0)
                       _StatTile(
                         icon: Icons.broken_image,
-                        label: "Images missing from the file",
+                        label: "صور ناقصة من الملف",
                         value: result.missingImages,
                         isWarning: true,
                       ),
                     if (result.extraImagesDropped > 0)
                       _StatTile(
                         icon: Icons.photo_library,
-                        label: "Sides with extra images (first one kept)",
+                        label: "أوجه فيها صور زائدة (تم الاحتفاظ بالأولى)",
                         value: result.extraImagesDropped,
                         isWarning: true,
                       ),
@@ -364,10 +364,10 @@ class _Preview extends StatelessWidget {
               if (hasTags)
                 SwitchListTile(
                   contentPadding: EdgeInsets.zero,
-                  title: const Text("Import Anki tags"),
+                  title: const Text("استيراد وسوم Anki"),
                   subtitle: const Text(
-                    "Adds the deck's tags to the cards (last level only, "
-                    "e.g. Cardio::Valves → Valves).",
+                    "يضيف وسوم الحزمة للبطاقات (آخر مستوى فقط، "
+                    "مثال: Verbal::Analogy ← Analogy).",
                   ),
                   value: importTags,
                   onChanged: onImportTagsChanged,
@@ -375,8 +375,8 @@ class _Preview extends StatelessWidget {
               const SizedBox(height: 12),
               Text(
                 cards.length > _sampleSize
-                    ? "First $_sampleSize cards"
-                    : "Cards",
+                    ? "أول $_sampleSize بطاقات"
+                    : "البطاقات",
                 style: textTheme.titleMedium,
               ),
               const SizedBox(height: 8),
@@ -395,11 +395,11 @@ class _Preview extends StatelessWidget {
                 style: FilledButton.styleFrom(
                   minimumSize: const Size.fromHeight(52),
                 ),
-                child: Text("Import ${cards.length} cards into \"$packName\""),
+                child: Text("استيراد ${cards.length} بطاقة إلى \"$packName\""),
               ),
               TextButton(
                 onPressed: onPickAnother,
-                child: const Text("Choose another file"),
+                child: const Text("اختر ملفاً آخر"),
               ),
             ],
           ),
@@ -533,13 +533,13 @@ class _Progress extends StatelessWidget {
         spacing: 16,
         children: [
           Text(
-            "Importing cards…",
+            "جارٍ استيراد البطاقات…",
             style: Theme.of(context).textTheme.titleLarge,
           ),
           LinearProgressIndicator(value: value, minHeight: 8),
-          Text("$processed of $total"),
+          Text("$processed من $total"),
           const Text(
-            "Keep the app open until the import is finished.",
+            "اترك التطبيق مفتوحاً حتى ينتهي الاستيراد.",
             textAlign: TextAlign.center,
           ),
         ],
@@ -570,23 +570,23 @@ class _Done extends StatelessWidget {
               color: error == null ? Colors.green : context.colors.error,
             ),
             Text(
-              error == null ? "Import complete" : "Import stopped",
+              error == null ? "اكتمل الاستيراد" : "توقّف الاستيراد",
               style: textTheme.headlineSmall,
             ),
             Text(
-              "${summary.imported} cards were added to \"$packName\".",
+              "تمت إضافة ${summary.imported} بطاقة إلى \"$packName\".",
               textAlign: TextAlign.center,
             ),
             if (summary.skippedDuplicates > 0)
               Text(
-                "${summary.skippedDuplicates} cards were already in the pack "
-                "and were skipped.",
+                "${summary.skippedDuplicates} بطاقة كانت موجودة في الحزمة "
+                "وتم تخطيها.",
                 textAlign: TextAlign.center,
               ),
             if (summary.failedImages > 0)
               Text(
-                "${summary.failedImages} images couldn't be uploaded, those "
-                "cards were added without them.",
+                "تعذّر رفع ${summary.failedImages} صورة، وتمت إضافة "
+                "تلك البطاقات بدونها.",
                 textAlign: TextAlign.center,
               ),
             if (error != null) ...[
@@ -596,8 +596,8 @@ class _Done extends StatelessWidget {
                 style: TextStyle(color: context.colors.error),
               ),
               const Text(
-                "Import the same file again to add the remaining cards. "
-                "Cards already in the pack will be skipped.",
+                "استورد نفس الملف مرة ثانية لإضافة بقية البطاقات. "
+                "البطاقات الموجودة بالحزمة ستُتخطّى.",
                 textAlign: TextAlign.center,
               ),
             ],
@@ -607,7 +607,7 @@ class _Done extends StatelessWidget {
               style: FilledButton.styleFrom(
                 minimumSize: const Size.fromHeight(52),
               ),
-              child: const Text("Done"),
+              child: const Text("تم"),
             ),
           ],
         ),
@@ -634,13 +634,13 @@ class _ReadError extends StatelessWidget {
         children: [
           Icon(Icons.error_outline, size: 64, color: context.colors.error),
           Text(
-            "This file couldn't be imported",
+            "تعذّر استيراد هذا الملف",
             style: Theme.of(context).textTheme.titleLarge,
           ),
           Text(message, textAlign: TextAlign.center),
           FilledButton(
             onPressed: onPickAnother,
-            child: const Text("Choose another file"),
+            child: const Text("اختر ملفاً آخر"),
           ),
         ],
       ),

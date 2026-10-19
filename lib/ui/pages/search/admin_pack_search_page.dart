@@ -36,7 +36,7 @@ class _AdminPackSearchPageState extends State<AdminPackSearchPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
-        tooltip: "Create new pack",
+        tooltip: "إنشاء حزمة جديدة",
         onPressed: _openDialogAndReact,
         child: Icon(Icons.add, color: context.colors.onPrimary,),
       ),

@@ -9,6 +9,7 @@ import 'package:flashcards/data/services/api/dto/flashcards/pack/pack_dto.dart';
 import 'package:flashcards/data/services/api/flashcards/fcp_service.dart';
 import 'package:flashcards/data/services/api/flashcards/pack_service.dart';
 import 'package:flashcards/data/services/api/users/auth_service.dart';
+import 'package:flashcards/domain/enums/pack_section.dart';
 import 'package:flashcards/domain/models/flashcards/admin_pack/admin_pack.dart';
 import 'package:flashcards/domain/models/flashcards/pack/pack.dart';
 import 'package:flashcards/domain/models/flashcards/simple_pack/simple_pack.dart';
@@ -50,18 +51,10 @@ class PackRepository {
     required String packId,
     required String packName,
     bool isPaid = false,
+    String section = 'verbal',
   }) {
-    _packsCache.insertAtStart(
-      Pack(
-        id: packId,
-        name: packName,
-        flashcardsCount: 0,
-        dueCount: 0,
-        newCount: 0,
-        learningCount: 0,
-        isPaid: isPaid,
-      ),
-    );
+    // الكاش مشترك بين القسمين، فنفرّغه بدل الإدراج في أول صفحة.
+    _packsCache.invalidate();
 
     _adminPacksCache.insertAtStart(
       AdminPack(
@@ -69,6 +62,7 @@ class PackRepository {
         packName: packName,
         flashcardsCount: 0,
         isPaid: isPaid,
+        section: section,
       ),
     );
   }
@@ -92,19 +86,24 @@ class PackRepository {
     );
   }
 
-  List<Pack>? getPackPageFromCache(int pageIndex) {
-    if (!_packsCache.isPageFresh(pageIndex)) return null;
+  List<Pack>? getPackPageFromCache(int pageIndex, {required PackSection section}) {
+    final cacheIndex = pageIndex + section.cachePageOffset;
+    if (!_packsCache.isPageFresh(cacheIndex)) return null;
 
-    //packsCache.printCache();
-    return _packsCache.get(pageIndex)!.data;
+    return _packsCache.get(cacheIndex)!.data;
   }
 
   Future<Result<List<Pack>>> refreshPacksAndFetchFirstPage({
     required int firstPageIndex,
     required int pageSize,
+    required PackSection section,
   }) {
     _packsCache.invalidate();
-    return getPackPage(pageIndex: firstPageIndex, pageSize: pageSize);
+    return getPackPage(
+      pageIndex: firstPageIndex,
+      pageSize: pageSize,
+      section: section,
+    );
   }
 
   Future<Result<SimplePack>> getPack(String packId) async {
@@ -161,16 +160,22 @@ class PackRepository {
   Future<Result<List<Pack>>> getPackPage({
     required int pageIndex,
     required int pageSize,
+    required PackSection section,
   }) async {
     try {
-      if (_packsCache.isPageFresh(pageIndex)) {
-        return Result.ok(_packsCache.get(pageIndex)!.data);
+      final cacheIndex = pageIndex + section.cachePageOffset;
+      if (_packsCache.isPageFresh(cacheIndex)) {
+        return Result.ok(_packsCache.get(cacheIndex)!.data);
       }
 
-      final lastDoc = _packsCache.getLastDocFromPrevPage(pageIndex);
+      final lastDoc = _packsCache.getLastDocFromPrevPage(cacheIndex);
       final uid = _getUid();
 
-      final getResult = await _packService.getDocsPagination(lastDoc, pageSize);
+      final getResult = await _packService.getDocsPagination(
+        lastDoc,
+        pageSize,
+        section: section.id,
+      );
       switch (getResult) {
         case Error<PaginatedDtoResult<PackDto>>(:final error):
           return Result.error(error);
@@ -247,7 +252,7 @@ class PackRepository {
 
       final updatedPacks = _packsCache.removeDuplicatesFromManualCache(packs);
       _packsCache.put(
-        pageIndex,
+        cacheIndex,
         CachedPagePagination(
           data: updatedPacks,
           fetchedAt: DateTime.now(),
@@ -360,10 +365,11 @@ class PackRepository {
   Future<Result<SimplePack>> createPack(
     String packName, {
     bool isPaid = false,
+    String section = 'verbal',
   }) async {
     final ref = _packService.generateDocumentReference();
 
-    final dto = PackDto.fromPackName(packName, isPaid: isPaid);
+    final dto = PackDto.fromPackName(packName, isPaid: isPaid, section: section);
 
     final result = await _packService.setDocumentWithReference(dto, ref);
     switch (result) {
@@ -372,13 +378,19 @@ class PackRepository {
       case Ok<void>():
     }
 
-    handlePackAddedInCache(packId: ref.id, packName: packName, isPaid: isPaid);
+    handlePackAddedInCache(
+      packId: ref.id,
+      packName: packName,
+      isPaid: isPaid,
+      section: section,
+    );
 
     final pack = SimplePack(
       packId: ref.id,
       flashcardsCount: 0,
       packName: packName,
       isPaid: isPaid,
+      section: section,
     );
     return Result.ok(pack);
   }

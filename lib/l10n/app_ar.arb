@@ -1,3 +1,241 @@
 {
-  "registerHeroText": "Hello in Arabic!"
+  "@@locale": "ar",
+  "highSchoolStudent": "طالب ثانوي",
+  "graduate": "خريج",
+  "universityStudent": "طالب جامعي",
+  "otherLevel": "أخرى",
+  "homePage_title": "الرئيسية",
+  "registerPage_header": "ابدأ استعدادك للقدرات اليوم!",
+  "basicText_name": "الاسم الأول",
+  "basicText_surname": "اسم العائلة",
+  "basicText_email": "البريد الإلكتروني",
+  "basicText_phoneNumber": "رقم الجوال",
+  "basicText_educationLevel": "المستوى الدراسي",
+  "basicText_password": "كلمة المرور",
+  "basicText_repeatPassword": "أعد كتابة كلمة المرور",
+  "basicText_register": "إنشاء حساب",
+  "basicText_alreadyAMember": "عندك حساب؟",
+  "basicText_signInNow": "تسجيل الدخول",
+  "basicText_forgotPassword": "نسيت كلمة المرور",
+  "basicText_notAMember": "ما عندك حساب؟",
+  "basicText_sendEmail": "إرسال البريد",
+  "basicText_update": "تحديث",
+  "basicText_tryAgain": "حاول مرة أخرى",
+  "basicText_profile": "الملف الشخصي",
+  "basicText_edit": "تعديل",
+  "basicText_cancel": "إلغاء",
+  "basicText_save": "حفظ",
+  "basicText_other": "أخرى",
+  "basicText_logout": "تسجيل الخروج",
+  "basicText_signOut": "تسجيل الخروج",
+  "basicText_goToLogin": "الذهاب لتسجيل الدخول",
+  "registerPage_successfulRegister": "مبروك {displayName}، تم إنشاء حسابك بنجاح!",
+  "@registerPage_successfulRegister": {
+    "placeholders": {
+      "displayName": {
+        "type": "String",
+        "example": "Bob"
+      }
+    }
+  },
+  "loginPage_welcomeBack": "أهلاً بعودتك إلى تقدر، اشتقنا لك",
+  "loginPage_welcomeBackMember": "أهلاً بعودتك {displayName}!",
+  "@loginPage_welcomeBackMember": {
+    "placeholders": {
+      "displayName": {
+        "type": "String",
+        "example": "Bob"
+      }
+    }
+  },
+  "forgotPasswordPage_emailSent": "تم إرسال رسالة التحقق. تفقّد بريدك الوارد",
+  "forgotPasswordPage_enterEmail": "أدخل البريد الإلكتروني المرتبط بحسابك.",
+  "verifyEmailPage_success": "تم إرسال رسالة توثيق البريد بنجاح!",
+  "personalInformationPage_personalInformation": "المعلومات الشخصية",
+  "privacySecurityPage_title": "الخصوصية والأمان",
+  "privacySecurityPage_changeEmail": "تغيير البريد الإلكتروني",
+  "privacySecurityPage_verified": "موثّق",
+  "privacySecurityPage_changePassword": "تغيير كلمة المرور",
+  "privacySecurityPage_hiddenPassword": "••••••••",
+  "privacySecurityPage_changePhone": "تغيير رقم الجوال",
+  "privacySecurityPage_notVerified": "غير موثّق",
+  "privacySecurityPage_deleteAccount": "حذف حسابك",
+  "privacySecurityPage_deleteAccountSubtitle": "حذف حسابك نهائياً",
+  "privacySecurityPage_pendingVerification": "بانتظار التوثيق",
+  "privacySecurityPage_changeEmailText": "لتغيير بريدك أكمل العملية من صفحة تغيير البريد. توثيقه من مكان آخر قد يسبب مشاكل. إذا غيّرت رأيك فتجاهل هذا الأمر بأمان.",
+  "profilePage_errorMessage": "{errorMessage}",
+  "@profilePage_errorMessage": {
+    "placeholders": {
+      "errorMessage": {
+        "type": "String",
+        "example": "Something went wrong"
+      }
+    }
+  },
+  "deleteAccountSuccessfulPage_message": "حزنّا لمغادرتك. تم حذف حسابك وجميع بياناتك بنجاح.",
+  "deleteAccountSuccessfulPage_button": "الذهاب لتسجيل الدخول",
+  "authErrorContainer_verifyEmailSuccess": "تم! الآن لنوثّق بريدك الإلكتروني",
+  "reauthSection_securityNotice": "لأسباب أمنية، أكّد هويتك من فضلك.",
+  "reauthSection_passwordLabel": "كلمة المرور",
+  "reauthSection_button": "إعادة التحقق",
+  "reauthSection_success": "تم التحقق بنجاح. سيتم إكمال العملية السابقة الآن.",
+  "reauthSection_info": "قد يُطلب منك تأكيد هويتك.",
+  "loadingProfileData_message": "جارٍ تحميل ملفك الشخصي...",
+  "profileReaderBlocBuilder_neverLoaded": "لم يتم تحميل الملف الشخصي.",
+  "readProfileErrorScreen_errorMessage": "حدث خطأ أثناء تحميل ملفك الشخصي.",
+  "personalInfoContent_updateSuccessMessage": "تم تحديث معلوماتك الشخصية بنجاح!",
+  "profileData_accountSettings": "إعدادات الحساب",
+  "profileData_personalInformation": "المعلومات الشخصية",
+  "profileData_privacySecurity": "الخصوصية والأمان",
+  "profileData_billingDetails": "تفاصيل الاشتراك",
+  "profileData_flashcards": "الأسئلة",
+  "profileData_flashcardSettings": "إعدادات المذاكرة",
+  "profileData_bookmarkedFlashcards": "البطاقات المحفوظة",
+  "profileData_privacyPolicy": "سياسة الخصوصية",
+  "verifyEmailActionButtons_changeEmail": "تغيير البريد",
+  "verifyEmailHeadline_sendingVerificationLink": "جارٍ إرسال رابط التوثيق...",
+  "verifyEmailHeadline_refreshingApplicationState": "جارٍ تحديث حالة التطبيق...",
+  "verifyEmailHeadline_errorSendingVerificationLink": "تعذّر إرسال رابط التوثيق، حاول لاحقاً",
+  "verifyEmailHeadline_verifyYourEmailAddress": "وثّق بريدك الإلكتروني",
+  "verifyEmailInfoSection_emailSentMessage1": "شكراً لتسجيلك! أرسلنا رسالة توثيق إلى بريدك.",
+  "verifyEmailInfoSection_emailSentMessage2": "افتح بريدك واضغط على رابط التوثيق لتفعيل حسابك.",
+  "verifyEmailInfoSection_twoEmailsDetectedMessage": "أرسلنا روابط توثيق للبريدين.\nأول رابط تضغط عليه يحدد البريد المحفوظ في ملفك.",
+  "verifyEmailResendLinkButton_successMessage": "تم إرسال رسالة التوثيق بنجاح!",
+  "verifyEmailResendLinkButton_resendLinkButtonText": "إعادة إرسال الرابط",
+  "verifyEmailResendLinkButton_waitButtonText": "انتظر...",
+  "error_requiresRecentLogin": "لأسباب أمنية، أعد تسجيل الدخول لإكمال هذا الإجراء.",
+  "error_invalidEmail": "صيغة البريد الإلكتروني غير صحيحة.",
+  "error_userDisabled": "هذا الحساب معطّل.",
+  "error_userNotFound": "لا يوجد حساب بهذا البريد.",
+  "error_wrongPassword": "كلمة المرور غير صحيحة. حاول مرة أخرى.",
+  "error_tooManyRequests": "أرسلت طلبات كثيرة، حاول لاحقاً",
+  "error_tokenExpired": "انتهت الجلسة، سجّل الدخول من جديد.",
+  "error_networkIssue": "مشكلة في الشبكة، تحقق من اتصالك بالإنترنت",
+  "error_invalidCredential": "بيانات الدخول غير صحيحة، حاول مرة أخرى",
+  "error_operationNotAllowed": "مشكلة في إعدادات المصادقة، تواصل مع المطوّر",
+  "error_emailAlreadyInUse": "هذا البريد مستخدم مسبقاً، جرّب بريداً آخر.",
+  "error_authFailed": "فشل تسجيل الدخول. حاول مرة أخرى.",
+  "error_unexpected": "حدث خطأ غير متوقع. حاول مرة أخرى.",
+  "error_passwordRequirement": "كلمة المرور لا تحقق شروط الأمان.",
+  "error_passwordNonAlphanumeric": "يجب أن تحتوي كلمة المرور على رمز خاص.",
+  "error_passwordEightCharacters": "يجب أن تحتوي كلمة المرور على 8 خانات على الأقل.",
+  "error_passwordUpperCase": "يجب أن تحتوي كلمة المرور على حرف إنجليزي كبير.",
+  "error_passwordNumeric": "يجب أن تحتوي كلمة المرور على رقم.",
+  "error_loadingBookmarks": "تعذّر تحميل البطاقات المحفوظة، حاول مرة أخرى",
+  "error_loadingPacks": "تعذّر تحميل الحزم 😔",
+  "flashcardMainCard_packFinished": "أحسنت!",
+  "flashcardMainButton_reveal": "إظهار الإجابة",
+  "flashcardMainButton_skip": "تخطّي",
+  "flashcardPageDialog_packFinishedForNow": "خلصت، الحين",
+  "flashcardPageDialog_packEnded": "مبروك! ما فيه بطاقات مستحقة من {subTextForDialog} الحين، ارجع لاحقاً.\n\nاستمر على هذا المستوى.",
+  "@flashcardPageDialog_packEnded": {
+    "placeholders": {
+      "subTextForDialog": {
+        "type": "String",
+        "example": "this pack"
+      }
+    }
+  },
+  "flashcardPageDialog_backHome": "العودة للرئيسية",
+  "flashcardPageDialog_sessionFinishedForNow": "انتهت جلسة المذاكرة، الحين",
+  "flashcardPageDialog_sessionEnded": "مبروك! أنهيت هذه الجلسة.",
+  "flashcardPageDialog_closeSession": "تقدر تقفل الجلسة أو تكمل المذاكرة.",
+  "flashcardPageDialog_continueLearning": "أكمل المذاكرة",
+  "flashcardPageDialog_endThisSession": "إنهاء هذه الجلسة؟",
+  "flashcardPageDialog_updateCardsPerSession": "راجعت {cardDifference} بطاقة أكثر من هدفك وهو {userCardsPerSession} بطاقة في الجلسة.\n\nتبي تحدّث هدفك إلى {newCardsPerSession} بطاقة في الجلسة؟\n\nتقدر تغيّره دائماً من الإعدادات.",
+  "@flashcardPageDialog_updateCardsPerSession": {
+    "placeholders": {
+      "cardDifference": {
+        "type": "int",
+        "example": "2"
+      },
+      "userCardsPerSession": {
+        "type": "int",
+        "example": "2"
+      },
+      "newCardsPerSession": {
+        "type": "int",
+        "example": "4"
+      }
+    }
+  },
+  "flashcardPageDialog_keepCurrent": "إبقاء الحالي",
+  "flashcardPageDialog_updateTarget": "تحديث الهدف",
+  "flashcardRatingButtons_easyLabel": "سهل",
+  "flashcardRatingButtons_easyTooltip": "عرفتها فوراً وبثقة.",
+  "flashcardRatingButtons_goodLabel": "جيد",
+  "flashcardRatingButtons_goodTooltip": "تذكرتها لكن احتجت أفكر شوي.",
+  "flashcardRatingButtons_hardLabel": "صعب",
+  "flashcardRatingButtons_hardTooltip": "بالكاد تذكرتها.",
+  "flashcardRatingButtons_againLabel": "أعد",
+  "flashcardRatingButtons_againTooltip": "نسيتها أو أجبت خطأ.",
+  "flashcardTimerContainer": "الوقت: {time}",
+  "@flashcardTimerContainer": {
+    "placeholders": {
+      "time": {
+        "type": "String",
+        "example": "00:00"
+      }
+    }
+  },
+  "flashcardPage_packTitle": "الحزمة",
+  "flashcardPage_packSubtext": "الحزمة",
+  "flashcardPage_bookmarksTitle": "المحفوظة",
+  "flashcardPage_bookmarksSubtext": "المحفوظة",
+  "reviewBookmarkPage_review": "مراجعة البطاقات المحفوظة",
+  "reviewBookmarkPage_noBookmarks": "ما حفظت أي بطاقة للحين.",
+  "reviewBookmarkPage_numberOfBookmarks": "عدد البطاقات المحفوظة: {number}",
+  "@reviewBookmarkPage_numberOfBookmarks": {
+    "placeholders": {
+      "number": {
+        "type": "int",
+        "example": "10"
+      }
+    }
+  },
+  "reviewBookmarkPage_remove": "إزالة من المحفوظة",
+  "reviewBookmarkPage_swipe": "اسحب لليسار لإزالة البطاقة",
+  "splashPageText": "جارٍ تجهيز تجربتك...",
+  "packsPage_title": "الحزم",
+  "packsPage_fetching": "جارٍ جلب الحزم...",
+  "packsPage_noPacks": "ما فيه حزم متاحة حالياً",
+  "updateEmailSuccessfulPage_text": "🎉 تم! تم تحديث بريدك الإلكتروني.\nاستخدم البريد الجديد عند تسجيل الدخول.",
+  "updateEmailSuccessfulPage_button": "الذهاب لتسجيل الدخول",
+  "changeEmailDuringVerificationPage_text": "تم إرسال رسالة توثيق جديدة إلى {email}",
+  "@changeEmailDuringVerificationPage_text": {
+    "placeholders": {
+      "email": {
+        "type": "String",
+        "example": "name.surname@mail.com"
+      }
+    }
+  },
+  "changeEmailPage_leaveWithoutVerifying": "تغادر بدون توثيق البريد؟",
+  "changeEmailPage_text": "لتغيير بريدك لازم تكمل التوثيق وأنت في هذه الصفحة.\n\nتوثيق البريد من صفحة أخرى قد يسبب سلوكاً غير متوقع.\n\nإذا غيّرت رأيك تقدر تغادر بأمان.",
+  "changeEmailPage_stay": "البقاء في الصفحة",
+  "changeEmailPage_leaveAnyway": "المغادرة",
+  "deleteProfilePage_deleteAccount": "حذف الحساب",
+  "deleteProfilePage_areYouSure": "متأكد إنك تبي تحذف حسابك نهائياً؟\n\nما يمكن التراجع عن هذا الإجراء وستفقد كل بياناتك.",
+  "updatePasswordPage_title": "تحديث كلمة المرور",
+  "updatePasswordPage_update": "تحديث",
+  "updatePasswordPage_success": "تم تحديث كلمة المرور بنجاح",
+  "updatePasswordPage_password": "كلمة المرور",
+  "updatePasswordPage_repeatPassword": "أعد كتابة كلمة المرور",
+  "profileData_bookmarks": "المحفوظة",
+  "profileData_chooseEngage": "اختر كيف تحب تتعامل مع بطاقاتك المحفوظة.",
+  "profileData_review": "مراجعة البطاقات",
+  "profileData_startTest": "اختبر نفسك",
+  "assignAdminPage_title": "تعيين المشرفين",
+  "flashcardBuilderPage_title": "إدارة المحتوى",
+  "reportFlashcardPage_success": "تم الإبلاغ عن البطاقة بنجاح",
+  "reportFlashcardPage_report": "الإبلاغ عن بطاقة",
+  "reportFlashcardPage_whyReporting": "ما سبب الإبلاغ عن هذه البطاقة؟",
+  "reportFlashcardPage_submitReport": "إرسال البلاغ",
+  "reportFlashcardPage_additionalDetails": "تفاصيل إضافية (اختياري)",
+  "reportFlashcardPage_explain": "اشرح بلاغك هنا",
+  "reportReason_inappropriateContent": "محتوى غير لائق",
+  "reportReason_incorrectInformation": "معلومة خاطئة",
+  "reportReason_poorTranslation": "صياغة ضعيفة",
+  "reportReason_duplicateFlashcard": "بطاقة مكررة",
+  "reportReason_other": "أخرى"
 }

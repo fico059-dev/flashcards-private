@@ -4,6 +4,7 @@ import 'package:flashcards/bloc/pack/admin_packs_getter/admin_packs_getter_event
 import 'package:flashcards/bloc/pack/create_pack/create_pack_cubit.dart';
 import 'package:flashcards/bloc/pack/create_pack/create_pack_state.dart';
 import 'package:flashcards/data/repositories/flashcards/pack_repository.dart';
+import 'package:flashcards/domain/enums/pack_section.dart';
 import 'package:flashcards/domain/models/flashcards/simple_pack/simple_pack.dart';
 import 'package:flashcards/ui/constants/styles.dart';
 import 'package:flashcards/ui/widgets/core/bloc_buttons/bloc_button.dart';
@@ -48,6 +49,7 @@ class _Form extends StatefulWidget {
 class _FormState extends State<_Form> {
   late final TextEditingController _nameCont;
   bool _isPaid = false;
+  PackSection _section = PackSection.verbal;
 
   @override
   void initState() {
@@ -73,6 +75,7 @@ class _FormState extends State<_Form> {
             context.read<CreatePackCubit>().createPack(
               _nameCont.text,
               isPaid: _isPaid,
+              section: _section.id,
             );
           }
 
@@ -88,7 +91,7 @@ class _FormState extends State<_Form> {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text(
-                        "Successfully created a pack ${_nameCont.text}",
+                        "تم إنشاء الحزمة ${_nameCont.text}",
                       ),
                     ),
                   );
@@ -109,7 +112,7 @@ class _FormState extends State<_Form> {
                 children: [
                   CustomDragHandle(),
                   Text(
-                    "Create new pack",
+                    "إنشاء حزمة جديدة",
                     style: TextTheme.of(context).headlineMedium,
                   ),
                   const SizedBox(height: 34,),
@@ -124,16 +127,25 @@ class _FormState extends State<_Form> {
                                   state is CreatePackFormInvalid
                                       ? state.errors['packName']
                                       : null,
-                          labelText: "Pack Name",
+                          labelText: "اسم الحزمة",
                           textEditingController: _nameCont,
+                        ),
+                        const SizedBox(height: 16),
+                        SegmentedButton<PackSection>(
+                          segments: [
+                            for (final s in PackSection.values)
+                              ButtonSegment(value: s, label: Text(s.arabicName)),
+                          ],
+                          selected: {_section},
+                          onSelectionChanged: (v) =>
+                              setState(() => _section = v.first),
                         ),
                         const SizedBox(height: 16),
                         CardFactory.warning(
                           isThreeLine: true,
                           subtitle: Text(
-                            "Once pack is created, its premium status cannot "
-                            "be changed. You cannot switch pack from Free "
-                            "to Paid or from Paid to Free.",
+                            "بعد إنشاء الحزمة لا يمكن تغيير كونها مجانية أو "
+                            "مدفوعة، ولا يمكن نقلها لقسم آخر.",
                           ),
                         ),
                         const SizedBox(height: 24),
@@ -141,7 +153,7 @@ class _FormState extends State<_Form> {
                           inactiveTrackColor: Colors.grey[400],
                           contentPadding: EdgeInsets.zero,
                           secondary: const Icon(Icons.lock),
-                          title: const Text("Premium"),
+                          title: const Text("مدفوعة"),
                           value: _isPaid,
                           onChanged: (v) => setState(() => _isPaid = v),
                         ),
@@ -155,7 +167,7 @@ class _FormState extends State<_Form> {
                             CreatePackState
                           >.small(
                             onPressed: (context) => onCreate(),
-                            textString: "Create",
+                            textString: "إنشاء",
                             isLoadingState:
                                 (state) => state is CreatePackLoading,
                           ),

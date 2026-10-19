@@ -23,21 +23,17 @@ _UpdatePpDataDto _$UpdatePpDataDtoFromJson(Map<String, dynamic> json) =>
 
 Map<String, dynamic> _$UpdatePpDataDtoToJson(_UpdatePpDataDto instance) =>
     <String, dynamic>{
-      if (instance.profileId case final value?) 'profileId': value,
-      if (instance.packId case final value?) 'packId': value,
-      if (instance.packName case final value?) 'packName': value,
-      if (_$JsonConverterToJson<Timestamp, DateTime>(
-            instance.firstOpenedAt,
-            const DatetimeTimestampConverter().toJson,
-          )
-          case final value?)
-        'firstOpenedAt': value,
-      if (_$JsonConverterToJson<Timestamp, DateTime>(
-            instance.lastOpenedAt,
-            const DatetimeTimestampConverter().toJson,
-          )
-          case final value?)
-        'lastOpenedAt': value,
+      'profileId': ?instance.profileId,
+      'packId': ?instance.packId,
+      'packName': ?instance.packName,
+      'firstOpenedAt': ?_$JsonConverterToJson<Timestamp, DateTime>(
+        instance.firstOpenedAt,
+        const DatetimeTimestampConverter().toJson,
+      ),
+      'lastOpenedAt': ?_$JsonConverterToJson<Timestamp, DateTime>(
+        instance.lastOpenedAt,
+        const DatetimeTimestampConverter().toJson,
+      ),
     };
 
 Value? _$JsonConverterFromJson<Json, Value>(

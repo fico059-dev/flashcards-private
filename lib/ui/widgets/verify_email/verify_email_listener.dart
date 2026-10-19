@@ -49,7 +49,7 @@ class VerifyEmailListener extends StatelessWidget {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text(
-                      "✅ Email verified! Please log in again with your credentials.",
+                      "✅ تم توثيق البريد! سجّل الدخول من جديد.",
                     ),
                   ),
                 );

@@ -16,6 +16,4 @@ _FlashcardIdsPatchDto _$FlashcardIdsPatchDtoFromJson(
 
 Map<String, dynamic> _$FlashcardIdsPatchDtoToJson(
   _FlashcardIdsPatchDto instance,
-) => <String, dynamic>{
-  if (instance.flashcardIds case final value?) 'flashcardIds': value,
-};
+) => <String, dynamic>{'flashcardIds': ?instance.flashcardIds};

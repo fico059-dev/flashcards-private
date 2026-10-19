@@ -49,7 +49,7 @@ class PackUiCard extends StatelessWidget {
                       SubsStatusIcon(isPaid: pack.isPaid, hasAccess: hasCards),
                       const SizedBox(width: 6),
                       Text(
-                        '${pack.flashcardsCount} cards',
+                        '${pack.flashcardsCount} بطاقة',
                         style: Theme.of(context).textTheme.bodySmall,
                       ),
                     ],
@@ -65,19 +65,19 @@ class PackUiCard extends StatelessWidget {
                     if (pack.dueCount != -1)
                       _infoBadge(
                         Icons.schedule,
-                        'Due: ${pack.dueCount}',
+                        'مستحقة: ${pack.dueCount}',
                         context.colors.primary,
                       ),
                     if (pack.learningCount != -1)
                       _infoBadge(
                         Icons.auto_stories,
-                        'Learning: ${pack.learningCount}',
+                        'قيد التعلّم: ${pack.learningCount}',
                         context.colors.tertiary,
                       ),
                     if (pack.newCount != -1)
                       _infoBadge(
                         Icons.fiber_new,
-                        'New: ${pack.newCount}',
+                        'جديدة: ${pack.newCount}',
                         context.customColors.success,
                       ),
                   ],

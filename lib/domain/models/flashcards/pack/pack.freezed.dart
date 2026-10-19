@@ -14,7 +14,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$Pack {
 
- String get id; String get name; int get flashcardsCount; int get dueCount; int get newCount; int get learningCount; Map<String, int> get tagCounts; bool get isPaid;
+ String get id; String get name; int get flashcardsCount; int get dueCount; int get newCount; int get learningCount; Map<String, int> get tagCounts; bool get isPaid; String get section;
 /// Create a copy of Pack
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -25,16 +25,16 @@ $PackCopyWith<Pack> get copyWith => _$PackCopyWithImpl<Pack>(this as Pack, _$ide
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Pack&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.flashcardsCount, flashcardsCount) || other.flashcardsCount == flashcardsCount)&&(identical(other.dueCount, dueCount) || other.dueCount == dueCount)&&(identical(other.newCount, newCount) || other.newCount == newCount)&&(identical(other.learningCount, learningCount) || other.learningCount == learningCount)&&const DeepCollectionEquality().equals(other.tagCounts, tagCounts)&&(identical(other.isPaid, isPaid) || other.isPaid == isPaid));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Pack&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.flashcardsCount, flashcardsCount) || other.flashcardsCount == flashcardsCount)&&(identical(other.dueCount, dueCount) || other.dueCount == dueCount)&&(identical(other.newCount, newCount) || other.newCount == newCount)&&(identical(other.learningCount, learningCount) || other.learningCount == learningCount)&&const DeepCollectionEquality().equals(other.tagCounts, tagCounts)&&(identical(other.isPaid, isPaid) || other.isPaid == isPaid)&&(identical(other.section, section) || other.section == section));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,id,name,flashcardsCount,dueCount,newCount,learningCount,const DeepCollectionEquality().hash(tagCounts),isPaid);
+int get hashCode => Object.hash(runtimeType,id,name,flashcardsCount,dueCount,newCount,learningCount,const DeepCollectionEquality().hash(tagCounts),isPaid,section);
 
 @override
 String toString() {
-  return 'Pack(id: $id, name: $name, flashcardsCount: $flashcardsCount, dueCount: $dueCount, newCount: $newCount, learningCount: $learningCount, tagCounts: $tagCounts, isPaid: $isPaid)';
+  return 'Pack(id: $id, name: $name, flashcardsCount: $flashcardsCount, dueCount: $dueCount, newCount: $newCount, learningCount: $learningCount, tagCounts: $tagCounts, isPaid: $isPaid, section: $section)';
 }
 
 
@@ -45,7 +45,7 @@ abstract mixin class $PackCopyWith<$Res>  {
   factory $PackCopyWith(Pack value, $Res Function(Pack) _then) = _$PackCopyWithImpl;
 @useResult
 $Res call({
- String id, String name, int flashcardsCount, int dueCount, int newCount, int learningCount, Map<String, int> tagCounts, bool isPaid
+ String id, String name, int flashcardsCount, int dueCount, int newCount, int learningCount, Map<String, int> tagCounts, bool isPaid, String section
 });
 
 
@@ -62,7 +62,7 @@ class _$PackCopyWithImpl<$Res>
 
 /// Create a copy of Pack
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = null,Object? flashcardsCount = null,Object? dueCount = null,Object? newCount = null,Object? learningCount = null,Object? tagCounts = null,Object? isPaid = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = null,Object? flashcardsCount = null,Object? dueCount = null,Object? newCount = null,Object? learningCount = null,Object? tagCounts = null,Object? isPaid = null,Object? section = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
@@ -72,7 +72,8 @@ as int,newCount: null == newCount ? _self.newCount : newCount // ignore: cast_nu
 as int,learningCount: null == learningCount ? _self.learningCount : learningCount // ignore: cast_nullable_to_non_nullable
 as int,tagCounts: null == tagCounts ? _self.tagCounts : tagCounts // ignore: cast_nullable_to_non_nullable
 as Map<String, int>,isPaid: null == isPaid ? _self.isPaid : isPaid // ignore: cast_nullable_to_non_nullable
-as bool,
+as bool,section: null == section ? _self.section : section // ignore: cast_nullable_to_non_nullable
+as String,
   ));
 }
 
@@ -157,10 +158,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String name,  int flashcardsCount,  int dueCount,  int newCount,  int learningCount,  Map<String, int> tagCounts,  bool isPaid)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String name,  int flashcardsCount,  int dueCount,  int newCount,  int learningCount,  Map<String, int> tagCounts,  bool isPaid,  String section)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Pack() when $default != null:
-return $default(_that.id,_that.name,_that.flashcardsCount,_that.dueCount,_that.newCount,_that.learningCount,_that.tagCounts,_that.isPaid);case _:
+return $default(_that.id,_that.name,_that.flashcardsCount,_that.dueCount,_that.newCount,_that.learningCount,_that.tagCounts,_that.isPaid,_that.section);case _:
   return orElse();
 
 }
@@ -178,10 +179,10 @@ return $default(_that.id,_that.name,_that.flashcardsCount,_that.dueCount,_that.n
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String name,  int flashcardsCount,  int dueCount,  int newCount,  int learningCount,  Map<String, int> tagCounts,  bool isPaid)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String name,  int flashcardsCount,  int dueCount,  int newCount,  int learningCount,  Map<String, int> tagCounts,  bool isPaid,  String section)  $default,) {final _that = this;
 switch (_that) {
 case _Pack():
-return $default(_that.id,_that.name,_that.flashcardsCount,_that.dueCount,_that.newCount,_that.learningCount,_that.tagCounts,_that.isPaid);case _:
+return $default(_that.id,_that.name,_that.flashcardsCount,_that.dueCount,_that.newCount,_that.learningCount,_that.tagCounts,_that.isPaid,_that.section);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -198,10 +199,10 @@ return $default(_that.id,_that.name,_that.flashcardsCount,_that.dueCount,_that.n
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String name,  int flashcardsCount,  int dueCount,  int newCount,  int learningCount,  Map<String, int> tagCounts,  bool isPaid)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String name,  int flashcardsCount,  int dueCount,  int newCount,  int learningCount,  Map<String, int> tagCounts,  bool isPaid,  String section)?  $default,) {final _that = this;
 switch (_that) {
 case _Pack() when $default != null:
-return $default(_that.id,_that.name,_that.flashcardsCount,_that.dueCount,_that.newCount,_that.learningCount,_that.tagCounts,_that.isPaid);case _:
+return $default(_that.id,_that.name,_that.flashcardsCount,_that.dueCount,_that.newCount,_that.learningCount,_that.tagCounts,_that.isPaid,_that.section);case _:
   return null;
 
 }
@@ -213,7 +214,7 @@ return $default(_that.id,_that.name,_that.flashcardsCount,_that.dueCount,_that.n
 
 
 class _Pack implements Pack {
-  const _Pack({required this.id, required this.name, required this.flashcardsCount, required this.dueCount, required this.newCount, required this.learningCount, final  Map<String, int> tagCounts = const {}, this.isPaid = false}): _tagCounts = tagCounts;
+  const _Pack({required this.id, required this.name, required this.flashcardsCount, required this.dueCount, required this.newCount, required this.learningCount, final  Map<String, int> tagCounts = const {}, this.isPaid = false, this.section = 'verbal'}): _tagCounts = tagCounts;
   
 
 @override final  String id;
@@ -230,6 +231,7 @@ class _Pack implements Pack {
 }
 
 @override@JsonKey() final  bool isPaid;
+@override@JsonKey() final  String section;
 
 /// Create a copy of Pack
 /// with the given fields replaced by the non-null parameter values.
@@ -241,16 +243,16 @@ _$PackCopyWith<_Pack> get copyWith => __$PackCopyWithImpl<_Pack>(this, _$identit
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Pack&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.flashcardsCount, flashcardsCount) || other.flashcardsCount == flashcardsCount)&&(identical(other.dueCount, dueCount) || other.dueCount == dueCount)&&(identical(other.newCount, newCount) || other.newCount == newCount)&&(identical(other.learningCount, learningCount) || other.learningCount == learningCount)&&const DeepCollectionEquality().equals(other._tagCounts, _tagCounts)&&(identical(other.isPaid, isPaid) || other.isPaid == isPaid));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Pack&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.flashcardsCount, flashcardsCount) || other.flashcardsCount == flashcardsCount)&&(identical(other.dueCount, dueCount) || other.dueCount == dueCount)&&(identical(other.newCount, newCount) || other.newCount == newCount)&&(identical(other.learningCount, learningCount) || other.learningCount == learningCount)&&const DeepCollectionEquality().equals(other._tagCounts, _tagCounts)&&(identical(other.isPaid, isPaid) || other.isPaid == isPaid)&&(identical(other.section, section) || other.section == section));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,id,name,flashcardsCount,dueCount,newCount,learningCount,const DeepCollectionEquality().hash(_tagCounts),isPaid);
+int get hashCode => Object.hash(runtimeType,id,name,flashcardsCount,dueCount,newCount,learningCount,const DeepCollectionEquality().hash(_tagCounts),isPaid,section);
 
 @override
 String toString() {
-  return 'Pack(id: $id, name: $name, flashcardsCount: $flashcardsCount, dueCount: $dueCount, newCount: $newCount, learningCount: $learningCount, tagCounts: $tagCounts, isPaid: $isPaid)';
+  return 'Pack(id: $id, name: $name, flashcardsCount: $flashcardsCount, dueCount: $dueCount, newCount: $newCount, learningCount: $learningCount, tagCounts: $tagCounts, isPaid: $isPaid, section: $section)';
 }
 
 
@@ -261,7 +263,7 @@ abstract mixin class _$PackCopyWith<$Res> implements $PackCopyWith<$Res> {
   factory _$PackCopyWith(_Pack value, $Res Function(_Pack) _then) = __$PackCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String name, int flashcardsCount, int dueCount, int newCount, int learningCount, Map<String, int> tagCounts, bool isPaid
+ String id, String name, int flashcardsCount, int dueCount, int newCount, int learningCount, Map<String, int> tagCounts, bool isPaid, String section
 });
 
 
@@ -278,7 +280,7 @@ class __$PackCopyWithImpl<$Res>
 
 /// Create a copy of Pack
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = null,Object? flashcardsCount = null,Object? dueCount = null,Object? newCount = null,Object? learningCount = null,Object? tagCounts = null,Object? isPaid = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = null,Object? flashcardsCount = null,Object? dueCount = null,Object? newCount = null,Object? learningCount = null,Object? tagCounts = null,Object? isPaid = null,Object? section = null,}) {
   return _then(_Pack(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
@@ -288,7 +290,8 @@ as int,newCount: null == newCount ? _self.newCount : newCount // ignore: cast_nu
 as int,learningCount: null == learningCount ? _self.learningCount : learningCount // ignore: cast_nullable_to_non_nullable
 as int,tagCounts: null == tagCounts ? _self._tagCounts : tagCounts // ignore: cast_nullable_to_non_nullable
 as Map<String, int>,isPaid: null == isPaid ? _self.isPaid : isPaid // ignore: cast_nullable_to_non_nullable
-as bool,
+as bool,section: null == section ? _self.section : section // ignore: cast_nullable_to_non_nullable
+as String,
   ));
 }
 

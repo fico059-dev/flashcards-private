@@ -45,7 +45,7 @@ class NextButtonWithSessionBloc extends StatelessWidget {
                   child: FilledButton(
                     onPressed: () => onPressed(true),
                     child: Text(
-                      "Skip this question",
+                      "تخطّي هذا السؤال",
                       textAlign: TextAlign.center,
                     ),
                   ),
@@ -67,7 +67,7 @@ class NextButtonWithSessionBloc extends StatelessWidget {
                 height: 50,
                 child: FilledButton(
                   onPressed: () => onPressed(false),
-                  child: Text("I got it wrong", textAlign: TextAlign.center),
+                  child: Text("أجبت خطأ", textAlign: TextAlign.center),
                 ),
               ),
             ),
@@ -78,7 +78,7 @@ class NextButtonWithSessionBloc extends StatelessWidget {
                 child: FilledButton(
                   onPressed: () => onPressed(true),
                   child: Text(
-                    "I got it correctly",
+                    "أجبت صح",
                     textAlign: TextAlign.center,
                   ),
                 ),

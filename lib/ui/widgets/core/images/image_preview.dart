@@ -27,7 +27,7 @@ class ImagePreview extends StatelessWidget {
   Widget build(BuildContext context) {
     if (imageFile == null && imageBytes == null && downloadUrl == null) {
       if (showTextWhenEmpty) {
-        return const Text("No image selected");
+        return const Text("لم يتم اختيار صورة");
       } else {
         return SizedBox.shrink();
       }

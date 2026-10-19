@@ -35,7 +35,7 @@ class PackPickerBloc extends Bloc<PackPickerEvent, PackPickerState> {
     if (pagingState.isLoading) {
       event.completer?.completeError(
         Exception(
-          "Still loading more content. Please try refreshing again shortly.",
+          "جارٍ تحميل المزيد. حاول التحديث بعد قليل.",
         ),
       );
       return;

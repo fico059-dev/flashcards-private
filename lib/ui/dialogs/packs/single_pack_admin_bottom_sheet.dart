@@ -123,7 +123,7 @@ class _ViewState extends State<_View> {
                 case SinglePackSimpleGetterError(:final error):
                   return Center(
                     child: Text(
-                      "Error loading pack: ${extractErrorMessage(error)}",
+                      "تعذّر تحميل الحزمة: ${extractErrorMessage(error)}",
                     ),
                   );
                 case SinglePackSimpleGetterLoaded(:final pack):
@@ -132,7 +132,7 @@ class _ViewState extends State<_View> {
                       ListTile(
                         leading: Icon(Icons.folder),
                         title: Text(pack.packName),
-                        subtitle: Text("Flashcards: ${pack.flashcardsCount}"),
+                        subtitle: Text("عدد البطاقات: ${pack.flashcardsCount}"),
                         trailing: SubsStatusIcon(
                           isPaid: pack.isPaid,
                           hasAccess: false,
@@ -149,7 +149,7 @@ class _ViewState extends State<_View> {
                           Icons.add_circle_outline,
                           color: context.colors.primaryContainer,
                         ),
-                        title: Text("Add Flashcards"),
+                        title: Text("إضافة بطاقات"),
                       ),
                       ListTile(
                         onTap:
@@ -160,7 +160,7 @@ class _ViewState extends State<_View> {
                           Icons.edit_note,
                           color: context.colors.primaryContainer,
                         ),
-                        title: Text("Edit/Delete Flashcards"),
+                        title: Text("تعديل/حذف البطاقات"),
                       ),
                       ListTile(
                         onTap: () => _onEditName(pack),
@@ -168,14 +168,14 @@ class _ViewState extends State<_View> {
                           Icons.drive_file_rename_outline,
                           color: context.colors.primaryContainer,
                         ),
-                        title: Text("Rename Pack"),
+                        title: Text("إعادة تسمية الحزمة"),
                       ),
                       ListTile(
                         onTap: () => _onDelete(pack),
                         leading: Icon(Icons.delete_forever, color: context.colors.error),
-                        title: Text("Delete Pack"),
+                        title: Text("حذف الحزمة"),
                         subtitle: Text(
-                          "You can only delete pack if it's empty",
+                          "يمكن حذف الحزمة فقط إذا كانت فارغة",
                         ),
                         subtitleTextStyle: TextStyle(color: context.colors.onSurfaceVariant),
                       ),

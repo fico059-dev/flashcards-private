@@ -68,10 +68,10 @@ class ProfileData extends StatelessWidget {
         children: [
           if (profile.isAdmin) const SizedBox(height: 20),
           if (profile.isAdmin)
-            Text("Admin", style: TextStyle(color: context.colors.onSurfaceVariant)),
+            Text("مشرف", style: TextStyle(color: context.colors.onSurfaceVariant)),
           if (profile.isAdmin)
             ProfileMenuWidget(
-              title: "Admin Dashboard",
+              title: "لوحة الإدارة",
               icon: Icons.admin_panel_settings,
               onPress: () {
                 context.router.push(const AdminTabRoute());
@@ -122,7 +122,7 @@ class ProfileData extends StatelessWidget {
             onPress: () => context.router.push(FlashcardSettingsRoute()),
           ),
           ProfileMenuWidget(
-            title: "Notification Settings",
+            title: "إعدادات التنبيهات",
             icon: Icons.notifications,
             onPress: () => showNotificationOptionsBottomSheet(context: context),
           ),

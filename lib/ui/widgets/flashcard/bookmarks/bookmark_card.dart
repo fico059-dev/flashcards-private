@@ -78,11 +78,11 @@ class _BookmarkCardState extends State<BookmarkCard> {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
-              const Text('removed from bookmarks'),
+              const Text('أُزيلت من المحفوظة'),
             ],
           ),
           action: SnackBarAction(
-            label: "Undo",
+            label: "تراجع",
             onPressed: () => widget.onUndo(
               bookmark: widget.bookmark,
               isAnswerVisible: widget.isAnswerVisible,

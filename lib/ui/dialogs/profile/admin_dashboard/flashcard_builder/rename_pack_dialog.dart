@@ -77,7 +77,7 @@ class _FormState extends State<_Form> {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text(
-                        'Successfully changed pack name to "${_nameCont.text}"',
+                        'تم تغيير اسم الحزمة إلى "${_nameCont.text}"',
                       ),
                     ),
                   );
@@ -93,7 +93,7 @@ class _FormState extends State<_Form> {
               }
             },
             child: AlertDialog(
-              title: Text('Rename pack "${widget.pack.packName}"'),
+              title: Text('إعادة تسمية الحزمة "${widget.pack.packName}"'),
               icon: Icon(
                 Icons.drive_file_rename_outline,
                 color: context.colors.primary,
@@ -108,21 +108,21 @@ class _FormState extends State<_Form> {
                                 ? state.errors['name']
                                 : null,
                     textEditingController: _nameCont,
-                    labelText: "New Name",
+                    labelText: "الاسم الجديد",
                   ),
                 ],
               ),
               actions: [
                 TextButton(
                   onPressed: () => context.router.pop(null),
-                  child: Text("Cancel"),
+                  child: Text("إلغاء"),
                 ),
                 SizedBox(
                   width: 80,
                   child: BlocButtonText<RenamePackCubit, RenamePackState>(
                     isLoadingState: (state) => state is RenamePackLoading,
                     onPressed: onRename,
-                    textString: "Rename",
+                    textString: "إعادة تسمية",
                   ),
                 ),
               ],

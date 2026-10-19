@@ -50,21 +50,21 @@ class PreviousSessionCard extends StatelessWidget {
                   ? context.customColors.onSuccess
                   : context.colors.onSurface,
               icon: Icons.play_arrow,
-              label: 'Start',
+              label: 'ابدأ',
             ),
             SlidableAction(
               onPressed: (_) => onResetPressed?.call(),
               backgroundColor: context.customColors.info,
               foregroundColor: context.customColors.onInfo,
               icon: Icons.refresh,
-              label: 'Reset',
+              label: 'تصفير',
             ),
             SlidableAction(
               onPressed: (_) => onDeletePressed?.call(),
               backgroundColor: context.colors.error,
               foregroundColor: context.colors.onError,
               icon: Icons.delete_forever,
-              label: 'Delete',
+              label: 'حذف',
             ),
           ],
         ),
@@ -98,7 +98,7 @@ class PreviousSessionCard extends StatelessWidget {
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text(
-                            '${session.cardCount} cards',
+                            '${session.cardCount} بطاقة',
                             style: theme.textTheme.labelMedium?.copyWith(
                               color: context.colors.onSecondaryContainer,
                               fontWeight: FontWeight.w600,
@@ -114,7 +114,7 @@ class PreviousSessionCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Custom Session',
+                        'جلسة مخصّصة',
                         style: theme.textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
@@ -130,10 +130,10 @@ class PreviousSessionCard extends StatelessWidget {
                           ),
                           const SizedBox(width: 6),
                           if (session.isFinished)
-                            Text('Progress: Finished')
+                            Text('التقدّم: مكتملة')
                           else
                             Text(
-                              'Progress: ${(session.currentIndex + 1)}/${session.cardCount}',
+                              'التقدّم: ${(session.currentIndex + 1)}/${session.cardCount}',
                               style: theme.textTheme.bodyMedium,
                             ),
                         ],
@@ -147,7 +147,7 @@ class PreviousSessionCard extends StatelessWidget {
                           ),
                           const SizedBox(width: 6),
                           Text(
-                            'Created: ${formatSmartDate(session.createdAt)}',
+                            'أُنشئت: ${formatSmartDate(session.createdAt)}',
                             style: theme.textTheme.bodyMedium,
                           ),
                         ],

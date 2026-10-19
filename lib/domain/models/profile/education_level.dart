@@ -2,34 +2,28 @@ import 'package:flutter/cupertino.dart';
 import 'package:flashcards/l10n/app_localizations.dart';
 
 enum EducationLevel {
-  medicalStudent,
-  intern,
-  juniorResident,
-  seniorResident,
-  fellow,
-  consultant;
+  highSchoolStudent,
+  graduate,
+  universityStudent,
+  other;
 
-  // KORISTI OVU FUKNCIJU DA BI INTL RADIO!!
+  // استخدم هذه الدالة ليعمل التعريب.
   String toLocalizedString(BuildContext context) {
     final loc = AppLocalizations.of(context)!;
     switch (this) {
-      case EducationLevel.medicalStudent:
-        return loc.medicalStudent;
-      case EducationLevel.intern:
-        return loc.intern;
-      case EducationLevel.juniorResident:
-        return loc.juniorResident;
-      case EducationLevel.seniorResident:
-        return loc.seniorResident;
-      case EducationLevel.fellow:
-        return loc.fellow;
-      case EducationLevel.consultant:
-        return loc.consultant;
+      case EducationLevel.highSchoolStudent:
+        return loc.highSchoolStudent;
+      case EducationLevel.graduate:
+        return loc.graduate;
+      case EducationLevel.universityStudent:
+        return loc.universityStudent;
+      case EducationLevel.other:
+        return loc.otherLevel;
     }
   }
 }
 
 EducationLevel educationLevelFromJson(String level) => EducationLevel.values
-    .firstWhere((e) => e.name == level, orElse: () => EducationLevel.intern);
+    .firstWhere((e) => e.name == level, orElse: () => EducationLevel.other);
 
 String educationLevelToJson(EducationLevel level) => level.name;

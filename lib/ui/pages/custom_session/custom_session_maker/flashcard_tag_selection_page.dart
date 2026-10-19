@@ -36,7 +36,7 @@ class _FlashcardTagSelectionPageState extends State<FlashcardTagSelectionPage> {
         if (state is SessionTagPickerLoaded && state.selectedTags.isEmpty) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text("Showing all cards – no tag filter applied."),
+              content: Text("عرض كل البطاقات – بدون فلتر وسوم."),
             ),
           );
         }
@@ -49,10 +49,10 @@ class _FlashcardTagSelectionPageState extends State<FlashcardTagSelectionPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 CardFactory.info(
-                  title: Text("Select tags"),
+                  title: Text("اختر الوسوم"),
                   subtitle: Text(
-                    "Flashcards can contain tags, here you can specify what "
-                    "tags you want in your custom sessions",
+                    "البطاقات قد تحتوي وسوماً، هنا تحدد "
+                    "الوسوم اللي تبيها في جلستك",
                   ),
                 ),
 
@@ -72,8 +72,8 @@ class _FlashcardTagSelectionPageState extends State<FlashcardTagSelectionPage> {
                         if (entries.isEmpty) {
                           return Center(
                             child: Text(
-                              "Looks like the packs you selected don't have "
-                              "tags in them, you can skip this step.",
+                              "يبدو أن الحزم اللي اخترتها ما فيها "
+                              "وسوم، تقدر تتخطى هذه الخطوة.",
                             ),
                           );
                         }
@@ -81,7 +81,7 @@ class _FlashcardTagSelectionPageState extends State<FlashcardTagSelectionPage> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             CheckboxListTile(
-                              title: Text("Select All"),
+                              title: Text("تحديد الكل"),
                               value: firstOptionChecked,
                               tristate: true,
                               onChanged:
@@ -134,7 +134,7 @@ class _TagCountItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return CheckboxListTile(
       title: Text(tagCount.key.name),
-      subtitle: Text('${tagCount.value} flashcards'),
+      subtitle: Text('${tagCount.value} بطاقة'),
       value: isSelected,
       onChanged: (value) {
         context.read<SessionTagPickerCubit>().toggleTag(tagCount.key);

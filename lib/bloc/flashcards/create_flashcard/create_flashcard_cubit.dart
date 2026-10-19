@@ -67,7 +67,7 @@ class CreateFlashcardCubit extends Cubit<CreateFlashcardState> {
       emit(
         state.copyWith(
           status: CreateFlashcardStatus.error,
-          error: Exception("Max 10 tags"),
+          error: Exception("الحد الأقصى 10 وسوم"),
         ),
       );
       return;

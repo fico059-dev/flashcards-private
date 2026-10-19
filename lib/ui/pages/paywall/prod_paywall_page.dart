@@ -2,10 +2,13 @@ import 'dart:async';
 
 import 'package:auto_route/annotations.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flashcards/ui/theme/theme_extensions.dart';
-import 'package:flutter/material.dart';
 import 'package:flashcards/data/remote/cloud_function_service.dart';
+import 'package:flashcards/payments/product_ids.dart';
+import 'package:flashcards/ui/theme/theme_extensions.dart';
 import 'package:flutter/foundation.dart' show kDebugMode;
+import 'package:flutter/material.dart';
+import 'package:in_app_purchase/in_app_purchase.dart';
+
 import '../../../payments/purchase_service.dart';
 
 @RoutePage()
@@ -16,9 +19,9 @@ class ProdPaywallPage extends StatefulWidget {
 }
 
 class _ProdPaywallPageState extends State<ProdPaywallPage> {
-  bool annual = false;
   bool loadingGrant = false;
   bool _inited = false;
+  StreamSubscription<String>? _statusSub;
 
   final _purchase = PurchaseService();
 
@@ -29,38 +32,32 @@ class _ProdPaywallPageState extends State<ProdPaywallPage> {
   }
 
   Future<void> _initIap() async {
-    await _purchase.init({
-      'cards_monthly',
-      'cards_yearly',
-      'both_monthly',
-      'both_yearly',
-    });
+    await _purchase.init(kProductIds);
     if (!mounted) return;
     setState(() => _inited = true);
 
-    unawaited(_purchase.restore());
-
-    _purchase.statusStream.listen((msg) async {
+    _statusSub = _purchase.statusStream.listen((msg) async {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
-
-      if (msg == 'Success') {
+      if (msg == PurchaseService.successMessage) {
         await FirebaseAuth.instance.currentUser?.getIdToken(true);
         if (mounted) Navigator.pop(context, true);
+        return;
       }
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
     });
   }
 
   @override
   void dispose() {
+    _statusSub?.cancel();
     _purchase.dispose();
     super.dispose();
   }
 
-  Future<void> _grant(String scope) async {
+  Future<void> _devGrant() async {
     setState(() => loadingGrant = true);
     try {
-      await CloudFunctionService().devGrant(scope: scope, minutes: 120);
+      await CloudFunctionService().devGrant(scope: 'premium', minutes: 120);
       if (mounted) Navigator.pop(context, true);
     } catch (e) {
       if (mounted) {
@@ -73,64 +70,35 @@ class _ProdPaywallPageState extends State<ProdPaywallPage> {
     }
   }
 
-  List _filteredProducts() {
-    final suffix = annual ? '_yearly' : '_monthly';
-    final list =
-        _purchase.products.where((p) => p.id.endsWith(suffix)).toList();
-
-    int rank(String id) {
-      if (id.startsWith('cards_')) return 0;
-      if (id.startsWith('osce_')) return 1;
-      if (id.startsWith('both_')) return 2;
-      return 99;
-    }
-
-    list.sort((a, b) => rank(a.id).compareTo(rank(b.id)));
-    return list;
-  }
-
   @override
   Widget build(BuildContext context) {
-    final period = annual ? 'Annual' : 'Monthly';
-    final products = _filteredProducts();
+    final products = List<ProductDetails>.of(_purchase.products)
+      ..sort((a, b) => a.rawPrice.compareTo(b.rawPrice));
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Upgrade')),
+      appBar: AppBar(title: const Text('الاشتراك المميّز')),
       body: ListView(
+        padding: const EdgeInsets.symmetric(vertical: 16),
         children: [
-          SwitchListTile(
-            inactiveTrackColor: context.colors.outlineVariant,
-            title: Text('Billing period: $period'),
-            value: annual,
-            onChanged: (v) => setState(() => annual = v),
-          ),
-
           const Padding(
-            padding: EdgeInsets.fromLTRB(16, 12, 16, 4),
+            padding: EdgeInsets.symmetric(horizontal: 16),
             child: Text(
-              'Plans',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              'افتح كل حزم القدرات (اللفظي والكمي) مع شرح مفصّل لكل إجابة.',
+              style: TextStyle(fontSize: 16),
             ),
           ),
-
+          const SizedBox(height: 16),
           if (!_inited)
             const Padding(
               padding: EdgeInsets.all(16),
               child: Center(child: CircularProgressIndicator()),
             )
-          else if (_purchase.products.isEmpty)
+          else if (products.isEmpty)
             const Padding(
               padding: EdgeInsets.all(16),
               child: Text(
-                'No products available yet. Check Play Console setup / wait for sync.',
-              ),
-            )
-          else if (products.isEmpty)
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Text(
-                'No ${annual ? 'annual' : 'monthly'} plans found. '
-                'Check that SKUs match the expected naming.',
+                'الاشتراكات غير متاحة حالياً على هذا الجهاز. '
+                'جرّب من تطبيق الجوال.',
               ),
             )
           else
@@ -140,59 +108,42 @@ class _ProdPaywallPageState extends State<ProdPaywallPage> {
                 child: ListTile(
                   title: Text(p.title),
                   subtitle: Text(p.description),
-                  trailing: Text(p.price),
+                  trailing: Text(
+                    p.price,
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: context.colors.primary,
+                    ),
+                  ),
                   onTap: () => _purchase.buy(p),
                 ),
               ),
             ),
-
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              TextButton(
-                onPressed: _purchase.restore,
-                child: const Text('Restore purchases'),
-              ),
-            ],
+          Center(
+            child: TextButton(
+              onPressed: _purchase.restore,
+              child: const Text('استعادة المشتريات'),
+            ),
           ),
-
-          const Divider(),
-
           if (kDebugMode) ...[
-            const Padding(
-              padding: EdgeInsets.fromLTRB(16, 12, 16, 6),
-              child: Text(
-                'Developer shortcuts',
-                style: TextStyle(fontWeight: FontWeight.bold),
+            const Divider(),
+            Card(
+              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: ListTile(
+                title: const Text('تفعيل مؤقت للتجربة (DEV)'),
+                trailing: loadingGrant
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Icon(Icons.bolt),
+                onTap: _devGrant,
               ),
             ),
-            _DevPlan('Cards only (DEV grant)', () => _grant('packs')),
-            _DevPlan('All Access (DEV grant)', () => _grant('both')),
-            if (loadingGrant)
-              const Padding(
-                padding: EdgeInsets.all(16),
-                child: Center(child: CircularProgressIndicator()),
-              ),
           ],
-
-          const SizedBox(height: 16),
         ],
       ),
     );
   }
-}
-
-class _DevPlan extends StatelessWidget {
-  final String title;
-  final VoidCallback onTap;
-  const _DevPlan(this.title, this.onTap, {super.key});
-  @override
-  Widget build(BuildContext context) => Card(
-    margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-    child: ListTile(
-      title: Text(title),
-      trailing: const Icon(Icons.bolt),
-      onTap: onTap,
-    ),
-  );
 }
