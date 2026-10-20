@@ -87,12 +87,31 @@ FirebaseErrorData mapFirebaseError({
       return FirebaseErrorData(
         message: error.toString().replaceAll(RegExp(r'\[.*?\]'), ''),
       );
+    case "password-does-not-meet-requirements":
+      return FirebaseErrorData(
+        message: _extractFirstPasswordRequirement(
+          message: error.message ?? '',
+          context: context,
+        ),
+      );
     default:
-      if (error.message == null) {
-        return FirebaseErrorData(message: locale!.error_authFailed);
+      // مفتاح Firebase غير صالح = الموقع مبني بإعدادات القالب (REPLACE_ME)
+      if (error.code.startsWith("api-key-not-valid") ||
+          error.code == "invalid-api-key") {
+        return FirebaseErrorData(
+          message:
+              "إعدادات Firebase في هذا البناء غير صحيحة (API key). "
+              "أعد بناء الموقع ونشره بعد flutterfire configure.",
+        );
       }
 
-      if (error.message!.contains("كلمة المرور يجب أن تحتوي")) {
+      if (error.message == null) {
+        return FirebaseErrorData(
+          message: "${locale!.error_authFailed}\n(${error.code})",
+        );
+      }
+
+      if (error.message!.contains("Password must contain")) {
         return FirebaseErrorData(
           message: _extractFirstPasswordRequirement(
             message: error.message!,
@@ -103,7 +122,10 @@ FirebaseErrorData mapFirebaseError({
         return FirebaseErrorData(message: "صيغة البريد الإلكتروني غير صحيحة.");
       }
 
-      return FirebaseErrorData(message: locale!.error_authFailed);
+      // نعرض رمز الخطأ ليسهل معرفة السبب
+      return FirebaseErrorData(
+        message: "${locale!.error_authFailed}\n(${error.code})",
+      );
   }
 
   // Additional password validation cases

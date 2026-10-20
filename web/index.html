@@ -31,8 +31,54 @@
 
   <title>تقدر</title>
   <link rel="manifest" href="manifest.json">
+  <style>
+    html, body { margin: 0; height: 100%; background: #fff; }
+    #splash { position: fixed; inset: 0; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 16px; padding: 24px;
+      font-family: -apple-system, system-ui, "Segoe UI", Tahoma, sans-serif;
+      color: #3A2C04; text-align: center; background: #fff; }
+    #splash img { width: 120px; height: 120px; }
+    #splash .spinner { width: 28px; height: 28px; border: 3px solid #F6E7B0;
+      border-top-color: #9C7A0C; border-radius: 50%; animation: spin 1s linear infinite; }
+    #splash .error { display: none; max-width: 520px; color: #B3261E;
+      font-size: 14px; direction: ltr; white-space: pre-wrap; word-break: break-word; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
 </head>
 <body>
+  <div id="splash">
+    <img src="icons/Icon-192.png" alt="تقدر">
+    <div class="spinner"></div>
+    <div id="splash-msg">جارٍ تحميل تقدر…</div>
+    <div class="error" id="splash-error"></div>
+  </div>
+  <script>
+    (function () {
+      var done = false;
+      window.taqdirShowError = function (e) {
+        if (done) return;
+        var box = document.getElementById('splash-error');
+        var msg = (e && (e.message || e.reason || e)) + '';
+        if (e && e.filename) msg += '\n' + e.filename + ':' + e.lineno;
+        box.style.display = 'block';
+        box.textContent += (box.textContent ? '\n\n' : '') + msg;
+        document.getElementById('splash-msg').textContent =
+          'حدث خطأ أثناء التحميل. صوّر هذه الشاشة وأرسلها للدعم:';
+      };
+      window.addEventListener('error', function (e) { window.taqdirShowError(e.error || e); });
+      window.addEventListener('unhandledrejection', function (e) { window.taqdirShowError(e.reason); });
+      window.addEventListener('flutter-first-frame', function () {
+        done = true;
+        var s = document.getElementById('splash');
+        if (s) s.remove();
+      });
+      setTimeout(function () {
+        if (done) return;
+        document.getElementById('splash-msg').textContent =
+          'التحميل يأخذ وقتاً أطول من المعتاد. إذا بقيت الصفحة هكذا، جرّب إيقاف مانع الإعلانات أو أعد تحميل الصفحة.';
+      }, 20000);
+    })();
+  </script>
   <script src="flutter_bootstrap.js" async></script>
 </body>
 </html>

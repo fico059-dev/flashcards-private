@@ -9,7 +9,7 @@ import 'package:flashcards/config/orientation_helper.dart';
 import 'package:flashcards/ui/widgets/core/theme_toggle_button.dart';
 import 'package:flutter/foundation.dart';
 import 'package:intl/date_symbol_data_local.dart';
-import 'package:intl/intl.dart';
+import 'package:intl/intl.dart' show Intl;
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:flutter/material.dart';
 
@@ -49,7 +49,16 @@ class Flavor {
 
 Future<void> bootstrap({required bool isDev}) async {
   WidgetsFlutterBinding.ensureInitialized();
+  try {
+    await _bootstrap(isDev: isDev);
+  } catch (error, stack) {
+    // بدل صفحة بيضاء: نعرض سبب الفشل ليسهل إصلاحه.
+    debugPrint('Bootstrap failed: $error\n$stack');
+    runApp(_StartupErrorApp(error: error));
+  }
+}
 
+Future<void> _bootstrap({required bool isDev}) async {
   if (Firebase.apps.isEmpty) {
     await Firebase.initializeApp(options: await resolveFirebaseOptions());
   }
@@ -75,8 +84,15 @@ Future<void> bootstrap({required bool isDev}) async {
 
   // time zone
   tz.initializeTimeZones();
-  final TimezoneInfo currentTimeZone = await FlutterTimezone.getLocalTimezone();
-  tz.setLocalLocation(tz.getLocation(currentTimeZone.identifier));
+  try {
+    final TimezoneInfo currentTimeZone =
+        await FlutterTimezone.getLocalTimezone();
+    tz.setLocalLocation(tz.getLocation(currentTimeZone.identifier));
+  } catch (error) {
+    // بعض المتصفحات ترجع منطقة زمنية غير معروفة؛ نستخدم توقيت الرياض.
+    debugPrint('Timezone fallback: $error');
+    tz.setLocalLocation(tz.getLocation('Asia/Riyadh'));
+  }
 
   // dependency injection
   final dep = AppDependencies(isDev: isDev);
@@ -89,6 +105,42 @@ Future<void> bootstrap({required bool isDev}) async {
       child: _MyApp(dependencies: dep),
     ),
   );
+}
+
+class _StartupErrorApp extends StatelessWidget {
+  final Object error;
+
+  const _StartupErrorApp({required this.error});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: Directionality(
+        textDirection: TextDirection.rtl,
+        child: Scaffold(
+          body: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.error_outline, size: 48),
+                  const SizedBox(height: 16),
+                  const Text(
+                    'تعذّر تشغيل تقدر',
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 12),
+                  SelectableText('$error', textAlign: TextAlign.center),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 class _MyApp extends StatefulWidget {
