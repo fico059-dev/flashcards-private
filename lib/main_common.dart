@@ -35,7 +35,7 @@ import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 import 'package:flutter_timezone/flutter_timezone.dart';
 
-import 'firebase_options.dart';
+import 'config/firebase_config_resolver.dart';
 
 enum AppFlavor { dev, prod }
 
@@ -51,9 +51,7 @@ Future<void> bootstrap({required bool isDev}) async {
   WidgetsFlutterBinding.ensureInitialized();
 
   if (Firebase.apps.isEmpty) {
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
-    );
+    await Firebase.initializeApp(options: await resolveFirebaseOptions());
   }
 
   // تشغيل التطبيق على Firebase Emulators (للتطوير):
