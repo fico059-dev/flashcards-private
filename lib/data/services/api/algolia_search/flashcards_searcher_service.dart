@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flashcards/data/remote/cloud_function_service.dart';
 import 'package:flashcards/domain/models/algolia/algolia_flashcard/algolia_flashcard.dart';
 import 'package:flashcards/utils/result.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// The searchable cards and the version they belong to.
@@ -20,8 +21,8 @@ class FlashcardsSearcherService {
   final CloudFunctionService _functions;
   SharedPreferencesAsync? _prefsInstance;
 
-  /// Larger lists aren't kept on the device (browser storage is small).
-  static const _maxSavedLength = 2000000;
+  /// Larger lists aren't kept on the device.
+  static const _maxSavedLength = 4000000;
 
   SharedPreferencesAsync get _prefs =>
       _prefsInstance ??= SharedPreferencesAsync();
@@ -30,6 +31,9 @@ class FlashcardsSearcherService {
     : _functions = functions;
 
   String? get _key {
+    // A browser's storage holds only a few MB, which the rest of the app
+    // needs: the website keeps the list in memory only.
+    if (kIsWeb) return null;
     final uid = FirebaseAuth.instance.currentUser?.uid;
     return uid == null ? null : 'search_cards_$uid';
   }
@@ -55,6 +59,19 @@ class FlashcardsSearcherService {
       return Result.ok((version: download.version, cards: cards));
     } on Exception catch (error) {
       return Result.error(error);
+    } catch (error) {
+      return Result.error(Exception(error.toString()));
+    }
+  }
+
+  /// Removes the copy earlier versions of the website kept in the browser.
+  Future<void> forgetSavedOnWeb() async {
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    if (!kIsWeb || uid == null) return;
+    try {
+      await _prefs.remove('search_cards_$uid');
+    } catch (_) {
+      // Nothing saved.
     }
   }
 

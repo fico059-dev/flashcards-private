@@ -53,6 +53,9 @@ class _Service implements FlashcardsSearcherService {
   Future<SearchCards?> readSaved() async => saved;
 
   @override
+  Future<void> forgetSavedOnWeb() async {}
+
+  @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 

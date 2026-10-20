@@ -10,6 +10,7 @@ import 'package:flashcards/data/repositories/algolia_search/flashcards_searcher_
 import 'package:flashcards/data/repositories/flashcards/custom_session_repository.dart';
 import 'package:flashcards/data/repositories/flashcards/pack_repository.dart';
 import 'package:flashcards/data/repositories/osces/osce_repository.dart';
+import 'package:flashcards/utils/result.dart';
 import 'package:flashcards/ui/pages/main_tab_pages/main_tab_routes.dart';
 import 'package:flashcards/ui/widgets/core/desktop_layout.dart';
 import 'package:flashcards/ui/widgets/core/app_bar_streak.dart';
@@ -60,7 +61,10 @@ class _MainTabPageState extends State<MainTabPage> with AutoRouteAware {
     Future.delayed(const Duration(seconds: 3), () {
       if (!mounted) return;
       try {
-        context.read<FlashcardsSearcherRepository>().preload();
+        // A problem here only matters once the user searches.
+        context.read<FlashcardsSearcherRepository>().preload().catchError(
+          (Object _) => const Result<void>.ok(null),
+        );
       } on ProviderNotFoundException {
         // Not available (tests).
       }

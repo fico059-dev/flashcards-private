@@ -56,8 +56,13 @@ class FlashcardsSearcherRepository {
   /// device straight away, then the latest from the server.
   Future<Result<void>> preload() async {
     if (_items == null) {
-      final saved = await _flashcardsSearcherService.readSaved();
-      if (saved != null && _items == null) _use(saved);
+      try {
+        await _flashcardsSearcherService.forgetSavedOnWeb();
+        final saved = await _flashcardsSearcherService.readSaved();
+        if (saved != null && _items == null) _use(saved);
+      } catch (_) {
+        // Downloaded instead.
+      }
     }
     final checkedAt = _checkedAt;
     final fresh =
