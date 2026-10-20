@@ -5,5 +5,5 @@ class AppInfo {
   static const termsUrl = '$websiteUrl/terms.html';
 
   /// بريد الدعم (مطلوب في سياسة الخصوصية وفي App Store Connect).
-  static const supportEmail = 'support@example.com';
+  static const supportEmail = 'fico059@gmail.com';
 }
