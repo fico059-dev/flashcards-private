@@ -1,3 +1,4 @@
+import 'package:flashcards/config/app_info.dart';
 import 'package:auto_route/annotations.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:flashcards/ui/constants/styles.dart';
@@ -74,7 +75,7 @@ class PrivacyPolicyPage extends StatelessWidget {
             _SectionTitle('6. تواصل معنا'),
             Text(
               'إذا عندك أسئلة عن هذه السياسة تقدر تتواصل معنا على:\n'
-              'support@yourapp.com',
+              '${AppInfo.supportEmail}',
             ),
             SizedBox(height: 24),
           ],

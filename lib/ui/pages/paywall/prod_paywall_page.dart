@@ -2,12 +2,14 @@ import 'dart:async';
 
 import 'package:auto_route/annotations.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flashcards/config/app_info.dart';
 import 'package:flashcards/data/remote/cloud_function_service.dart';
 import 'package:flashcards/payments/product_ids.dart';
 import 'package:flashcards/ui/theme/theme_extensions.dart';
 import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../payments/purchase_service.dart';
 
@@ -124,6 +126,32 @@ class _ProdPaywallPageState extends State<ProdPaywallPage> {
               onPressed: _purchase.restore,
               child: const Text('استعادة المشتريات'),
             ),
+          ),
+          // متطلبات Apple للاشتراكات المتجددة تلقائياً (Guideline 3.1.2)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Text(
+              'يتجدد الاشتراك تلقائياً بنفس السعر والمدة ما لم يُلغَ قبل '
+              '24 ساعة على الأقل من نهاية الفترة الحالية. يُخصم المبلغ من '
+              'حساب Apple ID عند تأكيد الشراء، ويمكنك إدارة الاشتراك أو '
+              'إلغاؤه من إعدادات حسابك في App Store.',
+              style: context.text.bodySmall,
+              textAlign: TextAlign.center,
+            ),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              TextButton(
+                onPressed: () => launchUrl(Uri.parse(AppInfo.termsUrl)),
+                child: const Text('شروط الاستخدام'),
+              ),
+              TextButton(
+                onPressed: () =>
+                    launchUrl(Uri.parse(AppInfo.privacyPolicyUrl)),
+                child: const Text('سياسة الخصوصية'),
+              ),
+            ],
           ),
           if (kDebugMode) ...[
             const Divider(),

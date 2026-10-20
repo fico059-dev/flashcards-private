@@ -2,8 +2,6 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>CFBundleDevelopmentRegion</key>
-	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
 	<string>تقدر</string>
 	<key>CFBundleExecutable</key>
@@ -38,25 +36,16 @@
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
-		<string>UIInterfaceOrientationLandscapeLeft</string>
-		<string>UIInterfaceOrientationLandscapeRight</string>
-	</array>
-	<key>UISupportedInterfaceOrientations~ipad</key>
-	<array>
-		<string>UIInterfaceOrientationPortrait</string>
-		<string>UIInterfaceOrientationPortraitUpsideDown</string>
-		<string>UIInterfaceOrientationLandscapeLeft</string>
-		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>NSPhotoLibraryUsageDescription</key>
-    <string>This app needs access to your photo library so you can pick and upload images.</string>
-    <key>NSCameraUsageDescription</key>
-    <string>This app needs access to your camera so you can take pictures.</string>
-    <key>ITSAppUsesNonExemptEncryption</key>
-    <false/>
+	<string>يحتاج تقدر إلى الوصول إلى الصور لإرفاق صورة بالسؤال أو الإجابة.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>يحتاج تقدر إلى الكاميرا لالتقاط صورة وإرفاقها بالسؤال أو الإجابة.</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 </dict>
 </plist>
